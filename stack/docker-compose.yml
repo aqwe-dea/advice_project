@@ -1,0 +1,19 @@
+version: '3'
+
+services:
+ db:
+  image: postgres:15
+  environment:
+   POSTGRES_DB: advice_project
+   POSTGRES_USER: advice_user
+   POSTGRES_PASSWORD: 5pZwRETz
+  ports:
+   - '5433:5433'
+
+ web:
+  build: .
+  command: py manage.py runserver 0.0.0.0:8000
+  ports:
+   - '8000:8000'
+  depends_on:
+   - db

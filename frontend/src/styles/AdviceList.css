@@ -1,0 +1,20 @@
+/* Базовые стили */
+.advice-list {
+    list-style: none;
+    padding: 0;
+}
+
+.advice-list li {
+    background-color: #f9f9f9;
+    padding: 1rem;
+    margin-bottom: 0.5rem;
+    border-radius: 4px;
+}
+
+/* Медиа запрос для мобильных устройств */
+@media (max-width: 768px) {
+    .advice-list li {
+        font-size: 0.9rem;
+        padding: 0.75rem;
+    }
+}
