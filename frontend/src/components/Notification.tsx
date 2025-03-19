@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 
-interface NotificationProps {
+interface Notification {
     message: string;
     onClose: () => void;
 }

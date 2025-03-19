@@ -7,11 +7,11 @@ interface AdviceFormData {
     category: string;
     question: string;
 }
-interface AdviceFormProps {
+interface AdviceForm {
     onSuccess?: () => void;
 }
 
-function AdviceForm({ onSuccess }: AdviceFormProps) {
+function AdviceForm({ onSuccess }: AdviceForm) {
     const [formData, setFormData] = useState<AdviceFormData>({
         category: '',
         question: '',
@@ -28,7 +28,7 @@ function AdviceForm({ onSuccess }: AdviceFormProps) {
             console.error('Ошибка при отправке вопроса:', error );
             alert('Произошла ошибка при отправке вопроса');
         }
-        let formErrors: { [key: string]: string } = {};
+        const formErrors: { [key: string]: string } = {};
         if (!formData.category.trim()) {
             formErrors.category = 'Пожалуйста, укажите категорию';
         }
@@ -76,6 +76,7 @@ return (
 );
 }
 
+export default AdviceForm;
 //return (
 //        <form onSubmit={handleSubmit}>
 //            <div>
@@ -109,4 +110,3 @@ return (
 //    );
 //}
 
-export default AdviceForm;
