@@ -18,9 +18,9 @@ SECRET_KEY = 'django-insecure-eatdin_z3-eb$g*e(%=a+c)$8or4=q$z6xsk=c8!%b))gzu4*p
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = True
-DEBUG = env.bool('DEBUG', default=False)
+DEBUG = False
 # ALLOWED_HOSTS = []
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['aqwe8dea.pythonanywhere.com', '127.0.0.1', 'localhost'])
+ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'aqwe8dea.pythonanywhere.com']
 
 DJSTRIPE_FOREIGN_KEY_TO_FIELD ='id' 
 
@@ -38,10 +38,10 @@ INSTALLED_APPS = [
     'corsheaders',
     'djstripe',
 ]
-CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=['http://localhost:3000'])
-# CORS_ALLOWED_ORIGINS = [
-#    "http://localhost:3000",
-# ]
+# CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=['http://localhost:3000'])
+CORS_ALLOWED_ORIGINS = [
+    "http://localhost:3000",
+]
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
