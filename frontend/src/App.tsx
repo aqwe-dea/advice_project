@@ -35,7 +35,7 @@ function App() {
        </header>
        <main>
         <Routes>
-         <Route path="/" element={<Home onSuccess={showNotification} />} />
+         <Route path="/" element={<Home />} />
          <Route path="/about" element={<About />} />
        </Routes>
          <AdviceForm />

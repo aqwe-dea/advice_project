@@ -6,7 +6,7 @@ function Home({ onSuccess }: { onSuccess?: () => void }) {
     return (
         <div className="home-page">
             <h1>Советница АКВИ</h1>
-            <AdviceForm onSuccess={onSuccess} />
+            <AdviceForm />
             <AdviceList />
             </div>
     );
