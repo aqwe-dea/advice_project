@@ -14,10 +14,7 @@ function AdviceForm() {
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         try {
-            const response = await axios.post(
-                'http://127.0.0.1:8000/api/advice/',
-                formData
-            );
+            await axios.post('http://127.0.0.1:8000/api/advice/', formData);
             alert('Вопрос успешно отправлен!');
         } catch (error) {
             console.error('Ошибка при отправке вопроса:', error);

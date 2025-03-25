@@ -1,11 +1,11 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import { useTheme } from './contexts/ThemeContext';
 import logo from '../src/logo.svg';
 import './App.css';
 import Home from './components/Home';
 import About from './components/About';
-import Notification from './components/Notification';
+//import Notification from './components/Notification';
 import AdviceList from './components/AdviceList';
 import AdviceForm from './components/AdviceForm';
 import Navbar from './components/Navbar';
@@ -13,19 +13,18 @@ import Navbar from './components/Navbar';
 function App() {
   const { theme, toggleTheme } = useTheme();
 
-  const [notificationMessage, setNotificationMessage] = useState<string>('');
+  //const [notificationMessage, setNotificationMessage] = useState<string>('');
 
-  const showNotification = (message: string) => {
-    setNotificationMessage(message);
-    setTimeout(() => setNotificationMessage(''), 3000);
-  };
+  //const showNotification = (message: string) => {
+     //setNotificationMessage(message);
+     //setTimeout(() => setNotificationMessage(''), 3000);
+  //};
  
   return (
-    <Router>
+    //<Notification message={notificationMessage} />
       <div className={`App ${theme}`}>
-        <Notification message={notificationMessage} />
+       <Router>
         <Navbar />
-
        <header className="App-header">
           <h1>Советница АКВИ</h1>
          <button onClick={toggleTheme}>
@@ -41,8 +40,8 @@ function App() {
          <AdviceForm />
          <AdviceList />
        </main>
+       </Router>
       </div>
-    </Router>
   );
 }
 
