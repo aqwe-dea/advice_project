@@ -18,7 +18,7 @@ SECRET_KEY = 'django-insecure-eatdin_z3-eb$g*e(%=a+c)$8or4=q$z6xsk=c8!%b))gzu4*p
 
 # SECURITY WARNING: don't run with debug turned on in production!
 # DEBUG = True
-DEBUG = False
+DEBUG = True
 # ALLOWED_HOSTS = []
 ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'aqwe8dea.pythonanywhere.com']
 
@@ -33,7 +33,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
-    'aqwe_app',    
+    'aqwe_app.apps.AqweAppConfig',    
     'rest_framework',
     'corsheaders',
     'djstripe',
