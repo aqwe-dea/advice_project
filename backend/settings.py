@@ -1,7 +1,10 @@
-from django.conf import settings
+from django.conf import global_settings
 from pathlib import Path
-import environ
+from django.template.backends.django import DjangoTemplates
+from environ import environ
+from environ.environ import Env
 import os
+from whitenoise.middleware import WhiteNoiseMiddleware
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent

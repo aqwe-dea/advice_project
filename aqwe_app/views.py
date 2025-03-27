@@ -1,4 +1,5 @@
 from rest_framework import viewsets
+from rest_framework.viewsets import ViewSet
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -6,8 +7,8 @@ from .models import Advice
 from .serializers import AdviceSerializer
 from .models import UserHistory
 from .serializers import UserHistorySerializer    
-from djstripe.models import PaymentIntent        
-from django.http import HttpResponse
+from djstripe.models.core import PaymentIntent        
+from django.http.response import HttpResponse
 
 
 class AdviceViewSet(viewsets.ModelViewSet):
