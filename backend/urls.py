@@ -1,11 +1,16 @@
 from django.contrib import admin
 from django.urls import path
 from django.urls import include
+from aqwe_app.urls import include
+from aqwe_app.urls import path
 from django.urls import re_path
 from django.conf import settings
 from aqwe_app import views
 from django.views.generic import TemplateView
 from django.conf.urls.static import static
+from drf_spectacular.views import SpectacularAPIView
+from drf_spectacular.views import SpectacularSwaggerView
+from djstripe.urls import path
 
 urlpatterns = [
     path('admin/', 
@@ -13,11 +18,19 @@ urlpatterns = [
     path('api/', 
          include('aqwe_app.urls')),
     path('', 
-         TemplateView.as_view(template_name='index.html'), name='home'),
+         TemplateView.as_view(template_name='index.html'), 
+         name='home'),
     re_path(r'^(?:.*)/?$', 
             TemplateView.as_view(template_name='index.html')),
     path('stripe/', 
-         include('djstripe.urls', namespace='djstripe')),
+         include('djstripe.urls', 
+           namespace='djstripe')),
+    path('api/schema/', 
+         SpectacularAPIView.as_view(), 
+           name='schema'),
+    path('api/docs/', 
+         SpectacularSwaggerView.as_view(url_name='schema'), 
+           name='docs'),
 ]
 """
 URL configuration for backend project.
