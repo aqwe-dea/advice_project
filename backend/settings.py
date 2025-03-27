@@ -1,7 +1,7 @@
-import os
+from django.conf import settings
 from pathlib import Path
 import environ
-from django.conf import settings
+import os
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -9,18 +9,30 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
-env = environ.Env()
-environ.Env.read_env()
+#settings environment
+env = environ.Env(DEBUG=(bool, True))
+environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
+DEBUG = env('DEBUG')
+SECRET_KEY = env('SECRET_KEY')
+DATABASES = {
+    'default': env.db(),
+    'extra': env.db_url(
+        'SQLITE_URL',
+        default='sqlite:////tmp/my-tmp-sqlite.db'
+    )
+}
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['127.0.0.1', 'localhost'])
+
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-eatdin_z3-eb$g*e(%=a+c)$8or4=q$z6xsk=c8!%b))gzu4*p'
+#SECRET_KEY = 'django-insecure-eatdin_z3-eb$g*e(%=a+c)$8or4=q$z6xsk=c8!%b))gzu4*p'
 # SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-# DEBUG = True
-DEBUG = True
-# ALLOWED_HOSTS = []
-ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'aqwe8dea.pythonanywhere.com']
+#DEBUG = True
+
+#ALLOWED_HOSTS = []
+#ALLOWED_HOSTS = ['localhost', '127.0.0.1', 'aqwe8dea.pythonanywhere.com']
 
 DJSTRIPE_FOREIGN_KEY_TO_FIELD ='id' 
 
@@ -78,9 +90,9 @@ WSGI_APPLICATION = 'backend.wsgi.application'
 
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
-DATABASES = {
-    'default': env.db('DATABASE_URL', default='sqlite:///db.sqlite3')
-}
+#DATABASES = {
+    #'default': env.db('DATABASE_URL', default='sqlite:///db.sqlite3')
+#}
 # DATABASES = {
 #    'default': {
 #        'ENGINE': 'django.db.backends.sqlite3',
