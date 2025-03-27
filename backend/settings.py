@@ -1,10 +1,18 @@
 from django.conf import global_settings
+from django.apps import config
+from django.conf.urls import static
+from django import shortcuts
 from pathlib import Path
 from django.template.backends.django import DjangoTemplates
+from django.template.backends import base
 from environ import environ
 from environ.environ import Env
 import os
 from whitenoise.middleware import WhiteNoiseMiddleware
+from whitenoise import base
+from whitenoise import compress
+from whitenoise import responders
+from whitenoise import storage
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -29,7 +37,6 @@ ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['127.0.0.1', 'localhost'])
 
 # SECURITY WARNING: keep the secret key used in production secret!
 #SECRET_KEY = 'django-insecure-eatdin_z3-eb$g*e(%=a+c)$8or4=q$z6xsk=c8!%b))gzu4*p'
-# SECRET_KEY = env('SECRET_KEY')
 
 # SECURITY WARNING: don't run with debug turned on in production!
 #DEBUG = True
@@ -53,7 +60,7 @@ INSTALLED_APPS = [
     'corsheaders',
     'djstripe',
 ]
-# CORS_ALLOWED_ORIGINS = env.list('CORS_ALLOWED_ORIGINS', default=['http://localhost:3000'])
+
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
 ]
