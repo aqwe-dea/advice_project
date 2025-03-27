@@ -3,12 +3,14 @@ from rest_framework.viewsets import ViewSet
 from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .models import Advice
-from .serializers import AdviceSerializer
-from .models import UserHistory
-from .serializers import UserHistorySerializer    
-from djstripe.models.core import PaymentIntent        
+from aqwe_app.models import Advice
+from aqwe_app.serializers import AdviceSerializer
+from aqwe_app.models import UserHistory
+from aqwe_app.serializers import UserHistorySerializer    
+from djstripe.models.core import PaymentIntent
+from djstripe.models import core        
 from django.http.response import HttpResponse
+from django.http import response
 
 
 class AdviceViewSet(viewsets.ModelViewSet):

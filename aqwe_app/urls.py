@@ -1,9 +1,11 @@
+from rest_framework.routers import DefaultRouter
+from aqwe_app.views import AdviceViewSet
+from aqwe_app.views import UserHistoryViewSet
+from aqwe_app.views import CreatePaymentIntentView
+from backend.urls import path
+from backend.urls import include
 from django.urls import path
 from django.urls import include
-from rest_framework.routers import DefaultRouter
-from .views import AdviceViewSet
-from .views import UserHistoryViewSet
-from .views import CreatePaymentIntentView
 
 router = DefaultRouter()
 router.register(r'advice', AdviceViewSet)
