@@ -13,7 +13,7 @@ function AdviceDetail({ adviceId }: {adviceId: number}) {
     const [advice, setAdvice] = useState<Advice | null>(null);
     const [loading, setLoading] = useState(true);
 
-    useEffect(() =>{
+    useEffect(() => {
         const fetchAdvice = async () => {
             try {
                 const response = await axios.get<Advice>(
