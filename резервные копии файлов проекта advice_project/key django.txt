@@ -1,0 +1,3 @@
+1)SECRET_KEY=django-insecure-eatdin_z3-eb$g*e(%=a+c)$8or4=q$z6xsk=c8!%b))gzu4*p
+второй сгенерированный
+2)SECRET_KEY=-&&r23y4)ayy*d^ao+3zb(2myl(j^xutvt16kzc6-z-jw44d6-
