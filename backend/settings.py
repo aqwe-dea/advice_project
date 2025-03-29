@@ -65,6 +65,8 @@ INSTALLED_APPS = [
     'rest_framework',
     'corsheaders',
     'djstripe',
+    'stripe',
+    'sslserver',
 ]
 
 CORS_ALLOWED_ORIGINS = [
