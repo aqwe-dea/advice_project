@@ -32,7 +32,7 @@ DATABASES = {
         default='sqlite:////tmp/my-tmp-sqlite.db'
     )
 }
-ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['127.0.0.1', 'localhost'])
+ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['127.0.0.1', 'localhost', 'wicked-seals-fail.loca.lt', '192.168.0.182', '94.25.185.171'])
 #security for production 
 #SECURE_HSTS_SECONDS = 1209600
 #SECURE_SSL_REDIRECT = False
