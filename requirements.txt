@@ -20,7 +20,6 @@ charset-normalizer==3.4.1
 click==8.1.8
 colorama==0.4.6
 CoverGenerator==0.2.0
-crispy-bootstrap5==2024.10
 cssselect2==0.8.0
 defusedxml==0.7.1
 dictdiffer==0.9.0
