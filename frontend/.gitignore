@@ -10,8 +10,8 @@
 
 # production
 frontend/build
-.analytics
-scripts/
+/analytics
+/scripts
 
 # misc
 .DS_Store
