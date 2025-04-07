@@ -9,6 +9,7 @@ import About from './components/About';
 import AdviceList from './components/AdviceList';
 import AdviceForm from './components/AdviceForm';
 import Navbar from './components/Navbar';
+import Sovet from 'components/Sovet';
 
 function App() {
   const { theme, toggleTheme } = useTheme();
@@ -24,19 +25,20 @@ function App() {
     //<Notification message={notificationMessage} />
       <div className={`App ${theme}`}>
        <Router>
-        <Navbar />
+         <Navbar />
        <header className="App-header">
-          <h1>Советница АКВИ</h1>
+           <h1>Советница АКВИ</h1>
          <button onClick={toggleTheme}>
            {theme === 'light' ? 'Переключить на темную тему' : 'Переключить на светлую тему'}
          </button>
-          <img src={logo} className="App-logo" alt="logo" />
+           <img src={logo} className="App-logo" alt="logo" />
        </header>
        <main>
         <Routes>
          <Route path="/" element={<Home />} />
          <Route path="/about" element={<About />} />
-       </Routes>
+         <Route path="/sovet" element={<Sovet />} />
+        </Routes>
          <AdviceForm />
          <AdviceList />
        </main>

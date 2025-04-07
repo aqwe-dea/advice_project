@@ -10,6 +10,12 @@
 
 # production
 frontend/build
+.git
+.github
+analytics
+design
+docs
+scripts
 
 # misc
 .DS_Store
