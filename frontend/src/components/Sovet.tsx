@@ -15,7 +15,7 @@ function Sovet() {
          email: '',
      });
     
-     const [donationAmount, setDonationAmount] = useState<number>(5);
+     const [donationAmount] = useState<number>(5);
 
      const handleSubmit = async (e: React.FormEvent) => {
          e.preventDefault();
