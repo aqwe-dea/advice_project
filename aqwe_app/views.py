@@ -14,23 +14,39 @@ from django.http.response import HttpResponse
 from django.http import response
 from aqwe_app.utils import send_advice_email
 
+class CreateDetailedAdviceView(APIView):
+     def post(self, request, *args, **kwargs):
+         serializer = AdviceSerializer(data=request.data)
+         if not serializer.is_valid():
+             return Response(serializer.errors, status=400)
+         advice = serializer.save()
+         email = request.data.get('email')
+         if email:
+             self.send_advice_to_email(email, advice)
+         return Response({'id': advice.id}, status=201)
+     @staticmethod
+     def send_advice_to_email(email: str, advice: Advice):
+         subject = 'Ваш детальный совет от АКВИ'
+         message = f'Категория: {advice.category}\n\nВопрос: {advice.question}\n\nОтвет: {advice.answer}'
+         send_advice_email(email, message)
+         
 class AdviceViewSet(viewsets.ModelViewSet):
-    queryset = Advice.objects.all()
-    serializer_class = AdviceSerializer    
+     queryset = Advice.objects.all()
+     serializer_class = AdviceSerializer    
 
     def create(self, request, *args, **kwargs):
-        response = super().create(request, *args, **kwargs)
-        category = request.data.get('category')
-        question = request.data.get('question')
-        user_email = request.data.get('email')
-        advice = response.data.get('answer')
+         response = super().create(request, *args, **kwargs)
+         category = request.data.get('category')
+         question = request.data.get('question')
+         user_email = request.data.get('email')
+         advice = response.data.get('answer')
         if user_email and advice:
-            send_advice_email(user_email, advice)
-            return response
+             send_advice_email(user_email, advice)
+             return response
         if not category or not question:
-            return Response(
-                {'error': 'Необходимо указать категорию и вопрос'},
-                status=status.HTTP_400_BAD_REQUEST
+             return Response(
+                 {'error': 'Необходимо указать категорию и вопрос'},
+                 status=status.HTTP_400_BAD_REQUEST
             )
         
 
