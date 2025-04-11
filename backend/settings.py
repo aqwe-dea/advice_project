@@ -13,6 +13,7 @@ from whitenoise import base
 from whitenoise import compress
 from whitenoise import responders
 from whitenoise import storage
+from django.core.mail.backends.smtp import EmailBackend
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
