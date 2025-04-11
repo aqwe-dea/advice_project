@@ -5,7 +5,7 @@ from aqwe_app.models import UserHistory
 class AdviceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Advice
-        fields = ['id', 'category', 'question', 'answer', 'created_at']
+        fields = ['id', 'name', 'email', 'category', 'question', 'answer', 'notes', 'created_at']
 
 class UserHistorySerializer(serializers.ModelSerializer):
     class Meta:
