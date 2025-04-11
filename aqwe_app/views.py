@@ -15,28 +15,42 @@ from .models import UserHistory
 from .serializers import UserHistorySerializer    
 
 class CreateDetailedAdviceView(APIView):
-     def post(self, request, *args, **kwargs):
-         serializer = AdviceSerializer(data=request.data)
-         if not serializer.is_valid():
-             return Response(serializer.errors, status=400)
-         advice = serializer.save()
-         email = request.data.get('email')
-         if email:
-             self.send_advice_to_email(email, advice)
-         return Response({'id': advice.id}, status=201)
-     @staticmethod
-     def send_advice_to_email(email: str, advice: Advice):
-        subject = 'Ваш детальный совет от АКВИ'
-        message = (
-            f'Категория: {advice.category}\n\n'
-            f'Вопрос: {advice.question}\n\n'
-            f'Ответ: {advice.answer}\n\n'
-            f'Заметки: {advice.notes}'
-            )
-        send_advice_email(email, message)
+    def post(self, request, *args, **kwargs):
+        serializer = AdviceSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(serializer.errors, status=400)
+        advice = serializer.save()
+        email = request.data.get('email')
+        if email:
+            self.send_advice_to_email(email, advice)
+            return Response({'id': advice.id}, status=201)
+        @staticmethod
+        def send_advice_to_email(email: str, advice: Advice):
+            subject = 'Ваш детальный совет от АКВИ'
+            message = (
+                f'Категория: {advice.category}\n\n'
+                f'Вопрос: {advice.question}\n\n'
+                f'Ответ: {advice.answer}\n\n'
+                f'Заметки: {advice.notes}'
+                )
+            send_advice_email(email, message)
 class AdviceViewSet(viewsets.ModelViewSet):
     queryset = Advice.objects.all()
     serializer_class = AdviceSerializer
+    advice = Advice.objects.create(category=category, question=question, answer=answer)
+    serializer = self.get_serializer(advice)
+    def retrieve(self, request, *args, **kwargs):
+        instance = self.get_object()
+        serializer = self.get_serializer(instance)
+        return Response(serializer.data)
+    if user_email and advice:
+        send_advice_email(user_email, advice)
+        return response
+    if not category or not question:
+        return Response(
+            {'error': 'Необходимо указать категорию и вопрос'},
+            status=status.HTTP_400_BAD_REQUEST
+            )
     def create(self, request, *args, **kwargs):
         response = super().create(request, *args, **kwargs)
         category = request.data.get('category')
@@ -50,12 +64,6 @@ class AdviceViewSet(viewsets.ModelViewSet):
             'default': 'Для этого случая у меня есть универсальный совет: Будьте терпеливы!'
             }
         answer = answers.get(category.lower(), answers['default'])
-        def retrieve(self, request, *args, **kwargs):
-            instance = self.get_object()
-            serializer = self.get_serializer(instance)
-            return Response(serializer.data)
-        advice = Advice.objects.create(category=category, question=question, answer=answer)
-        serializer = self.get_serializer(advice)
         try:
             advice = Advice.objects.create(
                 category=category,
@@ -68,15 +76,6 @@ class AdviceViewSet(viewsets.ModelViewSet):
             return Response(
                 {'error': f'Произошла ошибка: {str(e)}'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                )
-            if user_email and advice:
-                send_advice_email(user_email, advice)
-                return response
-            if not category or not question:
-                return Response(
-                    {'error': 'Необходимо указать категорию и вопрос'},
-                    status=status.HTTP_400_BAD_REQUEST
-                    )
 class UserHistoryViewSet(viewsets.ModelViewSet):
     queryset = UserHistory.objects.all()
     serializer_class = UserHistorySerializer

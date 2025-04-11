@@ -13,15 +13,15 @@ def send_advice_email(user_email: str, advice: Advice):
           doc.add_paragraph(f'Ответ: {advice.answer}')
           doc.add_paragraph(f'Заметки: {advice.notes}')
           doc.save('advice.doc')
+          email.attach_file('advice.txt')
+          email.attach_file('advice.doc')
+          email.send(fail_silently=False)
           email = EmailMessage(
                subject = subject,
                body = message,
                from_email = DEFAULT_FROM_EMAIL,
                to = [user_email],
-               )
-               email.attach_file('advice.txt')
-               email.attach_file('advice.doc')
-               email.send(fail_silently=False)
-               subject = 'Ваш совет от АКВИ'
-               message = f'Вот ваш совет:\n\n{advice}'
-               send_mail(subject, message, DEFAULT_FROM_EMAIL, [user_email], fail_silently=False)
+               )         
+     #subject = 'Ваш совет от АКВИ'
+     #message = f'Вот ваш совет:\n\n{advice}'
+     #send_mail(subject, message, DEFAULT_FROM_EMAIL, [user_email], fail_silently=False)
