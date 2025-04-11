@@ -9,7 +9,9 @@ import About from './components/About';
 import AdviceList from './components/AdviceList';
 import AdviceForm from './components/AdviceForm';
 import Navbar from './components/Navbar';
-import Sovet from 'components/Sovet';
+import Sovet from './components/Sovet';
+import DetailedAdviceForm from './components/DetailedAdviceForm';
+import SovetResult from './components/SovetResult';
 
 function App() {
   const { theme, toggleTheme } = useTheme();
@@ -38,6 +40,8 @@ function App() {
          <Route path="/" element={<Home />} />
          <Route path="/about" element={<About />} />
          <Route path="/sovet" element={<Sovet />} />
+         <Route path="/detailed-advice" element={<DetailedAdviceForm />} />
+         <Route path="/sovet-result/:id" element={<SovetResult />} />
         </Routes>
          <AdviceForm />
          <AdviceList />
