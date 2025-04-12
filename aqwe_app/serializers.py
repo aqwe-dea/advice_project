@@ -1,6 +1,6 @@
 from rest_framework import serializers
-from aqwe_app.models import Advice
-from aqwe_app.models import UserHistory
+from .models import Advice
+from .models import UserHistory
 
 class AdviceSerializer(serializers.ModelSerializer):
     class Meta:

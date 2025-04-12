@@ -2,45 +2,28 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import viewsets
-from rest_framework.viewsets import ViewSet
-from djstripe.models.core import PaymentIntent
-from djstripe.models import core
-from djstripe.models import PaymentIntent        
-from django.http.response import HttpResponse
-from django.http import response
-from .models import Advice
-from .serializers import AdviceSerializer
+from django.conf import settings
+import stripe
+from .models import Advice, UserHistory
+from .serializers import AdviceSerializer, UserHistorySerializer
 from .utils import send_advice_email
-from .models import UserHistory
-from .serializers import UserHistorySerializer    
 
-class CreateDetailedAdviceView(APIView):
-    def post(self, request, *args, **kwargs):
-        serializer = AdviceSerializer(data=request.data)
-        if not serializer.is_valid():
-             return Response(serializer.errors, status=400)
-        advice = serializer.save()
-        email = request.data.get('email')
-        if email:
-            self.send_advice_to_email(email, advice)
-        return Response({'id': advice.id}, status=201)
-    @staticmethod
-    def send_advice_to_email(email: str, advice: Advice):
-        subject = 'Ваш детальный совет от АКВИ'
-        message = (
-            f'Категория: {advice.category}\n\n'
-            f'Вопрос: {advice.question}\n\n'
-            f'Ответ: {advice.answer}\n\n'
-            f'Заметки: {advice.notes}'
-            )
-    send_advice_email(email, message)
+#stripe.api_key = settings.STRIPE_SECRET_KEY
+
+#from rest_framework.viewsets import ViewSet
+#from djstripe.models.core import PaymentIntent
+#from djstripe.models import core
+#from djstripe.models import PaymentIntent        
+#from django.http.response import HttpResponse
+#from django.http import response
 
 class AdviceViewSet(viewsets.ModelViewSet):
     queryset = Advice.objects.all()
     serializer_class = AdviceSerializer
+    """
     advice = Advice.objects.create(category=category, question=question, answer=answer)
     serializer = self.get_serializer(advice)
-    def retrieve(self, request, *args, **kwargs):
+     def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
@@ -77,27 +60,62 @@ class AdviceViewSet(viewsets.ModelViewSet):
              return Response(
                 {'error': f'Произошла ошибка: {str(e)}'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
-             )
-
+             )"""    
 class UserHistoryViewSet(viewsets.ModelViewSet):
     queryset = UserHistory.objects.all()
     serializer_class = UserHistorySerializer
     def get_queryset(self):
+        email = self.request.query_params.get('email', None)
+        if email:
+             return UserHistory.objects.filter(email=email)
+        return super().get_queryset()
         user_id = self.request.query_params.get('user_id', None)
         if user_id:
              return UserHistory.objects.filter(user_id=user_id)
              return UserHistory.objects.all()
-        
+class CreateDetailedAdviceView(APIView):
+    def post(self, request, *args, **kwargs):
+        serializer = AdviceSerializer(data=request.data)
+        if not serializer.is_valid():
+             return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+        advice = serializer.save()
+        email = request.data.get('email')
+        if email:
+             self.send_advice_to_email(email, advice)
+        return Response({'id': advice.id}, status=status.HTTP_201_CREATED)
+    @staticmethod
+    def send_advice_to_email(email: str, advice: Advice):
+        subject = 'Ваш детальный совет от АКВИ'
+        message = (
+            f'Категория: {advice.category}\n\n'
+            f'Вопрос: {advice.question}\n\n'
+            f'Ответ: {advice.answer}\n\n'
+            f'Заметки: {advice.notes}'
+        )
+        send_advice_email(email, message)    
 class CreatePaymentIntentView(APIView):
     def post(self, request, *args, **kwargs):
-        return Response({'clientSecret': payment_intent.client_secret})
         try:
-            payment_intent = PaymentIntent.create(
-                amount=request.data.get('amount'),
-                currency=request.data.get('currency', 'usd'),
-                )  
+            amount = int(request.data.get('amount', 0))
+            currency = request.data.get('currency', 'usd')
+            if amount <=0:
+                return Response(
+                    {'error': 'Сумма должна быть больше нуля.'},
+                    status=status.HTTP_400_BAD_REQUEST
+                )
+            payment_intent = stripe.PaymentIntent.create(
+                amount=amount,
+                currency=currency,
+                automatic_payment_methods={'enabled': True}
+            )
+            return Response(
+                {'clientSecret': payment_intent.client_secret},
+                status=status.HTTP_200_OK
+            )
         except Exception as e:
-             return Response({'error': str(e)}, status=403)
-
+            return Response(
+                {'error': str(e)},
+                status=status.HTTP_403_FORBIDDEN
+            )
 
 # Create your views here.
