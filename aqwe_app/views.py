@@ -18,22 +18,23 @@ class CreateDetailedAdviceView(APIView):
     def post(self, request, *args, **kwargs):
         serializer = AdviceSerializer(data=request.data)
         if not serializer.is_valid():
-            return Response(serializer.errors, status=400)
+             return Response(serializer.errors, status=400)
         advice = serializer.save()
         email = request.data.get('email')
         if email:
             self.send_advice_to_email(email, advice)
-            return Response({'id': advice.id}, status=201)
-        @staticmethod
-        def send_advice_to_email(email: str, advice: Advice):
-            subject = 'Ваш детальный совет от АКВИ'
-            message = (
-                f'Категория: {advice.category}\n\n'
-                f'Вопрос: {advice.question}\n\n'
-                f'Ответ: {advice.answer}\n\n'
-                f'Заметки: {advice.notes}'
-                )
-            send_advice_email(email, message)
+        return Response({'id': advice.id}, status=201)
+    @staticmethod
+    def send_advice_to_email(email: str, advice: Advice):
+        subject = 'Ваш детальный совет от АКВИ'
+        message = (
+            f'Категория: {advice.category}\n\n'
+            f'Вопрос: {advice.question}\n\n'
+            f'Ответ: {advice.answer}\n\n'
+            f'Заметки: {advice.notes}'
+            )
+    send_advice_email(email, message)
+
 class AdviceViewSet(viewsets.ModelViewSet):
     queryset = Advice.objects.all()
     serializer_class = AdviceSerializer
@@ -43,20 +44,21 @@ class AdviceViewSet(viewsets.ModelViewSet):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
-    if user_email and advice:
-        send_advice_email(user_email, advice)
-        return response
-    if not category or not question:
-        return Response(
-            {'error': 'Необходимо указать категорию и вопрос'},
-            status=status.HTTP_400_BAD_REQUEST
-            )
     def create(self, request, *args, **kwargs):
         response = super().create(request, *args, **kwargs)
         category = request.data.get('category')
         question = request.data.get('question')
         user_email = request.data.get('email')
         advice = response.data.get('answer')
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
+        if user_email and advice:
+            send_advice_email(user_email, advice)
+        return response
+        if not category or not question:
+             return Response(
+                {'error': 'Необходимо указать категорию и вопрос'},
+                status=status.HTTP_400_BAD_REQUEST
+             )
         answers = {
             'финансы': 'Рекомендую создать бюджет и отслеживать расходы.',
             'здоровье': 'Попробуйте больше двигаться и соблюдать режим сна.',
@@ -71,30 +73,31 @@ class AdviceViewSet(viewsets.ModelViewSet):
                 answer=answer
                 )
             serializer = self.get_serializer(advice)
-            return Response(serializer.data, status=status.HTTP_201_CREATED)
         except Exception as e:
-            return Response(
+             return Response(
                 {'error': f'Произошла ошибка: {str(e)}'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
+             )
+
 class UserHistoryViewSet(viewsets.ModelViewSet):
     queryset = UserHistory.objects.all()
     serializer_class = UserHistorySerializer
     def get_queryset(self):
         user_id = self.request.query_params.get('user_id', None)
         if user_id:
-            return UserHistory.objects.filter(user_id=user_id)
-        return UserHistory.objects.all()
+             return UserHistory.objects.filter(user_id=user_id)
+             return UserHistory.objects.all()
         
 class CreatePaymentIntentView(APIView):
     def post(self, request, *args, **kwargs):
+        return Response({'clientSecret': payment_intent.client_secret})
         try:
             payment_intent = PaymentIntent.create(
                 amount=request.data.get('amount'),
                 currency=request.data.get('currency', 'usd'),
-            )
-            return Response({'clientSecret': payment_intent.client_secret})
+                )  
         except Exception as e:
-            return Response({'error': str(e)}, status=403)
+             return Response({'error': str(e)}, status=403)
 
 
 # Create your views here.
