@@ -20,10 +20,7 @@ from .utils import send_advice_email
 class AdviceViewSet(viewsets.ModelViewSet):
     queryset = Advice.objects.all()
     serializer_class = AdviceSerializer
-    """
-    advice = Advice.objects.create(category=category, question=question, answer=answer)
-    serializer = self.get_serializer(advice)
-     def retrieve(self, request, *args, **kwargs):
+    def retrieve(self, request, *args, **kwargs):
         instance = self.get_object()
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
@@ -34,6 +31,20 @@ class AdviceViewSet(viewsets.ModelViewSet):
         user_email = request.data.get('email')
         advice = response.data.get('answer')
         return Response(serializer.data, status=status.HTTP_201_CREATED)
+        advice = Advice.objects.create(category=category, question=question, answer=answer)
+        try:
+            advice = Advice.objects.create(
+                category=category,
+                question=question,
+                answer=answer
+            )
+            serializer = self.get_serializer(advice)
+        except Exception as e:
+             return Response(
+                {'error': f'Произошла ошибка: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+             )
+        """
         if user_email and advice:
             send_advice_email(user_email, advice)
         return response
@@ -42,25 +53,14 @@ class AdviceViewSet(viewsets.ModelViewSet):
                 {'error': 'Необходимо указать категорию и вопрос'},
                 status=status.HTTP_400_BAD_REQUEST
              )
+        answer = answers.get(category.lower(), answers['default'])     
         answers = {
             'финансы': 'Рекомендую создать бюджет и отслеживать расходы.',
             'здоровье': 'Попробуйте больше двигаться и соблюдать режим сна.',
             'образование': 'Определите свои цели и выберете подходящие курсы.',
             'default': 'Для этого случая у меня есть универсальный совет: Будьте терпеливы!'
             }
-        answer = answers.get(category.lower(), answers['default'])
-        try:
-            advice = Advice.objects.create(
-                category=category,
-                question=question,
-                answer=answer
-                )
-            serializer = self.get_serializer(advice)
-        except Exception as e:
-             return Response(
-                {'error': f'Произошла ошибка: {str(e)}'},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-             )"""    
+        """    
 class UserHistoryViewSet(viewsets.ModelViewSet):
     queryset = UserHistory.objects.all()
     serializer_class = UserHistorySerializer
