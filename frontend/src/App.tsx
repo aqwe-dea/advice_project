@@ -12,6 +12,7 @@ import Navbar from './components/Navbar';
 import Sovet from './components/Sovet';
 import DetailedAdviceForm from './components/DetailedAdviceForm';
 import SovetResult from './components/SovetResult';
+import StripeDonation from './components/StripeDonation';
 
 function App() {
   const { theme, toggleTheme } = useTheme();
@@ -42,6 +43,7 @@ function App() {
          <Route path="/sovet" element={<Sovet />} />
          <Route path="/detailed-advice" element={<DetailedAdviceForm />} />
          <Route path="/sovet-result/:id" element={<SovetResult />} />
+         <Route path="/donation" element={<StripeDonation />} />
         </Routes>
          <AdviceForm />
          <AdviceList />
