@@ -25,7 +25,6 @@ function App() {
   //};
  
   return (
-    //<Notification message={notificationMessage} />
     <div className={`App ${theme}`}>
       <Router>
         <Navbar />

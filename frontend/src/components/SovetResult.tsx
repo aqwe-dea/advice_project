@@ -11,14 +11,16 @@ import axios from 'axios';
 //     notes: string;
 //}
 
-interface SovetResultProps {}
+interface SovetResultProps {
+    id: string;
+}
 
 function SovetResult({ id }: SovetResultProps) {
     const [advice, setAdvice] = useState<any | null>(null);
-    const {id} = useParams();
+    const { id }: { id: string | undefined } = useParams();
     useEffect(() => {
+        if (!id) return;
         const fetchAdvice = async () => {
-            if (!id) return;
             try {
                 const response = await axios.get(
                     `https://advice-project.onrender.com/api/advice/${id}/`

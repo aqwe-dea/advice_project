@@ -1,16 +1,16 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { loadStripe, RedirectToCheckoutOptions } from '@stripe/stripe-js';
+import { loadStripe } from '@stripe/stripe-js';
+import { RedirectToCheckoutOptions } from '@stripe/stripe-js';
 
 const stripePublicKey = process.env.REACT_APP_STRIPE_PUBLIC_KEY;
+const stripePromise = loadStripe(stripePublicKey as string);
 if (!stripePublicKey) {
     console.error('Не найден REACT_APP_STRIPE_PUBLIC_KEY');
 }
-const stripePromise = loadStripe(stripePublicKey as string);
 
 function StripeDonation({ onSuccess }: { onSuccess?: () => void }) {
     const [amount, setAmount] = useState<number>(500);
-
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!stripePublicKey) {
@@ -18,13 +18,13 @@ function StripeDonation({ onSuccess }: { onSuccess?: () => void }) {
             return;
         }
         try {
+            const stripe = await stripePromise;
             const response = await axios.post(
                 'https://advice-project.onrender.com/create-payment-intent/',
                 { amount, currency: 'usd' }
             );
-            const stripe await stripePromise;
-            const { error } = await stripe!.redirectToCheckout({
-                paymentIntentClientSecret: response.data.clientSecret,
+            const { error } = await stripe!.RedirectToCheckout({
+                paymentIntentClientSecret: response.data.clientSecret
             });
             if (error) {
                 console.error('Ошибка при перенаправлении на Stripe:', error);
@@ -38,7 +38,6 @@ function StripeDonation({ onSuccess }: { onSuccess?: () => void }) {
             alert('Произошла ошибка при создании платежа.');
         }
     };
-
     return (
         <div className="donation-form">
             <h2>Поддержите проект "Советница АКВИ"</h2>
