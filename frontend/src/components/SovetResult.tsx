@@ -11,18 +11,17 @@ import axios from 'axios';
 //     notes: string;
 //}
 
-interface SovetResultProps {
-    id: string;
-}
+interface SovetResultProps {}
 
 function SovetResult({ id }: SovetResultProps) {
     const [advice, setAdvice] = useState<any | null>(null);
-
+    const {id} = useParams();
     useEffect(() => {
         const fetchAdvice = async () => {
+            if (!id) return;
             try {
                 const response = await axios.get(
-                    `https://advice-project.onrender.com/api/advice/${adviceId}/`
+                    `https://advice-project.onrender.com/api/advice/${id}/`
                 );
                 setAdvice(response.data);
             } catch (error) {
@@ -31,7 +30,7 @@ function SovetResult({ id }: SovetResultProps) {
             }
         };
         fetchAdvice();
-    }, [adviceId]);
+    }, [id]);
     if (!advice) return <div>Загрузка...</div>;
 
     return (

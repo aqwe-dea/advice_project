@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { loadStripe } from '@stripe/stripe-js';
+import { loadStripe, RedirectToCheckoutOptions } from '@stripe/stripe-js';
 
 const stripePublicKey = process.env.REACT_APP_STRIPE_PUBLIC_KEY;
 if (!stripePublicKey) {
@@ -38,7 +38,7 @@ function StripeDonation({ onSuccess }: { onSuccess?: () => void }) {
             alert('Произошла ошибка при создании платежа.');
         }
     };
-    
+
     return (
         <div className="donation-form">
             <h2>Поддержите проект "Советница АКВИ"</h2>
