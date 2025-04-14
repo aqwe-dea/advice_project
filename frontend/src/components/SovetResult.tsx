@@ -18,13 +18,13 @@ function SovetResult({}: SovetResultProps) {
                 );
                 setAdvice(response.data);
             } catch (error) {
-                console.error('Ошибка приз гарузке совета:', error);
+                console.error('Ошибка при загрузке совета:', error);
                 alert('Не удалось загрузить совет.');
             }
         };
         fetchAdvice();
     }, [id]);
-    if (!advice) return <div>Загрузка...</div>;
+    if (!advice) return <div>Загрузка...</div>; 
     return (
         <div className="sovet-result">
             <h1>Ваш детальный совет:</h1>
@@ -33,7 +33,7 @@ function SovetResult({}: SovetResultProps) {
             <p><strong>Ответ:</strong> {advice.answer}</p>
             <p><strong>Заметки:</strong> {advice.notes || 'Нет заметок'}</p>
             </div>
-    );
+            );
 }
 
 export default SovetResult;
