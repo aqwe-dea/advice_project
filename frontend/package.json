@@ -25,6 +25,7 @@
     "Babel": "^0.0.1",
     "builder-react-comp": "^0.1.6",
     "builder-ts-library": "^0.0.1",
+    "create-react-app": "^5.1.0",
     "css-select": "^5.1.0",
     "eslint": "^9.24.0",
     "fis-parser-typescript": "^0.2.2",
@@ -49,6 +50,7 @@
     "svgo": "^3.3.2",
     "swagger-typescript-api-generator": "^0.18.0",
     "test": "^3.3.0",
+    "typescript": "^5.8.3",
     "uuid": "^11.1.0",
     "webpack": "^5.98.0"
   },
@@ -80,7 +82,6 @@
     "@eslint/js": "^9.23.0",
     "eslint-plugin-react": "^7.37.4",
     "globals": "^16.0.0",
-    "typescript": "^4.9.5",
     "typescript-eslint": "^8.27.0"
   }
 }
