@@ -2,13 +2,13 @@ import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { useParams } from 'react-router-dom';
 
-interface SovetResultProps {}
+interface SovetResultProps {};
 
 function SovetResult({}: SovetResultProps) {
-    const [advice, setAdvice] = useState<{ category: string; question: string; answer: string; notes?: string; } | null>(
+    const [advice, setAdvice] = useState<{ id: string; category: string; question: string; answer: string; notes?: string; } | null>(
         null
     );
-    const { id }: { id: string | undefined } = useParams();
+    const { id }: { id: string | undefined; } = useParams();
     useEffect(() => {
         if (!id) return;
         const fetchAdvice = async () => {
@@ -29,7 +29,7 @@ function SovetResult({}: SovetResultProps) {
         <div className="sovet-result">
             <h1>Ваш детальный совет:</h1>
             <p><strong>Категория:</strong> {advice.category}</p>
-            <p><strong>Вопрос:<strong> {advice.question}</p>
+            <p><strong>Вопрос:</strong> {advice.question}</p>
             <p><strong>Ответ:</strong> {advice.answer}</p>
             <p><strong>Заметки:</strong> {advice.notes || 'Нет заметок'}</p>
             </div>
