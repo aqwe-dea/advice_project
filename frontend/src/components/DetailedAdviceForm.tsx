@@ -155,7 +155,7 @@ function DetailedAdviceForm() {
 
      return (
          <div className="detailed-advice-form">
-             <h1>Получите детпльный совет от АКВИ</h1>
+             <h1>Получите детальный совет от АКВИ</h1>
              <form onSubmit={handleSubmit}>
                  <input
                      type="text"
