@@ -1,5 +1,11 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { motion } from 'framer-motion';
+
+const formVariants = {
+    hidden: { opacity: 0, y: 20 },
+    visible: { opacity: 1, y: 0, transition: { duration: 0.5 } }
+};
 
 interface DetailedAdviceFormData {
      name: string;
@@ -155,7 +161,13 @@ function DetailedAdviceForm() {
 
      return (
          <div className="detailed-advice-form">
-             <h1>Получите детальный совет от АКВИ</h1>
+             <h1 style={{ color: '#9C57D9', marginBottom: '24px' }}>Получите детальный совет от АКВИ</h1>
+             <motion.div
+              className="detailed-advice-form"
+              variants={formVariants}
+              initial="hidden"
+              animate="visible"
+              >
              <form onSubmit={handleSubmit}>
                  <input
                      type="text"
@@ -213,8 +225,18 @@ function DetailedAdviceForm() {
                          setFormData({ ...formData, notes: e.target.value })
                      }
                  />
-                 <button type="submit">Получить совет</button>
+                 <button
+                  type="submit"
+                  style={{
+                    background: '#9C57D9',
+                    color: 'white',
+                    padding: '12px 24px',
+                    marginTop: '24px',
+                  }}
+                 >Получить совет
+                 </button>
              </form>
+             </motion.div>
          </div>
      );
 }

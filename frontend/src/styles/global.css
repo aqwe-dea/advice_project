@@ -155,3 +155,86 @@ main {
     padding: 1rem;
     font-family: "Domine", serif;
 }
+
+input, textarea, button {
+    border-radius: 8px;
+    padding: 12px;
+    margin: 8px 0;
+    transition: all 0.3s ease;
+    background: #F5F5DC;
+    border: 2px solid #9C57D9;
+    color: #333;
+}
+
+input:focus, textarea:focus, button:focus {
+    outline: none;
+    border-color: #6A1B9A;
+    box-shadow: 0 0 10px rgba(156, 87, 217, 0.5);
+}
+
+button {
+    background: #9C57D9;
+    color: white;
+    cursor: pointer;
+}
+
+button:hover {
+    background: #6A1B9A;
+}
+
+.input-field {
+    width: 100%;
+    max-width: 400px;
+    margin: 10px auto;
+    transition: border-color 0.3s, box-shadow 0.3s;
+}
+
+.input-field:hover {
+    border-color: #6A1B9A;
+}
+
+.textarea {
+    height: 150px;
+    resize: vertical;
+}
+
+.error {
+    border: 2px solid red;
+    background: rgba(255, 0, 0, 0.1);
+}
+
+.input-field:focus {
+    border-color: #6A1B9A;
+    box-shadow: 0 0 10px rgba(156, 87, 217, 0.5);
+}
+
+select.input-field {
+    padding: 10px;
+    background: white;
+    appearance: none;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='16' height='16' fill='none' stroke='#9C57D9' viewBox='0 0 24 24'><path stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7' /></svg>") no-repeat;
+    background-position: right 10px center;
+}
+
+button {
+    background: linear-gradient(45deg, #6A1B9A, #9C57D9);
+    border:none;
+    border-radius: 20px;
+    padding: 12px 30px;
+    font-weight: bold;
+    transition: all 0.3s;
+}
+
+button:hover {
+    background: linear-gradient(135deg, #6A1B9A, #9C57D9);
+    transform: scale(0.98);
+}
+
+.detailed-advice-form {
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 24px;
+    background: rgba(245, 245, 220, 0.9);
+    border-radius: 16px;
+    box-shadow: 0 0 20px rgba(156, 87, 217, 0.3);
+}
