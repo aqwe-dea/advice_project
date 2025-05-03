@@ -9,6 +9,15 @@
 - База данных: SQLite/PostgreSQL
 - API: Django REST Framework
 
+## Чат с АКВИ
+- '/chat/' - эндпоинт для общения с ИИ.
+- Используется Hugging Face API или локальная модель.
+- Пример:
+ '''bash
+ curl -X POST https://advice-project.onrender.com/chat/ \
+ -H "Content-Type: application/json" \
+ -d '{"message": "Привет, АКВИ!"}'
+
 ## Как запустить проект локально
 1. Клонируйте репозиторий:
 ```bash
