@@ -18,4 +18,6 @@ urlpatterns = [
       CreatePaymentIntentView.as_view(), name='create_payment_intent'),
     path('create-detailed-advice/',
       CreateDetailedAdviceView.as_view(), name='create_detailed_advice'),
+    path('chat/',
+     ChatView.as_view(), name='chat'),
 ]

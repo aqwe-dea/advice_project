@@ -7,6 +7,7 @@ import stripe
 from .models import Advice, UserHistory
 from .serializers import AdviceSerializer, UserHistorySerializer
 from .utils import send_advice_email
+import requests
 
 #stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -117,5 +118,23 @@ class CreatePaymentIntentView(APIView):
                 {'error': str(e)},
                 status=status.HTTP_403_FORBIDDEN
             )
-
+class ChatView(APIView):
+    def post(self, request, *args, **kwargs):
+        user_message = request.data.get('message', '')
+        if not user_message:
+            return Response({'error': 'Сообщение не может быть пустым'}, status=status.HTTP_400_BAD_REQUST)
+        HF_API_KEY = settings.HUGGINGFACE_API_KEY
+        model_url = 'https://api-inference.huggingface.co/models/Qwen/Qwen2.5-72B-Instruct'
+        headers = {'Autorization': f'Bearer {HF_API_KEY}'}
+        payload = {
+            'inputs': user_message,
+            'parameters': {'max_new_tokens': 200, 'temperature': 0.7}
+        }
+        try:
+            response = requests.post(model_url, headers=headers, json=payload)
+            response.raise_for_status()
+            ai_response = response.json()[0]['generated_text']
+            return Response({'response': ai_response})
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 # Create your views here.
