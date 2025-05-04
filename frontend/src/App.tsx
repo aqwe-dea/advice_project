@@ -10,6 +10,7 @@ import DetailedAdviceForm from './components/DetailedAdviceForm';
 import AdviceList from './components/AdviceList';
 import AdviceForm from './components/AdviceForm';
 import Navbar from './components/Navbar';
+import Chat from './components/Chat';
 
 function App() {
   const { theme, toggleTheme } = useTheme();
