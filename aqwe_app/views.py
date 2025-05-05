@@ -8,6 +8,7 @@ from .models import Advice, UserHistory
 from .serializers import AdviceSerializer, UserHistorySerializer
 from .utils import send_advice_email
 import requests
+import os
 
 #stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -123,7 +124,7 @@ class ChatView(APIView):
         user_message = request.data.get('message', '')
         if not user_message:
             return Response({'error': 'Сообщение не может быть пустым'}, status=status.HTTP_400_BAD_REQUST)
-        HF_API_KEY = settings.HUGGINGFACE_API_KEY
+        HF_API_KEY = os.getenv('HUGGINGFACE_API_KEY')
         model_url = 'https://api-inference.huggingface.co/models/Qwen/Qwen2.5-72B-Instruct'
         headers = {'Autorization': f'Bearer {HF_API_KEY}'}
         payload = {
