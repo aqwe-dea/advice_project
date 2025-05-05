@@ -1,7 +1,8 @@
 from django.contrib import admin
 from django.urls import path
-from django.urls import include
 from aqwe_app.urls import include
+from djstripe.urls import path
+from django.urls import include
 from aqwe_app.urls import path
 from django.urls import re_path
 from django.conf import settings
@@ -10,7 +11,6 @@ from django.views.generic import TemplateView
 from django.conf.urls.static import static
 from drf_spectacular.views import SpectacularAPIView
 from drf_spectacular.views import SpectacularSwaggerView
-from djstripe.urls import path
 from aqwe_app.views import ChatView
 
 urlpatterns = [
