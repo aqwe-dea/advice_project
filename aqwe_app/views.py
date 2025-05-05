@@ -9,6 +9,12 @@ from .serializers import AdviceSerializer, UserHistorySerializer
 from .utils import send_advice_email
 import requests
 import os
+from django.views.decorators.csrf import csrf_exempt
+from rest_framework.decorators import api_view
+from rest_framework.parsers import JSONParser
+
+@api_view(['POST'])
+@csrf_exempt
 
 #stripe.api_key = settings.STRIPE_SECRET_KEY
 
