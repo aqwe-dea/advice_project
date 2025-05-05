@@ -14,6 +14,12 @@ from whitenoise import compress
 from whitenoise import responders
 from whitenoise import storage
 from django.core.mail.backends.smtp import EmailBackend
+from corsheaders.middleware import CorsMiddleware
+from sslserver.management.commands import runsslserver
+from djstripe import apps
+from stripe.apps import _secret
+from rest_framework import apps
+from corsheaders import apps
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
