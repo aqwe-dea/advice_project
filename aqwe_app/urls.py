@@ -1,6 +1,6 @@
 from rest_framework.routers import DefaultRouter
-from backend.urls import path
-from backend.urls import include
+from rest_framework import routers
+from .urls import path, include
 from .views import AdviceViewSet
 from .views import UserHistoryViewSet
 from .views import CreatePaymentIntentView
