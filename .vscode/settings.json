@@ -1,5 +1,7 @@
 {
     "git.scanRepositories": [
         "c:\\advice_project"
-    ]
+    ],
+    "python.analysis.autoImportCompletions": true,
+    "python.analysis.typeCheckingMode": "standard"
 }
