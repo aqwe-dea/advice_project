@@ -1,6 +1,6 @@
 from rest_framework.routers import DefaultRouter
-from rest_framework import routers
-from .urls import path, include
+from backend.urls import path
+from backend.urls import include
 from .views import AdviceViewSet
 from .views import UserHistoryViewSet
 from .views import CreatePaymentIntentView
@@ -12,13 +12,13 @@ router.register(r'advice', AdviceViewSet)
 router.register(r'user-history', UserHistoryViewSet)
 
 urlpatterns = [
-  path('', include(router.urls)),
-  path('advice/<int:pk>/', 
-   AdviceViewSet.as_view({'get': 'retrieve'}), name='advice-detail'),
-  path('create-payment-intent/',
-   CreatePaymentIntentView.as_view(), name='create_payment_intent'),
-  path('create-detailed-advice/',
-   CreateDetailedAdviceView.as_view(), name='create_detailed_advice'),
-  path('chat/',
-   ChatView.as_view(), name='chat'),
+    path('', include(router.urls)),
+    path('advice/<int:pk>/',
+      AdviceViewSet.as_view({'get': 'retrieve'}), name='advice-detail'),
+    path('create-payment-intent/',
+      CreatePaymentIntentView.as_view(), name='create_payment_intent'),
+    path('create-detailed-advice/',
+      CreateDetailedAdviceView.as_view(), name='create_detailed_advice'),
+    path('chat/',
+     ChatView.as_view(), name='chat'),
 ]

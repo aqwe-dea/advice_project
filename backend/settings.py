@@ -1,25 +1,20 @@
-from django.conf import global_settings
-from django.apps import config
-from django.conf.urls import static
-from django import shortcuts
 from pathlib import Path
-from django.template.backends.django import DjangoTemplates
-from django.template.backends import base
 from environ import environ
 from environ.environ import Env
-import os
+from django.apps import config
 from whitenoise.middleware import WhiteNoiseMiddleware
+from django.template.backends.django import DjangoTemplates
+from django.template.backends import base
+from django import shortcuts
+from django.conf.urls import static
+from django.conf import global_settings
 from whitenoise import base
 from whitenoise import compress
 from whitenoise import responders
 from whitenoise import storage
 from django.core.mail.backends.smtp import EmailBackend
-from corsheaders.middleware import CorsMiddleware
-from sslserver.management.commands import runsslserver
-from djstripe import apps
-from stripe.apps import _secret
-from rest_framework import apps
-from corsheaders import apps
+import os
+import environ
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -43,8 +38,8 @@ ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['127.0.0.1', 'localhost', 'ad
 #security for production 
 #SECURE_HSTS_SECONDS = 1209600
 #SECURE_SSL_REDIRECT = False
-SESSION_COOKIE_SECURE = False
-CSRF_COOKIE_SECURE = False
+#SESSION_COOKIE_SECURE = False
+#CSRF_COOKIE_SECURE = False
 #SECURE_HSTS_INCLUDE_SUBDOMAINS = False
 #SECURE_HSTS_PRELOAD = False
 
@@ -94,15 +89,16 @@ CSRF_TRUSTED_ORIGINS = [
 
 MIDDLEWARE = [
     'corsheaders.middleware.CorsMiddleware',
-    'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.security.SecurityMiddleware',
+    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
+    'django.middleware.clickjacking.XFrameOptionsMiddleware',
 ]
 
 REST_FRAMEWORK = {

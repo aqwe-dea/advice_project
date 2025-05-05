@@ -3,22 +3,16 @@ from rest_framework.response import Response
 from rest_framework import status
 from rest_framework import viewsets
 from django.conf import settings
-import stripe
 from .models import Advice, UserHistory
 from .serializers import AdviceSerializer, UserHistorySerializer
 from .utils import send_advice_email
-import requests
 import os
-from django.views.decorators.csrf import csrf_exempt
-from rest_framework.decorators import api_view
-from rest_framework.parsers import JSONParser
-
-@api_view(['POST'])
-@csrf_exempt
+import requests
+import stripe
+#@api_view(['POST'])
+#@csrf_exempt
 
 #stripe.api_key = settings.STRIPE_SECRET_KEY
-
-#from rest_framework.viewsets import ViewSet
 #from djstripe.models.core import PaymentIntent
 #from djstripe.models import core
 #from djstripe.models import PaymentIntent        
