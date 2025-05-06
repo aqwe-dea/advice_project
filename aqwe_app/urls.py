@@ -6,6 +6,7 @@ from .views import UserHistoryViewSet
 from .views import CreatePaymentIntentView
 from .views import CreateDetailedAdviceView
 from .views import ChatView
+from rest_framework import routers, viewsets
 
 router = DefaultRouter()
 router.register(r'advice', AdviceViewSet)

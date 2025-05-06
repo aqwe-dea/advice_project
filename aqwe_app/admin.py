@@ -1,5 +1,5 @@
 from django.contrib import admin
-from aqwe_app.models import Advice, UserHistory, StripeSettings
+from .models import Advice, UserHistory, StripeSettings
 
 admin.site.register(Advice)
 admin.site.register(UserHistory)
