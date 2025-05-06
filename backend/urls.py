@@ -14,26 +14,14 @@ from djstripe.urls import path
 from aqwe_app.views import ChatView
 
 urlpatterns = [
-    path('admin/', 
-         admin.site.urls),
-    path('api/', 
-         include('aqwe_app.urls')),
-    path('chat/',
-     ChatView.as_view(), name='chat'),
-    path('', 
-         TemplateView.as_view(template_name='index.html'), 
-         name='home'),
-    re_path(r'^(?:.*)/?$', 
-            TemplateView.as_view(template_name='index.html')),
-    path('stripe/', 
-         include('djstripe.urls', 
-           namespace='djstripe')),
-    path('api/schema/', 
-         SpectacularAPIView.as_view(), 
-           name='schema'),
-    path('api/docs/', 
-         SpectacularSwaggerView.as_view(url_name='schema'), 
-           name='docs'),
+    path('admin/', admin.site.urls),
+    path('api/', include('aqwe_app.urls')),
+    path('chat/', ChatView.as_view(), name='chat'),
+    path('', TemplateView.as_view(template_name='index.html'), name='home'),
+    re_path(r'^(?:.*)/?$', TemplateView.as_view(template_name='index.html')),
+    path('stripe/', include('djstripe.urls', namespace='djstripe')),
+    path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
+    path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='docs'),
 ]
 """
 URL configuration for backend project.
