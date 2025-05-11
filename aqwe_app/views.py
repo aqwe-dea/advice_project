@@ -121,21 +121,20 @@ class CreatePaymentIntentView(APIView):
             )
 class ChatView(APIView):
     def post(self, request, *args, **kwargs):
+        model_url = request.data.get('model_url', '')
         user_message = request.data.get('message', '')
-        if not user_message:
-            return Response({'error': 'Сообщение не может быть пустым'}, status=status.HTTP_400_BAD_REQUST)
+        if not model_url or not user_message:
+            return Response({'error': 'Не указаны  параметры'}, status=400)
         HF_API_KEY = os.getenv('HUGGINGFACE_API_KEY')
-        model_url = 'https://api-inference.huggingface.co/models/Qwen/Qwen2.5-72B-Instruct'
-        headers = {'Autorization': f'Bearer {HF_API_KEY}'}
-        payload = {
-            'inputs': user_message,
-            'parameters': {'max_new_tokens': 200, 'temperature': 0.7}
-        }
+        if not HF_API_KEY:
+            return Response({'error': 'API ключ не настроен'}, status=500)
+        headers = {'Autorization': f'Bearer {HF_API_KEY}', 'Content-Type': 'application/json'}
+        payload = {'inputs': user_message, 'parameters': {'max_new_tokens': 200, 'temperature': 0.7}}
         try:
             response = requests.post(model_url, headers=headers, json=payload)
             response.raise_for_status()
             ai_response = response.json()[0]['generated_text']
             return Response({'response': ai_response})
         except Exception as e:
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'error': str(e), 'details': response.text}, status=500)
 # Create your views here.
