@@ -1,13 +1,15 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from huggingface_hub import InferenceClient
+import os
+import requests
+from rest_framework import response
 from rest_framework import status
 from rest_framework import viewsets
 from django.conf import settings
 from .models import Advice, UserHistory
 from .serializers import AdviceSerializer, UserHistorySerializer
 from .utils import send_advice_email
-import os
-import requests
 import stripe
 #@api_view(['POST'])
 #@csrf_exempt
@@ -18,6 +20,26 @@ import stripe
 #from djstripe.models import PaymentIntent        
 #from django.http.response import HttpResponse
 #from django.http import response
+
+class ChatView(APIView):
+    def post(self, request, *args, **kwargs):
+        user_message = request.data.get('message', '')
+        if not user_message:
+            return Response({'error': 'Сообщение не может быть пустым'}, status=status.HTTP_400_BAD_REQUEST)
+        HF_API_KEY = os.getenv('HUGGINGFACE_API_KEY')
+        if not HF_API_KEY:
+            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        try:
+            client = InferenceClient(token=HF_API_KEY)
+            response = client.chat_completion(
+                messages=[{"role": "user", "content": user_message}],
+                max_tokens=200,
+                temperature=0.7
+            )
+            ai_response = response.choices[0].message.content
+            return Response({'response': ai_response})
+        except Exception as e:
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class AdviceViewSet(viewsets.ModelViewSet):
     queryset = Advice.objects.all()
@@ -63,6 +85,7 @@ class AdviceViewSet(viewsets.ModelViewSet):
             'default': 'Для этого случая у меня есть универсальный совет: Будьте терпеливы!'
             }
         """    
+
 class UserHistoryViewSet(viewsets.ModelViewSet):
     queryset = UserHistory.objects.all()
     serializer_class = UserHistorySerializer
@@ -95,6 +118,7 @@ class CreateDetailedAdviceView(APIView):
             f'Заметки: {advice.notes}'
         )
         send_advice_email(email, message)    
+
 class CreatePaymentIntentView(APIView):
     def post(self, request, *args, **kwargs):
         try:
@@ -119,22 +143,4 @@ class CreatePaymentIntentView(APIView):
                 {'error': str(e)},
                 status=status.HTTP_403_FORBIDDEN
             )
-class ChatView(APIView):
-    def post(self, request, *args, **kwargs):
-        model_url = request.data.get('model_url', '')
-        user_message = request.data.get('message', '')
-        if not model_url or not user_message:
-            return Response({'error': 'Не указаны  параметры'}, status=400)
-        HF_API_KEY = os.getenv('HUGGINGFACE_API_KEY')
-        if not HF_API_KEY:
-            return Response({'error': 'API ключ не настроен'}, status=500)
-        headers = {'Autorization': f'Bearer {HF_API_KEY}', 'Content-Type': 'application/json'}
-        payload = {'inputs': user_message, 'parameters': {'max_new_tokens': 200, 'temperature': 0.7}}
-        try:
-            response = requests.post(model_url, headers=headers, json=payload)
-            response.raise_for_status()
-            ai_response = response.json()[0]['generated_text']
-            return Response({'response': ai_response})
-        except Exception as e:
-            return Response({'error': str(e), 'details': response.text}, status=500)
 # Create your views here.

@@ -197,11 +197,6 @@ function DetailedAdviceForm() {
                              {category.charAt(0).toUpperCase() + category.slice(1)}
                          </option>
                      ))}
-                     {Array.from({ length: 64 }, (_, i) => (
-                         <option key={i} value={`категория_${i + 1}`}>
-                             Категория {i + 1}
-                         </option>
-                     ))}
                  </select>
                  <input
                      type="url"

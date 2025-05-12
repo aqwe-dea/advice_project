@@ -1,8 +1,13 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
+interface Message {
+    user: string;
+    bot: string;
+}
+
 function Chat() {
-    const [messages, setMessages] = useState<{ user: string; bot: string }[]>([]);
+    const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState<string>('');
     const handleSendMessage = async () => {
         if (!input.trim()) return;
@@ -10,16 +15,17 @@ function Chat() {
         try {
             const response = await axios.post(
                 'https://advice-project.onrender.com/chat/',
-                { message: input }
+                { message: input },
+                { headers: { 'Content-Type': 'application/json' } }
             );
-            const botReply = response.data.response;
+            const botReply = response.data.response || 'Неверный формат ответа';
             setMessages((prev) => {
                 const updated = [...prev];
                 updated[updated.length - 1].bot = botReply;
                 return updated;
             });
-        } catch (error) {
-            console.error('Ошибка при получении ответа:', error);
+        } catch (error: any) {
+            console.error('Ошибка:', error.response?.data || error.message);
             setMessages((prev) => [...prev, { user: input, bot: 'Произошла ошибка...'}]);
         }
         setInput('');
