@@ -1,6 +1,13 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { HfInference } from '@huggingface/inference';
+
+interface HuggingFaceResponse {
+    choices: Array<{
+        message: {
+            content: string;
+        };
+    }>;
+}
 
 interface Message {
     user: string;
@@ -11,21 +18,19 @@ function Chat() {
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState<string>('');
     const [error, setError] = useState<string | null>(null);
-    const HF_TOKEN = process.env.REACT_APP_HF_TOKEN;
-    const client = new HfInference(HF_TOKEN);
     const handleSendMessage = async () => {
         if (!input.trim()) return;
         setMessages((prev) => [...prev, { user: input, bot: '' }]);
         try {
-            const response = await client.chatCompletion({
-                model: "Qwen/Qwen2.5-72B-Instruct",
-                messages: [{ role: "user", content: input }],
-                max_tokens: 200,
-                temperature: 0.7
-            });
+            const response = await axios.post<HuggingFaceResponse>(
+                'https://advice-project.onrender.com/chat/ ',
+                { message: input },
+                { headers: { 'Content-Type': 'application/json' } }
+            );
+            const botReply = response.data.choices[0].message.content;
             setMessages((prev) => {
                 const updated = [...prev];
-                updated[updated.length - 1].bot = response.choice[0].message.content;
+                updated[updated.length - 1].bot = botReply;
                 return updated;
             });
         } catch (error: any) {
