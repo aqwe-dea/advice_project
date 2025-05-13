@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { HfInference } from '@huggingface/inference';
 
 interface Message {
     user: string;
@@ -10,20 +11,21 @@ function Chat() {
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState<string>('');
     const [error, setError] = useState<string | null>(null);
+    const HF_TOKEN = process.env.REACT_APP_HF_TOKEN;
+    const client = new HfInference(HF_TOKEN);
     const handleSendMessage = async () => {
         if (!input.trim()) return;
         setMessages((prev) => [...prev, { user: input, bot: '' }]);
         try {
-            const response = await axios.post(
-                'https://advice-project.onrender.com/chat/',
-                { message: input },
-                { headers: { 'Content-Type': 'application/json' } }
-            );
-            console.log('Ответ от сервера:', response);
-            const botReply = response.data.response || 'Неверный формат ответа';
+            const response = await client.chatCompletion({
+                model: "Qwen/Qwen2.5-72B-Instruct",
+                messages: [{ role: "user", content: input }],
+                max_tokens: 200,
+                temperature: 0.7
+            });
             setMessages((prev) => {
                 const updated = [...prev];
-                updated[updated.length - 1].bot = botReply;
+                updated[updated.length - 1].bot = response.choice[0].message.content;
                 return updated;
             });
         } catch (error: any) {
@@ -39,6 +41,7 @@ function Chat() {
     return (
         <div className="chat-container">
             <h2>Поговори с АКВИ</h2>
+            {error && <p style={{ color: 'red' }}>{error}</p>}
             <div className="chat-box">
                 {messages.map((msg, index) => (
                     <div key={index} className="message">
