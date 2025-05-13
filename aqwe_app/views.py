@@ -29,8 +29,9 @@ class ChatView(APIView):
         HF_API_KEY = os.getenv('HUGGINGFACE_API_KEY')
         if not HF_API_KEY:
             return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        MODEL_ID = "Qwen/Qwen2.5-72B-Instruct"
         try:
-            client = InferenceClient(token=HF_API_KEY)
+            client = InferenceClient(model=MODEL_ID, token=HF_API_KEY)
             response = client.chat_completion(
                 messages=[{"role": "user", "content": user_message}],
                 max_tokens=200,
