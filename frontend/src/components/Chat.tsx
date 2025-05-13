@@ -9,6 +9,7 @@ interface Message {
 function Chat() {
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState<string>('');
+    const [error, setError] = useState<string | null>(null);
     const handleSendMessage = async () => {
         if (!input.trim()) return;
         setMessages((prev) => [...prev, { user: input, bot: '' }]);
@@ -18,6 +19,7 @@ function Chat() {
                 { message: input },
                 { headers: { 'Content-Type': 'application/json' } }
             );
+            console.log('Ответ от сервера:', response);
             const botReply = response.data.response || 'Неверный формат ответа';
             setMessages((prev) => {
                 const updated = [...prev];
@@ -25,8 +27,12 @@ function Chat() {
                 return updated;
             });
         } catch (error: any) {
-            console.error('Ошибка:', error.response?.data || error.message);
-            setMessages((prev) => [...prev, { user: input, bot: 'Произошла ошибка...'}]);
+            console.error('Ошибка:', {
+                status: error.response?.status,
+                data: error.response?.data,
+                message: error.message,
+            });
+            setError(error.response?.data?.error || 'Произошла ошибка...');
         }
         setInput('');
     };
