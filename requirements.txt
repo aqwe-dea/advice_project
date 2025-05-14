@@ -156,8 +156,8 @@ tenacity==9.0.0
 tinycss2==1.4.0
 tomlkit==0.13.2
 torch==2.7.0
-torchaudio==2.7.0+cpu
-torchvision==0.22.0+cpu
+torchaudio==2.7.0
+torchvision==0.22.0
 tqdm==4.67.1
 twine==6.1.0
 typer==0.15.2
