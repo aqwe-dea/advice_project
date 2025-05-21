@@ -1,5 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { motion } from 'framer-motion';
+import styled from 'styled-components';
 
 interface HuggingFaceResponse {
     choices: Array<{
@@ -7,14 +9,32 @@ interface HuggingFaceResponse {
             content: string;
         };
     }>;
+    response: string;
 }
 
 interface Message {
     user: string;
     bot: string;
 }
+useEffect(() => {
+    const fetchHistory = async () => {
+        const history = await axios.get('/api/user-history/?email=...');
+        setMessages(history.data.map((msg: any) => ({
+            user: msg.question.
+            bot: msg.answer
+        })));
+    };
+    fetchHistory();
+}, []);
 
 function Chat() {
+    const ChatContainer = styled.div`
+     max-width: 600px;
+     margin: 40px auto;
+     padding: 24px;
+     background: #F5F5DC;
+     border-radius: 16px;
+    `;
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState<string>('');
     const [error, setError] = useState<string | null>(null);
@@ -23,11 +43,11 @@ function Chat() {
         setMessages((prev) => [...prev, { user: input, bot: '' }]);
         try {
             const response = await axios.post<HuggingFaceResponse>(
-                'https://advice-project.onrender.com/chat/ ',
+                '/chat/',
                 { message: input },
                 { headers: { 'Content-Type': 'application/json' } }
             );
-            const botReply = response.data.choices[0].message.content;
+            const botReply = response.data.response || 'Неверный формат ответа';
             setMessages((prev) => {
                 const updated = [...prev];
                 updated[updated.length - 1].bot = botReply;
@@ -44,6 +64,11 @@ function Chat() {
         setInput('');
     };
     return (
+        <motion.div
+         initial={{ y: 20, opacity: 0 }}
+         animate={{ y: 0, opacity: 1 }}
+         transition={{ duration: 0.5 }}
+        >
         <div className="chat-container">
             <h2>Поговори с АКВИ</h2>
             {error && <p style={{ color: 'red' }}>{error}</p>}
@@ -65,6 +90,7 @@ function Chat() {
                 <button onClick={handleSendMessage}>Отправить</button>
             </div>
         </div>
+        </motion.div>
     );
 }
 

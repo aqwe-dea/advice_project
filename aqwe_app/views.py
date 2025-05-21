@@ -37,7 +37,8 @@ class ChatView(APIView):
                 max_tokens=200,
                 temperature=0.7
             )
-            ai_response = response.choices[0].message.content
+            hf_response = requests.post(HF_URL, headers=headers, json=payload)
+            ai_response = hf_response.json()[0]['generated_text']
             return Response({'response': ai_response})
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -132,7 +133,7 @@ class CreatePaymentIntentView(APIView):
                 )
             payment_intent = stripe.PaymentIntent.create(
                 amount=amount,
-                currency=currency,
+                currency='usd',
                 automatic_payment_methods={'enabled': True}
             )
             return Response(

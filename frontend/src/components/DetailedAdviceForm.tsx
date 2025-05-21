@@ -1,6 +1,14 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
+import styled from 'styled-components';
+
+const FormContainer = styled.div`
+ background: #F5F5DC;
+ border-radius: 16px;
+ box-shadow: 0 0 20px rgba(156, 87, 217, 0.3);
+ padding: 24px;
+`;
 
 const formVariants = {
     hidden: { opacity: 0, y: 20 },
@@ -146,10 +154,11 @@ function DetailedAdviceForm() {
                  return;
             }
             const response = await axios.post(
-                 'https://advice-project.onrender.com/api/advice/',
+                 '/chat/', { message: question }
                  { ...formData, answer: '' }
             );
-
+            setAdvice(response.data.response);
+            
             window.open(`/sovet-result/${response.data.id}`, '_blank');
 
             alert('Совет отправлен на вашу почту!');
@@ -160,6 +169,7 @@ function DetailedAdviceForm() {
      };
 
      return (
+        <formContainer>
          <div className="detailed-advice-form">
              <h1 style={{ color: '#9C57D9', marginBottom: '24px' }}>Получите детальный совет от АКВИ</h1>
              <motion.div
@@ -233,6 +243,7 @@ function DetailedAdviceForm() {
              </form>
              </motion.div>
          </div>
+        </FormContainer>
      );
 }
 
