@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
-import styled from 'styled-components';
+import { styled } from 'styled-components';
 
 const FormContainer = styled.div`
- background: #F5F5DC;
- border-radius: 16px;
- box-shadow: 0 0 20px rgba(156, 87, 217, 0.3);
- padding: 24px;
+     background: #F5F5DC;
+     border-radius: 16px;
+     box-shadow: 0 0 20px rgba(156, 87, 217, 0.3);
+     padding: 24px;
 `;
 
 const formVariants = {
@@ -25,15 +25,15 @@ interface DetailedAdviceFormData {
 }
 
 function DetailedAdviceForm() {
-     const [formData, setFormData] = useState<DetailedAdviceFormData>({
-         name: '',
-         email: '',
-         category: '',
-         donationLink: '',
-         question: '',
-         notes: '',
-     });
-     const categories: string[] = [
+    const [formData, setFormData] = useState<DetailedAdviceFormData>({
+     name: '',
+     email: '',
+     category: '',
+     donationLink: '',
+     question: '',
+     notes: '',
+    });
+    const categories: string[] = [
          "финансы",
          "здоровье",
          "образование",
@@ -143,108 +143,102 @@ function DetailedAdviceForm() {
          "солнечная энергия",
          "ветрянная энергия",
          "водная энергия"
-     ];
-
-     const handleSubmit = async (e: React.FormEvent) => {
-         e.preventDefault();
-
+    ];
+    const [advice, setAdvice] = useState<string>('');
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
          try {
             if (!formData.name || !formData.email || !formData.category || !formData.question) {
-                 alert('Пожалуйста, заполните все обязательные поля!');
-                 return;
+             alert('Пожалуйста, заполните все обязательные поля!');
+             return;
             }
-            const response = await axios.post(
-                 '/chat/', { message: question }
-                 { ...formData, answer: '' }
-            );
-            setAdvice(response.data.response);
-            
-            window.open(`/sovet-result/${response.data.id}`, '_blank');
-
+            const response = await axios.post('/chat/', { message: formData.question });
+            window.open (`/sovet-result/${response.data.id}`, '_blank');
             alert('Совет отправлен на вашу почту!');
+            setAdvice(response.data.response);
          } catch (error) {
-             console.error('Ошибка:', error);
-             alert('Произошла ошибка при получении совета');
+          console.error('Ошибка:', error);
+          alert('Произошла ошибка при получении совета');
          }
-     };
-
-     return (
-        <formContainer>
-         <div className="detailed-advice-form">
-             <h1 style={{ color: '#9C57D9', marginBottom: '24px' }}>Получите детальный совет от АКВИ</h1>
-             <motion.div
-              className="detailed-advice-form"
-              variants={formVariants}
-              initial="hidden"
-              animate="visible"
-              >
-             <form onSubmit={handleSubmit}>
-                 <input
-                     type="text"
-                     placeholder="Введите ваше имя..."
-                     value={formData.name}
-                     onChange={(e) =>
-                         setFormData({ ...formData, name: e.target.value })
-                     }
-                 />
-                 <input
-                     type="email"
-                     placeholder="Введите ваш email..."
-                     value={formData.email}
-                     onChange={(e) =>
-                         setFormData({ ...formData, email: e.target.value })
-                     }
-                 />
-                 <select
-                     value={formData.category}
-                     onChange={(e) =>
-                         setFormData({ ...formData, category: e.target.value })
-                     }
-                 >
-                     <option value="">Выберите категорию</option>
-                     {categories.map((category, index) => (
-                         <option key={index} value={category}>
-                             {category.charAt(0).toUpperCase() + category.slice(1)}
-                         </option>
-                     ))}
-                 </select>
-                 <input
-                     type="url"
-                     placeholder="https://advice-project.onrender.com"
-                     value={formData.donationLink}
-                     onChange={(e) =>
-                         setFormData({ ...formData, donationLink: e.target.value })
-                     }
-                 />
-                 <textarea
-                     placeholder="Задайте свой вопрос..."
-                     value={formData.question}
-                     onChange={(e) =>
-                         setFormData({ ...formData, question: e.target.value })
-                     }
-                 />
-                 <textarea
-                     placeholder="Добавьте заметки или замечания..."
-                     value={formData.notes}
-                     onChange={(e) =>
-                         setFormData({ ...formData, notes: e.target.value })
-                     }
-                 />
-                 <button
-                  type="submit"
-                  style={{
-                    background: '#9C57D9',
-                    color: 'white',
-                    padding: '12px 24px',
-                    marginTop: '24px',
-                  }}
-                 >Получить совет
-                 </button>
-             </form>
-             </motion.div>
-         </div>
-        </FormContainer>
-     );
+    };
+    return (
+     <FormContainer>
+        <div className="detailed-advice-form">
+            <h1 style={{ color: '#9C57D9', marginBottom: '24px' }}>Получите детальный совет от АКВИ</h1>
+         <motion.div
+           className="detailed-advice-form"
+           variants={formVariants}
+           initial="hidden"
+           animate="visible"
+         >
+         <form onSubmit={handleSubmit}>
+         <input
+          type="text"
+          placeholder="Введите ваше имя..."
+          value={formData.name}
+          onChange={(e) =>
+           setFormData({ ...formData, name: e.target.value })
+          }
+         />
+         <input
+          type="email"
+          placeholder="Введите ваш email..."
+          value={formData.email}
+          onChange={(e) =>
+            setFormData({ ...formData, email: e.target.value })
+          }
+         />
+         <select
+          value={formData.category}
+          onChange={(e) =>
+            setFormData({ ...formData, category: e.target.value })
+          }
+         >
+         <option value="">Выберите категорию</option>
+          {categories.map((category, index) => (
+          <option key={index} value={category}>
+          {category.charAt(0).toUpperCase() + category.slice(1)}
+          </option>
+          ))}
+         </select>
+         <input
+          type="url"
+          placeholder="https://advice-project.onrender.com"
+          value={formData.donationLink}
+          onChange={(e) =>
+            setFormData({ ...formData, donationLink: e.target.value })
+          }
+         />
+         <textarea
+          placeholder="Задайте свой вопрос..."
+          value={formData.question}
+          onChange={(e) =>
+            setFormData({ ...formData, question: e.target.value })
+          }
+         />
+         <textarea
+          placeholder="Добавьте заметки или замечания..."
+          value={formData.notes}
+          onChange={(e) =>
+            setFormData({ ...formData, notes: e.target.value })
+          }
+         />
+         <button
+          type="submit"
+          style={{
+            background: '#9C57D9',
+            color: 'white',
+            padding: '12px 24px',
+            marginTop: '24px',
+          }}
+         >Получить совет
+         </button>
+         </form> 
+         </motion.div>
+         {advice && <div className="advice-result">{advice}</div>}
+        </div>
+     </FormContainer>
+    );
 }
 
 export default DetailedAdviceForm;

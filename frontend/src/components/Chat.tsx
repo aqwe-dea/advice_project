@@ -1,7 +1,15 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
-import styled from 'styled-components';
+import { styled } from 'styled-components';
+
+const ChatContainer = styled.div`
+         max-width: 600px;
+         margin: 40px auto;
+         padding: 24px;
+         background: #F5F5DC;
+         border-radius: 16px;
+`;
 
 interface HuggingFaceResponse {
     choices: Array<{
@@ -16,25 +24,18 @@ interface Message {
     user: string;
     bot: string;
 }
-useEffect(() => {
-    const fetchHistory = async () => {
-        const history = await axios.get('/api/user-history/?email=...');
-        setMessages(history.data.map((msg: any) => ({
-            user: msg.question.
-            bot: msg.answer
-        })));
-    };
-    fetchHistory();
-}, []);
 
 function Chat() {
-    const ChatContainer = styled.div`
-     max-width: 600px;
-     margin: 40px auto;
-     padding: 24px;
-     background: #F5F5DC;
-     border-radius: 16px;
-    `;
+    useEffect(() => {
+        const fetchHistory = async () => {
+            const history = await axios.get('/api/user-history/?email=...');
+            setMessages(history.data.map((msg: any) => ({
+                user: msg.question,
+                bot: msg.answer
+            })));
+    };
+    fetchHistory();
+    }, []);
     const [messages, setMessages] = useState<Message[]>([]);
     const [input, setInput] = useState<string>('');
     const [error, setError] = useState<string | null>(null);
@@ -64,6 +65,7 @@ function Chat() {
         setInput('');
     };
     return (
+        <ChatContainer>
         <motion.div
          initial={{ y: 20, opacity: 0 }}
          animate={{ y: 0, opacity: 1 }}
@@ -91,6 +93,7 @@ function Chat() {
             </div>
         </div>
         </motion.div>
+        </ChatContainer>
     );
 }
 
