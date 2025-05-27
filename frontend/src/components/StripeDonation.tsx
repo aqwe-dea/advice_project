@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import { loadStripe } from '@stripe/stripe-js';
 import { Stripe } from '@stripe/stripe-js';
+import { RedirectToCheckoutOptions } from '@stripe/stripe-js';
 
 const stripePublicKey = process.env.REACT_APP_STRIPE_PUBLIC_KEY;
 if (!stripePublicKey) {
