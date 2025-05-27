@@ -127,26 +127,22 @@ class CreateDetailedAdviceView(APIView):
 
 class CreatePaymentIntentView(APIView):
     def post(self, request, *args, **kwargs):
+        amount = request.data.get('amount', none)
+        currency = request.data.get('currency', 'usd')
+        if not amount or amount < 1:
+            return Response({'error': 'Сумма должна быть больше 0'}, status=status.HTTP_400_BAD_REQUEST)
+        STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY')
+        if not STRIPE_SECRET_KEY:
+            return Response({'error': 'Stripe ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
-            amount = int(request.data.get('amount', 0))
-            currency = request.data.get('currency', 'usd')
-            if amount <=0:
-                return Response(
-                    {'error': 'Сумма должна быть больше нуля.'},
-                    status=status.HTTP_400_BAD_REQUEST
-                )
+            stripe.api_key = STRIPE_SECRET_KEY
             payment_intent = stripe.PaymentIntent.create(
                 amount=amount,
-                currency='usd',
-                automatic_payment_methods={'enabled': True}
+                currency='currency',
+                payment_method_types=['card'],
+                metadata={'integration_check': 'accept_a_payment'}
             )
-            return Response(
-                {'clientSecret': payment_intent.client_secret},
-                status=status.HTTP_200_OK
-            )
+            return Response({'clientSecret': payment_intent.client_secret})
         except Exception as e:
-            return Response(
-                {'error': str(e)},
-                status=status.HTTP_403_FORBIDDEN
-            )
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 # Create your views here.
