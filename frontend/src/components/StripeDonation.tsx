@@ -29,16 +29,18 @@ function StripeDonation({ onSuccess }: { onSuccess?: () => void }) {
                 { amount, currency: 'usd' },
                 { headers: { 'Content-Type': 'application/json' } }
             );
+            const { sessionId } = response.data;
             const stripe = await stripePromise;
             if (!stripe) {
                 alert('Не удалось загрузить Stripe.');
                 return;
             }
-            const checkoutOptions: RedirectToCheckoutClientOptions = {
-                 paymentIntentClientSecret: response.data.clientSecret, 
+            const checkoutOptions: RedirectToCheckoutOptions = {
+                 ClientSecret: response.data.clientSecret, 
             };
-            const { error } = await stripe.redirectToCheckout(checkoutOptions);
-            if (error) {
+            const { url } = await stripe.redirectToCheckout({ sessionId: response.data.sessionId });
+            if (url) {
+                window.location.href = url;
                 console.error('Ошибка при перенаправлении на Stripe:', error);
                 alert('Протзошла ошибка при оплате.');
             } else {

@@ -8,6 +8,7 @@ from aqwe_app import views
 from django.views.generic import TemplateView
 from django.conf.urls.static import static
 from aqwe_app.views import CreatePaymentIntentView
+from aqwe_app.views import CreateCheckoutSessionView
 from drf_spectacular.views import SpectacularAPIView
 from drf_spectacular.views import SpectacularSwaggerView
 from djstripe.urls import path
@@ -38,6 +39,7 @@ urlpatterns = [
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='docs'),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+    path('create-checkout-session/', CreateCheckoutSessionView.as_view(), name='create-checkout-session'),
     path('create-payment-intent/', CreatePaymentIntentView.as_view(), name='create-payment-intent'),
 ]
 

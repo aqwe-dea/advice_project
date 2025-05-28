@@ -58,8 +58,16 @@ class AdviceViewSet(viewsets.ModelViewSet):
         response = super().create(request, *args, **kwargs)
         category = request.data.get('category')
         question = request.data.get('question')
+        if not category or not question:
+            return Response(
+                {'error': 'Необходимо указать категорию и вопрос'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
         user_email = request.data.get('email')
         advice = response.data.get('answer')
+        if user_email and advice:
+            send_advice_email(user_email, advice)
+            return response
         return Response(serializer.data, status=status.HTTP_201_CREATED)
         advice = Advice.objects.create(category=category, question=question, answer=answer)
         try:
@@ -69,28 +77,18 @@ class AdviceViewSet(viewsets.ModelViewSet):
                 answer=answer
             )
             serializer = self.get_serializer(advice)
-        except Exception as e:
-             return Response(
-                {'error': f'Произошла ошибка: {str(e)}'},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-             )
-        """
-        if user_email and advice:
-            send_advice_email(user_email, advice)
-        return response
-        if not category or not question:
-             return Response(
-                {'error': 'Необходимо указать категорию и вопрос'},
-                status=status.HTTP_400_BAD_REQUEST
-             )
-        answer = answers.get(category.lower(), answers['default'])     
-        answers = {
+            answer = answers.get(category.lower(), answers['default'])     
+            answers = {
             'финансы': 'Рекомендую создать бюджет и отслеживать расходы.',
             'здоровье': 'Попробуйте больше двигаться и соблюдать режим сна.',
             'образование': 'Определите свои цели и выберете подходящие курсы.',
             'default': 'Для этого случая у меня есть универсальный совет: Будьте терпеливы!'
             }
-        """    
+        except Exception as e:
+            return Response(
+                {'error': f'Произошла ошибка: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 class UserHistoryViewSet(viewsets.ModelViewSet):
     queryset = UserHistory.objects.all()
@@ -104,6 +102,7 @@ class UserHistoryViewSet(viewsets.ModelViewSet):
         if user_id:
              return UserHistory.objects.filter(user_id=user_id)
              return UserHistory.objects.all()
+
 class CreateDetailedAdviceView(APIView):
     def post(self, request, *args, **kwargs):
         serializer = AdviceSerializer(data=request.data)
@@ -125,6 +124,36 @@ class CreateDetailedAdviceView(APIView):
         )
         send_advice_email(email, message)    
 
+class CreateCheckoutSessionView(APIView):
+    def post(self, request, *args, **kwargs):
+        amount = request.data.get('amount', none)
+        currency = request.data.get('currency', 'usd')
+        if not amount or amount < 1:
+            return Response({'error': 'Сумма должна быть больше 0'}, status=status.HTTP_400_BAD_REQUEST)
+        STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY')
+        if not STRIPE_SECRET_KEY:
+            return Response({'error': 'Stripe ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        try:
+            stripe.api_key = STRIPE_SECRET_KEY
+            checkout_session = stripe.checkout.Session.create(
+                payment_method_types=['card'],
+                mode='payment',
+                line_items=[
+                    {
+                        'price_data': {
+                            'currency': currency,
+                            'product_data': {'name': 'Пожертвование проекту Советница АКВИ'},
+                            'unit_amount': amount,
+                        },
+                    }
+                ],
+                success_url='https://advice-project.onrender.com/donation-success/ ',
+                cancel_url='https://advice-project.onrender.com/donation-cancel/ ',
+            )
+            return Response({'sessionId': checkout_session.id})
+        except Exception as e:
+            return Response({'error': str(e)}, status=500)
+            
 class CreatePaymentIntentView(APIView):
     def post(self, request, *args, **kwargs):
         amount = request.data.get('amount', none)
