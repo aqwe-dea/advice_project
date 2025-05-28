@@ -1,18 +1,21 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { loadStripe } from '@stripe/stripe-js';
-import { Stripe } from '@stripe/stripe-js';
-import { RedirectToCheckoutOptions } from '@stripe/stripe-js';
+import {loadStripe} from '@stripe/stripe-js';
+import {RedirectToCheckoutOptions} from '@stripe/stripe-js';
+import {RedirectToCheckoutClientOptions} from '@stripe/stripe-js';
+import {StripeElementsOptionsClientSecret} from '@stripe/stripe-js';
+import {StripeCheckoutOptions} from '@stripe/stripe-js';
+import {Stripe} from '@stripe/stripe-js'; 
 
-const stripePublicKey = process.env.REACT_APP_STRIPE_PUBLIC_KEY;
-if (!stripePublicKey) {
-    console.error('Не найден REACT_APP_STRIPE_PUBLIC_KEY');
-}
-const stripePromise = loadStripe(stripePublicKey as string);
 interface DonationFormData {
     amount: number;
 }
 function StripeDonation({ onSuccess }: { onSuccess?: () => void }) {
+    const stripePublicKey = process.env.REACT_APP_STRIPE_PUBLIC_KEY;
+        if (!stripePublicKey) {
+            console.error('Не найден REACT_APP_STRIPE_PUBLIC_KEY');
+        }
+    const stripePromise = loadStripe(stripePublicKey as string);
     const [amount, setAmount] = useState<number>(500);
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -31,8 +34,8 @@ function StripeDonation({ onSuccess }: { onSuccess?: () => void }) {
                 alert('Не удалось загрузить Stripe.');
                 return;
             }
-            const checkoutOptions: RedirectToCheckoutOptions = {
-                ClientSecret: response.data.clientSecret,
+            const checkoutOptions: RedirectToCheckoutClientOptions = {
+                 paymentIntentClientSecret: response.data.clientSecret, 
             };
             const { error } = await stripe.redirectToCheckout(checkoutOptions);
             if (error) {
