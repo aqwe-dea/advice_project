@@ -1,21 +1,20 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import {loadStripe} from '@stripe/stripe-js';
-import {RedirectToCheckoutOptions} from '@stripe/stripe-js';
-import {RedirectToCheckoutClientOptions} from '@stripe/stripe-js';
-import {StripeElementsOptionsClientSecret} from '@stripe/stripe-js';
-import {StripeCheckoutOptions} from '@stripe/stripe-js';
 import {Stripe} from '@stripe/stripe-js'; 
+
+const stripePublicKey = process.env.REACT_APP_STRIPE_PUBLIC_KEY;
+if (!stripePublicKey) {
+    console.error('Не найден REACT_APP_STRIPE_PUBLIC_KEY');
+}
+
+const stripePromise = loadStripe(stripePublicKey as string);
 
 interface DonationFormData {
     amount: number;
 }
+
 function StripeDonation({ onSuccess }: { onSuccess?: () => void }) {
-    const stripePublicKey = process.env.REACT_APP_STRIPE_PUBLIC_KEY;
-        if (!stripePublicKey) {
-            console.error('Не найден REACT_APP_STRIPE_PUBLIC_KEY');
-        }
-    const stripePromise = loadStripe(stripePublicKey as string);
     const [amount, setAmount] = useState<number>(500);
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -25,31 +24,28 @@ function StripeDonation({ onSuccess }: { onSuccess?: () => void }) {
         }
         try {
             const response = await axios.post(
-                'https://advice-project.onrender.com/create-payment-intent/ ',
+                'https://advice-project.onrender.com/create-checkout-session/ ',
                 { amount, currency: 'usd' },
                 { headers: { 'Content-Type': 'application/json' } }
             );
-            const { sessionId } = response.data;
             const stripe = await stripePromise;
             if (!stripe) {
                 alert('Не удалось загрузить Stripe.');
                 return;
             }
-            const checkoutOptions: RedirectToCheckoutOptions = {
-                 ClientSecret: response.data.clientSecret, 
-            };
-            const { url } = await stripe.redirectToCheckout({ sessionId: response.data.sessionId });
-            if (url) {
-                window.location.href = url;
-                console.error('Ошибка при перенаправлении на Stripe:', error);
+            const { error } = await stripe.redirectToCheckout({
+                sessionId: response.data.sessionId,
+            })
+            if (error) {
+                console.error('Ошибка при перенаправлении на Stripe:', error.message);
                 alert('Протзошла ошибка при оплате.');
             } else {
-                alert('Пожертвование успешно!');
+                alert('Перенаправлениее на оплату...');
                 onSuccess?.();
             }
         } catch (error: any) {
-            console.error('Ошибка при создании платежа:', error);
-            alert('Произошла ошибка при создании платежа.');
+            console.error('Ошибка создании сессии:', error);
+            alert('Не удалось создать сессию оплаты.');
         }
     };
     return (

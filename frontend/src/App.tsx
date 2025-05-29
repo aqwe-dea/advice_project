@@ -11,6 +11,7 @@ import AdviceList from './components/AdviceList';
 import AdviceForm from './components/AdviceForm';
 import Navbar from './components/Navbar';
 import Chat from './components/Chat';
+import StripeDonation from './components/StripeDonation';
 
 function App() {
   const { theme, toggleTheme } = useTheme();
@@ -32,6 +33,7 @@ function App() {
                 <Route path="/sovet" element={<Sovet />} />
                 <Route path="/detailed-advice" element={<DetailedAdviceForm />} />
                 <Route path="/chat" element={<Chat />} />
+                <Route path="/donation" element={<StripeDonation />} />
                 </Routes>
                 <AdviceForm />
                 <AdviceList />
