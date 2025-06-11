@@ -131,6 +131,8 @@ class CreateDetailedAdviceView(APIView):
         send_advice_email(email, message)    
 
 class CreateCheckoutSessionView(APIView):
+    authentication_classes = []
+    permission_classes = [AllowAny]
     def post(self, request, *args, **kwargs):
         amount = request.data.get('amount', none)
         currency = request.data.get('currency', 'usd')
