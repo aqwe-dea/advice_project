@@ -11,11 +11,12 @@ from .models import Advice, UserHistory
 from .serializers import AdviceSerializer, UserHistorySerializer
 from .utils import send_advice_email
 import stripe
-#from django.views.decorators.csrf import csrf_exempt
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import permission_classes
 from rest_framework.permissions import AllowAny
 
-#@csrf_exempt
+@method_decorator(csrf_exempt, name='dispatch')
 @permission_classes([AllowAny])
 
 #stripe.api_key = settings.STRIPE_SECRET_KEY
