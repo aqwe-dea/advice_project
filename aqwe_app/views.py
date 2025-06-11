@@ -11,7 +11,10 @@ from .models import Advice, UserHistory
 from .serializers import AdviceSerializer, UserHistorySerializer
 from .utils import send_advice_email
 import stripe
-#@api_view(['POST'])
+#from django.views.decorators.csrf import csrf_exempt
+#from rest_framework.decorators import permission_classes
+#from rest_framework.permissions import AllowAny
+
 #@csrf_exempt
 
 #stripe.api_key = settings.STRIPE_SECRET_KEY
@@ -31,12 +34,13 @@ class ChatView(APIView):
             return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
             client = InferenceClient(token=HF_API_KEY)
-            ai_response = client.text_generation(
-                user_message,
+            response = client.chat_completion(
                 model="Qwen/Qwen2.5-72B-Instruct",
-                max_new_tokens=200,
+                messages=[{"role": "user", "content": user_message}],
+                max_tokens=200,
                 temperature=0.7
             )
+            ai_response = response.choices[0].message.content
             return Response({'response': ai_response})
         except requests.exceptions.HTTPError as e:
             return Response({
