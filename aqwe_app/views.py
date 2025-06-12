@@ -18,8 +18,8 @@ from rest_framework.permissions import AllowAny
 
 @method_decorator(csrf_exempt, name='dispatch')
 @permission_classes([AllowAny])
+#@api_view(['POST'])
 
-#stripe.api_key = settings.STRIPE_SECRET_KEY
 #from djstripe.models.core import PaymentIntent
 #from djstripe.models import core
 #from djstripe.models import PaymentIntent        
@@ -149,10 +149,11 @@ class CreateCheckoutSessionView(APIView):
                 line_items=[
                     {
                         'price_data': {
-                            'currency': currency,
+                            'currency': 'usd',
                             'product_data': {'name': 'Пожертвование проекту Советница АКВИ'},
                             'unit_amount': amount,
                         },
+                        'quantity': 1,
                     }
                 ],
                 success_url='https://advice-project.onrender.com/donation-success/ ',
