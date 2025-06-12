@@ -15,6 +15,7 @@ from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from rest_framework.decorators import permission_classes
 from rest_framework.permissions import AllowAny
+from rest_framework.decorators import api_view
 
 @method_decorator(csrf_exempt, name='dispatch')
 @permission_classes([AllowAny])
@@ -133,6 +134,7 @@ class CreateDetailedAdviceView(APIView):
 class CreateCheckoutSessionView(APIView):
     authentication_classes = []
     permission_classes = [AllowAny]
+    @api_view(['POST'])
     def post(self, request, *args, **kwargs):
         amount = request.data.get('amount', none)
         currency = request.data.get('currency', 'usd')
