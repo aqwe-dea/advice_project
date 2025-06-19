@@ -1,21 +1,21 @@
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from huggingface_hub import InferenceClient
 import os
 import requests
-from rest_framework import response
-from rest_framework import status
-from rest_framework import viewsets
-from django.conf import settings
+import stripe
 from .models import Advice, UserHistory
 from .serializers import AdviceSerializer, UserHistorySerializer
 from .utils import send_advice_email
-import stripe
-from django.utils.decorators import method_decorator
-from django.views.decorators.csrf import csrf_exempt
+from rest_framework.views import APIView
+from rest_framework.response import Response
+from rest_framework import response
+from rest_framework import status
+from rest_framework import viewsets
 from rest_framework.decorators import permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import api_view
+from huggingface_hub import InferenceClient
+from django.conf import settings
+from django.utils.decorators import method_decorator
+from django.views.decorators.csrf import csrf_exempt
 
 @method_decorator(csrf_exempt, name='dispatch')
 @permission_classes([AllowAny])
