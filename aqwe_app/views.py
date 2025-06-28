@@ -16,6 +16,8 @@ from huggingface_hub import InferenceClient
 from django.conf import settings
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from django.http.response import JsonResponse
+from django.views.generic.base import View
 
 @method_decorator(csrf_exempt, name='dispatch')
 @permission_classes([AllowAny])
@@ -96,7 +98,34 @@ class AdviceViewSet(viewsets.ModelViewSet):
                 {'error': f'Произошла ошибка: {str(e)}'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-
+class HuggingFaceView(View):
+    HF_API_URL = "https://api-inference.huggingface.co/models/t5-small"
+    def get_api_headers(self):
+        return {"Authorization": f"Bearer {settings.HUGGINGFACE_API_KEY}"}
+class GenerateCourseView(HuggingFaceView):
+    def get(self, request):
+        age = request.GET.get("age", "25")
+        interests = request.GET.get("interests", "программирование, дизайн")
+        level = request.GET.get("level", "новичок")
+        prompt = f"""
+        Создай индивидуальный курс для {age}-летнего пользователя с интересами: {interests}, уровень: {level}.
+        Курс должен включать:
+        - Цели обучения
+        - Этапы освоенияя материала
+        - Рекомендованные ресурсы
+        - Практические задания
+        - Оценка прогресса
+        """
+        try:
+            response = requests.post(
+                self.HF_API_URL,
+                headers=self.get_api_headers(),
+                json={"inputs": prompt.strip()}
+            )
+            response.raise_for_status()
+            return JsonResponse(response.json())
+        except requests.exceptions.RequestException as e:
+            return JsonResponse({"error": str(e)}, status=500)
 class UserHistoryViewSet(viewsets.ModelViewSet):
     queryset = UserHistory.objects.all()
     serializer_class = UserHistorySerializer

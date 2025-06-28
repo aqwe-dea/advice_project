@@ -7,6 +7,7 @@ from .views import CreatePaymentIntentView
 from .views import CreateDetailedAdviceView
 from .views import ChatView
 from .views import CreateCheckoutSessionView
+from .views import GenerateCourseView
 from rest_framework import routers, viewsets
 
 router = DefaultRouter()
@@ -20,4 +21,5 @@ urlpatterns = [
     path('create-checkout-session/', CreateCheckoutSessionView.as_view(), name='create-checkout-session'),
     path('create-detailed-advice/', CreateDetailedAdviceView.as_view(), name='create-detailed-advice'),
     path('chat/', ChatView.as_view(), name='chat'),
+    path('generate-course/', GenerateCourseView.as_view(), name='generate_course'),
 ]
