@@ -1,12 +1,13 @@
 import React, { useState } from 'react';
 
-const CourseFprm = () => {
+const CourseForm = () => {
     const [course, setCourse] = useState("");
     const [isLoading, setIsLoading] = useState(false);
     const handleSubmit = async (e:React.FormEvent) => {
-        e.prevent.Default();
+        e.preventDefault();
         setIsLoading(true);
-        const formData = new FormData(e.currentTarget);
+        const form = e.currentTarget as HTMLFormElement;
+        const formData = new FormData(form);
         const age = formData.get("age") as string;
         const interests = formData.get("interests") as string;
         const level = formData.get("level") as string;
@@ -42,7 +43,7 @@ const CourseFprm = () => {
                     <option value="опытный">Опытный</option>
                 </select>
             </label>
-            <button type="submit" disable={isLoading}>
+            <button type="submit" disabled={isLoading}>
                 {isLoading ? "Генерация..." : "Создать курс"}
             </button>
             <pre>{course}</pre>
