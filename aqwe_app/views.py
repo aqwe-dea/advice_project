@@ -99,7 +99,7 @@ class AdviceViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
 class HuggingFaceView(View):
-    HF_API_URL = "https://api-inference.huggingface.co/models/t5-small"
+    HF_API_URL = "https://api-inference.huggingface.co/models/ai-forever/ruT5-base "
     def get_api_headers(self):
         return {"Authorization": f"Bearer {settings.HUGGINGFACE_API_KEY}"}
 class GenerateCourseView(HuggingFaceView):
