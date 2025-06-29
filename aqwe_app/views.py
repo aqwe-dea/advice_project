@@ -120,7 +120,7 @@ class GenerateCourseView(HuggingFaceView):
             response = requests.post(
                 self.HF_API_URL,
                 headers=self.get_api_headers(),
-                json={"inputs": prompt.strip()}
+                json={"inputs": prompt.strip(), "max_length": 500, "num_return_sequences": 1, "do_sample": True, "temperature": 0.7}
             )
             response.raise_for_status()
             return JsonResponse(response.json())
