@@ -18,7 +18,7 @@ const CourseForm = () => {
             );
             const data = await response.json();
             if (data.text) {
-                setCourse(data.text.split('\n').map =>
+                setCourse(data.text.split('\n').map =>;
                 <div key={i}>{line}</div>)
             };
             } else {
@@ -28,7 +28,7 @@ const CourseForm = () => {
             } finally {
                 setIsLoading(false);
             }
-}
+};
 return (
         <form onSubmit={handleSubmit}>
             <h3>Создать индивидуальный курс</h3>
@@ -53,7 +53,6 @@ return (
             </button>
             <pre>{course}</pre>
         </form>
-    );
-};
+);
 
 export default CourseForm;
