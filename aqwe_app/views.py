@@ -98,15 +98,13 @@ class AdviceViewSet(viewsets.ModelViewSet):
                 {'error': f'Произошла ошибка: {str(e)}'},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
-class HuggingFaceView(View):
-    HF_API_URL = "https://api-inference.huggingface.co/models/ai-forever/ruT5-base "
-    def get_api_headers(self):
-        return {"Authorization": f"Bearer {settings.HUGGINGFACE_API_KEY}"}
-class GenerateCourseView(HuggingFaceView):
+class GenerateCourseView(View):
     def get(self, request):
         age = request.GET.get("age", "25")
         interests = request.GET.get("interests", "программирование, дизайн")
         level = request.GET.get("level", "новичок")
+        HF_API_URL = "https://api-inference.huggingface.co/models/ai-forever/ruT5-base "
+        headers = {"Authorization": f"Bearer {settings.HUGGINGFACE_API_KEY}"}
         prompt = f"""
         Создай индивидуальный курс для {age}-летнего пользователя с интересами: {interests}, уровень: {level}.
         Курс должен включать:
@@ -118,12 +116,18 @@ class GenerateCourseView(HuggingFaceView):
         """
         try:
             response = requests.post(
-                self.HF_API_URL,
-                headers=self.get_api_headers(),
+                HF_API_URL,
+                headers=headers,
                 json={"inputs": prompt.strip(), "max_length": 500, "num_return_sequences": 1, "do_sample": True, "temperature": 0.7}
             )
             response.raise_for_status()
-            return JsonResponse(response.json())
+            data = response.json()
+            if isinstance(data, list) and data[0].get("generated_text"):
+                return JsonResponse({"text": data[0]["generated_text"]})
+            elif isinstance(data, dict) and "generated_text":
+                return JsonResponse({"text": data["generated_text"]})
+            else:
+                return JsonResponse({"error": "Неверный формат ответа", "raw": data}, status=500)
         except requests.exceptions.RequestException as e:
             return JsonResponse({"error": str(e)}, status=500)
 class UserHistoryViewSet(viewsets.ModelViewSet):

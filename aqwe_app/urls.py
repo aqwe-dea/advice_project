@@ -21,5 +21,5 @@ urlpatterns = [
     path('create-checkout-session/', CreateCheckoutSessionView.as_view(), name='create-checkout-session'),
     path('create-detailed-advice/', CreateDetailedAdviceView.as_view(), name='create-detailed-advice'),
     path('chat/', ChatView.as_view(), name='chat'),
-    path('generate-course/', GenerateCourseView.as_view(), name='generate_course'),
+    path('generate-course/', GenerateCourseView.as_view(), name='generate-course'),
 ]

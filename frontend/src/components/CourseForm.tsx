@@ -17,7 +17,13 @@ const CourseForm = () => {
                 { method: "GET" }
             );
             const data = await response.json();
-            setCourse(data[0]?.generated_text || JSON.stringify(data));
+            if (data.text) {
+                setCourse(data.text.split('\n').map((line, i) =>
+                <div key={i}>{line}</div>
+            ));
+            } else {
+                setCourse("Ошибка: " + JSON.stringify(data));
+            }
         } catch (error) {
             setCourse("Ошибка генерации курса");
         } finally {

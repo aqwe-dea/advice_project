@@ -36,7 +36,7 @@ urlpatterns = [
     path('', TemplateView.as_view(template_name='index.html'), name='home'),
     re_path(r'^(?:.*)/?$', TemplateView.as_view(template_name='index.html')),
     path('stripe/', include('djstripe.urls', namespace='djstripe')),
-    path('generate-course/', GenerateCourseView.as_view(), name='generate_course'),
+    path('generate-course/', GenerateCourseView.as_view(), name='generate-course'),
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='docs'),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
