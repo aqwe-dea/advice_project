@@ -16,7 +16,7 @@ from huggingface_hub import InferenceClient
 from django.conf import settings
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from django.http.response import JsonResponse
+from django.http import JsonResponse
 from django.views.generic.base import View
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -193,8 +193,8 @@ class GenerateCourseView(View):
         age = request.GET.get("age", "25")
         interests = request.GET.get("interests", "программирование, дизайн")
         level = request.GET.get("level", "новичок")
-        HF_API_URL = "https://api-inference.huggingface.co/models/ai-forever/ruT5-base "
-        headers = {"Authorization": f"Bearer {settings.HUGGINGFACE_API_KEY}"}
+        HF_API_URL = "https://api-inference.huggingface.co/models/cointegrated/ruT5-base "
+        headers = {"Authorization": f"Bearer {os.getenv['HUGGINGFACE_API_KEY']}"}
         prompt = f"""
         Создай индивидуальный курс для {age}-летнего пользователя с интересами: {interests}, уровень: {level}.
         Курс должен включать:
