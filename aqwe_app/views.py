@@ -1,6 +1,7 @@
 import os
 import requests
 import stripe
+import logging
 from .models import Advice, UserHistory
 from .serializers import AdviceSerializer, UserHistorySerializer
 from .utils import send_advice_email
@@ -21,6 +22,7 @@ from django.http.response import JsonResponse
 from django.views.generic import View
 from django.views.generic.base import View
 
+logger = logging.getLogger(__name__)
 @method_decorator(csrf_exempt, name='dispatch')
 @permission_classes([AllowAny])
 #@api_view(['POST'])
@@ -192,18 +194,21 @@ class CreatePaymentIntentView(APIView):
 
 class GenerateCourseView(View):
     def get(self, request):
-        age = request.GET.get("age", "25")
+        age = request.Get.get("age", "25")
         interests = request.GET.get("interests", "программирование, дизайн")
         level = request.GET.get("level", "новичок")
-        HF_API_URL = "https://api-inference.huggingface.co/models/cointegrated/ruT5-base "
-        headers = {"Authorization": f"Bearer {os.getenv['HUGGINGFACE_API_KEY']}"}
-        prompt = f"""Создай индивидуальный курс для {age}-летнего пользователя с интересами: {interests}, уровень: {level},
-            Курс должен включать:
-            Цели обучения,
-            Этапы освоения материала, 
-            Рекомендованные ресурсы, 
-            Практические задания, 
-            Оценка прогресса"""
+        HF_API_URL = "https://api-inference.huggingface.co/models/t5-small "
+        headers = {"Authorization": f"Bearer {settings.HUGGINGFACE_API_KEY}"}
+        prompt = f"""
+        Создай подробный курс для {age}-летнего пользователя с интересами: {interests}, уровень: {level},
+        Курс должен включать:
+        1.Цели обучения
+        2.Этапы освоения материала
+        3.Рекомендованные ресурсы
+        4.Практические задания
+        5.Оценка прогресса
+        """
+
         try:
             response = requests.post(
                 HF_API_URL,
@@ -214,17 +219,20 @@ class GenerateCourseView(View):
                     "num_return_sequences": 1,
                     "do_sample": True,
                     "temperature": 0.7
-                }
+                },
+                timeout=15
             )
             response.raise_for_status()
             data = response.json()
             if isinstance(data, list) and data[0].get("generated_text"):
                 return JsonResponse({"text": data[0]["generated_text"]})
-            elif isinstance(data, dict) and "generated_text":
+            elif isinstance(data, dict) and "generated_text" in data:
                 return JsonResponse({"text": data["generated_text"]})
             else:
+                logger.error(f"Неверный формат ответа: {data}")
                 return JsonResponse({"error": "Неверный формат ответа", "raw": data}, status=500)
         except requests.exceptions.RequestException as e:
-            return JsonResponse({"error": str(e)}, status=500)
+            logger.error(f"Ошибка API: {str(e)}")
+            return JsonResponse({"error": f"Ошибка API: {str(e)}"}, status=500)
 
 # Create your views here.
