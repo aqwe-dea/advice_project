@@ -14,6 +14,8 @@ router = DefaultRouter()
 router.register(r'advice', AdviceViewSet)
 router.register(r'user-history', UserHistoryViewSet)
 
+app_name = 'aqwe_app'
+
 urlpatterns = [
     path('', include(router.urls)),
     path('advice/<int:pk>/', AdviceViewSet.as_view({'get': 'retrieve'}), name='advice-detail'),
