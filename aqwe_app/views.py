@@ -17,6 +17,8 @@ from django.conf import settings
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 from django.http import JsonResponse
+from django.http.response import JsonResponse
+from django.views.generic import View
 from django.views.generic.base import View
 
 @method_decorator(csrf_exempt, name='dispatch')
@@ -195,15 +197,13 @@ class GenerateCourseView(View):
         level = request.GET.get("level", "новичок")
         HF_API_URL = "https://api-inference.huggingface.co/models/cointegrated/ruT5-base "
         headers = {"Authorization": f"Bearer {os.getenv['HUGGINGFACE_API_KEY']}"}
-        prompt = f"""
-        Создай индивидуальный курс для {age}-летнего пользователя с интересами: {interests}, уровень: {level}.
-        Курс должен включать:
-        - Цели обучения
-        - Этапы освоенияя материала
-        - Рекомендованные ресурсы
-        - Практические задания
-        - Оценка прогресса
-        """
+        prompt = f"""Создай индивидуальный курс для {age}-летнего пользователя с интересами: {interests}, уровень: {level},
+            Курс должен включать:
+            Цели обучения,
+            Этапы освоения материала, 
+            Рекомендованные ресурсы, 
+            Практические задания, 
+            Оценка прогресса"""
         try:
             response = requests.post(
                 HF_API_URL,
