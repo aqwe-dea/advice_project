@@ -192,7 +192,7 @@ class CreatePaymentIntentView(APIView):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
-class GenerateCourseView(View):
+class GenerateCourseView(APIView):
     def get(self, request):
         age = request.Get.get("age", "25")
         interests = request.GET.get("interests", "программирование, дизайн")
