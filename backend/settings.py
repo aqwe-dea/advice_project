@@ -17,6 +17,7 @@ import os
 import environ
 from rest_framework.decorators import permission_classes
 from rest_framework.permissions import AllowAny
+from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -25,6 +26,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 #settings environment
+load_dotenv()
 env = environ.Env(DEBUG=(bool, True))
 environ.Env.read_env(os.path.join(BASE_DIR, '.env'))
 DEBUG = env('DEBUG')
