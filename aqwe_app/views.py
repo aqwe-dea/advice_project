@@ -197,7 +197,7 @@ class GenerateCourseView(View):
         age = request.Get.get("age", "25")
         interests = request.GET.get("interests", "программирование, дизайн")
         level = request.GET.get("level", "новичок")
-        HF_API_URL = "https://api-inference.huggingface.co/models/t5-small "
+        HF_API_URL = "https://api-inference.huggingface.co/models/Qwen/Qwen2.5-Coder-32B-Instruct "
         headers = {"Authorization": f"Bearer {settings.HUGGINGFACE_API_KEY}"}
         prompt = f"""
         Создай подробный курс для {age}-летнего пользователя с интересами: {interests}, уровень: {level},
