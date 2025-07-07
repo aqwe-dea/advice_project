@@ -65,6 +65,10 @@ class GenerateCourseView(APIView):
         interests = request.GET.get("interests", "программирование, дизайн")
         level = request.GET.get("level", "новичок")
         prompt = f"Создай подробный курс для {age}-летнего пользователя с интересами: {interests}, уровень: {level}"
+        if isinstance(data, list) and data[0].get("generated_text"):
+            return Response({"text": data[0]["generated_text"]})
+        elif isinstance(data, dict) and "generated_text" in data:
+            return Response({"text": data["generated_text"]})
         try:
             response = requests.post(
                 HF_API_URL,
@@ -76,10 +80,6 @@ class GenerateCourseView(APIView):
             )
             response.raise_for_status()
             data = response.json()
-            if isinstance(data, list) and data[0].get("generated_text"):
-                return Response({"text": data[0]["generated_text"]})
-            elif isinstance(data, dict) and "generated_text" in data:
-                return Response({"text": data["generated_text"]})
         except requests.exceptions.RequestException as e:
             return Response({"status": "Курс сгенерирован!"}, status=status.HTTP_200_OK)
 class AdviceViewSet(viewsets.ModelViewSet):
