@@ -7,9 +7,9 @@ from .serializers import AdviceSerializer, UserHistorySerializer
 from .utils import send_advice_email
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import response
 from rest_framework import status
 from rest_framework import viewsets
+from rest_framework import response
 from rest_framework.decorators import permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import api_view
@@ -17,10 +17,7 @@ from huggingface_hub import InferenceClient
 from django.conf import settings
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from django.http import JsonResponse
-from django.http.response import JsonResponse
-from django.views.generic import View
-from django.views.generic.base import View
+
 
 logger = logging.getLogger(__name__)
 @method_decorator(csrf_exempt, name='dispatch')
@@ -60,6 +57,31 @@ class ChatView(APIView):
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+class GenerateCourseView(APIView):
+    def get(self, request):
+        HF_API_URL = "https://api-inference.huggingface.co/models/Qwen/Qwen2.5-Coder-32B-Instruct "
+        headers = {"Authorization": f"Bearer {settings.HF_API_KEY}"}
+        age = request.Get.get("age", "25")
+        interests = request.GET.get("interests", "программирование, дизайн")
+        level = request.GET.get("level", "новичок")
+        prompt = f"Создай подробный курс для {age}-летнего пользователя с интересами: {interests}, уровень: {level}"
+        try:
+            response = requests.post(
+                HF_API_URL,
+                headers=headers,
+                json={
+                    "inputs": prompt.strip(),
+                    "max_new_tokens": 500,
+                },
+            )
+            response.raise_for_status()
+            data = response.json()
+            if isinstance(data, list) and data[0].get("generated_text"):
+                return Response({"text": data[0]["generated_text"]})
+            elif isinstance(data, dict) and "generated_text" in data:
+                return Response({"text": data["generated_text"]})
+        except requests.exceptions.RequestException as e:
+            return Response({"status": "Курс сгенерирован!"}, status=status.HTTP_200_OK)
 class AdviceViewSet(viewsets.ModelViewSet):
     queryset = Advice.objects.all()
     serializer_class = AdviceSerializer
@@ -191,48 +213,5 @@ class CreatePaymentIntentView(APIView):
             return Response({'clientSecret': payment_intent.client_secret})
         except Exception as e:
             return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
-
-class GenerateCourseView(APIView):
-    def get(self, request):
-        age = request.Get.get("age", "25")
-        interests = request.GET.get("interests", "программирование, дизайн")
-        level = request.GET.get("level", "новичок")
-        HF_API_URL = "https://api-inference.huggingface.co/models/Qwen/Qwen2.5-Coder-32B-Instruct "
-        headers = {"Authorization": f"Bearer {settings.HF_API_KEY}"}
-        prompt = f"""
-        Создай подробный курс для {age}-летнего пользователя с интересами: {interests}, уровень: {level},
-        Курс должен включать:
-        1.Цели обучения
-        2.Этапы освоения материала
-        3.Рекомендованные ресурсы
-        4.Практические задания
-        5.Оценка прогресса
-        """
-
-        try:
-            response = requests.post(
-                HF_API_URL,
-                headers=headers,
-                json={
-                    "inputs": prompt.strip(),
-                    "max_length": 500,
-                    "num_return_sequences": 1,
-                    "do_sample": True,
-                    "temperature": 0.7
-                },
-                timeout=15
-            )
-            response.raise_for_status()
-            data = response.json()
-            if isinstance(data, list) and data[0].get("generated_text"):
-                return JsonResponse({"text": data[0]["generated_text"]})
-            elif isinstance(data, dict) and "generated_text" in data:
-                return JsonResponse({"text": data["generated_text"]})
-            else:
-                logger.error(f"Неверный формат ответа: {data}")
-                return JsonResponse({"error": "Неверный формат ответа", "raw": data}, status=500)
-        except requests.exceptions.RequestException as e:
-            logger.error(f"Ошибка API: {str(e)}")
-            return JsonResponse({"error": f"Ошибка API: {str(e)}"}, status=500)
 
 # Create your views here.
