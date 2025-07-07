@@ -58,30 +58,27 @@ class ChatView(APIView):
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class GenerateCourseView(APIView):
-    def get(self, request):
+    def get(self, request, *args, **kwargs):
+        #age = request("age", "25")
+        #interests = request("interests", "программирование, дизайн")
+        #level = request("level", "новичок")
         HF_API_URL = "https://api-inference.huggingface.co/models/Qwen/Qwen2.5-Coder-32B-Instruct "
         headers = {"Authorization": f"Bearer {settings.HF_API_KEY}"}
-        age = request.Get.get("age", "25")
-        interests = request.GET.get("interests", "программирование, дизайн")
-        level = request.GET.get("level", "новичок")
-        prompt = f"Создай подробный курс для {age}-летнего пользователя с интересами: {interests}, уровень: {level}"
-        if isinstance(data, list) and data[0].get("generated_text"):
-            return Response({"text": data[0]["generated_text"]})
-        elif isinstance(data, dict) and "generated_text" in data:
-            return Response({"text": data["generated_text"]})
+        prompt = f"Создай подробный курс для пользователя с интересами программирование уровень новичок "
         try:
             response = requests.post(
                 HF_API_URL,
                 headers=headers,
-                json={
-                    "inputs": prompt.strip(),
-                    "max_new_tokens": 500,
-                },
+                json={ "inputs": prompt.strip(), "max_new_tokens": 500 },
             )
             response.raise_for_status()
             data = response.json()
+            if isinstance(data, list) and data[0].get("generated_text"):
+                return Response({"text": data[0]["generated_text"]})
+            elif isinstance(data, dict) and "generated_text" in data:
+                return Response({"text": data["generated_text"]})
         except requests.exceptions.RequestException as e:
-            return Response({"status": "Курс сгенерирован!"}, status=status.HTTP_200_OK)
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 class AdviceViewSet(viewsets.ModelViewSet):
     queryset = Advice.objects.all()
     serializer_class = AdviceSerializer

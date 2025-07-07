@@ -19,9 +19,9 @@ app_name = 'aqwe_app'
 urlpatterns = [
     path('', include(router.urls)),
     path('advice/<int:pk>/', AdviceViewSet.as_view({'get': 'retrieve'}), name='advice-detail'),
-    path('create-payment-intent/', CreatePaymentIntentView.as_view(), name='create-payment-intent'),
-    path('create-checkout-session/', CreateCheckoutSessionView.as_view(), name='create-checkout-session'),
     path('create-detailed-advice/', CreateDetailedAdviceView.as_view(), name='create-detailed-advice'),
     path('chat/', ChatView.as_view(), name='chat'),
     path('generate-course/', GenerateCourseView.as_view(), name='generate-course'),
+    path('create-payment-intent/', CreatePaymentIntentView.as_view(), name='create-payment-intent'),
+    path('create-checkout-session/', CreateCheckoutSessionView.as_view(), name='create-checkout-session'),
 ]

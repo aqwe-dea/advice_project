@@ -30,11 +30,10 @@ schema_view = get_schema_view(
 )
 
 urlpatterns = [
+    path('', TemplateView.as_view(template_name='index.html'), name='home'),
     path('admin/', admin.site.urls),
     path('api/', include('aqwe_app.urls')),
     path('chat/', ChatView.as_view(), name='chat'),
-    path('', TemplateView.as_view(template_name='index.html'), name='home'),
-    re_path(r'^(?:.*)/?$', TemplateView.as_view(template_name='index.html')),
     path('generate-course/', GenerateCourseView.as_view(), name='generate-course'),
     path('stripe/', include('djstripe.urls', namespace='djstripe')),
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
@@ -43,6 +42,7 @@ urlpatterns = [
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
     path('create-checkout-session/', CreateCheckoutSessionView.as_view(), name='create-checkout-session'),
     path('create-payment-intent/', CreatePaymentIntentView.as_view(), name='create-payment-intent'),
+    re_path(r'^(?:.*)/?$', TemplateView.as_view(template_name='index.html')),
 ]
 
 """
