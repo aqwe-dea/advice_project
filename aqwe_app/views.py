@@ -62,9 +62,9 @@ class GenerateCourseView(APIView):
         #age = request("age", "25")
         #interests = request("interests", "программирование, дизайн")
         #level = request("level", "новичок")
-        HF_API_URL = "https://api-inference.huggingface.co/models/Qwen/Qwen2.5-Coder-32B-Instruct "
+        HF_API_URL = "https://api-inference.huggingface.co/models/Qwen/Qwen2.5-Coder-32B-Instruct"
         headers = {"Authorization": f"Bearer {settings.HF_API_KEY}"}
-        prompt = f"Создай подробный курс для пользователя с интересами программирование уровень новичок "
+        prompt = f"Создай подробный курс для пользователя с интересами программирование уровень новичок"
         try:
             response = requests.post(
                 HF_API_URL,
