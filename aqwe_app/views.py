@@ -15,6 +15,7 @@ from rest_framework.permissions import AllowAny
 from rest_framework.decorators import api_view
 from huggingface_hub import InferenceClient
 from django.conf import settings
+from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
 
@@ -59,26 +60,19 @@ class ChatView(APIView):
 
 class GenerateCourseView(APIView):
     def get(self, request, *args, **kwargs):
-        #age = request("age", "25")
-        #interests = request("interests", "программирование, дизайн")
-        #level = request("level", "новичок")
-        HF_API_URL = "https://api-inference.huggingface.co/models/Qwen/Qwen2.5-Coder-32B-Instruct"
-        headers = {"Authorization": f"Bearer {settings.HF_API_KEY}"}
+        provider='auto'
         prompt = f"Создай подробный курс для пользователя с интересами программирование уровень новичок"
         try:
-            response = requests.post(
-                HF_API_URL,
-                headers=headers,
-                json={ "inputs": prompt.strip(), "max_new_tokens": 500 },
+            client = InferenceClient(token=settings.HF_API_KEY)
+            response = client.text_generation(
+                model="meta-llama/Llama-3.3-70B-Instruct",
+                max_new_tokens=500,
+                temperature=0.7
             )
-            response.raise_for_status()
-            data = response.json()
-            if isinstance(data, list) and data[0].get("generated_text"):
-                return Response({"text": data[0]["generated_text"]})
-            elif isinstance(data, dict) and "generated_text" in data:
-                return Response({"text": data["generated_text"]})
-        except requests.exceptions.RequestException as e:
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({"text": response}, status=status.HTTP_200_OK)
+        except Exception as e:
+            logger.error(f"Ошибка генерации курса: {str(e)}")
+            return Response({"error": "Не удалось сгенерировать курс", "raw": str(e)}, status=500)
 class AdviceViewSet(viewsets.ModelViewSet):
     queryset = Advice.objects.all()
     serializer_class = AdviceSerializer
