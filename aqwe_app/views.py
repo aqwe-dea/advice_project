@@ -5,20 +5,20 @@ import logging
 from .models import Advice, UserHistory
 from .serializers import AdviceSerializer, UserHistorySerializer
 from .utils import send_advice_email
+from huggingface_hub import InferenceClient
+from huggingface_hub import InferenceApi
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
-from rest_framework import viewsets
-from rest_framework import response
 from rest_framework.decorators import permission_classes
 from rest_framework.permissions import AllowAny
 from rest_framework.decorators import api_view
-from huggingface_hub import InferenceClient
+from rest_framework import status
+from rest_framework import viewsets
+from rest_framework import response
 from django.conf import settings
 from django.http import JsonResponse
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-
 
 logger = logging.getLogger(__name__)
 @method_decorator(csrf_exempt, name='dispatch')
@@ -60,19 +60,40 @@ class ChatView(APIView):
 
 class GenerateCourseView(APIView):
     def get(self, request, *args, **kwargs):
-        provider='auto'
-        prompt = f"Создай подробный курс для пользователя с интересами программирование уровень новичок"
+        age = request.GET.get("age", "25")
+        interests = request.GET.get("interests", "программирование, дизайн")
+        level = request.GET.get("level", "новичок")
+
+        prompt = f"""
+        Создай подробный курс для {age} - летнего пользователя с интересами: {interests}, уровень: {level}.
+        Курс должен включать:
+        1. Цели обучения
+        2. Этапы освоения материала
+        3. Рекомендованные ресурсы
+        4. Практические задания
+        5. Оценка прогресса
+        """
+
         try:
-            client = InferenceClient(token=settings.HF_API_KEY)
+            client = InferenceClient(
+                model='Qwen/Qwen3-32B',
+                token='settings.HF_API_KEY',
+                provider='hf-inference'
+            )
             response = client.text_generation(
-                model="meta-llama/Llama-3.3-70B-Instruct",
+                prompt=prompt,
                 max_new_tokens=500,
-                temperature=0.7
+                temperature=0.7,
+                stop_sequences=["\n\n"]
             )
             return Response({"text": response}, status=status.HTTP_200_OK)
         except Exception as e:
             logger.error(f"Ошибка генерации курса: {str(e)}")
-            return Response({"error": "Не удалось сгенерировать курс", "raw": str(e)}, status=500)
+            return Response({
+                "error": "Не удалось сгенерировать курс", 
+                "raw": str(e)
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 class AdviceViewSet(viewsets.ModelViewSet):
     queryset = Advice.objects.all()
     serializer_class = AdviceSerializer
