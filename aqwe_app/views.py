@@ -59,40 +59,27 @@ class ChatView(APIView):
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class GenerateCourseView(APIView):
-    def get(self, request, *args, **kwargs):
-        age = request.GET.get("age", "25")
-        interests = request.GET.get("interests", "программирование, дизайн")
-        level = request.GET.get("level", "новичок")
-
-        prompt = f"""
-        Создай подробный курс для {age} - летнего пользователя с интересами: {interests}, уровень: {level}.
-        Курс должен включать:
-        1. Цели обучения
-        2. Этапы освоения материала
-        3. Рекомендованные ресурсы
-        4. Практические задания
-        5. Оценка прогресса
-        """
-
+    def post(self, request, *args, **kwargs):
+        topic = request.data.get('topic', '')
+        level = request.data.get('level', 'начинающий')
+        if not topic:
+            return Response({'error': 'Тема курса не указана'}, status=status.HTTP_400_BAD_REQUEST)
+        HF_API_KEY = os.getenv('HF_API_KEY')
+        if not HF_API_KEY:
+            return Response({'error': 'API ключ Hugging Face не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
             client = InferenceClient(
-                model='Qwen/Qwen3-32B',
-                token='settings.HF_API_KEY',
-                provider='hf-inference'
+                model="Qwen/Qwen3-32B",
+                token=HF_API_KEY
             )
-            response = client.text_generation(
-                prompt=prompt,
-                max_new_tokens=500,
-                temperature=0.7,
-                stop_sequences=["\n\n"]
+            response = client.chat_completion(
+                messages=[{"role": "user", "content": f"Создай курс по {topic} для уровня {level}. Добавь структуру, задания, примеры, рекомендации."}],
+                max_tokens=600
             )
-            return Response({"text": response}, status=status.HTTP_200_OK)
+            course_plan = response.choices[0].message.content
+            return Response({'course_plan': course_plan})        
         except Exception as e:
-            logger.error(f"Ошибка генерации курса: {str(e)}")
-            return Response({
-                "error": "Не удалось сгенерировать курс", 
-                "raw": str(e)
-            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class AdviceViewSet(viewsets.ModelViewSet):
     queryset = Advice.objects.all()
