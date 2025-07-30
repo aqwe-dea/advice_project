@@ -41,6 +41,8 @@ DATABASES = {
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['127.0.0.1', 'localhost', 'advice-project.onrender.com', 'wicked-seals-fail.loca.lt', '192.168.0.182', '94.25.185.171'])
 HUGGINGFACE_API_KEY = os.getenv('HUGGINGFACE_API_KEY')
 HF_API_KEY = os.getenv('HF_API_KEY')
+HF_API_KEY_FIN = os.getenv('HF_API_KEY_FIN')
+HF_API_KEY_UR = os.getenv('HF_API_KEY_UR')
 #security for production 
 #SECURE_HSTS_SECONDS = 1209600
 #SECURE_SSL_REDIRECT = False
