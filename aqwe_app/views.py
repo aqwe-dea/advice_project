@@ -38,47 +38,62 @@ class ChatView(APIView):
             return Response({'error': 'Сообщение не может быть пустым'}, status=status.HTTP_400_BAD_REQUEST)
         HF_API_KEY = os.getenv('HUGGINGFACE_API_KEY')
         if not HF_API_KEY:
+            logger.error("Hugging Face API ключ не настроен")
             return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
-            client = InferenceClient(token=HF_API_KEY)
+            client = InferenceClient(model="Qwen/Qwen2.5-72B-Instruct", token=HF_API_KEY)
             response = client.chat_completion(
-                model="Qwen/Qwen2.5-72B-Instruct",
                 messages=[{"role": "user", "content": user_message}],
-                max_tokens=200,
-                temperature=0.7
+                max_tokens=300
             )
             ai_response = response.choices[0].message.content
             return Response({'response': ai_response})
-        except requests.exceptions.HTTPError as e:
-            return Response({
-                'error': 'Не удалось пролучить ответ от модели',
-                'status_code': response.status_code,
-                'details': response.text
-            }, status=500)
         except Exception as e:
+            logger.error(f"Ошибка чата: {str(e)}")
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class GenerateCourseView(APIView):
     def post(self, request, *args, **kwargs):
         topic = request.data.get('topic', '')
         level = request.data.get('level', 'начинающий')
+        duration = request.data.get('duration', '1 месяц')
         if not topic:
             return Response({'error': 'Тема курса не указана'}, status=status.HTTP_400_BAD_REQUEST)
         HF_API_KEY = os.getenv('HF_API_KEY')
         if not HF_API_KEY:
+            logger.error("Hugging Face API ключ не настроен")
             return Response({'error': 'API ключ Hugging Face не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
-            client = InferenceClient(
-                model="Qwen/Qwen3-32B",
-                token=HF_API_KEY
-            )
+            client = InferenceClient(model="Qwen/Qwen2.5-72B-Instruct", token=HF_API_KEY)
+            prompt = f"""
+            Создай подробный учебный курс по теме "{topic}" для уровня "{level}".
+            Курс должен длиться "{duration}" и включать:
+            1. Введение и цели курса
+            2. Пошаговую программу с темами каждого урока
+            3. Рекомендуемые материалы и ресурсы
+            4. Практические задания
+            5. Тесты для самопроверки
+            6. Заключение и рекомендации по дальнейшему обучению
+            Представь результат в структурированном JSON-формате с ключами:
+            - "title": "Название курса",
+            - "description": "Краткое описание",
+            - "duration": "Длительность",
+            - "modules": [{"title": "Название модуля", "lessons": [{"title": "Урок", "description": "Описание"}]}],
+            - "resources": ["Список ресурсов"],
+            - "assignments": ["Список заданий"]
+            """
             response = client.chat_completion(
-                messages=[{"role": "user", "content": f"Создай курс по {topic} для уровня {level}. Добавь структуру, задания, примеры, рекомендации."}],
-                max_tokens=600
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=1000
             )
-            course_plan = response.choices[0].message.content
-            return Response({'course_plan': course_plan})        
+            try:
+                import json
+                course_data = json.loads(response.choices[0].message.content)
+                return Response({'course': course_data})
+            except:
+                return Response({'course_text': response.choices[0].message.content})
         except Exception as e:
+            logger.error(f"Ошибка генерации курса: {str(e)}")
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class AdviceViewSet(viewsets.ModelViewSet):
