@@ -98,7 +98,6 @@ class GenerateCourseView(APIView):
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class LegalDocumentAnalysisView(APIView):
-    parser_classes = [MultiPartParser, FormParser]
     def post(self, request, *args, **kwargs):
         document = request.FILES.get('document')
         country = request.data.get('country', 'Россия')
@@ -130,7 +129,6 @@ class LegalDocumentAnalysisView(APIView):
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class FinancialAnalysisView(APIView):
-    parser_classes = [MultiPartParser, FormParser]
     def post(self, request, *args, **kwargs):
         report = request.FILES.get('report')
         country = request.data.get('country', 'Россия')
