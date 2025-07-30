@@ -1,4 +1,6 @@
 import os
+import pandas as pd
+import io
 import requests
 import stripe
 import logging
@@ -96,6 +98,82 @@ class GenerateCourseView(APIView):
             logger.error(f"Ошибка генерации курса: {str(e)}")
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+class LegalDocumentAnalysisView(APIView):
+    parser_classes = [MultiPartParser, FormParser]
+    def post(self, request, *args, **kwargs):
+        document = request.FILES.get('document')
+        country = request.data.get('country', 'Россия')
+        if not document:
+            return Response({'error': 'Документ не загружен'}, status=status.HTTP_400_BAD_REQUEST)
+        HF_API_KEY = os.getenv('HF_API_KEY_UR')
+        if not HF_API_KEY:
+            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        try:
+            content = document.read().decode('utf-8')
+            client = InferenceClient(model="Qwen/Qwen2.5-72B-Instruct", token=HF_API_KEY)
+            prompt = f"""
+            Проанализируй юридический документ на соответствие законодательству {country}.
+            Документ: {content[:2000]}  # Ограничиваем длину для экономии токенов
+            Предоставь анализ в следующем формате:
+            1. Общая оценка соответствия законодательству
+            2. Выявленные нарушения (с указанием конкретных статей кодексов)
+            3. Рекомендации по исправлению
+            4. Потенциальные риски
+            Ответ должен быть структурирован и профессионален.
+            """
+            response = client.chat_completion(
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=500
+            )
+            return Response({'analysis': response.choices[0].message.content})
+        except Exception as e:
+            logger.error(f"Ошибка юридического анализа: {str(e)}")
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class FinancialAnalysisView(APIView):
+    parser_classes = [MultiPartParser, FormParser]
+    def post(self, request, *args, **kwargs):
+        report = request.FILES.get('report')
+        country = request.data.get('country', 'Россия')
+        if not report:
+            return Response({'error': 'Отчет не загружен'}, status=status.HTTP_400_BAD_REQUEST)
+        HF_API_KEY = os.getenv('HF_API_KEY_FIN')
+        if not HF_API_KEY:
+            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        try:
+            if report.name.endswith('.xlsx') or report.name.endswith('.xls'):
+                df = pd.read_excel(io.BytesIO(report.read()))
+            elif report.name.endswith('.csv'):
+                df = pd.read_csv(io.BytesIO(report.read()))
+            else:
+                return Response({'error': 'Неподдерживаемый формат файла'}, status=status.HTTP_400_BAD_REQUEST)
+            summary = df.describe().to_dict()
+            numeric_columns = df.select_dtypes(include=['number']).columns.tolist()
+            financial_indicators = {}
+            if 'revenue' in numeric_columns and 'expenses' in numeric_columns:
+                financial_indicators['profit_margin'] = (df['revenue'] - df['expenses']).mean() / df['revenue'].mean()
+            prompt = f"""
+            Проанализируй финансовую отчетность компании из {country}.
+            Основные показатели: {summary}
+            Финансовые индикаторы: {financial_indicators}
+            Проведи анализ и предоставь:
+            1. Оценку финансового состояния компании
+            2. Выявленные риски и нарушения
+            3. Рекомендации по оптимизации
+            4. Прогноз на следующий период
+            
+            Ответ должен быть профессиональным и содержать конкретные цифры.
+            """
+            client = InferenceClient(model="Qwen/Qwen2.5-72B-Instruct", token=HF_API_KEY)
+            response = client.chat_completion(
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=500
+            )
+            return Response({'analysis': response.choices[0].message.content})
+        except Exception as e:
+            logger.error(f"Ошибка финансового анализа: {str(e)}")
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
 class AdviceViewSet(viewsets.ModelViewSet):
     queryset = Advice.objects.all()
     serializer_class = AdviceSerializer
