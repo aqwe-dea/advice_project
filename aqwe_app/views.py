@@ -82,8 +82,6 @@ class GenerateCourseView(APIView):
             )
             course_plan = response.choices[0].message.content
             return Response({'course_plan': course_plan})
-            except:
-                return Response({'course_text': response.choices[0].message.content})
         except Exception as e:
             logger.error(f"Ошибка генерации курса: {str(e)}")
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
