@@ -75,22 +75,13 @@ class GenerateCourseView(APIView):
             4. Практические задания
             5. Тесты для самопроверки
             6. Заключение и рекомендации по дальнейшему обучению
-            Представь результат в структурированном JSON-формате с ключами:
-            - "title": "Название курса",
-            - "description": "Краткое описание",
-            - "duration": "Длительность",
-            - "modules": [{"title": "Название модуля", "lessons": [{"title": "Урок", "description": "Описание"}]}],
-            - "resources": ["Список ресурсов"],
-            - "assignments": ["Список заданий"]
             """
             response = client.chat_completion(
                 messages=[{"role": "user", "content": prompt}],
                 max_tokens=1000
             )
-            try:
-                import json
-                course_data = json.loads(response.choices[0].message.content)
-                return Response({'course': course_data})
+            course_plan = response.choices[0].message.content
+            return Response({'course_plan': course_plan})
             except:
                 return Response({'course_text': response.choices[0].message.content})
         except Exception as e:
