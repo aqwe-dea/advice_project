@@ -8,6 +8,8 @@ from .views import CreateDetailedAdviceView
 from .views import ChatView
 from .views import CreateCheckoutSessionView
 from .views import GenerateCourseView
+from .views import LegalDocumentAnalysisView
+from .views import FinancialAnalysisView
 from rest_framework import routers, viewsets
 
 router = DefaultRouter()
@@ -22,6 +24,8 @@ urlpatterns = [
     path('create-detailed-advice/', CreateDetailedAdviceView.as_view(), name='create-detailed-advice'),
     path('chat/', ChatView.as_view(), name='chat'),
     path('generate-course/', GenerateCourseView.as_view(), name='generate-course'),
+    path('legal-document-analysis/', LegalDocumentAnalysisView.as_view(), name='legal-document-analysis'),
+    path('financial-analysis/', FinancialAnalysisView.as_view(), name='finacial-analysis'),
     path('create-payment-intent/', CreatePaymentIntentView.as_view(), name='create-payment-intent'),
     path('create-checkout-session/', CreateCheckoutSessionView.as_view(), name='create-checkout-session'),
 ]
