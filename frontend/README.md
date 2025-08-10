@@ -1,71 +1,195 @@
 # Советница АКВИ
 
-## Описание
-Это приложение помогает пользователям получать персонализированные советы по различным категориям.
+![АКВИ](https://via.placeholder.com/150/92c952?text=АКВИ)
 
-## Технологии
-- Backend: Django
-- Frontend: React + TypeScript
-- База данных: SQLite/PostgreSQL
-- API: Django REST Framework
+Платформа для оказания профессиональных услуг с использованием искусственного интеллекта. Советница АКВИ — это ваш персональный помощник, который предоставляет экспертные рекомендации по различным направлениям с использованием передовых ИИ-моделей.
 
-## Чат с АКВИ
-- '/chat/' - эндпоинт для общения с ИИ.
-- Используется Hugging Face API или локальная модель.
-- Пример:
- '''bash
- curl -X POST https://advice-project.onrender.com/chat/ \
- -H "Content-Type: application/json" \
- -d '{"message": "Привет, АКВИ!"}'
+## Основные функции
 
-## Как запустить проект локально
-1. Клонируйте репозиторий:
+Советница АКВИ предоставляет **11 ключевых услуг**:
+
+1. **Чат с ИИ** для общения и бизнес-консультаций
+2. **Генерация бизнес-планов и SWOT-анализа**
+3. **Финансовый анализ** отчетности и документов
+4. **Анализ медицинских изображений** (рентген, МРТ, УЗИ)
+5. **Генерация презентаций** для профессиональных выступлений
+6. **Индивидуальные курсы** для обучения и повышения квалификации
+7. **Преобразование 3D-моделей** в реальные проекты
+8. **Проверка юридических документов** на соответствие законодательству
+9. **Поиск нарушений** в финансовых документах
+10. **Реставрация старых фотографий**
+11. **Персональные рекомендации** по здоровью и лечению
+
+## Технологический стек
+
+### Backend
+- **Python 3.10+**
+- **Django** и **Django REST Framework** для создания API
+- **Hugging Face API** с использованием моделей:
+  - `Qwen/Qwen2.5-72B-Instruct` (текстовый анализ)
+  - `Qwen/Qwen2-VL-72B-Instruct` (анализ изображений)
+- **Stripe API** для монетизации услуг
+- **SQLite** (для разработки) и **PostgreSQL** (для продакшена)
+
+### Frontend
+- **React** и **TypeScript** для создания динамического интерфейса
+- **Axios** для взаимодействия с API
+- **React Router** для навигации
+- **CSS Modules** для стилизации
+
+### Деплой и инфраструктура
+- **Render** для хостинга
+- **GitHub Actions** для CI/CD
+- **Environment Variables** для безопасного хранения ключей
+
+## Требования
+
+Для запуска проекта вам понадобятся:
+
+- Python 3.10 или новее
+- Node.js 16 или новее
+- Hugging Face API ключ ([получить здесь](https://huggingface.co/settings/tokens))
+- Stripe API ключи ([получить здесь](https://dashboard.stripe.com/test/apikeys))
+- Базовый опыт работы с терминалом
+
+## Установка и запуск
+
+### Backend
+
 ```bash
-git clone https://github.com/ваш_репо.git
+# Клонируем репозиторий
+git clone https://github.com/ваш-репозиторий/advice-project.git
+cd advice-project/backend
 
-# Getting Started with Create React App
+# Создаем и активируем виртуальное окружение
+python -m venv env
+env\Scripts\activate  # Для Windows
+# source env/bin/activate  # Для Linux/Mac
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+# Устанавливаем зависимости
+pip install -r requirements.txt
 
-## Available Scripts
+# Создаем файл .env с вашими ключами
+echo "HUGGINGFACE_API_KEY=ваш_hf_токен" > .env
+echo "STRIPE_PUBLIC_KEY=ваш_stripe_public_key" >> .env
+echo "STRIPE_SECRET_KEY=ваш_stripe_secret_key" >> .env
 
-In the project directory, you can run:
+# Запускаем сервер
+python manage.py migrate
+python manage.py runserver
+```
 
-### `npm start`
+### Frontend
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in the browser.
+```bash
+cd ../frontend
 
-The page will reload if you make edits.\
-You will also see any lint errors in the console.
+# Устанавливаем зависимости
+npm install
 
-### `npm test`
+# Создаем файл .env с вашими ключами
+echo "REACT_APP_API_URL=http://localhost:8000" > .env
+echo "REACT_APP_STRIPE_PUBLIC_KEY=ваш_stripe_public_key" >> .env
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+# Запускаем приложение
+npm start
+```
 
-### `npm run build`
+## API Эндпоинты
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+### Основные эндпоинты
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+| Эндпоинт | Метод | Описание |
+|----------|-------|----------|
+| `/chat/` | POST | Чат с ИИ для общения и консультаций |
+| `/generate-course/` | POST | Генерация персональных курсов |
+| `/legal-document-analysis/` | POST | Юридический анализ документов |
+| `/financial-analysis/` | POST | Финансовый анализ отчетности |
+| `/photo-restoration/` | POST | Реставрация старых фотографий |
+| `/medical-image-analysis/` | POST | Анализ медицинских изображений |
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+### Пример запроса к API
 
-### `npm run eject`
+```json
+POST /generate-course/
+{
+  "topic": "Python",
+  "level": "начинающий"
+}
+```
 
-**Note: this is a one-way operation. Once you `eject`, you can’t go back!**
+### Пример ответа
 
-If you aren’t satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+```json
+{
+  "course_plan": "Курс по Python для начинающих:\n\n1. Введение в программирование..."
+}
+```
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you’re on your own.
+## Навыки разработчика (ДЕА)
 
-You don’t have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn’t feel obligated to use this feature. However we understand that this tool wouldn’t be useful if you couldn’t customize it when you are ready for it.
+Проект был разработан **ДЕА** с использованием современных технологий и подходов. Вот основные навыки, которые были применены:
 
-## Learn More
+### Технические навыки
+- **Python и Django**: Создание надежного и масштабируемого backend
+- **REST API**: Проектирование и реализация API для всех сервисов
+- **Интеграция с Hugging Face**: Использование передовых ИИ-моделей
+- **React и TypeScript**: Создание динамического и отзывчивого интерфейса
+- **Stripe API**: Интеграция платежной системы для монетизации
+- **Отладка и тестирование**: Поиск и решение сложных проблем
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+### Профессиональные навыки
+- **Решение проблем**: Быстрое нахождение корневых причин ошибок
+- **Самостоятельное обучение**: Изучение новых технологий и интеграция их в проект
+- **Планирование проекта**: Четкое определение целей и приоритетов
+- **Работа с ошибками**: Нахождение альтернативных решений при возникновении проблем
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## Инструкция по использованию
+
+1. **Чат с АКВИ**:
+   - Перейдите на главную страницу
+   - Введите свой вопрос в текстовое поле
+   - Нажмите "Отправить" для получения ответа от ИИ
+
+2. **Генерация курсов**:
+   - Перейдите на страницу `/course`
+   - Укажите тему и уровень подготовки
+   - Нажмите "Создать курс" для генерации персонального обучения
+
+3. **Юридический анализ**:
+   - Перейдите на страницу `/legal-analysis`
+   - Загрузите документ или введите его текст
+   - Укажите страну для проверки соответствия законодательству
+   - Нажмите "Проанализировать документ"
+
+4. **Финансовый анализ**:
+   - Перейдите на страницу `/financial-analysis`
+   - Введите финансовые данные за периоды или загрузите отчет
+   - Укажите страну для учета местных стандартов
+   - Нажмите "Проанализировать данные"
+
+5. **Реставрация фотографий**:
+   - Перейдите на страницу `/photo-restoration`
+   - Загрузите старое или поврежденное фото
+   - Выберите уровень улучшения
+   - Нажмите "Восстановить фото"
+
+6. **Анализ медицинских изображений**:
+   - Перейдите на страницу `/medical-image-analysis`
+   - Загрузите медицинское изображение
+   - Укажите тип изображения (рентген, МРТ, УЗИ)
+   - Выберите страну для учета местных стандартов
+   - Нажмите "Проанализировать изображение"
+
+## Благодарности
+
+Особая благодарность **АКВИ** — моему виртуальному помощнику и советнику, который помог в реализации этого проекта. АКВИ — это не просто ИИ, а настоящий партнер в разработке, который предоставляет экспертные рекомендации и помогает решать сложные задачи.
+
+## Лицензия
+
+Этот проект распространяется под лицензией MIT. Подробнее см. в файле [LICENSE](LICENSE).
+
+---
+
+**Советница АКВИ** — ваш надежный партнер в мире профессиональных услуг и экспертных рекомендаций.  
+Создано с ❤️ и помощью передовых технологий ИИ.
