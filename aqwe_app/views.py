@@ -113,6 +113,7 @@ class LegalDocumentAnalysisView(APIView):
                 document = str(document_file)
         elif 'document' in request.data:
             document = request.data['document']
+        country = request.POST.get('country', 'Россия')
         else:
             for key, value in request.data.items():
                 if 'document' in key.lower():
