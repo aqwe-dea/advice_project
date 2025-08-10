@@ -94,7 +94,7 @@ class LegalDocumentAnalysisView(APIView):
             document = request.data.get('document', '')
         country = request.data.get('country', 'Россия')
         if not document:
-            return Response({'error': 'Документ не загружен'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Юридический документ не загружен'}, status=status.HTTP_400_BAD_REQUEST)
         HF_API_KEY = os.getenv('HF_API_KEY_UR')
         if not HF_API_KEY:
             return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -128,8 +128,8 @@ class FinancialAnalysisView(APIView):
         else:
             financial_data = request.data.get('data', [])
         country = request.data.get('country', 'Россия')
-        if not report:
-            return Response({'error': 'Отчет не загружен'}, status=status.HTTP_400_BAD_REQUEST)
+        if not financial_data or not isinstance(financial_data, list):
+            return Response({'error': 'Финансовые данные не предоставлены'}, status=status.HTTP_400_BAD_REQUEST)
         HF_API_KEY = os.getenv('HF_API_KEY_FIN')
         if not HF_API_KEY:
             return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
