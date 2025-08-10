@@ -90,13 +90,19 @@ class LegalDocumentAnalysisView(APIView):
     def post(self, request, *args, **kwargs):
         logger.info(f"Получен запрос: {request.data}")
         logger.info(f"FILES: {request.FILES}")
+        logger.info(f"Content-Type: {request.content_type}")
         document = ""
-        if 'document' in request.FILES:
+        if request.content_type == 'application/json':
+            document = request.data.get('document', '')
+            country = request.data.get('country', 'Россия')
+            logger.info("Обработка JSON-запроса")
+        elif 'document' in request.FILES:
+            logger.info("Обработка файла из FILES")
             document_file = request.FILES['document']
             if hasattr(document_file, 'read'):
                 try:
                     document_content = document_file.read()
-                    if isinstance(document_content, bytes):
+                    if isinstance(document_content, bytes, bytearray):
                         document = document_content.decode('utf-8')
                     else:
                         document = document_content
@@ -114,6 +120,11 @@ class LegalDocumentAnalysisView(APIView):
                     break
         if not document:
             return Response({'error': 'Юридический документ не загружен'}, status=status.HTTP_400_BAD_REQUEST)
+        if not isinstance(document, str):
+            try:
+                document = str(document)
+            except:
+                return Response({'error': 'Документ должен быть строкой'}, status=status.HTTP_400_BAD_REQUEST)
         country = request.data.get('country', 'Россия')
         HF_API_KEY = os.getenv('HF_API_KEY_UR')
         if not HF_API_KEY:
