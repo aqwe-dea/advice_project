@@ -13,6 +13,8 @@ import Navbar from './components/Navbar';
 import Chat from './components/Chat';
 import StripeDonation from './components/StripeDonation';
 import CourseForm from "./components/CourseForm";
+import LegalDocumentAnalysisForm from "./components/LegalDocumentAnalysisForm";
+import FinancialAnalysisForm from "./components/FinancialAnalysisForm";
 
 function App() {
   const { theme, toggleTheme } = useTheme();
@@ -36,6 +38,8 @@ function App() {
                 <Route path="/chat" element={<Chat />} />
                 <Route path="/donation" element={<StripeDonation />} />
                 <Route path="/course" element={<CourseForm />} />
+                <Route path="/legal-document-analysis" element={<LegalDocumentAnalysisForm />} />
+                <Route path="/financial-analysis" element={<FinancialAnalysisForm />} />
                 </Routes>
                 <AdviceForm />
                 <AdviceList />
