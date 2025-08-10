@@ -88,10 +88,25 @@ class GenerateCourseView(APIView):
 
 class LegalDocumentAnalysisView(APIView):
     def post(self, request, *args, **kwargs):
+        document = ""
         if 'document' in request.FILES:
-            document = request.FILES['document'].read().decode('utf-8')
+            try:
+                document_file = request.FILES['document']
+                document_content = document_file.read()
+                if isinstance(document_content, bytes):
+                    document = document_content.decode('utf-8')
+                else:
+                    document = document_content
+            except Exception as e:
+                logger.error(f"Ошибка при чтении файла: {str(e)}")
+                return Response({'error': f'Ошибка при чтении файла: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
+        elif 'document' in request.data:
+            document = request.data['document']
         else:
-            document = request.data.get('document', '')
+            for key, value in request.data.items():
+                if 'document' in key.lower():
+                    document = value
+                    break
         country = request.data.get('country', 'Россия')
         if not document:
             return Response({'error': 'Юридический документ не загружен'}, status=status.HTTP_400_BAD_REQUEST)
