@@ -88,18 +88,23 @@ class GenerateCourseView(APIView):
 
 class LegalDocumentAnalysisView(APIView):
     def post(self, request, *args, **kwargs):
+        logger.info(f"Получен запрос: {request.data}")
+        logger.info(f"FILES: {request.FILES}")
         document = ""
         if 'document' in request.FILES:
-            try:
-                document_file = request.FILES['document']
-                document_content = document_file.read()
-                if isinstance(document_content, bytes):
-                    document = document_content.decode('utf-8')
-                else:
-                    document = document_content
-            except Exception as e:
-                logger.error(f"Ошибка при чтении файла: {str(e)}")
-                return Response({'error': f'Ошибка при чтении файла: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
+            document_file = request.FILES['document']
+            if hasattr(document_file, 'read'):
+                try:
+                    document_content = document_file.read()
+                    if isinstance(document_content, bytes):
+                        document = document_content.decode('utf-8')
+                    else:
+                        document = document_content
+                except Exception as e:
+                    logger.error(f"Ошибка при чтении файла: {str(e)}")
+                    return Response({'error': f'Ошибка при чтении файла: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                document = str(document_file)
         elif 'document' in request.data:
             document = request.data['document']
         else:
@@ -107,18 +112,19 @@ class LegalDocumentAnalysisView(APIView):
                 if 'document' in key.lower():
                     document = value
                     break
-        country = request.data.get('country', 'Россия')
         if not document:
             return Response({'error': 'Юридический документ не загружен'}, status=status.HTTP_400_BAD_REQUEST)
+        country = request.data.get('country', 'Россия')
         HF_API_KEY = os.getenv('HF_API_KEY_UR')
         if not HF_API_KEY:
+            logger.error("API ключ Hugging Face не настроен")
             return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
-            content = document.read().decode('utf-8')
+            logger.info(f"Анализ юридического документа для {country}")
             client = InferenceClient(model="Qwen/Qwen2.5-72B-Instruct", token=HF_API_KEY)
             prompt = f"""
             Проанализируй юридический документ на соответствие законодательству {country}.
-            Документ: {content[:2000]}.
+            Документ: {document[:2000]}  
             Предоставь анализ в следующем формате:
             1. Общая оценка соответствия законодательству
             2. Выявленные нарушения (с указанием конкретных статей кодексов)
