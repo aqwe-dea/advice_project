@@ -10,6 +10,9 @@ from .views import CreateCheckoutSessionView
 from .views import GenerateCourseView
 from .views import LegalDocumentAnalysisView
 from .views import FinancialAnalysisView
+from .views import PhotoRestorationView
+from .views import MedicalImageView
+from .views import ThreeDToProjectView
 from rest_framework import routers, viewsets
 
 router = DefaultRouter()
@@ -26,6 +29,9 @@ urlpatterns = [
     path('generate-course/', GenerateCourseView.as_view(), name='generate-course'),
     path('legal-document-analysis/', LegalDocumentAnalysisView.as_view(), name='legal-document-analysis'),
     path('financial-analysis/', FinancialAnalysisView.as_view(), name='finacial-analysis'),
+    path('photo-restoration/', PhotoRestorationView.as_view(), name='photo-restoration'),
+    path('medical-image-analysis/', MedicalImageView.as_view(), name='medical-image-analysis'),
+    path('3d-to-project/', ThreeDToProjectView.as_view(), name='3d-to-project'),
     path('create-payment-intent/', CreatePaymentIntentView.as_view(), name='create-payment-intent'),
     path('create-checkout-session/', CreateCheckoutSessionView.as_view(), name='create-checkout-session'),
 ]

@@ -15,6 +15,9 @@ import StripeDonation from './components/StripeDonation';
 import CourseForm from "./components/CourseForm";
 import LegalDocumentAnalysisForm from "./components/LegalDocumentAnalysisForm";
 import FinancialAnalysisForm from "./components/FinancialAnalysisForm";
+import PhotoRestorationForm from "./components/PhotoRestorationForm";
+import MedicalImageAnalysisForm from "./components/MedicalImageAnalysisForm";
+import ThreeDModelConverterForm from "./components/ThreeDModelConverterForm";
 
 function App() {
   const { theme, toggleTheme } = useTheme();
@@ -40,6 +43,9 @@ function App() {
                 <Route path="/course" element={<CourseForm />} />
                 <Route path="/legal-document-analysis" element={<LegalDocumentAnalysisForm />} />
                 <Route path="/financial-analysis" element={<FinancialAnalysisForm />} />
+                <Route path="/photo-restoration" element={<PhotoRestorationForm />} />
+                <Route path="/medical-image-analysis" element={<MedicalImageAnalysisForm />} />
+                <Route path="/three-d-model-converter" element={<ThreeDModelConverterForm />} />
                 </Routes>
                 <AdviceForm />
                 <AdviceList />

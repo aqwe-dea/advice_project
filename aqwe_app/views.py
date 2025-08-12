@@ -18,8 +18,12 @@ from rest_framework import viewsets
 from rest_framework import response
 from django.conf import settings
 from django.http import JsonResponse
+from django.core.files.base import ContentFile
+from PIL import Image
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+#from django.http.response import HttpResponse
+
 
 logger = logging.getLogger(__name__)
 @method_decorator(csrf_exempt, name='dispatch')
@@ -29,7 +33,7 @@ logger = logging.getLogger(__name__)
 #from djstripe.models.core import PaymentIntent
 #from djstripe.models import core
 #from djstripe.models import PaymentIntent        
-#from django.http.response import HttpResponse
+
 #from django.http import response
 
 class ChatView(APIView):
@@ -113,12 +117,14 @@ class LegalDocumentAnalysisView(APIView):
                 document = str(document_file)
         elif 'document' in request.data:
             document = request.data['document']
-        country = request.POST.get('country', 'Россия')
+            country = request.POST.get('country', 'Россия')
         else:
             for key, value in request.data.items():
                 if 'document' in key.lower():
                     document = value
                     break
+            country = request.data.get('country', 'Россия')
+            logger.info("Обработка других типов запросов")
         if not document:
             return Response({'error': 'Юридический документ не загружен'}, status=status.HTTP_400_BAD_REQUEST)
         if not isinstance(document, str):
@@ -204,7 +210,139 @@ class FinancialAnalysisView(APIView):
         except Exception as e:
             logger.error(f"Ошибка финансового анализа: {str(e)}")
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        
+
+class PhotoRestorationView(APIView):
+    def post(self, request, *args, **kwargs):
+        logger.info(f"Получен запрос на реставрацию фотографии: {request.FILES}")
+        if 'photo' not in request.FILES:
+            return Response({'error': 'Фотография не загружена'}, status=status.HTTP_400_BAD_REQUEST)
+        photo = request.FILES['photo']
+        enhancement_level = request.data.get('enhancement_level', 'стандартное')
+        if not photo.name.lower().endswith(('.png', '.jpg', '.jpeg')):
+            return Response({'error': 'Поддерживаются только форматы JPG, JPEG и PNG'}, status=status.HTTP_400_BAD_REQUEST)
+        HF_API_KEY = os.getenv('HF_API_KEY_PREST')
+        if not HF_API_KEY:
+            logger.error("API ключ Hugging Face не настроен")
+            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        try:
+            logger.info(f"Реставрация фотографии: {photo.name}, уровень улучшения: {enhancement_level}")
+            client = InferenceClient(model="Qwen/Qwen2-VL-72B-Instruct", token=HF_API_KEY)
+            image = Image.open(photo)
+            if image.mode != 'RGB':
+                image = image.convert('RGB')
+            img_byte_arr = io.BytesIO()
+            image.save(img_byte_arr, format='JPEG')
+            img_byte_arr = img_byte_arr.getvalue()
+            prompt = f"""
+            Проанализируй и улучши это старое фото. Уровень улучшения: {enhancement_level}.
+            Задачи:
+            1. Убери царапины и повреждения
+            2. Улучши резкость и четкость
+            3. Восстанови цвета (если фото черно-белое, можно добавить естественную сепию)
+            4. Улучши общую композицию
+            
+            Верни описание того, что ты сделал с фото, и предложи, как его можно использовать после реставрации.
+            """
+            response = client.image_to_text(img_byte_arr, prompt=prompt)
+            return Response({
+                'restoration_description': response,
+                'enhancement_level': enhancement_level
+            })
+        except Exception as e:
+            logger.error(f"Ошибка реставрации фото: {str(e)}")
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class MedicalImageView(APIView):
+    def post(self, request, *args, **kwargs):
+        logger.info(f"Получен запрос на анализ медицинского изображения: {request.FILES}")
+        if 'image' not in request.FILES:
+            return Response({'error': 'Медицинское изображение не загружено'}, status=status.HTTP_400_BAD_REQUEST)
+        image = request.FILES['image']
+        image_type = request.data.get('image_type', 'рентген')
+        country = request.data.get('country', 'Россия')
+        if not image.name.lower().endswith(('.png', '.jpg', '.jpeg', '.dcm')):
+            return Response({'error': 'Поддерживаются только форматы JPG, JPEG, PNG и DICOM'}, status=status.HTTP_400_BAD_REQUEST)
+        HF_API_KEY = os.getenv('HF_API_KEY_MEDIC')
+        if not HF_API_KEY:
+            logger.error("API ключ Hugging Face не настроен")
+            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        try:
+            logger.info(f"Анализ медицинского изображения: {image.name}, тип: {image_type}")
+            client = InferenceClient(model="Qwen/Qwen2-VL-72B-Instruct", token=HF_API_KEY)
+            img = Image.open(image)
+            if img.mode != 'RGB':
+                img = img.convert('RGB')
+            img_byte_arr = io.BytesIO()
+            img.save(img_byte_arr, format='JPEG')
+            img_byte_arr = img_byte_arr.getvalue()
+            prompt = f"""
+            Проанализируй это медицинское изображение ({image_type}) и опиши, что ты видишь.
+            Страна: {country}
+            Задачи:
+            1. Опиши анатомические структуры на изображении
+            2. Выяви возможные аномалии или патологии
+            3. Предоставь предварительную оценку состояния
+            4. Дай рекомендации по дальнейшим действиям
+            Важно: Это не заменяет профессиональную медицинскую консультацию. 
+            Ответ должен быть структурирован и профессионален.
+            """
+            response = client.image_to_text(img_byte_arr, prompt=prompt)
+            return Response({
+                'analysis': response,
+                'image_type': image_type,
+                'country': country
+            })
+        except Exception as e:
+            logger.error(f"Ошибка анализа медицинского изображения: {str(e)}")
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class ThreeDToProjectView(APIView):
+    def post(self, request, *args, **kwargs):
+        logger.info(f"Получен запрос на преобразование 3D-модели: {request.FILES}")
+        if 'model' not in request.FILES:
+            return Response({'error': '3D-модель не загружена'}, status=status.HTTP_400_BAD_REQUEST)
+        model = request.FILES['model']
+        project_type = request.data.get('project_type', 'строительный')
+        country = request.data.get('country', 'Россия')
+        valid_extensions = ['.stl', '.obj', '.fbx', '.3ds', '.dae', '.blend']
+        file_ext = os.path.splitext(model.name)[1].lower()
+        if file_ext not in valid_extensions:
+            return Response({
+                'error': f'Поддерживаются только форматы: {", ".join(valid_extensions)}'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        HF_API_KEY = os.getenv('HF_API_KEY_3D')
+        if not HF_API_KEY:
+            logger.error("API ключ Hugging Face не настроен")
+            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        try:
+            logger.info(f"Преобразование 3D-модели: {model.name}, тип проекта: {project_type}")
+            client = InferenceClient(model="Qwen/Qwen2-VL-72B-Instruct", token=HF_API_KEY)
+            model_content = model.read()
+            prompt = f"""
+            Проанализируй эту 3D-модель и преобразуй её в реальный проект ({project_type}) для {country}.
+            
+            Задачи:
+            1. Опиши основные характеристики модели (размеры, сложность, особенности)
+            2. Предоставь рекомендации по материалам и технологии изготовления
+            3. Создай пошаговый план реализации проекта
+            4. Укажи возможные сложности и их решения
+            5. Дай оценку стоимости и сроков реализации
+            
+            Ответ должен быть профессиональным и содержать конкретные рекомендации.
+            """
+            response = client.text_generation(
+                prompt,
+                max_new_tokens=600
+            )
+            return Response({
+                'analysis': response,
+                'project_type': project_type,
+                'country': country
+            })
+        except Exception as e:
+            logger.error(f"Ошибка преобразования 3D-модели: {str(e)}")
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 class AdviceViewSet(viewsets.ModelViewSet):
     queryset = Advice.objects.all()
     serializer_class = AdviceSerializer

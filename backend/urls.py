@@ -16,6 +16,9 @@ from aqwe_app.views import ChatView
 from aqwe_app.views import GenerateCourseView
 from aqwe_app.views import LegalDocumentAnalysisView
 from aqwe_app.views import FinancialAnalysisView
+from aqwe_app.views import PhotoRestorationView
+from aqwe_app.views import MedicalImageView
+from aqwe_app.views import ThreeDToProjectView
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from drf_yasg.openapi import Swagger
@@ -39,6 +42,9 @@ urlpatterns = [
     path('generate-course/', GenerateCourseView.as_view(), name='generate-course'),
     path('legal-document-analysis/', LegalDocumentAnalysisView.as_view(), name='legal-document-analysis'),
     path('financial-analysis/', FinancialAnalysisView.as_view(), name='finacial-analysis'),
+    path('photo-restoration/', PhotoRestorationView.as_view(), name='photo-restoration'),
+    path('medical-image-analysis/', MedicalImageView.as_view(), name='medical-image-analysis'),
+    path('3d-to-project/', ThreeDToProjectView.as_view(), name='3d-to-project'),
     path('stripe/', include('djstripe.urls', namespace='djstripe')),
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='docs'),
