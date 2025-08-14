@@ -3,6 +3,7 @@ import io
 import requests
 import stripe
 import logging
+import json
 from .models import Advice, UserHistory
 from .serializers import AdviceSerializer, UserHistorySerializer
 from .utils import send_advice_email
@@ -184,13 +185,11 @@ class FinancialAnalysisView(APIView):
             - Общие расходы: {total_expenses}
             - Прибыль: {profit}
             - Рентабельность: {profit_margin:.2%}
-            
             Проведи анализ и предоставь:
             1. Оценку финансового состояния компании
             2. Выявленные риски и нарушения
             3. Рекомендации по оптимизации
             4. Прогноз на следующий период
-            
             Ответ должен быть профессиональным и содержать конкретные цифры.
             """
             client = InferenceClient(model="Qwen/Qwen2.5-72B-Instruct", token=HF_API_KEY)
@@ -240,7 +239,6 @@ class PhotoRestorationView(APIView):
             2. Улучши резкость и четкость
             3. Восстанови цвета (если фото черно-белое, можно добавить естественную сепию)
             4. Улучши общую композицию
-            
             Верни описание того, что ты сделал с фото, и предложи, как его можно использовать после реставрации.
             """
             response = client.image_to_text(img_byte_arr, prompt=prompt)
@@ -320,14 +318,12 @@ class ThreeDToProjectView(APIView):
             model_content = model.read()
             prompt = f"""
             Проанализируй эту 3D-модель и преобразуй её в реальный проект ({project_type}) для {country}.
-            
             Задачи:
             1. Опиши основные характеристики модели (размеры, сложность, особенности)
             2. Предоставь рекомендации по материалам и технологии изготовления
             3. Создай пошаговый план реализации проекта
             4. Укажи возможные сложности и их решения
             5. Дай оценку стоимости и сроков реализации
-            
             Ответ должен быть профессиональным и содержать конкретные рекомендации.
             """
             response = client.text_generation(
@@ -341,6 +337,228 @@ class ThreeDToProjectView(APIView):
             })
         except Exception as e:
             logger.error(f"Ошибка преобразования 3D-модели: {str(e)}")
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class HealthRecommendationView(APIView):
+    def post(self, request, *args, **kwargs):
+        logger.info(f"Получен запрос на рекомендации по здоровью: {request.data}")
+        symptoms = request.data.get('symptoms', '')
+        age = request.data.get('age', '')
+        gender = request.data.get('gender', 'не указан')
+        country = request.data.get('country', 'Россия')
+        recommendation_type = request.data.get('type', 'общие')
+        if not symptoms:
+            return Response({'error': 'Симптомы не указаны'}, status=status.HTTP_400_BAD_REQUEST)
+        HF_API_KEY = os.getenv('HF_API_KEY_REK')
+        if not HF_API_KEY:
+            logger.error("API ключ Hugging Face не настроен")
+            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        try:
+            logger.info(f"Генерация рекомендаций по здоровью для симптомов: {symptoms}")
+            client = InferenceClient(model="Qwen/Qwen2.5-72B-Instruct", token=HF_API_KEY)
+            prompt = f"""
+            Проанализируй следующие симптомы и дай рекомендации по улучшению здоровья:
+            Симптомы: {symptoms}
+            Возраст: {age}
+            Пол: {gender}
+            Страна: {country}
+            Тип рекомендаций: {recommendation_type}
+            Задачи:
+            1. Опиши возможные причины симптомов
+            2. Предоставь рекомендации по образу жизни для улучшения состояния
+            3. Укажи, какие натуральные средства или методы могут помочь
+            4. Дай рекомендации по питанию
+            5. Укажи, когда следует обратиться к врачу
+            Важно: Это не заменяет профессиональную медицинскую консультацию. 
+            Ответ должен быть структурирован, безопасен и профессионален.
+            Предоставь рекомендации в следующем формате:
+            - Возможные причины
+            - Рекомендации по образу жизни
+            - Натуральные средства
+            - Рекомендации по питанию
+            - Когда обращаться к врачу
+            """
+            response = client.chat_completion(
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=600
+            )
+            return Response({
+                'recommendation': response.choices[0].message.content,
+                'symptoms': symptoms,
+                'age': age,
+                'gender': gender,
+                'country': country,
+                'recommendation_type': recommendation_type
+            })
+        except Exception as e:
+            logger.error(f"Ошибка генерации рекомендаций по здоровью: {str(e)}")
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class BusinessPlanView(APIView):
+    def post(self, request, *args, **kwargs):
+        logger.info(f"Получен запрос на генерацию бизнес-плана: {request.data}")
+        business_idea = request.data.get('idea', '')
+        business_type = request.data.get('type', 'стартап')
+        country = request.data.get('country', 'Россия')
+        if not business_idea:
+            return Response({'error': 'Идея бизнеса не указана'}, status=status.HTTP_400_BAD_REQUEST)
+        HF_API_KEY = os.getenv('HF_API_KEY_BPLN')
+        if not HF_API_KEY:
+            logger.error("API ключ Hugging Face не настроен")
+            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        try:
+            logger.info(f"Генерация бизнес-плана для идеи: {business_idea}")
+            client = InferenceClient(model="Qwen/Qwen2.5-72B-Instruct", token=HF_API_KEY)
+            prompt = f"""
+            Создай подробный бизнес-план для {business_type} в стране {country} на основе следующей идеи: "{business_idea}".
+            Бизнес-план должен включать:
+            1. Краткое резюме проекта
+            2. Описание продукта/услуги
+            3. Анализ рынка и целевой аудитории
+            4. Конкурентный анализ
+            5. Маркетинговая стратегия
+            6. Операционный план
+            7. Организационная структура
+            8. Финансовый план (прогноз доходов, расходов, прибыли на 3 года)
+            9. Анализ рисков и пути их минимизации
+            Дополнительно предоставь SWOT-анализ:
+            - Сильные стороны (Strengths)
+            - Слабые стороны (Weaknesses)
+            - Возможности (Opportunities)
+            - Угрозы (Threats)
+            Ответ должен быть профессиональным, структурированным и содержать конкретные рекомендации.
+            """
+            response = client.chat_completion(
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=1000
+            )
+            return Response({
+                'business_plan': response.choices[0].message.content,
+                'business_idea': business_idea,
+                'business_type': business_type,
+                'country': country
+            })
+        except Exception as e:
+            logger.error(f"Ошибка генерации бизнес-плана: {str(e)}")
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class PresentationGenerationView(APIView):
+    def post(self, request, *args, **kwargs):
+        logger.info(f"Получен запрос на генерацию презентации: {request.data}")
+        topic = request.data.get('topic', '')
+        presentation_type = request.data.get('type', 'бизнес')
+        slides_count = request.data.get('slides_count', 10)
+        if not topic:
+            return Response({'error': 'Тема презентации не указана'}, status=status.HTTP_400_BAD_REQUEST)
+        HF_API_KEY = os.getenv('HF_API_KEY_SLD')
+        if not HF_API_KEY:
+            logger.error("API ключ Hugging Face не настроен")
+            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        try:
+            logger.info(f"Генерация презентации по теме: {topic}")
+            client = InferenceClient(model="Qwen/Qwen2.5-72B-Instruct", token=HF_API_KEY)
+            prompt = f"""
+            Создай структуру презентации по теме "{topic}" для {presentation_type} выступления.
+            Количество слайдов: {slides_count}
+            Презентация должна включать:
+            1. Титульный слайд с названием и кратким описанием
+            2. Введение и цели презентации
+            3. Основную часть с ключевыми моментами (разделенную на логические блоки)
+            4. Визуальные элементы и графики (описание того, что должно быть на слайдах)
+            5. Заключение и рекомендации
+            6. Слайд с контактной информацией
+            Предоставь структуру в формате JSON со следующими полями:
+            - "title": "Название презентации"
+            - "slides": [
+                {"title": "Заголовок слайда", "content": "Содержание слайда", "notes": "Заметки докладчика"}
+            ]
+            Ответ должен быть только валидным JSON без дополнительного текста.
+            """
+            response = client.chat_completion(
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=1000
+            )
+            try:
+                clean_response = response.choices[0].message.content.strip()
+                if clean_response.startswith('```json'):
+                    clean_response = clean_response[7:-3].strip()
+                elif clean_response.startswith('```'):
+                    clean_response = clean_response[3:-3].strip()
+                presentation_data = json.loads(clean_response)
+                return Response(presentation_data)
+            except Exception as e:
+                logger.error(f"Ошибка парсинга JSON: {str(e)}")
+                return Response({
+                    'title': f'Презентация по теме "{topic}"',
+                    'slides': [
+                        {
+                            'title': 'Ошибка генерации',
+                            'content': 'Не удалось сгенерировать структуру презентации. Попробуйте другую тему.',
+                            'notes': 'Система не смогла создать корректный JSON. Это может быть связано со сложностью темы.'
+                        }
+                    ]
+                })
+        except Exception as e:
+            logger.error(f"Ошибка генерации презентации: {str(e)}")
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class InvestmentAnalysisView(APIView):
+    def post(self, request, *args, **kwargs):
+        logger.info(f"Получен запрос на анализ инвестиций: {request.data}")
+        initial_investment = request.data.get('initial_investment', '')
+        expected_return = request.data.get('expected_return', '')
+        investment_period = request.data.get('investment_period', '')
+        risk_level = request.data.get('risk_level', 'средний')
+        investment_type = request.data.get('investment_type', 'акции')
+        country = request.data.get('country', 'Россия')
+        if not initial_investment or not expected_return or not investment_period:
+            return Response({
+                'error': 'Необходимо указать начальные инвестиции, ожидаемую доходность и период инвестирования'
+            }, status=status.HTTP_400_BAD_REQUEST)        
+        HF_API_KEY = os.getenv('HF_API_KEY_INVS')
+        if not HF_API_KEY:
+            logger.error("API ключ Hugging Face не настроен")
+            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        try:
+            logger.info(f"Анализ инвестиций: {initial_investment} на {investment_period} с ожидаемой доходностью {expected_return}")
+            client = InferenceClient(model="Qwen/Qwen2.5-72B-Instruct", token=HF_API_KEY)
+            prompt = f"""
+            Проанализируй инвестиционную возможность с следующими параметрами:
+            - Начальные инвестиции: {initial_investment}
+            - Ожидаемая годовая доходность: {expected_return}
+            - Период инвестирования: {investment_period}
+            - Уровень риска: {risk_level}
+            - Тип инвестиций: {investment_type}
+            - Страна: {country}
+            Задачи:
+            1. Рассчитай потенциальную доходность и конечную сумму
+            2. Оцени уровень риска и вероятность достижения целевой доходности
+            3. Сравни с альтернативными инвестиционными возможностями
+            4. Выяви возможные скрытые риски
+            5. Дай рекомендации по оптимизации инвестиционной стратегии
+            Ответ должен включать:
+            - Расчет потенциальной доходности (с учетом сложных процентов)
+            - Оценку рисков (низкий/средний/высокий)
+            - Рекомендации по диверсификации
+            - Сравнение с рыночными показателями
+            - Общую рекомендацию (стоит инвестировать или нет)
+            Ответ должен быть профессиональным, содержать конкретные цифры и рекомендации.
+            """
+            response = client.chat_completion(
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=800
+            )
+            return Response({
+                'analysis': response.choices[0].message.content,
+                'initial_investment': initial_investment,
+                'expected_return': expected_return,
+                'investment_period': investment_period,
+                'risk_level': risk_level,
+                'investment_type': investment_type,
+                'country': country
+            })
+        except Exception as e:
+            logger.error(f"Ошибка анализа инвестиций: {str(e)}")
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class AdviceViewSet(viewsets.ModelViewSet):

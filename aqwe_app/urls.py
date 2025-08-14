@@ -13,6 +13,10 @@ from .views import FinancialAnalysisView
 from .views import PhotoRestorationView
 from .views import MedicalImageView
 from .views import ThreeDToProjectView
+from .views import HealthRecommendationView
+from .views import BusinessPlanView
+from .views import PresentationGenerationView
+from .views import InvestmentAnalysisView
 from rest_framework import routers, viewsets
 
 router = DefaultRouter()
@@ -32,6 +36,10 @@ urlpatterns = [
     path('photo-restoration/', PhotoRestorationView.as_view(), name='photo-restoration'),
     path('medical-image-analysis/', MedicalImageView.as_view(), name='medical-image-analysis'),
     path('3d-to-project/', ThreeDToProjectView.as_view(), name='3d-to-project'),
+    path('health-recommendation/', HealthRecommendationView.as_view(), name='health-recommendation'),
+    path('business-plan/', BusinessPlanView.as_view(), name='business-plan'),
+    path('generate-presentation/', PresentationGenerationView.as_view(), name='generate-presentation'),
+    path('investment-analysis/', InvestmentAnalysisView.as_view(), name='investment-analysis'),
     path('create-payment-intent/', CreatePaymentIntentView.as_view(), name='create-payment-intent'),
     path('create-checkout-session/', CreateCheckoutSessionView.as_view(), name='create-checkout-session'),
 ]

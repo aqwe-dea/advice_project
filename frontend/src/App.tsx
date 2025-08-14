@@ -18,6 +18,10 @@ import FinancialAnalysisForm from "./components/FinancialAnalysisForm";
 import PhotoRestorationForm from "./components/PhotoRestorationForm";
 import MedicalImageAnalysisForm from "./components/MedicalImageAnalysisForm";
 import ThreeDModelConverterForm from "./components/ThreeDModelConverterForm";
+import HealthRecommendationForm from "./components/HealthRecommendationForm";
+import BusinessPlanForm from "./components/BusinessPlanForm";
+import PresentationForm from "./components/PresentationForm";
+import InvestmentAnalysisForm from "./components/InvestmentAnalysisForm";
 
 function App() {
   const { theme, toggleTheme } = useTheme();
@@ -46,6 +50,10 @@ function App() {
                 <Route path="/photo-restoration" element={<PhotoRestorationForm />} />
                 <Route path="/medical-image-analysis" element={<MedicalImageAnalysisForm />} />
                 <Route path="/three-d-model-converter" element={<ThreeDModelConverterForm />} />
+                <Route path="/health-recommendation" element={<HealthRecommendationForm />} />
+                <Route path="/business-plan" element={<BusinessPlanForm />} />
+                <Route path="/presentation" element={<PresentationForm />} />
+                <Route path="/investment-analysis" element={<InvestmentAnalysisForm />} />
                 </Routes>
                 <AdviceForm />
                 <AdviceList />
