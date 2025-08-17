@@ -1,5 +1,5 @@
 import React from 'react';
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
+import { BrowserRouter as Router, Route, Routes, Link } from 'react-router-dom';
 import { useTheme } from './contexts/ThemeContext';
 import logo from '../src/logo.svg';
 import './App.css';
@@ -28,6 +28,28 @@ function App() {
   return (
     <div className={`App ${theme}`}>
       <Router>
+        <div className="app-container" style={{maxWidth: '1400px', margin: '0 auto', padding: '0'}}>
+        <nav style={{
+          display: 'flex', 
+          justifyContent: 'center',
+          gap: '2rem',
+          padding: '1.5rem 0',
+          backgroundColor: '#2c3e50',
+          color: 'white'
+        }}>
+          <Link to="/chat" style={{color: 'white', textDecoration: 'none', fontWeight: 'bold'}}>Главная</Link>
+          <Link to="/course" style={{color: 'white', textDecoration: 'none'}}>Курсы</Link>
+          <Link to="/legal-document-analysis" style={{color: 'white', textDecoration: 'none'}}>Юр. анализ</Link>
+          <Link to="/financial-analysis" style={{color: 'white', textDecoration: 'none'}}>Фин. анализ</Link>
+          <Link to="/photo-restoration" style={{color: 'white', textDecoration: 'none'}}>Фото</Link>
+          <Link to="/medical-image-analysis" style={{color: 'white', textDecoration: 'none'}}>Мед. анализ</Link>
+          <Link to="/three-d-model-converter" style={{color: 'white', textDecoration: 'none'}}>3D-модели</Link>
+          <Link to="/business-plan" style={{color: 'white', textDecoration: 'none'}}>Бизнес-план</Link>
+          <Link to="/presentation" style={{color: 'white', textDecoration: 'none'}}>Презентации</Link>
+          <Link to="/health-recommendation" style={{color: 'white', textDecoration: 'none'}}>Здоровье</Link>
+          <Link to="/investment-analysis" style={{color: 'white', textDecoration: 'none'}}>Инвестиции</Link>
+        </nav>
+        </div>
         <Navbar />
         <header className="App-header">
           <h1>Советница АКВИ</h1>
@@ -35,7 +57,7 @@ function App() {
             {theme === 'light' ? 'Переключить на темную тему' : 'Переключить на светлую тему'}
             </button>
             <img src={logo} className="App-logo" alt="logo" />
-            </header>
+        </header>
             <main>
               <Routes>
                 <Route path="/" element={<Home />} />
@@ -58,7 +80,22 @@ function App() {
                 <AdviceForm />
                 <AdviceList />
             </main>
-        </Router>
+      </Router>
+      <footer style={{
+        marginTop: '3rem',
+        paddingTop: '2rem',
+        borderTop: '1px solid #e0e0e0',
+        textAlign: 'center',
+        color: '#7f8c8d',
+        fontSize: '0.9rem'
+      }}>
+        <p>© 2023 Советница АКВИ. Все права защищены.</p>
+        <div style={{display: 'flex', justifyContent: 'center', gap: '1rem', marginTop: '1rem'}}>
+          <a href="/about" style={{color: '#3498db', textDecoration: 'none'}}>О проекте</a>
+          <a href="/privacy" style={{color: '#3498db', textDecoration: 'none'}}>Политика конфиденциальности</a>
+          <a href="/terms" style={{color: '#3498db', textDecoration: 'none'}}>Условия использования</a>
+        </div>
+      </footer>
     </div>
   );
 }
