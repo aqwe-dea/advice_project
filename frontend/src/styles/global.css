@@ -1,4 +1,7 @@
 /* styles/global.css */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+
 @media (max-width: 768px) {
     .advice-form input,
     .advice-form textarea {
@@ -9,8 +12,6 @@
         padding: 0.75rem;
     }
 }
-
-@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
 
 .spoiler button {
     background-color: #4caf50;
