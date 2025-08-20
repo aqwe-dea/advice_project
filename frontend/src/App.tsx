@@ -39,19 +39,24 @@ function AppContent() {
   const { theme, toggleTheme } = useTheme();
   return (
     <div className={`App ${theme}`}>
-      <div style={{ maxWidth: '100%', margin: '0 auto', padding: '0' }}>
-      <div style={{
+    <div style={{ 
+      maxWidth: '100%', 
+      margin: '0 auto', 
+      padding: '0',
+      backgroundColor: '#333333',
+      color: '#f8f8f0'
+    }}>
+      <header style={{
         display: 'flex',
         justifyContent: 'space-between',
         alignItems: 'center',
-        padding: '1rem',
+        padding: '1rem 2rem',
         backgroundColor: '#2c3e50',
         color: 'white',
         position: 'relative',
         zIndex: 1000
       }}>
-      </div>
-        <div style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>Советница АКВИ</div>
+        <div style={{fontSize: '1.5rem', fontWeight: 'bold'}}>Советница АКВИ</div>
         <button 
           onClick={toggleMenu}
           style={{
@@ -63,183 +68,166 @@ function AppContent() {
             display: 'block'
           }}
         >
-          ☰
+          {isMenuOpen ? '✕' : '☰'}
         </button>
-      </div>
-      <nav style={{
-        display: 'flex',
-        justifyContent: 'center',
-        gap: '2rem',
-        padding: '1.5rem 0',
-        backgroundColor: '#2c3e50',
-        color: 'white'
-      }} className="desktop-nav">
-        <Link to="/" style={{
-          color: isActive('/') ? 'white' : 'rgba(255, 255, 255, 0.7)',
-          textDecoration: 'none', 
-          fontWeight: isActive('/') ? 'bold' : 'normal'
-        }}>Главная</Link>
-        <Link to="/course" style={{
-          color: isActive('/course') ? 'white' : 'rgba(255, 255, 255, 0.7)',
-          textDecoration: 'none', 
-          fontWeight: isActive('/course') ? 'bold' : 'normal'
-        }}>Курсы</Link>
-        <Link to="/legal-document-analysis" style={{
-          color: isActive('/legal-document-analysis') ? 'white' : 'rgba(255, 255, 255, 0.7)',
-          textDecoration: 'none', 
-          fontWeight: isActive('/legal-document-analysis') ? 'bold' : 'normal'
-        }}>Юр. анализ</Link>
-        <Link to="/financial-analysis" style={{
-          color: isActive('/financial-analysis') ? 'white' : 'rgba(255, 255, 255, 0.7)',
-          textDecoration: 'none', 
-          fontWeight: isActive('/financial-analysis') ? 'bold' : 'normal'
-        }}>Фин. анализ</Link>
-        <Link to="/photo-restoration" style={{
-          color: isActive('/photo-restoration') ? 'white' : 'rgba(255, 255, 255, 0.7)',
-          textDecoration: 'none', 
-          fontWeight: isActive('/photo-restoration') ? 'bold' : 'normal'
-        }}>Фото</Link>
-        <Link to="/medical-image-analysis" style={{
-          color: isActive('/medical-image-analysis') ? 'white' : 'rgba(255, 255, 255, 0.7)',
-          textDecoration: 'none', 
-          fontWeight: isActive('/medical-image-analysis') ? 'bold' : 'normal'
-        }}>Мед. анализ</Link>
-        <Link to="/three-d-model-converter" style={{
-          color: isActive('/three-d-model-converter') ? 'white' : 'rgba(255, 255, 255, 0.7)',
-          textDecoration: 'none', 
-          fontWeight: isActive('/three-d-model-converter') ? 'bold' : 'normal'
-        }}>3D-модели</Link>
-        <Link to="/business-plan" style={{
-          color: isActive('/business-plan') ? 'white' : 'rgba(255, 255, 255, 0.7)',
-          textDecoration: 'none', 
-          fontWeight: isActive('/business-plan') ? 'bold' : 'normal'
-        }}>Бизнес-план</Link>
-        <Link to="/presentation" style={{
-          color: isActive('/presentation') ? 'white' : 'rgba(255, 255, 255, 0.7)',
-          textDecoration: 'none', 
-          fontWeight: isActive('/presentation') ? 'bold' : 'normal'
-        }}>Презентации</Link>
-        <Link to="/health-recommendation" style={{
-          color: isActive('/health-recommendation') ? 'white' : 'rgba(255, 255, 255, 0.7)',
-          textDecoration: 'none', 
-          fontWeight: isActive('/health-recommendation') ? 'bold' : 'normal'
-        }}>Здоровье</Link>
-        <Link to="/investment-analysis" style={{
-          color: isActive('/investment-analysis') ? 'white' : 'rgba(255, 255, 255, 0.7)',
-          textDecoration: 'none', 
-          fontWeight: isActive('/investment-analysis') ? 'bold' : 'normal'
-        }}>Инвестиции</Link>
-      </nav>
+      </header>
       <nav style={{
         display: isMenuOpen ? 'block' : 'none',
-        position: 'absolute',
+        position: 'fixed',
         top: '60px',
         left: '0',
         right: '0',
-        backgroundColor: '#2c3e50',
-        padding: '1rem',
-        boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)',
-        zIndex: 999
-      }} className="mobile-nav">
-        <ul style={{ listStyle: 'none', padding: '0', margin: '0' }}>
-          <li style={{ marginBottom: '1rem' }}>
+        bottom: '0',
+        backgroundColor: 'rgba(44, 62, 80, 0.95)',
+        padding: '1.5rem',
+        overflowY: 'auto',
+        zIndex: 999,
+        boxShadow: '0 10px 30px rgba(0, 0, 0, 0.3)'
+      }}>
+        <ul style={{listStyle: 'none', padding: '0', margin: '0'}}>
+          <li style={{marginBottom: '1.2rem'}}>
             <Link to="/" onClick={handleLinkClick} style={{
-              color: isActive('/') ? 'white' : 'rgba(255, 255, 255, 0.7)',
+              color: isActive('/') ? 'white' : 'rgba(255, 255, 255, 0.85)',
               textDecoration: 'none', 
               display: 'block', 
-              padding: '0.5rem',
-              fontWeight: isActive('/') ? 'bold' : 'normal'
+              padding: '0.8rem 1rem',
+              borderRadius: '8px',
+              backgroundColor: isActive('/') ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+              fontWeight: isActive('/') ? 'bold' : 'normal',
+              transition: 'all 0.2s'
             }}>Главная</Link>
           </li>
-          <li style={{ marginBottom: '1rem' }}>
+          <li style={{marginBottom: '1.2rem'}}>
             <Link to="/course" onClick={handleLinkClick} style={{
-              color: isActive('/course') ? 'white' : 'rgba(255, 255, 255, 0.7)',
+              color: isActive('/course') ? 'white' : 'rgba(255, 255, 255, 0.85)',
               textDecoration: 'none', 
               display: 'block', 
-              padding: '0.5rem',
-              fontWeight: isActive('/course') ? 'bold' : 'normal'
+              padding: '0.8rem 1rem',
+              borderRadius: '8px',
+              backgroundColor: isActive('/course') ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+              fontWeight: isActive('/course') ? 'bold' : 'normal',
+              transition: 'all 0.2s'
             }}>Курсы</Link>
           </li>
-          <li style={{ marginBottom: '1rem' }}>
+          <li style={{marginBottom: '1.2rem'}}>
             <Link to="/legal-document-analysis" onClick={handleLinkClick} style={{
-              color: isActive('/legal-document-analysis') ? 'white' : 'rgba(255, 255, 255, 0.7)',
+              color: isActive('/legal-document-analysis') ? 'white' : 'rgba(255, 255, 255, 0.85)',
               textDecoration: 'none', 
               display: 'block', 
-              padding: '0.5rem',
-              fontWeight: isActive('/legal-document-analysis') ? 'bold' : 'normal'
-            }}>Юр. анализ</Link>
+              padding: '0.8rem 1rem',
+              borderRadius: '8px',
+              backgroundColor: isActive('/legal-document-analysis') ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+              fontWeight: isActive('/legal-document-analysis') ? 'bold' : 'normal',
+              transition: 'all 0.2s'
+            }}>Юридический анализ</Link>
           </li>
-          <li style={{ marginBottom: '1rem' }}>
+          <li style={{marginBottom: '1.2rem'}}>
             <Link to="/financial-analysis" onClick={handleLinkClick} style={{
-              color: isActive('/financial-analysis') ? 'white' : 'rgba(255, 255, 255, 0.7)',
+              color: isActive('/financial-analysis') ? 'white' : 'rgba(255, 255, 255, 0.85)',
               textDecoration: 'none', 
               display: 'block', 
-              padding: '0.5rem',
-              fontWeight: isActive('/financial-analysis') ? 'bold' : 'normal'
-            }}>Фин. анализ</Link>
+              padding: '0.8rem 1rem',
+              borderRadius: '8px',
+              backgroundColor: isActive('/financial-analysis') ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+              fontWeight: isActive('/financial-analysis') ? 'bold' : 'normal',
+              transition: 'all 0.2s'
+            }}>Финансовый анализ</Link>
           </li>
-          <li style={{ marginBottom: '1rem' }}>
+          <li style={{marginBottom: '1.2rem'}}>
             <Link to="/photo-restoration" onClick={handleLinkClick} style={{
-              color: isActive('/photo-restoration') ? 'white' : 'rgba(255, 255, 255, 0.7)',
+              color: isActive('/photo-restoration') ? 'white' : 'rgba(255, 255, 255, 0.85)',
               textDecoration: 'none', 
               display: 'block', 
-              padding: '0.5rem',
-              fontWeight: isActive('/photo-restoration') ? 'bold' : 'normal'
-            }}>Фото</Link>
+              padding: '0.8rem 1rem',
+              borderRadius: '8px',
+              backgroundColor: isActive('/photo-restoration') ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+              fontWeight: isActive('/photo-restoration') ? 'bold' : 'normal',
+              transition: 'all 0.2s'
+            }}>Реставрация фото</Link>
           </li>
-          <li style={{ marginBottom: '1rem' }}>
+          <li style={{marginBottom: '1.2rem'}}>
             <Link to="/medical-image-analysis" onClick={handleLinkClick} style={{
-              color: isActive('/medical-image-analysis') ? 'white' : 'rgba(255, 255, 255, 0.7)',
+              color: isActive('/medical-image-analysis') ? 'white' : 'rgba(255, 255, 255, 0.85)',
               textDecoration: 'none', 
               display: 'block', 
-              padding: '0.5rem',
-              fontWeight: isActive('/medical-image-analysis') ? 'bold' : 'normal'
-            }}>Мед. анализ</Link>
+              padding: '0.8rem 1rem',
+              borderRadius: '8px',
+              backgroundColor: isActive('/medical-image-analysis') ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+              fontWeight: isActive('/medical-image-analysis') ? 'bold' : 'normal',
+              transition: 'all 0.2s'
+            }}>Медицинский анализ</Link>
           </li>
-          <li style={{ marginBottom: '1rem' }}>
+          <li style={{marginBottom: '1.2rem'}}>
             <Link to="/three-d-model-converter" onClick={handleLinkClick} style={{
-              color: isActive('/three-d-model-converter') ? 'white' : 'rgba(255, 255, 255, 0.7)',
+              color: isActive('/three-d-model-converter') ? 'white' : 'rgba(255, 255, 255, 0.85)',
               textDecoration: 'none', 
               display: 'block', 
-              padding: '0.5rem',
-              fontWeight: isActive('/three-d-model-converter') ? 'bold' : 'normal'
+              padding: '0.8rem 1rem',
+              borderRadius: '8px',
+              backgroundColor: isActive('/three-d-model-converter') ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+              fontWeight: isActive('/three-d-model-converter') ? 'bold' : 'normal',
+              transition: 'all 0.2s'
             }}>3D-модели</Link>
           </li>
-          <li style={{ marginBottom: '1rem' }}>
+          <li style={{marginBottom: '1.2rem'}}>
             <Link to="/business-plan" onClick={handleLinkClick} style={{
-              color: isActive('/business-plan') ? 'white' : 'rgba(255, 255, 255, 0.7)',
+              color: isActive('/business-plan') ? 'white' : 'rgba(255, 255, 255, 0.85)',
               textDecoration: 'none', 
               display: 'block', 
-              padding: '0.5rem',
-              fontWeight: isActive('/business-plan') ? 'bold' : 'normal'
-            }}>Бизнес-план</Link>
+              padding: '0.8rem 1rem',
+              borderRadius: '8px',
+              backgroundColor: isActive('/business-plan') ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+              fontWeight: isActive('/business-plan') ? 'bold' : 'normal',
+              transition: 'all 0.2s'
+            }}>Бизнес-планы</Link>
           </li>
-          <li style={{ marginBottom: '1rem' }}>
+          <li style={{marginBottom: '1.2rem'}}>
             <Link to="/presentation" onClick={handleLinkClick} style={{
-              color: isActive('/presentation') ? 'white' : 'rgba(255, 255, 255, 0.7)',
+              color: isActive('/presentation') ? 'white' : 'rgba(255, 255, 255, 0.85)',
               textDecoration: 'none', 
               display: 'block', 
-              padding: '0.5rem',
-              fontWeight: isActive('/presentation') ? 'bold' : 'normal'
+              padding: '0.8rem 1rem',
+              borderRadius: '8px',
+              backgroundColor: isActive('/presentation') ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+              fontWeight: isActive('/presentation') ? 'bold' : 'normal',
+              transition: 'all 0.2s'
             }}>Презентации</Link>
           </li>
-          <li style={{ marginBottom: '1rem' }}>
+          <li style={{marginBottom: '1.2rem'}}>
             <Link to="/health-recommendation" onClick={handleLinkClick} style={{
-              color: isActive('/health-recommendation') ? 'white' : 'rgba(255, 255, 255, 0.7)',
+              color: isActive('/health-recommendation') ? 'white' : 'rgba(255, 255, 255, 0.85)',
               textDecoration: 'none', 
               display: 'block', 
-              padding: '0.5rem',
-              fontWeight: isActive('/health-recommendation') ? 'bold' : 'normal'
+              padding: '0.8rem 1rem',
+              borderRadius: '8px',
+              backgroundColor: isActive('/health-recommendation') ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+              fontWeight: isActive('/health-recommendation') ? 'bold' : 'normal',
+              transition: 'all 0.2s'
             }}>Здоровье</Link>
           </li>
-          <li style={{ marginBottom: '1rem' }}>
+          <li style={{marginBottom: '1.2rem'}}>
             <Link to="/investment-analysis" onClick={handleLinkClick} style={{
-              color: isActive('/investment-analysis') ? 'white' : 'rgba(255, 255, 255, 0.7)',
+              color: isActive('/investment-analysis') ? 'white' : 'rgba(255, 255, 255, 0.85)',
               textDecoration: 'none', 
               display: 'block', 
-              padding: '0.5rem',
-              fontWeight: isActive('/investment-analysis') ? 'bold' : 'normal'
+              padding: '0.8rem 1rem',
+              borderRadius: '8px',
+              backgroundColor: isActive('/investment-analysis') ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+              fontWeight: isActive('/investment-analysis') ? 'bold' : 'normal',
+              transition: 'all 0.2s'
             }}>Инвестиции</Link>
+          </li>
+          <li style={{marginBottom: '1.2rem'}}>
+            <Link to="/about" onClick={handleLinkClick} style={{
+              color: isActive('/about') ? 'white' : 'rgba(255, 255, 255, 0.85)',
+              textDecoration: 'none', 
+              display: 'block', 
+              padding: '0.8rem 1rem',
+              borderRadius: '8px',
+              backgroundColor: isActive('/about') ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+              fontWeight: isActive('/about') ? 'bold' : 'normal',
+              transition: 'all 0.2s'
+            }}>О проекте</Link>
           </li>
         </ul>
       </nav>
@@ -289,6 +277,7 @@ function AppContent() {
      </div>
      </footer>
     </div>
+  </div>
   );
 }
 

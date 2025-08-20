@@ -96,15 +96,14 @@ function Home({ onSuccess }: { onSuccess?: () => void }) {
             color: colors.investment
         }
     ];
+    const currentService = services.find(s => s.id === activeService);
     return (
-        <div className="home-page" style={{maxWidth: '100%', margin: '0 auto', padding: '2rem', 
-            background: `linear-gradient(135deg, ${colors.background} 0%, ${colors.backgroundLight} 100%)`, 
-            color: colors.textPrimary}}>
+        <div className="home-page" style={{maxWidth: '100%', margin: '0 auto', padding: '2rem', backgroundColor: 'rgba(51, 51, 51, 0.7)', color: colors.textPrimary}}>
             <div style={{textAlign: 'center', marginBottom: '3rem'}}>
                 <h1 style={{fontSize: '3rem', marginBottom: '1rem', color: colors.primary}}>
                     Советница АКВИ
                 </h1>
-                <p style={{fontSize: '1.2rem', maxWidth: '800px', margin: '0 auto'}}>
+                <p style={{fontSize: '1.2rem', maxWidth: '800px', margin: '0 auto', color: colors.textSecondary}}>
                     Умная платформа для профессиональных консультаций и анализа по 11 ключевым направлениям
                 </p>
                 <p>
@@ -112,80 +111,158 @@ function Home({ onSuccess }: { onSuccess?: () => void }) {
                 <AdviceList />
                 </p>
             </div>
-            <div style={{display: 'flex', gap: '2rem', marginBottom: '3rem'}}>
-                <div style={{flex: '0 0 300px', display: 'flex', flexDirection: 'column', gap: '1rem'}}>
+            <div style={{display: 'flex', gap: '2rem', marginBottom: '3rem', flexDirection: 'column'}}>
+                {/* Карточки услуг */}
+                <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem'}}>
                     {services.map(service => (
                         <div 
-                        key={service.id}
-                        onClick={() => setActiveService(service.id)}
-                        style={{
-                            backgroundColor: activeService === service.id ? service.color : 'rgba(255, 255, 255, 0.07)',
-                            color: activeService === service.id ? '#000000' : colors.textPrimary,
-                            padding: '1.2rem',
-                            borderRadius: '8px',
-                            boxShadow: `0 2px 8px rgba(0,0,0,0.3)`,
-                            cursor: 'pointer',
-                            transition: 'all 0.3s ease',
-                            border: activeService === service.id ? `2px solid ${service.color}` : '1px solid rgba(255, 255, 255, 0.15)',
-                            marginBottom: '1rem'
-                        }}
+                            key={service.id}
+                            onClick={() => setActiveService(service.id)}
+                            style={{
+                                backgroundColor: activeService === service.id ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.05)',
+                                color: colors.textPrimary,
+                                padding: '1.5rem',
+                                borderRadius: '12px',
+                                boxShadow: activeService === service.id ? `0 5px 15px rgba(0,0,0,0.2)` : `0 2px 8px rgba(0,0,0,0.1)`,
+                                cursor: 'pointer',
+                                transition: 'all 0.3s ease',
+                                border: activeService === service.id ? `2px solid ${service.color}` : '1px solid rgba(255, 255, 255, 0.1)',
+                                position: 'relative',
+                                overflow: 'hidden'
+                            }}
                         >
-                        <div style={{fontSize: '2rem', marginBottom: '0.5rem'}}>{service.icon}</div>
-                        <h3 style={{margin: '0 0 0.5rem 0'}}>{service.title}</h3>
-                        <p style={{margin: '0'}}>{service.description}</p>
+                            <div style={{
+                                position: 'absolute',
+                                top: 0,
+                                left: 0,
+                                right: 0,
+                                height: '4px',
+                                backgroundColor: service.color
+                            }}></div>
+                            <div style={{
+                                fontSize: '2.2rem', 
+                                marginBottom: '0.8rem',
+                                color: service.color
+                            }}>
+                                {service.icon}
+                            </div>
+                            <h3 style={{margin: '0 0 0.5rem 0', fontSize: '1.3rem'}}>{service.title}</h3>
+                            <p style={{margin: '0', color: colors.textSecondary, lineHeight: '1.5'}}>{service.description}</p>
                         </div>
                     ))}
                 </div>
-                <div style={{flex: '1', backgroundColor: 'rgba(255, 255, 255, 0.05)', borderRadius: '10px', padding: '2rem', boxShadow: '0 2px 10px rgba(0,0,0,0.1)'}}>
+                
+                {/* Правая колонка - содержимое */}
+                <div style={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.05)', 
+                    borderRadius: '12px', 
+                    padding: '2rem', 
+                    boxShadow: '0 4px 20px rgba(0,0,0,0.1)'
+                }}>
                     {activeService === 'chat' ? (
                         <div>
-                            <h2 style={{margin: '0 0 1.5rem 0', color: colors.primary}}>Чат с АКВИ</h2>
+                            <h2 style={{margin: '0 0 1.5rem 0', color: colors.primary, fontSize: '2rem'}}>Чат с АКВИ</h2>
                             <Chat />
                         </div>
                     ) : (
                         <div>
                             <div style={{display: 'flex', alignItems: 'center', marginBottom: '1.5rem'}}>
-                                <span style={{fontSize: '2rem', marginRight: '1rem', color: services.find(s => s.id === activeService)?.color}}>
-                                    {services.find(s => s.id === activeService)?.icon}
+                                <span style={{
+                                    fontSize: '2.2rem', 
+                                    marginRight: '1rem', 
+                                    color: currentService?.color
+                                }}>
+                                    {currentService?.icon}
                                 </span>
-                                <h2 style={{margin: '0', color: services.find(s => s.id === activeService)?.color}}>
-                                    {services.find(s => s.id === activeService)?.title}
+                                <h2 style={{
+                                    margin: '0', 
+                                    color: currentService?.color,
+                                    fontSize: '2rem'
+                                }}>
+                                    {currentService?.title}
                                 </h2>
                             </div>
-                            <p style={{marginBottom: '1.5rem'}}>
-                                {services.find(s => s.id === activeService)?.description}
+                            <p style={{color: colors.textSecondary, marginBottom: '1.5rem', lineHeight: '1.6'}}>
+                                {currentService?.description}
                             </p>
-                            <div style={{backgroundColor: 'rgba(255, 255, 255, 0.1)', borderRadius: '8px', padding: '1.5rem', boxShadow: '0 1px 3px rgba(0,0,0,0.1)'}}>
-                                <p style={{textAlign: 'center'}}>
-                                    Перейдите на страницу <a href={services.find(s => s.id === activeService)?.path} 
-                                    style={{color: services.find(s => s.id === activeService)?.color, textDecoration: 'none'}}>здесь</a>, чтобы воспользоваться этой услугой
+                            
+                            <div style={{
+                                backgroundColor: 'rgba(255, 255, 255, 0.07)', 
+                                borderRadius: '8px', 
+                                padding: '1.5rem', 
+                                borderLeft: `4px solid ${currentService?.color || colors.primary}`
+                            }}>
+                                <p style={{textAlign: 'center', color: colors.textSecondary}}>
+                                    Перейдите на страницу <a href={`/${currentService?.id || 'chat'}`} 
+                                    style={{color: currentService?.color || colors.primary, textDecoration: 'none'}}>здесь</a>, чтобы воспользоваться этой услугой
                                 </p>
                             </div>
                         </div>
                     )}
                 </div>
             </div>
+            
+            {/* Статистика использования */}
             <section style={{marginBottom: '3rem'}}>
                 <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem'}}>
-                    <div style={{backgroundColor: 'rgba(255, 255, 255, 0.05)', padding: '1.5rem', borderRadius: '8px', textAlign: 'center'}}>
-                        <div style={{fontSize: '2.5rem', fontWeight: 'bold', color: colors.primary, marginBottom: '0.5rem'}}>154</div>
-                        <p style={{margin: '0'}}>Активных пользователей</p>
+                    <div style={{
+                        backgroundColor: 'rgba(255, 255, 255, 0.07)', 
+                        padding: '1.5rem', 
+                        borderRadius: '8px', 
+                        textAlign: 'center'
+                    }}>
+                        <div style={{
+                            fontSize: '2.5rem', 
+                            fontWeight: 'bold', 
+                            color: colors.primary, 
+                            marginBottom: '0.5rem'
+                        }}>
+                            154+
+                        </div>
+                        <p style={{margin: '0', color: colors.textSecondary}}>Активных пользователей</p>
                     </div>
-                    <div style={{backgroundColor: 'rgba(255, 255, 255, 0.05)', padding: '1.5rem', borderRadius: '8px', textAlign: 'center'}}>
-                        <div style={{fontSize: '2.5rem', fontWeight: 'bold', color: colors.primary, marginBottom: '0.5rem'}}>11</div>
-                        <p style={{margin: '0'}}>Ключевых услуг</p>
+                    <div style={{
+                        backgroundColor: 'rgba(255, 255, 255, 0.07)', 
+                        padding: '1.5rem', 
+                        borderRadius: '8px', 
+                        textAlign: 'center'
+                    }}>
+                        <div style={{
+                            fontSize: '2.5rem', 
+                            fontWeight: 'bold', 
+                            color: colors.primary, 
+                            marginBottom: '0.5rem'
+                        }}>
+                            11
+                        </div>
+                        <p style={{margin: '0', color: colors.textSecondary}}>Ключевых услуг</p>
                     </div>
-                    <div style={{backgroundColor: 'rgba(255, 255, 255, 0.05)', padding: '1.5rem', borderRadius: '8px', textAlign: 'center'}}>
-                        <div style={{fontSize: '2.5rem', fontWeight: 'bold', color: colors.primary, marginBottom: '0.5rem'}}>1245</div>
-                        <p style={{margin: '0'}}>Всего запросов</p>
-                    </div>
-                    <div style={{backgroundColor: 'rgba(255, 255, 255, 0.05)', padding: '1.5rem', borderRadius: '8px', textAlign: 'center'}}>
-                        <div style={{fontSize: '2.5rem', fontWeight: 'bold', color: colors.primary, marginBottom: '0.5rem'}}>95%</div>
-                        <p style={{margin: '0'}}>Точность рекомендаций</p>
+                    <div style={{
+                        backgroundColor: 'rgba(255, 255, 255, 0.07)', 
+                        padding: '1.5rem', 
+                        borderRadius: '8px', 
+                        textAlign: 'center'
+                    }}>
+                        <div style={{
+                            fontSize: '2.5rem', 
+                            fontWeight: 'bold', 
+                            color: colors.primary, 
+                            marginBottom: '0.5rem'
+                        }}>
+                            95%
+                        </div>
+                        <p style={{margin: '0', color: colors.textSecondary}}>Точность рекомендаций</p>
                     </div>
                 </div>
             </section>
-            <div style={{textAlign: 'center', color: '#7f8c8d', fontSize: '0.9rem'}}>
+            
+            <div style={{
+                textAlign: 'center', 
+                color: colors.textSecondary, 
+                fontSize: '0.9rem',
+                paddingTop: '2rem',
+                borderTop: '1px solid rgba(255, 255, 255, 0.1)'
+            }}>
                 Советница АКВИ — ваш надежный партнер в мире профессиональных услуг и экспертных рекомендаций
             </div>
         </div>
