@@ -23,6 +23,10 @@ import HealthRecommendationForm from "./components/HealthRecommendationForm";
 import BusinessPlanForm from "./components/BusinessPlanForm";
 import PresentationForm from "./components/PresentationForm";
 import InvestmentAnalysisForm from "./components/InvestmentAnalysisForm";
+import MarketingStrategyForm from "./components/MarketingStrategyForm";
+import TravelPlannerForm from "./components/TravelPlannerForm";
+import CompetitorAnalysisForm from "./components/CompetitorAnalysisForm";
+import CommunicationOptimizationForm from "./components/CommunicationOptimizationForm";
 
 function AppContent() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -257,6 +261,10 @@ function AppContent() {
           <Route path="/business-plan" element={<BusinessPlanForm />} />
           <Route path="/presentation" element={<PresentationForm />} />
           <Route path="/investment-analysis" element={<InvestmentAnalysisForm />} />
+          <Route path="/marketing-strategy" element={<MarketingStrategyForm />} />
+          <Route path="/travel-planner" element={<TravelPlannerForm />} />
+          <Route path="/competitor-analysis" element={<CompetitorAnalysisForm />} />
+          <Route path="/communication-optimization" element={<CommunicationOptimizationForm />} />
         </Routes>
         <AdviceForm />
         <AdviceList />

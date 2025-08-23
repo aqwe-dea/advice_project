@@ -561,6 +561,305 @@ class InvestmentAnalysisView(APIView):
             logger.error(f"Ошибка анализа инвестиций: {str(e)}")
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
+class MarketingStrategyView(APIView):
+    def post(self, request, *args, **kwargs):
+        logger.info(f"Получен запрос на маркетинговую стратегию: {request.data}")
+        idea = request.data.get('idea', '')
+        target_audience = request.data.get('target_audience', 'широкая аудитория')
+        budget = request.data.get('budget', 'средний')
+        timeframe = request.data.get('timeframe', '3 месяца')
+        country = request.data.get('country', 'Россия')
+        platform = request.data.get('platform', 'многофункциональная')
+        if not idea:
+            return Response({'error': 'Идея не указана'}, status=status.HTTP_400_BAD_REQUEST)
+        HF_API_KEY = os.getenv('HF_API_KEY_MAR')
+        if not HF_API_KEY:
+            logger.error("API ключ Hugging Face не настроен")
+            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        try:
+            logger.info(f"Генерация маркетинговой стратегии для идеи: {idea}")
+            client = InferenceClient(model="Qwen/Qwen2.5-72B-Instruct", token=HF_API_KEY)
+            prompt = f"""
+            Создай подробную стратегию продвижения для идеи: "{idea}".
+            Параметры:
+            - Целевая аудитория: {target_audience}
+            - Бюджет: {budget}
+            - Временные рамки: {timeframe}
+            - Страна: {country}
+            - Платформа: {platform}
+            Стратегия должна включать:
+            1. Анализ целевой аудитории
+            - Демографические характеристики
+            - Психографические характеристики
+            - Поведенческие паттерны
+            - Каналы коммуникации
+            2. Анализ конкурентов
+            - Основные конкуренты
+            - Их сильные и слабые стороны
+            - Уникальное торговое предложение (УТП)
+            3. Многоуровневая стратегия продвижения
+            - Онлайн-стратегия (социальные сети, контент-маркетинг, email-маркетинг, SEO)
+            - Офлайн-стратегия (мероприятия, печатные материалы, партнерства)
+            - Вирусный маркетинг (идеи для вовлечения)
+            4. План внедрения
+            - Пошаговый план на {timeframe}
+            - Приоритетные действия
+            - Ожидаемые результаты
+            5. Инструменты и технологии
+            - Рекомендуемые инструменты для аналитики
+            - Платформы для автоматизации
+            - Бюджетное распределение
+            6. Метрики успеха
+            - Ключевые показатели эффективности (KPI)
+            - Как измерять успех
+            - Корректировка стратегии
+            7. Риски и пути их минимизации
+            - Возможные проблемы
+            - Стратегии преодоления
+            Ответ должен быть профессиональным, структурированным и содержать конкретные рекомендации с примерами.
+            """
+            response = client.chat_completion(
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=1200
+            )
+            return Response({
+                'marketing_strategy': response.choices[0].message.content,
+                'idea': idea,
+                'target_audience': target_audience,
+                'budget': budget,
+                'timeframe': timeframe,
+                'country': country,
+                'platform': platform
+            })
+        except Exception as e:
+            logger.error(f"Ошибка генерации маркетинговой стратегии: {str(e)}")
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class TravelPlannerView(APIView):
+    def post(self, request, *args, **kwargs):
+        logger.info(f"Получен запрос на планирование путешествия: {request.data}")
+        destination = request.data.get('destination', '')
+        budget = request.data.get('budget', 'средний')
+        travel_dates = request.data.get('travel_dates', 'июль-август')
+        travel_style = request.data.get('travel_style', 'активный отдых')
+        group_type = request.data.get('group_type', 'один/одна')
+        special_interests = request.data.get('special_interests', 'общие')
+        if not destination:
+            return Response({'error': 'Назначение путешествия не указано'}, status=status.HTTP_400_BAD_REQUEST)
+        HF_API_KEY = os.getenv('HF_API_KEY_TURL')
+        if not HF_API_KEY:
+            logger.error("API ключ Hugging Face не настроен")
+            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        try:
+            logger.info(f"Генерация маршрута для путешествия в {destination}")
+            client = InferenceClient(model="Qwen/Qwen2.5-72B-Instruct", token=HF_API_KEY)
+            prompt = f"""
+            Создай подробный план путешествия в {destination} с учетом следующих параметров:
+            - Бюджет: {budget}
+            - Даты путешествия: {travel_dates}
+            - Стиль путешествия: {travel_style}
+            - Тип группы: {group_type}
+            - Специальные интересы: {special_interests}
+            План должен включать:
+            1. Обзор назначения
+            - Краткое описание места
+            - Лучшее время для посещения
+            - Особенности климата в выбранный период
+            2. Детальный маршрут на каждый день
+            - Утренние, дневные и вечерние активности
+            - Время на дорогу между локациями
+            - Рекомендуемый транспорт
+            3. Бюджетный план
+            - Примерная стоимость проживания
+            - Стоимость еды и развлечений
+            - Советы по экономии
+            4. Рекомендации по питанию
+            - Местная кухня, которую стоит попробовать
+            - Рестораны на разные бюджеты
+            - Особенности этикета
+            5. Культурные особенности
+            - Что делать и чего не делать
+            - Полезные фразы на местном языке
+            - Традиции и праздники в период посещения
+            6. Советы по безопасности
+            - Области для избегания
+            - Экстренные контакты
+            - Советы по сохранности личных вещей
+            7. Необычные рекомендации
+            - Места, которые знают только местные
+            - Уникальные мероприятия
+            - Скрытые жемчужины
+            8. Подготовка к поездке
+            - Что взять с собой
+            - Документы и визы
+            - Медицинские рекомендации
+            Ответ должен быть структурирован, информативен и содержать конкретные рекомендации.
+            """
+            response = client.chat_completion(
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=1200
+            )
+            return Response({
+                'travel_plan': response.choices[0].message.content,
+                'destination': destination,
+                'budget': budget,
+                'travel_dates': travel_dates,
+                'travel_style': travel_style,
+                'group_type': group_type,
+                'special_interests': special_interests
+            })
+        except Exception as e:
+            logger.error(f"Ошибка генерации плана путешествия: {str(e)}")
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class CompetitorAnalysisView(APIView):
+    def post(self, request, *args, **kwargs):
+        logger.info(f"Получен запрос на анализ конкурентов: {request.data}")
+        business_name = request.data.get('business_name', '')
+        business_description = request.data.get('business_description', '')
+        competitors = request.data.get('competitors', '')
+        market_segment = request.data.get('market_segment', 'общий рынок')
+        country = request.data.get('country', 'Россия')
+        if not business_name or not business_description:
+            return Response({'error': 'Название бизнеса и его описание обязательны'}, status=status.HTTP_400_BAD_REQUEST)
+        HF_API_KEY = os.getenv('HF_API_KEY_KONK')
+        if not HF_API_KEY:
+            logger.error("API ключ Hugging Face не настроен")
+            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        try:
+            logger.info(f"Анализ конкурентов для бизнеса: {business_name}")
+            client = InferenceClient(model="Qwen/Qwen2.5-72B-Instruct", token=HF_API_KEY)
+            prompt = f"""
+            Проведи глубокий анализ конкурентов для бизнеса "{business_name}" в сегменте "{market_segment}".
+            Описание бизнеса: {business_description}
+            Конкуренты: {competitors}
+            Страна: {country}
+            Анализ должен включать:
+            1. Обзор рынка
+            - Размер рынка и темпы роста
+            - Ключевые тренды в отрасли
+            - Основные игроки
+            2. Детальный анализ конкурентов
+            - Сильные и слабые стороны каждого конкурента
+            - Их уникальные торговые предложения
+            - Ценовая политика
+            - Каналы продаж и маркетинговые стратегии
+            3. SWOT-анализ вашего бизнеса в контексте конкурентов
+            - Сильные стороны (что лучше, чем у конкурентов)
+            - Слабые стороны (что хуже, чем у конкурентов)
+            - Возможности (что можно улучшить)
+            - Угрозы (что угрожает вашему бизнесу)
+            4. Позиционирование на рынке
+            - Где ваш бизнес лучше всего конкурирует
+            - Какие сегменты рынка недостаточно обслужены
+            - Как выделиться среди конкурентов
+            5. Рекомендации по улучшению конкурентоспособности
+            - Тактические шаги на ближайшие 3 месяца
+            - Стратегические шаги на 6-12 месяцев
+            - Конкретные примеры успешных кейсов из других компаний
+            6. Анализ онлайн-присутствия конкурентов
+            - Эффективность их веб-сайтов
+            - Активность в социальных сетях
+            - Отзывы клиентов и управление репутацией
+            7. Прогноз развития рынка
+            - Какие изменения ожидают рынок в ближайшие 1-2 года
+            - Как подготовиться к этим изменениям
+            - Возможные новые конкуренты
+            Ответ должен быть профессиональным, содержать конкретные цифры и рекомендации.
+            """
+            response = client.chat_completion(
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=1200
+            )
+            return Response({
+                'analysis': response.choices[0].message.content,
+                'business_name': business_name,
+                'market_segment': market_segment,
+                'country': country,
+                'competitors': competitors
+            })
+        except Exception as e:
+            logger.error(f"Ошибка анализа конкурентов: {str(e)}")
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class CommunicationOptimizationView(APIView):
+    def post(self, request, *args, **kwargs):
+        logger.info(f"Получен запрос на оптимизацию коммуникации: {request.data}")
+        company_size = request.data.get('company_size', '500+ сотрудников')
+        industry = request.data.get('industry', 'общая отрасль')
+        communication_problems = request.data.get('communication_problems', '')
+        current_tools = request.data.get('current_tools', 'стандартные инструменты')
+        goals = request.data.get('goals', 'улучшение коммуникации')
+        country = request.data.get('country', 'Россия')
+        if not communication_problems:
+            return Response({'error': 'Описание проблем с коммуникацией обязательно'}, status=status.HTTP_400_BAD_REQUEST)
+        HF_API_KEY = os.getenv('HF_API_KEY_OPMS')
+        if not HF_API_KEY:
+            logger.error("API ключ Hugging Face не настроен")
+            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        try:
+            logger.info(f"Оптимизация коммуникации для компании размером {company_size} в отрасли {industry}")
+            client = InferenceClient(model="Qwen/Qwen2.5-72B-Instruct", token=HF_API_KEY)
+            prompt = f"""
+            Проведи анализ и оптимизацию коммуникации для крупной организации с учетом следующих параметров:
+            - Размер компании: {company_size}
+            - Отрасль: {industry}
+            - Проблемы с коммуникацией: {communication_problems}
+            - Текущие используемые инструменты: {current_tools}
+            - Цели оптимизации: {goals}
+            - Страна: {country}
+            Анализ должен включать:
+            1. Диагностика текущих проблем
+            - Выявление узких мест в коммуникационных процессах
+            - Анализ причин возникновения проблем
+            - Оценка влияния проблем на бизнес-процессы
+            2. Стратегия оптимизации коммуникации
+            - Рекомендуемые структурные изменения
+            - Оптимизация коммуникационных каналов
+            - Улучшение межотраслевого взаимодействия
+            3. Технологические решения
+            - Рекомендуемые инструменты и платформы
+            - Интеграция с существующими системами
+            - Оценка стоимости внедрения
+            4. Обучение и адаптация персонала
+            - Программа обучения сотрудников
+            - Стратегия внедрения изменений
+            - Как минимизировать сопротивление изменениям
+            5. Измерение эффективности
+            - Ключевые метрики для оценки улучшений
+            - Периодичность оценки
+            - Как корректировать стратегию при необходимости
+            6. Кейсы успешной оптимизации
+            - Примеры из аналогичных компаний
+            - Уроки, которые можно извлечь
+            - Что делать и чего не делать
+            7. План внедрения
+            - Пошаговый план на 3, 6 и 12 месяцев
+            - Ответственные за каждый этап
+            - Бюджетные требования
+            8. Риски и пути их минимизации
+            - Потенциальные проблемы при внедрении
+            - Стратегии преодоления
+            - Резервные планы
+            Ответ должен быть профессиональным, содержать конкретные рекомендации и примеры из реальных компаний.
+            """
+            response = client.chat_completion(
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=1200
+            )
+            return Response({
+                'optimization_plan': response.choices[0].message.content,
+                'company_size': company_size,
+                'industry': industry,
+                'communication_problems': communication_problems,
+                'current_tools': current_tools,
+                'goals': goals,
+                'country': country
+            })
+        except Exception as e:
+            logger.error(f"Ошибка оптимизации коммуникации: {str(e)}")
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
 class AdviceViewSet(viewsets.ModelViewSet):
     queryset = Advice.objects.all()
     serializer_class = AdviceSerializer

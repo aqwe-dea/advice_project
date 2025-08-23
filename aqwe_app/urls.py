@@ -17,6 +17,10 @@ from .views import HealthRecommendationView
 from .views import BusinessPlanView
 from .views import PresentationGenerationView
 from .views import InvestmentAnalysisView
+from .views import MarketingStrategyView
+from .views import TravelPlannerView
+from .views import CompetitorAnalysisView
+from .views import CommunicationOptimizationView
 from rest_framework import routers, viewsets
 
 router = DefaultRouter()
@@ -40,6 +44,10 @@ urlpatterns = [
     path('business-plan/', BusinessPlanView.as_view(), name='business-plan'),
     path('generate-presentation/', PresentationGenerationView.as_view(), name='generate-presentation'),
     path('investment-analysis/', InvestmentAnalysisView.as_view(), name='investment-analysis'),
+    path('marketing-strategy/', MarketingStrategyView.as_view(), name='marketing-strategy'),
+    path('travel-planner/', TravelPlannerView.as_view(), name='travel-planner'),
+    path('competitor-analysis/', CompetitorAnalysisView.as_view(), name='competitor-analysis'),
+    path('communication-optimization/', CommunicationOptimizationView.as_view(), name='communication-optimization'),
     path('create-payment-intent/', CreatePaymentIntentView.as_view(), name='create-payment-intent'),
     path('create-checkout-session/', CreateCheckoutSessionView.as_view(), name='create-checkout-session'),
 ]

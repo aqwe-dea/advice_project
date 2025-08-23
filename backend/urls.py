@@ -23,6 +23,10 @@ from aqwe_app.views import HealthRecommendationView
 from aqwe_app.views import BusinessPlanView
 from aqwe_app.views import PresentationGenerationView
 from aqwe_app.views import InvestmentAnalysisView
+from aqwe_app.views import MarketingStrategyView
+from aqwe_app.views import TravelPlannerView
+from aqwe_app.views import CompetitorAnalysisView
+from aqwe_app.views import CommunicationOptimizationView
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from drf_yasg.openapi import Swagger
@@ -53,6 +57,10 @@ urlpatterns = [
     path('business-plan/', BusinessPlanView.as_view(), name='business-plan'),
     path('generate-presentation/', PresentationGenerationView.as_view(), name='generate-presentation'),
     path('investment-analysis/', InvestmentAnalysisView.as_view(), name='investment-analysis'),
+    path('marketing-strategy/', MarketingStrategyView.as_view(), name='marketing-strategy'),
+    path('travel-planner/', TravelPlannerView.as_view(), name='travel-planner'),
+    path('competitor-analysis/', CompetitorAnalysisView.as_view(), name='competitor-analysis'),
+    path('communication-optimization/', CommunicationOptimizationView.as_view(), name='communication-optimization'),
     path('stripe/', include('djstripe.urls', namespace='djstripe')),
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='docs'),
