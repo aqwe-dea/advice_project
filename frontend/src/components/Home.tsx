@@ -94,6 +94,34 @@ function Home({ onSuccess }: { onSuccess?: () => void }) {
             icon: '💰',
             path: '/investment-analysis',
             color: colors.investment
+        },
+        {
+            id: 'marketing-strategy',
+            title: 'Стратегия продвижения',
+            description: 'Получите персонализированный маркетинговый план для продвижения вашей идеи',
+            icon: '📈',
+            color: colors.business
+        },
+        {
+            id: 'travel-planner',
+            title: 'Планировщик путешествий',
+            description: 'Создайте уникальный маршрут путешествия, учитывающий ваши предпочтения и бюджет',
+            icon: '✈️',
+            color: colors.courses
+        },
+        {
+            id: 'competitor-analysis',
+            title: 'Анализ конкурентов',
+            description: 'Получите глубокий анализ ваших конкурентов с рекомендациями по улучшению позиции',
+            icon: '🔍',
+            color: colors.finance
+        },
+        {
+            id: 'communication-optimization',
+            title: 'Оптимизация коммуникации',
+            description: 'Диагностика и оптимизация коммуникационных процессов в вашей компании',
+            icon: '💬',
+            color: colors.chat
         }
     ];
     const currentService = services.find(s => s.id === activeService);
@@ -114,44 +142,43 @@ function Home({ onSuccess }: { onSuccess?: () => void }) {
             <div style={{display: 'flex', gap: '2rem', marginBottom: '3rem', flexDirection: 'column'}}>
                 {/* Карточки услуг */}
                 <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem'}}>
-                    {services.map(service => (
-                        <div 
-                            key={service.id}
-                            onClick={() => setActiveService(service.id)}
-                            style={{
-                                backgroundColor: activeService === service.id ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.05)',
-                                color: colors.textPrimary,
-                                padding: '1.5rem',
-                                borderRadius: '12px',
-                                boxShadow: activeService === service.id ? `0 5px 15px rgba(0,0,0,0.2)` : `0 2px 8px rgba(0,0,0,0.1)`,
-                                cursor: 'pointer',
-                                transition: 'all 0.3s ease',
-                                border: activeService === service.id ? `2px solid ${service.color}` : '1px solid rgba(255, 255, 255, 0.1)',
-                                position: 'relative',
-                                overflow: 'hidden'
-                            }}
-                        >
-                            <div style={{
-                                position: 'absolute',
-                                top: 0,
-                                left: 0,
-                                right: 0,
-                                height: '4px',
-                                backgroundColor: service.color
-                            }}></div>
-                            <div style={{
-                                fontSize: '2.2rem', 
-                                marginBottom: '0.8rem',
-                                color: service.color
-                            }}>
-                                {service.icon}
-                            </div>
-                            <h3 style={{margin: '0 0 0.5rem 0', fontSize: '1.3rem'}}>{service.title}</h3>
-                            <p style={{margin: '0', color: colors.textSecondary, lineHeight: '1.5'}}>{service.description}</p>
-                        </div>
-                    ))}
-                </div>
-                
+                {services.map(service => (
+                    <div 
+                        key={service.id}
+                        onClick={() => setActiveService(service.id)}
+                        style={{
+                            backgroundColor: activeService === service.id ? 'rgba(255, 255, 255, 0.1)' : 'rgba(255, 255, 255, 0.05)',
+                            color: colors.textPrimary,
+                            padding: '1.5rem',
+                            borderRadius: '12px',
+                            boxShadow: activeService === service.id ? `0 5px 15px rgba(0,0,0,0.2)` : `0 2px 8px rgba(0,0,0,0.1)`,
+                            cursor: 'pointer',
+                            transition: 'all 0.3s ease',
+                            border: activeService === service.id ? `2px solid ${service.color}` : '1px solid rgba(255, 255, 255, 0.1)',
+                            position: 'relative',
+                            overflow: 'hidden'
+                        }}
+                    >
+                    <div style={{
+                        position: 'absolute',
+                        top: 0,
+                        left: 0,
+                        right: 0,
+                        height: '4px',
+                        backgroundColor: service.color
+                    }}></div>
+                    <div style={{
+                        fontSize: '2.2rem', 
+                        marginBottom: '0.8rem',
+                        color: service.color
+                    }}>
+                    {service.icon}
+                    </div>
+                    <h3 style={{margin: '0 0 0.5rem 0', fontSize: '1.3rem'}}>{service.title}</h3>
+                    <p style={{margin: '0', color: colors.textSecondary, lineHeight: '1.6'}}>{service.description}</p>
+                    </div>
+                ))}
+            </div>    
                 {/* Правая колонка - содержимое */}
                 <div style={{
                     backgroundColor: 'rgba(255, 255, 255, 0.05)', 

@@ -222,6 +222,54 @@ function AppContent() {
             }}>Инвестиции</Link>
           </li>
           <li style={{marginBottom: '1.2rem'}}>
+            <Link to="/marketing-strategy" onClick={handleLinkClick} style={{
+              color: isActive('/marketing-strategy') ? 'white' : 'rgba(255, 255, 255, 0.85)',
+              textDecoration: 'none', 
+              display: 'block', 
+              padding: '0.8rem 1rem',
+              borderRadius: '8px',
+              backgroundColor: isActive('/marketing-strategy') ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+              fontWeight: isActive('/marketing-strategy') ? 'bold' : 'normal',
+              transition: 'all 0.2s'
+            }}>Стратегия продвижения</Link>
+          </li>
+          <li style={{marginBottom: '1.2rem'}}>
+            <Link to="/travel-planner" onClick={handleLinkClick} style={{
+              color: isActive('/travel-planner') ? 'white' : 'rgba(255, 255, 255, 0.85)',
+              textDecoration: 'none', 
+              display: 'block', 
+              padding: '0.8rem 1rem',
+              borderRadius: '8px',
+              backgroundColor: isActive('/travel-planner') ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+              fontWeight: isActive('/travel-planner') ? 'bold' : 'normal',
+              transition: 'all 0.2s'
+            }}>Планировщик путешествий</Link>
+          </li>
+          <li style={{marginBottom: '1.2rem'}}>
+            <Link to="/competitor-analysis" onClick={handleLinkClick} style={{
+              color: isActive('/competitor-analysis') ? 'white' : 'rgba(255, 255, 255, 0.85)',
+              textDecoration: 'none', 
+              display: 'block', 
+              padding: '0.8rem 1rem',
+              borderRadius: '8px',
+              backgroundColor: isActive('/competitor-analysis') ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+              fontWeight: isActive('/competitor-analysis') ? 'bold' : 'normal',
+              transition: 'all 0.2s'
+            }}>Анализ конкурентов</Link>
+          </li>
+          <li style={{marginBottom: '1.2rem'}}>
+            <Link to="/communication-optimization" onClick={handleLinkClick} style={{
+              color: isActive('/communication-optimization') ? 'white' : 'rgba(255, 255, 255, 0.85)',
+              textDecoration: 'none', 
+              display: 'block', 
+              padding: '0.8rem 1rem',
+              borderRadius: '8px',
+              backgroundColor: isActive('/communication-optimization') ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+              fontWeight: isActive('/communication-optimization') ? 'bold' : 'normal',
+              transition: 'all 0.2s'
+            }}>Оптимизация коммуникации</Link>
+          </li>
+          <li style={{marginBottom: '1.2rem'}}>
             <Link to="/about" onClick={handleLinkClick} style={{
               color: isActive('/about') ? 'white' : 'rgba(255, 255, 255, 0.85)',
               textDecoration: 'none', 
