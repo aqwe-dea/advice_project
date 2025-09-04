@@ -46,8 +46,9 @@ HF_API_KEY_UR = os.getenv('HF_API_KEY_UR')
 #security for production 
 #SECURE_HSTS_SECONDS = 1209600
 #SECURE_SSL_REDIRECT = False
-#SESSION_COOKIE_SECURE = False
-#CSRF_COOKIE_SECURE = False
+SESSION_COOKIE_SECURE = True
+SESSION_COOKIE_HTTPONLY = True
+SESSION_COOKIE_SAMESITE = 'Strict'
 #SECURE_HSTS_INCLUDE_SUBDOMAINS = False
 #SECURE_HSTS_PRELOAD = False
 
@@ -107,6 +108,7 @@ MIDDLEWARE = [
     'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'aqwe_app.middleware.SessionMiddleware',
 ]
 
 REST_FRAMEWORK = {

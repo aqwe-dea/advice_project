@@ -24,7 +24,7 @@ function Home({ onSuccess }: { onSuccess?: () => void }) {
             color: colors.courses
         },
         {
-            id: 'legal',
+            id: 'legal-document-analysis',
             title: 'Юридический анализ',
             description: 'Проверяйте документы на соответствие законодательству',
             icon: '⚖️',
@@ -32,7 +32,7 @@ function Home({ onSuccess }: { onSuccess?: () => void }) {
             color: colors.legal
         },
         {
-            id: 'finance',
+            id: 'financial-analysis',
             title: 'Финансовый анализ',
             description: 'Анализируйте финансовую отчетность и выявляйте риски',
             icon: '📊',
@@ -40,7 +40,7 @@ function Home({ onSuccess }: { onSuccess?: () => void }) {
             color: colors.finance
         },
         {
-            id: 'photo',
+            id: 'photo-restoration',
             title: 'Реставрация фото',
             description: 'Восстанавливайте старые или поврежденные фотографии',
             icon: '🖼️',
@@ -48,7 +48,7 @@ function Home({ onSuccess }: { onSuccess?: () => void }) {
             color: colors.photo
         },
         {
-            id: 'medical',
+            id: 'medical-image-analysis',
             title: 'Медицинский анализ',
             description: 'Получайте предварительный анализ медицинских снимков',
             icon: '🏥',
@@ -56,7 +56,7 @@ function Home({ onSuccess }: { onSuccess?: () => void }) {
             color: colors.medical
         },
         {
-            id: '3d',
+            id: 'three-d-model-converter',
             title: '3D-модели',
             description: 'Превращайте 3D-модели в пошаговые планы реализации',
             icon: '🖨️',
@@ -64,7 +64,7 @@ function Home({ onSuccess }: { onSuccess?: () => void }) {
             color: colors.threeD
         },
         {
-            id: 'business',
+            id: 'business-plan',
             title: 'Бизнес-планы',
             description: 'Создавайте профессиональные бизнес-планы с SWOT-анализом',
             icon: '📈',
@@ -80,7 +80,7 @@ function Home({ onSuccess }: { onSuccess?: () => void }) {
             color: colors.presentation
         },
         {
-            id: 'health',
+            id: 'health-recommendation',
             title: 'Здоровье',
             description: 'Получайте рекомендации по улучшению здоровья',
             icon: '💪',
@@ -88,7 +88,7 @@ function Home({ onSuccess }: { onSuccess?: () => void }) {
             color: colors.health
         },
         {
-            id: 'investment',
+            id: 'investment-analysis',
             title: 'Инвестиции',
             description: 'Оценивайте потенциальную доходность ваших инвестиций',
             icon: '💰',
@@ -100,6 +100,7 @@ function Home({ onSuccess }: { onSuccess?: () => void }) {
             title: 'Стратегия продвижения',
             description: 'Получите персонализированный маркетинговый план для продвижения вашей идеи',
             icon: '📈',
+            path: '/marketing-strategy',
             color: colors.business
         },
         {
@@ -107,6 +108,7 @@ function Home({ onSuccess }: { onSuccess?: () => void }) {
             title: 'Планировщик путешествий',
             description: 'Создайте уникальный маршрут путешествия, учитывающий ваши предпочтения и бюджет',
             icon: '✈️',
+            path: '/travel-planner',
             color: colors.courses
         },
         {
@@ -114,6 +116,7 @@ function Home({ onSuccess }: { onSuccess?: () => void }) {
             title: 'Анализ конкурентов',
             description: 'Получите глубокий анализ ваших конкурентов с рекомендациями по улучшению позиции',
             icon: '🔍',
+            path: '/competitor-analysis',
             color: colors.finance
         },
         {
@@ -121,6 +124,7 @@ function Home({ onSuccess }: { onSuccess?: () => void }) {
             title: 'Оптимизация коммуникации',
             description: 'Диагностика и оптимизация коммуникационных процессов в вашей компании',
             icon: '💬',
+            path: '/communication-optimization',
             color: colors.chat
         }
     ];
@@ -132,7 +136,7 @@ function Home({ onSuccess }: { onSuccess?: () => void }) {
                     Советница АКВИ
                 </h1>
                 <p style={{fontSize: '1.2rem', maxWidth: '800px', margin: '0 auto', color: colors.textSecondary}}>
-                    Умная платформа для профессиональных консультаций и анализа по 11 ключевым направлениям
+                    Умная платформа для профессиональных консультаций и анализа по 15 ключевым направлениям
                 </p>
                 <p>
                 <AdviceForm />
@@ -212,7 +216,6 @@ function Home({ onSuccess }: { onSuccess?: () => void }) {
                             <p style={{color: colors.textSecondary, marginBottom: '1.5rem', lineHeight: '1.6'}}>
                                 {currentService?.description}
                             </p>
-                            
                             <div style={{
                                 backgroundColor: 'rgba(255, 255, 255, 0.07)', 
                                 borderRadius: '8px', 
@@ -244,7 +247,7 @@ function Home({ onSuccess }: { onSuccess?: () => void }) {
                             color: colors.primary, 
                             marginBottom: '0.5rem'
                         }}>
-                            154+
+                            100+
                         </div>
                         <p style={{margin: '0', color: colors.textSecondary}}>Активных пользователей</p>
                     </div>
@@ -260,7 +263,7 @@ function Home({ onSuccess }: { onSuccess?: () => void }) {
                             color: colors.primary, 
                             marginBottom: '0.5rem'
                         }}>
-                            11
+                            15
                         </div>
                         <p style={{margin: '0', color: colors.textSecondary}}>Ключевых услуг</p>
                     </div>

@@ -27,6 +27,8 @@ import MarketingStrategyForm from "./components/MarketingStrategyForm";
 import TravelPlannerForm from "./components/TravelPlannerForm";
 import CompetitorAnalysisForm from "./components/CompetitorAnalysisForm";
 import CommunicationOptimizationForm from "./components/CommunicationOptimizationForm";
+import SessionPurchase from './components/SessionPurchase';
+import PaymentSuccess from './components/PaymentSuccess';
 
 function AppContent() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -270,6 +272,18 @@ function AppContent() {
             }}>Оптимизация коммуникации</Link>
           </li>
           <li style={{marginBottom: '1.2rem'}}>
+            <Link to="/purchase-session" onClick={handleLinkClick} style={{
+              color: isActive('/purchase-session') ? 'white' : 'rgba(255, 255, 255, 0.85)',
+              textDecoration: 'none', 
+              display: 'block', 
+              padding: '0.8rem 1rem',
+              borderRadius: '8px',
+              backgroundColor: isActive('/purchase-session') ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+              fontWeight: isActive('/purchase-session') ? 'bold' : 'normal',
+              transition: 'all 0.2s'
+            }}>Купить доступ</Link>
+          </li>
+          <li style={{marginBottom: '1.2rem'}}>
             <Link to="/about" onClick={handleLinkClick} style={{
               color: isActive('/about') ? 'white' : 'rgba(255, 255, 255, 0.85)',
               textDecoration: 'none', 
@@ -313,6 +327,8 @@ function AppContent() {
           <Route path="/travel-planner" element={<TravelPlannerForm />} />
           <Route path="/competitor-analysis" element={<CompetitorAnalysisForm />} />
           <Route path="/communication-optimization" element={<CommunicationOptimizationForm />} />
+          <Route path="/purchase-session" element={<SessionPurchase />} />
+          <Route path="/payment-success" element={<PaymentSuccess />} />
         </Routes>
         <AdviceForm />
         <AdviceList />

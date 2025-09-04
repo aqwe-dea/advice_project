@@ -6,7 +6,6 @@ from .views import UserHistoryViewSet
 from .views import CreatePaymentIntentView
 from .views import CreateDetailedAdviceView
 from .views import ChatView
-from .views import CreateCheckoutSessionView
 from .views import GenerateCourseView
 from .views import LegalDocumentAnalysisView
 from .views import FinancialAnalysisView
@@ -21,6 +20,10 @@ from .views import MarketingStrategyView
 from .views import TravelPlannerView
 from .views import CompetitorAnalysisView
 from .views import CommunicationOptimizationView
+from .views import CreateSessionView
+from .views import CreateCheckoutSessionView
+from .views import SessionStatusView
+from .views import HandleStripeWebhookView
 from rest_framework import routers, viewsets
 
 router = DefaultRouter()
@@ -49,5 +52,8 @@ urlpatterns = [
     path('competitor-analysis/', CompetitorAnalysisView.as_view(), name='competitor-analysis'),
     path('communication-optimization/', CommunicationOptimizationView.as_view(), name='communication-optimization'),
     path('create-payment-intent/', CreatePaymentIntentView.as_view(), name='create-payment-intent'),
+    path('create-session/', CreateSessionView.as_view(), name='create-session'),
     path('create-checkout-session/', CreateCheckoutSessionView.as_view(), name='create-checkout-session'),
+    path('session-status/', SessionStatusView.as_view(), name='session-status'),
+    path('stripe-webhook/', HandleStripeWebhookView.as_view(), name='stripe-webhook'),
 ]

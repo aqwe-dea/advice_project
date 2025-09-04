@@ -1,4 +1,8 @@
 from django.db import models
+from django.contrib.auth.models import User
+import uuid
+from datetime import timedelta, datetime
+from django.utils import timezone
 
 class Advice(models.Model):
  name = models.CharField(max_length=100, blank=True, null=True)
@@ -29,4 +33,21 @@ class StripeSettings(models.Model):
 
  def __str__(self):
     return "Stripe Settings"
+
+class Session(models.Model):
+    id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
+    user = models.ForeignKey(User, on_delete=models.CASCADE, null=True, blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    expires_at = models.DateTimeField()
+    is_active = models.BooleanField(default=True)
+    duration_hours = models.IntegerField(default=1)
+    session_token = models.CharField(max_length=255, unique=True, null=True, blank=True)
+    def __str__(self):
+        return f"Session {self.id} - Expires: {self.expires_at}"
+    def is_valid(self):
+        return self.is_active and self.expires_at > timezone.now()
+    def remaining_time(self):
+        if not self.is_valid():
+            return 0
+        return max(0, (self.expires_at - timezone.now()).total_seconds())
 # Create your models here.

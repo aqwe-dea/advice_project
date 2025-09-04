@@ -4,6 +4,7 @@ import requests
 import stripe
 import logging
 import json
+import uuid
 from .models import Advice, UserHistory
 from .serializers import AdviceSerializer, UserHistorySerializer
 from .utils import send_advice_email
@@ -20,11 +21,10 @@ from rest_framework import response
 from django.conf import settings
 from django.http import JsonResponse
 from django.core.files.base import ContentFile
+from django.utils import timezone
 from PIL import Image
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-#from django.http.response import HttpResponse
-
 
 logger = logging.getLogger(__name__)
 @method_decorator(csrf_exempt, name='dispatch')
@@ -937,40 +937,125 @@ class CreateDetailedAdviceView(APIView):
         )
         send_advice_email(email, message)    
 
-class CreateCheckoutSessionView(APIView):
-    authentication_classes = []
-    permission_classes = [AllowAny]
-    @api_view(['POST'])
+class CreateSessionView(APIView):
     def post(self, request, *args, **kwargs):
-        amount = request.data.get('amount', none)
-        currency = request.data.get('currency', 'usd')
-        if not amount or amount < 1:
-            return Response({'error': 'Сумма должна быть больше 0'}, status=status.HTTP_400_BAD_REQUEST)
-        STRIPE_SECRET_KEY = os.getenv('STRIPE_SECRET_KEY')
-        if not STRIPE_SECRET_KEY:
-            return Response({'error': 'Stripe ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        duration = request.data.get('duration', 1)  # по умолчанию 1 час
+        # Проверяем допустимость продолжительности
+        if duration < 1 or duration > 168:  # от 1 часа до 168 часов (неделя)
+            return Response({'error': 'Недопустимая продолжительность сессии'}, status=status.HTTP_400_BAD_REQUEST)
+        # Создаем токен сессии
+        session_token = str(uuid.uuid4())
+        # Создаем новую сессию
+        expires_at = timezone.now() + timedelta(hours=duration)
+        session = Session.objects.create(
+            id=uuid.uuid4(),
+            expires_at=expires_at,
+            duration_hours=duration,
+            session_token=session_token
+        )
+        # Возвращаем данные сессии
+        return Response({
+            'session_id': str(session.id),
+            'session_token': session_token,
+            'expires_at': session.expires_at,
+            'duration_hours': duration,
+            'remaining_time': session.remaining_time()
+        })
+
+class CreateCheckoutSessionView(APIView):
+    def post(self, request, *args, **kwargs):
+        duration = request.data.get('duration', 1)
+        # Проверяем допустимость продолжительности
+        if duration < 1 or duration > 168:
+            return Response({'error': 'Недопустимая продолжительность сессии'}, status=status.HTTP_400_BAD_REQUEST)
+        # Рассчитываем цену (например, 10 рублей за час)
+        price = duration * 10
         try:
-            stripe.api_key = STRIPE_SECRET_KEY
-            checkout_session = stripe.checkout.Session.create(
+            stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
+            success_url = request.build_absolute_uri('/payment-success?session_id={CHECKOUT_SESSION_ID}')
+            cancel_url = request.build_absolute_uri('/payment-cancelled')
+            # Создаем сессию Stripe
+            session = stripe.checkout.Session.create(
                 payment_method_types=['card'],
-                mode='payment',
-                line_items=[
-                    {
-                        'price_data': {
-                            'currency': 'usd',
-                            'product_data': {'name': 'Пожертвование проекту Советница АКВИ'},
-                            'unit_amount': amount,
+                line_items=[{
+                    'price_data': {
+                        'currency': 'rub',
+                        'product_data': {
+                            'name': f'Сессия доступа ({duration} часов)',
                         },
-                        'quantity': 1,
-                    }
-                ],
-                success_url='https://advice-project.onrender.com/donation-success/ ',
-                cancel_url='https://advice-project.onrender.com/donation-cancel/ ',
+                        'unit_amount': price * 100,  # в копейках
+                    },
+                    'quantity': 1,
+                }],
+                mode='payment',
+                success_url=success_url,
+                cancel_url=cancel_url,
+                metadata={
+                    'duration': str(duration)
+                }
             )
-            return Response({'sessionId': checkout_session.id})
+            return Response({
+                'id': session.id,
+                'url': session.url
+            })
         except Exception as e:
-            return Response({'error': str(e)}, status=500)
-            
+            logger.error(f"Ошибка создания сессии оплаты: {str(e)}")
+            return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
+
+class SessionStatusView(APIView):
+    def get(self, request, *args, **kwargs):
+        session_token = request.COOKIES.get('session_token')       
+        if not session_token:
+            return Response({'is_active': False, 'message': 'Сессия не найдена'}, status=status.HTTP_401_UNAUTHORIZED)
+        try:
+            session = Session.objects.get(session_token=session_token)
+            is_valid = session.is_valid()
+            return Response({
+                'is_active': is_valid,
+                'expires_at': session.expires_at,
+                'duration_hours': session.duration_hours,
+                'remaining_time': session.remaining_time(),
+                'message': 'Сессия активна' if is_valid else 'Сессия истекла'
+            })
+        except Session.DoesNotExist:
+            return Response({'is_active': False, 'message': 'Сессия не найдена'}, status=status.HTTP_404_NOT_FOUND)
+
+class HandleStripeWebhookView(APIView):
+    def post(self, request, *args, **kwargs):
+        payload = request.body
+        sig_header = request.META['HTTP_STRIPE_SIGNATURE']
+        endpoint_secret = os.getenv('STRIPE_WEBHOOK_SECRET')
+        try:
+            event = stripe.Webhook.construct_event(
+                payload, sig_header, endpoint_secret
+            )
+        except ValueError as e:
+            logger.error(f"Неверный payload: {str(e)}")
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        except stripe.error.SignatureVerificationError as e:
+            logger.error(f"Ошибка верификации подписи: {str(e)}")
+            return Response(status=status.HTTP_400_BAD_REQUEST)
+        # Обрабатываем событие оплаты
+        if event['type'] == 'checkout.session.completed':
+            session = event['data']['object']
+            duration = int(session['metadata'].get('duration', 1))
+            # Создаем сессию доступа
+            expires_at = timezone.now() + timedelta(hours=duration)
+            session_token = str(uuid.uuid4())
+            Session.objects.create(
+                id=uuid.uuid4(),
+                expires_at=expires_at,
+                duration_hours=duration,
+                session_token=session_token
+            )
+            # Возвращаем данные для фронтенда
+            return Response({
+                'session_token': session_token,
+                'expires_at': expires_at,
+                'duration_hours': duration
+            })
+        return Response(status=status.HTTP_200_OK)
+    
 class CreatePaymentIntentView(APIView):
     def post(self, request, *args, **kwargs):
         amount = request.data.get('amount', none)

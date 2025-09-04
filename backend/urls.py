@@ -8,7 +8,6 @@ from aqwe_app import views
 from django.views.generic import TemplateView
 from django.conf.urls.static import static
 from aqwe_app.views import CreatePaymentIntentView
-from aqwe_app.views import CreateCheckoutSessionView
 from drf_spectacular.views import SpectacularAPIView
 from drf_spectacular.views import SpectacularSwaggerView
 from djstripe.urls import path
@@ -27,6 +26,10 @@ from aqwe_app.views import MarketingStrategyView
 from aqwe_app.views import TravelPlannerView
 from aqwe_app.views import CompetitorAnalysisView
 from aqwe_app.views import CommunicationOptimizationView
+from aqwe_app.views import CreateSessionView
+from aqwe_app.views import CreateCheckoutSessionView
+from aqwe_app.views import SessionStatusView
+from aqwe_app.views import HandleStripeWebhookView
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from drf_yasg.openapi import Swagger
@@ -66,7 +69,10 @@ urlpatterns = [
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='docs'),
     path('swagger/', schema_view.with_ui('swagger', cache_timeout=0), name='schema-swagger-ui'),
     path('redoc/', schema_view.with_ui('redoc', cache_timeout=0), name='schema-redoc'),
+    path('create-session/', CreateSessionView.as_view(), name='create-session'),
     path('create-checkout-session/', CreateCheckoutSessionView.as_view(), name='create-checkout-session'),
+    path('session-status/', SessionStatusView.as_view(), name='session-status'),
+    path('stripe-webhook/', HandleStripeWebhookView.as_view(), name='stripe-webhook'),
     path('create-payment-intent/', CreatePaymentIntentView.as_view(), name='create-payment-intent'),
     re_path(r'^(?:.*)/?$', TemplateView.as_view(template_name='index.html')),
 ]
