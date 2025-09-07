@@ -11,6 +11,26 @@ const ChatContainer = styled.div`
          border-radius: 16px;
 `;
 
+const userMessageStyle = {
+    backgroundColor: '#3498db',
+    color: 'white',
+    marginLeft: 'auto',
+    borderRadius: '12px 12px 0 12px',
+    padding: '0.8rem 1rem',
+    maxWidth: '80%',
+    marginBottom: '1rem'
+  };
+
+const aquaMessageStyle = {
+  backgroundColor: '#2c3e50',
+  color: 'white', // Это решит проблему с белым текстом
+  marginRight: 'auto',
+  borderRadius: '12px 12px 12px 0',
+  padding: '0.8rem 1rem',
+  maxWidth: '80%',
+  marginBottom: '1rem'
+};
+
 interface HuggingFaceResponse {
     choices: Array<{
         message: {
@@ -71,6 +91,8 @@ function Chat() {
          animate={{ y: 0, opacity: 1 }}
          transition={{ duration: 0.5 }}
         >
+        <div style={message.sender === 'user' ? userMessageStyle : aquaMessageStyle}>
+        {message.text}
         <div className="chat-container">
             <h2>Поговори с АКВИ</h2>
             {error && <p style={{ color: 'red' }}>{error}</p>}
@@ -91,6 +113,7 @@ function Chat() {
                 />
                 <button onClick={handleSendMessage}>Отправить</button>
             </div>
+        </div>
         </div>
         </motion.div>
         </ChatContainer>
