@@ -1,6 +1,6 @@
 {
-  "short_name": "aqwe_app",
-  "name": "advice_project",
+  "short_name": "АКВИ",
+  "name": "Советница АКВИ",
   "icons": [
     {
       "src": "favicon.ico",
@@ -26,6 +26,6 @@
   "start_url": "./",
   "homepage": "./",
   "display": "standalone",
-  "theme_color": "#4CAF50",
-  "background_color": "#f9f9f9"
+  "theme_color": "#2c3e50",
+  "background_color": "#2c3e50"
 }
