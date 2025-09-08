@@ -2,6 +2,8 @@ import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 import { motion } from 'framer-motion';
 import { styled } from 'styled-components';
+import { colors } from '../theme';
+
 
 const ChatContainer = styled.div`
          max-width: 600px;
@@ -10,26 +12,6 @@ const ChatContainer = styled.div`
          background: #F5F5DC;
          border-radius: 16px;
 `;
-
-const userMessageStyle = {
-    backgroundColor: '#3498db',
-    color: 'white',
-    marginLeft: 'auto',
-    borderRadius: '12px 12px 0 12px',
-    padding: '0.8rem 1rem',
-    maxWidth: '80%',
-    marginBottom: '1rem'
-  };
-
-const aquaMessageStyle = {
-  backgroundColor: '#2c3e50',
-  color: 'white', // Это решит проблему с белым текстом
-  marginRight: 'auto',
-  borderRadius: '12px 12px 12px 0',
-  padding: '0.8rem 1rem',
-  maxWidth: '80%',
-  marginBottom: '1rem'
-};
 
 interface HuggingFaceResponse {
     choices: Array<{
@@ -56,33 +38,45 @@ function Chat() {
     };
     fetchHistory();
     }, []);
-    const [messages, setMessages] = useState<Message[]>([]);
+    const [messages, setMessages] = useState<Array<{sender: string, text: string}>>([]);
     const [input, setInput] = useState<string>('');
-    const [error, setError] = useState<string | null>(null);
-    const handleSendMessage = async () => {
+    const [isLoading, setIsLoading] = useState<boolean>(false);
+    // Здесь определите стили для сообщений
+    const userMessageStyle = {
+        backgroundColor: colors.chat, // Цвет из вашей темы
+        color: 'white', // Это решит проблему с белым текстом
+        marginLeft: 'auto',
+        borderRadius: '12px 12px 0 12px',
+        padding: '0.8rem 1rem',
+        maxWidth: '80%',
+        marginBottom: '1rem'
+    };
+    const aquaMessageStyle = {
+        backgroundColor: colors.primary, // Цвет из вашей темы
+        color: 'white', // Это тоже решает проблему с белым текстом
+        marginRight: 'auto',
+        borderRadius: '12px 12px 12px 0',
+        padding: '0.8rem 1rem',
+        maxWidth: '80%',
+        marginBottom: '1rem'
+    };
+    const sendMessage = async () => {
         if (!input.trim()) return;
-        setMessages((prev) => [...prev, { user: input, bot: '' }]);
-        try {
-            const response = await axios.post<HuggingFaceResponse>(
-                '/chat/',
-                { message: input },
-                { headers: { 'Content-Type': 'application/json' } }
-            );
-            const botReply = response.data.response || 'Неверный формат ответа';
-            setMessages((prev) => {
-                const updated = [...prev];
-                updated[updated.length - 1].bot = botReply;
-                return updated;
-            });
-        } catch (error: any) {
-            console.error('Ошибка:', {
-                status: error.response?.status,
-                data: error.response?.data,
-                message: error.message,
-            });
-            setError(error.response?.data?.error || 'Произошла ошибка...');
-        }
-        setInput('');
+    const newMessage = { sender: 'user', text: input };
+    setMessages(prev => [...prev, newMessage]);
+    setInput('');
+    setIsLoading(true);
+    try {
+      const response = await axios.post('/chat/', { message: input });
+      setMessages(prev => [...prev, { sender: 'aqua', text: response.data.response }]);
+    } catch (error) {
+      setMessages(prev => [...prev, { 
+        sender: 'aqua', 
+        text: 'Извините, произошла ошибка. Пожалуйста, попробуйте позже.' 
+    }]);
+    } finally {
+      setIsLoading(false);
+    }
     };
     return (
         <ChatContainer>
@@ -90,31 +84,83 @@ function Chat() {
          initial={{ y: 20, opacity: 0 }}
          animate={{ y: 0, opacity: 1 }}
          transition={{ duration: 0.5 }}
-        >
-        <div style={message.sender === 'user' ? userMessageStyle : aquaMessageStyle}>
-        {message.text}
-        <div className="chat-container">
-            <h2>Поговори с АКВИ</h2>
-            {error && <p style={{ color: 'red' }}>{error}</p>}
-            <div className="chat-box">
-                {messages.map((msg, index) => (
-                    <div key={index} className="message">
-                        <p><strong>Вы:</strong> {msg.user}</p>
-                        <p><strong>АКВИ:</strong> {msg.bot}</p>
-                    </div>
-                ))}
+        > 
+            <div className="chat-container" style={{
+                height: '600px',
+                display: 'flex',
+                flexDirection: 'column',
+                backgroundColor: 'rgba(51, 51, 51, 0.7)',
+                borderRadius: '12px',
+                overflow: 'hidden'
+            }}>
+            {/* Область сообщений - здесь нужно применить стили */}
+            <div className="messages-area" style={{
+                flex: 1,
+                overflowY: 'auto',
+                padding: '1rem',
+                display: 'flex',
+                flexDirection: 'column'
+            }}>
+            {messages.map((message, index) => (
+            // Здесь применяются стили к каждому сообщению
+            <div 
+                key={index} 
+                style={message.sender === 'user' ? userMessageStyle : aquaMessageStyle}
+            >
+            {message.text}
             </div>
-            <div className="chat-input">
+            ))}      
+            {isLoading && (
+                <div style={{
+                    ...aquaMessageStyle,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center'
+                }}>
+                <div className="loading-spinner" style={{marginRight: '0.5rem'}}>⏳</div>
+                    Советница АКВИ думает...
+                </div>
+            )}
+            </div>   
+            {/* Поле ввода */}
+            <div style={{
+                padding: '1rem',
+                borderTop: '1px solid rgba(255, 255, 255, 0.1)'
+            }}>
+            <div style={{display: 'flex', gap: '0.5rem'}}>
                 <input
-                 type="text"
-                 placeholder="Задайте вопрос..."
-                 value={input}
-                 onChange={(e) => setInput(e.target.value)}
+                    type="text"
+                    value={input}
+                    onChange={(e) => setInput(e.target.value)}
+                    onKeyPress={(e) => e.key === 'Enter' && sendMessage()}
+                    placeholder="Напишите сообщение Советнице АКВИ..."
+                    style={{
+                        flex: 1,
+                        padding: '0.75rem',
+                        borderRadius: '8px',
+                        border: '1px solid rgba(255, 255, 255, 0.2)',
+                        backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                        color: '#f8f8f0'
+                    }}
                 />
-                <button onClick={handleSendMessage}>Отправить</button>
+                <button
+                    onClick={sendMessage}
+                    disabled={isLoading || !input.trim()}
+                    style={{
+                        backgroundColor: colors.primary,
+                        color: 'white',
+                        border: 'none',
+                        padding: '0 1.2rem',
+                        borderRadius: '8px',
+                        cursor: 'pointer',
+                        fontWeight: 'bold'
+                    }}
+                >
+                    Отправить
+                </button>
             </div>
-        </div>
-        </div>
+            </div>
+            </div>
         </motion.div>
         </ChatContainer>
     );
