@@ -5,6 +5,7 @@ import stripe
 import logging
 import json
 import uuid
+import PyPDF2
 from .models import Advice, UserHistory
 from .serializers import AdviceSerializer, UserHistorySerializer
 from .utils import send_advice_email
@@ -29,6 +30,24 @@ from django.views.decorators.csrf import csrf_exempt
 logger = logging.getLogger(__name__)
 @method_decorator(csrf_exempt, name='dispatch')
 @permission_classes([AllowAny])
+
+def extract_text_from_pdf(file):
+    """Извлекает текст из PDF файла с помощью PyPDF2"""
+    try:
+        # Создаем объект BytesIO из загруженного файла
+        file_stream = io.BytesIO(file.read())
+        # Используем PyPDF2 для извлечения текста
+        reader = PyPDF2.PdfReader(file_stream)
+        text = ""
+        for page_num in range(len(reader.pages)):
+            page = reader.pages[page_num]
+            page_text = page.extract_text()
+            if page_text:
+                text += page_text + "\n"
+        return text
+    except Exception as e:
+        logger.error(f"Ошибка при извлечении текста из PDF: {str(e)}")
+        return None
 #@api_view(['POST'])
 
 #from djstripe.models.core import PaymentIntent
@@ -130,7 +149,13 @@ class LegalDocumentAnalysisView(APIView):
         logger.info(f"Получен запрос: {request.data}")
         logger.info(f"FILES: {request.FILES}")
         logger.info(f"Content-Type: {request.content_type}")
-        document = ""
+        # Получаем файл из запроса
+        document = request.FILES.get('document')
+        if not document:
+            return Response({'error': 'Документ не загружен'}, status=status.HTTP_400_BAD_REQUEST)
+        # Проверяем тип файла
+        if not document.name.lower().endswith('.pdf'):
+            return Response({'error': 'Поддерживаются только PDF файлы'}, status=status.HTTP_400_BAD_REQUEST)
         if request.content_type == 'application/json':
             document = request.data.get('document', '')
             country = request.data.get('country', 'Россия')
@@ -173,13 +198,20 @@ class LegalDocumentAnalysisView(APIView):
             logger.error("API ключ Hugging Face не настроен")
             return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
+            # Извлекаем текст из PDF
+            document_text = extract_text_from_pdf(document)
+            if not document_text or len(document_text.strip()) < 100:
+                return Response({
+                    'error': 'Не удалось извлечь достаточное количество текста из документа'
+                }, status=status.HTTP_400_BAD_REQUEST)
             logger.info(f"Анализ юридического документа для {country}")
             client = InferenceClient(model="Qwen/Qwen2.5-72B-Instruct", token=HF_API_KEY)
             prompt = f"""
             {SYSTEM_PROMPT}
             Вы - юридический эксперт с 10-летним опытом работы в сфере гражданского права РФ.
             Ваши рекомендации основаны на актуальном законодательстве РФ и судебной практике.
-            Проанализируйте документ: "{document}" .
+            Проанализируйте следующий юридический документ:
+            {document_text[:4000]}  # Ограничиваем длину
             Ваш анализ должен включать:
             - Выявление нарушений законодательства с указанием конкретных статей
             - Оценку рисков для каждой стороны
@@ -189,9 +221,13 @@ class LegalDocumentAnalysisView(APIView):
             """
             response = client.chat_completion(
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=500
+                max_tokens=1000
             )
-            return Response({'analysis': response.choices[0].message.content})
+            return Response({
+                'legal_analysis': response.choices[0].message.content,
+                'document_name': document.name,
+                'extracted_text_length': len(document_text)
+            })
         except Exception as e:
             logger.error(f"Ошибка юридического анализа: {str(e)}")
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
