@@ -141,7 +141,7 @@ class LegalDocumentAnalysisView(APIView):
             if hasattr(document_file, 'read'):
                 try:
                     document_content = document_file.read()
-                    if isinstance(document_content, bytes, bytearray):
+                    if isinstance(document_content, (bytes, bytearray)):
                         document = document_content.decode('utf-8')
                     else:
                         document = document_content
