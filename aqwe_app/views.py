@@ -167,7 +167,7 @@ class LegalDocumentAnalysisView(APIView):
                 try:
                     document_content = document_file.read()
                     if isinstance(document_content, (bytes, bytearray)):
-                        document = document_content.decode('utf-8')
+                        document = document_content
                     else:
                         document = document_content
                 except Exception as e:
