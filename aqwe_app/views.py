@@ -32,18 +32,22 @@ logger = logging.getLogger(__name__)
 @permission_classes([AllowAny])
 
 def extract_text_from_pdf(file):
-    """Извлекает текст из PDF файла с помощью PyPDF2"""
+    """Улучшенное извлечение текста из PDF с поддержкой кириллицы"""
     try:
-        # Создаем объект BytesIO из загруженного файла
         file_stream = io.BytesIO(file.read())
-        # Используем PyPDF2 для извлечения текста
         reader = PyPDF2.PdfReader(file_stream)
         text = ""
         for page_num in range(len(reader.pages)):
             page = reader.pages[page_num]
             page_text = page.extract_text()
+            # Пытаемся исправить кодировку для кириллицы
             if page_text:
-                text += page_text + "\n"
+                try:
+                    # Попробуем декодировать как cp1251 (Windows-1251)
+                    corrected_text = page_text.encode('latin1').decode('cp1251')
+                    text += corrected_text + "\n"
+                except:
+                    text += page_text + "\n"
         return text
     except Exception as e:
         logger.error(f"Ошибка при извлечении текста из PDF: {str(e)}")
