@@ -94,7 +94,7 @@ class GenerateCourseView(APIView):
             return Response({'error': 'API ключ Hugging Face не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
             client = InferenceClient(model="Qwen/Qwen2.5-72B-Instruct", token=HF_API_KEY)
-            COURSE_PROMPT = f"""
+            prompt = f"""
             {SYSTEM_PROMPT}
             Вы - педагогический эксперт с 15-летним опытом разработки учебных программ.
             Ваши курсы соответствуют международным стандартам образования и учитывают особенности обучения в цифровой среде.
@@ -175,7 +175,7 @@ class LegalDocumentAnalysisView(APIView):
         try:
             logger.info(f"Анализ юридического документа для {country}")
             client = InferenceClient(model="Qwen/Qwen2.5-72B-Instruct", token=HF_API_KEY)
-            LEGAL_PROMPT = f"""
+            prompt = f"""
             {SYSTEM_PROMPT}
             Вы - юридический эксперт с 10-летним опытом работы в сфере гражданского права РФ.
             Ваши рекомендации основаны на актуальном законодательстве РФ и судебной практике.
@@ -222,7 +222,7 @@ class FinancialAnalysisView(APIView):
             total_expenses = sum(float(item['expenses']) for item in financial_data)
             profit = total_revenue - total_expenses
             profit_margin = profit / total_revenue if total_revenue else 0
-            FINANCE_PROMPT = f"""
+            prompt = f"""
             {SYSTEM_PROMPT}
             Вы - сертифицированный финансовый аналитик с опытом работы в Big4.
             Ваши рекомендации соответствуют международным стандартам финансовой отчетности (МСФО).
@@ -282,7 +282,7 @@ class PhotoRestorationView(APIView):
             img_byte_arr = io.BytesIO()
             image.save(img_byte_arr, format='JPEG')
             img_byte_arr = img_byte_arr.getvalue()
-            PHOTO_PROMPT = f"""
+            prompt = f"""
             {SYSTEM_PROMPT}
             Вы - эксперт по обработке изображений с 8-летним опытом работы в цифровой реставрации.
             Ваши рекомендации основаны на передовых методах обработки изображений.
