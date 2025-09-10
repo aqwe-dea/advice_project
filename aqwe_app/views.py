@@ -32,7 +32,6 @@ logger = logging.getLogger(__name__)
 @permission_classes([AllowAny])
 
 def extract_text_from_pdf(file):
-    """Улучшенное извлечение текста из PDF с поддержкой кириллицы"""
     try:
         file_stream = io.BytesIO(file.read())
         reader = PyPDF2.PdfReader(file_stream)
@@ -204,10 +203,8 @@ class LegalDocumentAnalysisView(APIView):
         try:
             # Извлекаем текст из PDF
             document_text = extract_text_from_pdf(document)
-            if not document_text or len(document_text.strip()) < 100:
-                return Response({
-                    'error': 'Не удалось извлечь достаточное количество текста из документа'
-                }, status=status.HTTP_400_BAD_REQUEST)
+            if not document_text:
+                return Response({'error': 'Не удалось извлечь текст из документа'}, status=status.HTTP_400_BAD_REQUEST)
             logger.info(f"Анализ юридического документа для {country}")
             client = InferenceClient(model="Qwen/Qwen2.5-72B-Instruct", token=HF_API_KEY)
             prompt = f"""
@@ -366,34 +363,32 @@ class MedicalImageView(APIView):
             logger.error("API ключ Hugging Face не настроен")
             return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
-            logger.info(f"Анализ медицинского изображения: {image.name}, тип: {image_type}")
-            client = InferenceClient(model="Qwen/Qwen2-VL-72B-Instruct", token=HF_API_KEY)
-            img = Image.open(image)
-            if img.mode != 'RGB':
-                img = img.convert('RGB')
-            img_byte_arr = io.BytesIO()
-            img.save(img_byte_arr, format='JPEG')
-            img_byte_arr = img_byte_arr.getvalue()
-            prompt = f"""
-            {SYSTEM_PROMPT}
-            Проанализируй это медицинское изображение ({image_type}) и опиши, что ты видишь.
-            Страна: {country}
-            Задачи:
-            1. Опиши анатомические структуры на изображении
-            2. Выяви возможные аномалии или патологии
-            3. Предоставь предварительную оценку состояния
-            4. Дай рекомендации по дальнейшим действиям
-            Важно: Это не заменяет профессиональную медицинскую консультацию. 
-            Ответ должен быть структурирован и профессионален.
-            """
-            response = client.image_to_text(img_byte_arr, prompt=prompt)
+            # Используем правильный клиент
+            client = InferenceClient(
+                model="Qwen/Qwen2-VL-72B-Instruct",
+                token=HF_API_KEY
+            )
+            # Создаем сообщение с изображением
+            messages = [
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": "Проанализируйте это медицинское изображение"},
+                        {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64.b64encode(image.read()).decode('utf-8')}"}
+                    }]
+                }
+            ]
+            # Правильный вызов API
+            response = client.chat_completion(
+                messages=messages,
+                max_tokens=800
+            )
             return Response({
-                'analysis': response,
-                'image_type': image_type,
-                'country': country
+                'medical_analysis': response.choices[0].message.content,
+                'image_name': image.name
             })
         except Exception as e:
-            logger.error(f"Ошибка анализа медицинского изображения: {str(e)}")
+            logger.error(f"Ошибка анализа медицинского изображения: {str(e)}", exc_info=True)
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class ThreeDToProjectView(APIView):
@@ -437,14 +432,13 @@ class ThreeDToProjectView(APIView):
             5. Дай оценку стоимости и сроков реализации
             Ответ должен быть профессиональным и содержать конкретные рекомендации.
             """
-            response = client.text_generation(
-                prompt,
-                max_new_tokens=600
+            response = client.chat_completion(
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=1000
             )
             return Response({
-                'analysis': response,
-                'project_type': project_type,
-                'country': country
+                'conversion_plan': response.choices[0].message.content,
+                'model_description': model_description
             })
         except Exception as e:
             logger.error(f"Ошибка преобразования 3D-модели: {str(e)}")
@@ -626,16 +620,13 @@ class PresentationGenerationView(APIView):
                 return Response(presentation_data)
             except Exception as e:
                 logger.error(f"Ошибка парсинга JSON: {str(e)}")
-                return Response({
-                    'title': f'Презентация по теме "{topic}"',
-                    'slides': [
-                        {
-                            'title': 'Ошибка генерации',
-                            'content': 'Не удалось сгенерировать структуру презентации. Попробуйте другую тему.',
-                            'notes': 'Система не смогла создать корректный JSON. Это может быть связано со сложностью темы.'
-                        }
-                    ]
-                })
+            return Response({
+                'presentation': response.choices[0].message.content,
+                'topic': topic,
+                'audience': audience,
+                'duration': duration,
+                'style': style
+            })
         except Exception as e:
             logger.error(f"Ошибка генерации презентации: {str(e)}")
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
