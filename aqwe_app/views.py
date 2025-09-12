@@ -163,7 +163,7 @@ class LegalDocumentAnalysisView(APIView):
             logger.error("API ключ Hugging Face не настроен")
             return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
-            logger.info(f"Анализ юридического документа {document_text}")
+            logger.info(f"Начало обработки документа: {document.name}") 
             document.seek(0)  # Сбрасываем указатель файла в начало
             document_text = extract_text_from_pdf(document)
             if not document_text or len(document_text.strip()) < 100:
