@@ -6,6 +6,7 @@ import logging
 import json
 import uuid
 import PyPDF2
+import base64
 from .models import Advice, UserHistory
 from .serializers import AdviceSerializer, UserHistorySerializer
 from .utils import send_advice_email
@@ -31,7 +32,7 @@ logger = logging.getLogger(__name__)
 @method_decorator(csrf_exempt, name='dispatch')
 @permission_classes([AllowAny])
 
-def extract_text_from_pdf(document):
+def extract_text_from_pdf(file):
     try:
         file_stream = io.BytesIO(file.read())
         reader = PyPDF2.PdfReader(file_stream)
@@ -39,10 +40,8 @@ def extract_text_from_pdf(document):
         for page_num in range(len(reader.pages)):
             page = reader.pages[page_num]
             page_text = page.extract_text()
-            # Пытаемся исправить кодировку для кириллицы
             if page_text:
                 try:
-                    # Попробуем декодировать как cp1251 (Windows-1251)
                     corrected_text = page_text.encode('latin1').decode('cp1251')
                     text += corrected_text + "\n"
                 except:
@@ -152,9 +151,6 @@ class LegalDocumentAnalysisView(APIView):
         logger.info(f"Получен запрос: {request.data}")
         logger.info(f"FILES: {request.FILES}")
         logger.info(f"Content-Type: {request.content_type}")
-        document_text = extract_text_from_pdf(document)
-        if not document_text:
-            return Response({'error': 'Не удалось извлечь текст из документа'}, status=status.HTTP_400_BAD_REQUEST)
         # Получаем файл из запроса
         document = request.FILES.get('document')
         if not document:
@@ -162,37 +158,20 @@ class LegalDocumentAnalysisView(APIView):
         # Проверяем тип файла
         if not document.name.lower().endswith('.pdf'):
             return Response({'error': 'Поддерживаются только PDF файлы'}, status=status.HTTP_400_BAD_REQUEST)
-        if request.content_type == 'application/json':
-            document = request.data.get('document', '')
-            country = request.data.get('country', 'Россия')
-            logger.info("Обработка JSON-запроса")
-        elif 'document' in request.FILES:
-            logger.info("Обработка файла из FILES")
-            document_file = request.FILES['document']
-        if hasattr(document_file, 'read'):
-            try:
-                document_content = document_file.read()
-                if isinstance(document_content, (bytes, bytearray)):
-                    document = document_content
-                else:
-                    document = document_content
-            except Exception as e:
-                logger.error(f"Ошибка при чтении файла: {str(e)}")
-                return Response({'error': f'Ошибка при чтении файла: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
-        else:
-            document = str(document_file)
-        if not isinstance(document, str):
-            try:
-                document = str(document)
-            except:
-                return Response({'error': 'Документ должен быть строкой'}, status=status.HTTP_400_BAD_REQUEST)
-        country = request.data.get('country', 'Россия')
         HF_API_KEY = os.getenv('HF_API_KEY_UR')
         if not HF_API_KEY:
             logger.error("API ключ Hugging Face не настроен")
             return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
             logger.info(f"Анализ юридического документа для {country}")
+            document.seek(0)  # Сбрасываем указатель файла в начало
+            document_text = extract_text_from_pdf(document)
+            if not document_text or len(document_text.strip()) < 100:
+                return Response({
+                    'error': 'Не удалось извлечь достаточное количество текста из документа',
+                    'suggestion': 'Для PDF с кириллицей рекомендуется скопировать текст в редактор и вставить его в текстовое поле'
+                }, status=status.HTTP_400_BAD_REQUEST)
+            logger.info(f"Извлечено {len(document_text)} символов из документа")
             client = InferenceClient(model="Qwen/Qwen2.5-72B-Instruct", token=HF_API_KEY)
             prompt = f"""
             {SYSTEM_PROMPT}
@@ -217,8 +196,8 @@ class LegalDocumentAnalysisView(APIView):
                 'extracted_text_length': len(document_text)
             })
         except Exception as e:
-            logger.error(f"Ошибка юридического анализа: {str(e)}")
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            logger.error(f"Ошибка генерации юридического анализа: {str(e)}", exc_info=True)
+            return Response({'error': f'Ошибка сервера: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class FinancialAnalysisView(APIView):
     def post(self, request, *args, **kwargs):
@@ -287,12 +266,14 @@ class PhotoRestorationView(APIView):
             Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
         """
         logger.info(f"Получен запрос на реставрацию фотографии: {request.FILES}")
-        if 'photo' not in request.FILES:
-            return Response({'error': 'Фотография не загружена'}, status=status.HTTP_400_BAD_REQUEST)
-        photo = request.FILES['photo']
-        enhancement_level = request.data.get('enhancement_level', 'стандартное')
-        if not photo.name.lower().endswith(('.png', '.jpg', '.jpeg')):
-            return Response({'error': 'Поддерживаются только форматы JPG, JPEG и PNG'}, status=status.HTTP_400_BAD_REQUEST)
+        # Получаем данные из запроса
+        image = request.FILES.get('image')
+        image_description = request.data.get('image_description', '')
+        # Если изображение загружено, но описание отсутствует, можно попробовать его определить
+        if image and not image_description:
+            image_description = "Загруженное изображение требует реставрации"
+        if not image_description:
+            return Response({'error': 'Описание изображения не указано'}, status=status.HTTP_400_BAD_REQUEST)
         HF_API_KEY = os.getenv('HF_API_KEY_PREST')
         if not HF_API_KEY:
             logger.error("API ключ Hugging Face не настроен")
@@ -300,17 +281,11 @@ class PhotoRestorationView(APIView):
         try:
             logger.info(f"Реставрация фотографии: {photo.name}, уровень улучшения: {enhancement_level}")
             client = InferenceClient(model="Qwen/Qwen2-VL-72B-Instruct", token=HF_API_KEY)
-            image = Image.open(photo)
-            if image.mode != 'RGB':
-                image = image.convert('RGB')
-            img_byte_arr = io.BytesIO()
-            image.save(img_byte_arr, format='JPEG')
-            img_byte_arr = img_byte_arr.getvalue()
             prompt = f"""
             {SYSTEM_PROMPT}
             Вы - эксперт по обработке изображений с 8-летним опытом работы в цифровой реставрации.
             Ваши рекомендации основаны на передовых методах обработки изображений.
-            Проанализируйте фотографию: "{image}" .
+            Проанализируйте фотографию: "{image_description}" .
             Ваш анализ должен включать:
             - Описание текущего состояния фотографии
             - Перечень необходимых процедур восстановления
@@ -318,19 +293,23 @@ class PhotoRestorationView(APIView):
             - Оценку времени и сложности работ
             - Рекомендации по дальнейшему сохранению фотографии
             """
-            response = client.image_to_text(img_byte_arr, prompt=prompt)
+            response = client.chat_completion(
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=1000
+            )
             return Response({
-                'restoration_description': response,
-                'enhancement_level': enhancement_level
+                'restoration_plan': response.choices[0].message.content,
+                'image_description': image_description
             })
         except Exception as e:
-            logger.error(f"Ошибка реставрации фото: {str(e)}")
+            logger.error(f"Ошибка генерации плана реставрации: {str(e)}", exc_info=True)
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class MedicalImageView(APIView):
     def post(self, request, *args, **kwargs):
         SYSTEM_PROMPT = """
             Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
+            Вы - медицинский эксперт с 10-летним опытом работы в диагностике.
             Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
             Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
             Вы не говорите, что вы ИИ или Qwen - вы всегда представляетесь как Советница АКВИ.
@@ -338,18 +317,17 @@ class MedicalImageView(APIView):
             Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
         """
         logger.info(f"Получен запрос на анализ медицинского изображения: {request.FILES}")
-        if 'image' not in request.FILES:
-            return Response({'error': 'Медицинское изображение не загружено'}, status=status.HTTP_400_BAD_REQUEST)
-        image = request.FILES['image']
-        image_type = request.data.get('image_type', 'рентген')
-        country = request.data.get('country', 'Россия')
-        if not image.name.lower().endswith(('.png', '.jpg', '.jpeg', '.dcm')):
-            return Response({'error': 'Поддерживаются только форматы JPG, JPEG, PNG и DICOM'}, status=status.HTTP_400_BAD_REQUEST)
+        image = request.FILES.get('image')
+        if not image:
+            return Response({'error': 'Изображение не загружено'}, status=status.HTTP_400_BAD_REQUEST)
         HF_API_KEY = os.getenv('HF_API_KEY_MEDIC')
         if not HF_API_KEY:
             logger.error("API ключ Hugging Face не настроен")
             return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
+             # Преобразуем изображение в base64
+            image_data = base64.b64encode(image.read()).decode('utf-8')
+            image.seek(0)  # Сбрасываем указатель файла
             # Используем правильный клиент
             client = InferenceClient(
                 model="Qwen/Qwen2-VL-72B-Instruct",
@@ -361,8 +339,8 @@ class MedicalImageView(APIView):
                     "role": "user",
                     "content": [
                         {"type": "text", "text": "Проанализируйте это медицинское изображение"},
-                        {"type": "image_url", "image_url": {"url": f"data:image/jpeg,{image(image.read()).decode('utf-8')}"}
-                    }]
+                        {"type": "image_url", "image_url": {"url": f"image/jpeg;base64,{image_data}"}}
+                    ]
                 }
             ]
             # Правильный вызов API
@@ -382,6 +360,7 @@ class ThreeDToProjectView(APIView):
     def post(self, request, *args, **kwargs):
         SYSTEM_PROMPT = """
             Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
+            Вы - эксперт по 3D-моделированию с 7-летним опытом работы.
             Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
             Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
             Вы не говорите, что вы ИИ или Qwen - вы всегда представляетесь как Советница АКВИ.
@@ -389,17 +368,10 @@ class ThreeDToProjectView(APIView):
             Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
         """
         logger.info(f"Получен запрос на преобразование 3D-модели: {request.FILES}")
-        if 'model' not in request.FILES:
-            return Response({'error': '3D-модель не загружена'}, status=status.HTTP_400_BAD_REQUEST)
-        model = request.FILES['model']
-        project_type = request.data.get('project_type', 'строительный')
-        country = request.data.get('country', 'Россия')
-        valid_extensions = ['.stl', '.obj', '.fbx', '.3ds', '.dae', '.blend']
-        file_ext = os.path.splitext(model.name)[1].lower()
-        if file_ext not in valid_extensions:
-            return Response({
-                'error': f'Поддерживаются только форматы: {", ".join(valid_extensions)}'
-            }, status=status.HTTP_400_BAD_REQUEST)
+        model_file = request.FILES.get('model')
+        model_description = request.data.get('model_description', '')
+        if not model_file and not model_description:
+            return Response({'error': 'Модель не загружена и описание не предоставлено'}, status=status.HTTP_400_BAD_REQUEST)
         HF_API_KEY = os.getenv('HF_API_KEY_3D')
         if not HF_API_KEY:
             logger.error("API ключ Hugging Face не настроен")
@@ -410,7 +382,7 @@ class ThreeDToProjectView(APIView):
             model_content = model.read()
             prompt = f"""
             {SYSTEM_PROMPT}
-            Проанализируй эту 3D-модель {model} и преобразуй её в реальный проект ({project_type}) для {country}.
+            Проанализируй эту 3D-модель {model_description} и преобразуй её в реальный проект ({project_type}) для {country}.
             Задачи:
             1. Опиши основные характеристики модели (размеры, сложность, особенности)
             2. Предоставь рекомендации по материалам и технологии изготовления
@@ -428,7 +400,7 @@ class ThreeDToProjectView(APIView):
                 'model_description': model_description
             })
         except Exception as e:
-            logger.error(f"Ошибка преобразования 3D-модели: {str(e)}")
+            logger.error(f"Ошибка преобразования 3D-модели: {str(e)}", exc_info=True)
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class HealthRecommendationView(APIView):
@@ -556,6 +528,7 @@ class PresentationGenerationView(APIView):
     def post(self, request, *args, **kwargs):
         SYSTEM_PROMPT = """
             Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
+            Вы - эксперт по созданию презентаций с 5-летним опытом работы.
             Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
             Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
             Вы не говорите, что вы ИИ или Qwen - вы всегда представляетесь как Советница АКВИ.
@@ -568,7 +541,7 @@ class PresentationGenerationView(APIView):
         duration = request.data.get('duration', '30 минут')
         style = request.data.get('style', 'профессиональный')
         if not topic:
-            return Response({'error': 'Тема презентации не указана'}, status=status.HTTP_400_BAD_REQUEST)        
+            return Response({'error': 'Тема презентации не указана'}, status=status.HTTP_400_BAD_REQUEST)
         HF_API_KEY = os.getenv('HF_API_KEY_SLD')
         if not HF_API_KEY:
             logger.error("API ключ Hugging Face не настроен")
@@ -578,8 +551,6 @@ class PresentationGenerationView(APIView):
             client = InferenceClient(model="Qwen/Qwen2.5-72B-Instruct", token=HF_API_KEY)
             prompt = f"""
             {SYSTEM_PROMPT}
-            Создай структуру презентации по теме "{topic}" для {presentation_type} выступления.
-            Количество слайдов: {slides_count}
             Создайте структуру презентации на тему: "{topic}"
             Целевая аудитория: {audience}
             Продолжительность: {duration}
@@ -593,18 +564,8 @@ class PresentationGenerationView(APIView):
             """
             response = client.chat_completion(
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=1000
+                max_tokens=1200
             )
-            try:
-                clean_response = response.choices[0].message.content.strip()
-                if clean_response.startswith('```json'):
-                    clean_response = clean_response[7:-3].strip()
-                elif clean_response.startswith('```'):
-                    clean_response = clean_response[3:-3].strip()
-                presentation_data = json.loads(clean_response)
-                return Response(presentation_data)
-            except Exception as e:
-                logger.error(f"Ошибка парсинга JSON: {str(e)}")
             return Response({
                 'presentation': response.choices[0].message.content,
                 'topic': topic,
@@ -613,7 +574,7 @@ class PresentationGenerationView(APIView):
                 'style': style
             })
         except Exception as e:
-            logger.error(f"Ошибка генерации презентации: {str(e)}")
+            logger.error(f"Ошибка генерации презентации: {str(e)}", exc_info=True)
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class InvestmentAnalysisView(APIView):
