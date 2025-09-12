@@ -188,8 +188,6 @@ class LegalDocumentAnalysisView(APIView):
                     break
             country = request.data.get('country', 'Россия')
             logger.info("Обработка других типов запросов")
-        if not document:
-            return Response({'error': 'Юридический документ не загружен'}, status=status.HTTP_400_BAD_REQUEST)
         if not isinstance(document, str):
             try:
                 document = str(document)
@@ -201,7 +199,6 @@ class LegalDocumentAnalysisView(APIView):
             logger.error("API ключ Hugging Face не настроен")
             return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
-            # Извлекаем текст из PDF
             document_text = extract_text_from_pdf(document)
             if not document_text:
                 return Response({'error': 'Не удалось извлечь текст из документа'}, status=status.HTTP_400_BAD_REQUEST)
@@ -323,7 +320,7 @@ class PhotoRestorationView(APIView):
             {SYSTEM_PROMPT}
             Вы - эксперт по обработке изображений с 8-летним опытом работы в цифровой реставрации.
             Ваши рекомендации основаны на передовых методах обработки изображений.
-            Проанализируйте фотографию: "{image_description}".
+            Проанализируйте фотографию: "{image}" .
             Ваш анализ должен включать:
             - Описание текущего состояния фотографии
             - Перечень необходимых процедур восстановления
@@ -374,7 +371,7 @@ class MedicalImageView(APIView):
                     "role": "user",
                     "content": [
                         {"type": "text", "text": "Проанализируйте это медицинское изображение"},
-                        {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{base64.b64encode(image.read()).decode('utf-8')}"}
+                        {"type": "image_url", "image_url": {"url": f"data:image/jpeg,{image(image.read()).decode('utf-8')}"}
                     }]
                 }
             ]
@@ -423,7 +420,7 @@ class ThreeDToProjectView(APIView):
             model_content = model.read()
             prompt = f"""
             {SYSTEM_PROMPT}
-            Проанализируй эту 3D-модель и преобразуй её в реальный проект ({project_type}) для {country}.
+            Проанализируй эту 3D-модель {model} и преобразуй её в реальный проект ({project_type}) для {country}.
             Задачи:
             1. Опиши основные характеристики модели (размеры, сложность, особенности)
             2. Предоставь рекомендации по материалам и технологии изготовления
