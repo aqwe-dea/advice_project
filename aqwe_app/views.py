@@ -573,7 +573,6 @@ class PresentationGenerationView(APIView):
             Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
         """
         logger.info(f"Получен запрос на генерацию презентации: {request.data}")
-        def post(self, request, *args, **kwargs):
         topic = request.data.get('topic', '')
         audience = request.data.get('audience', 'общая аудитория')
         duration = request.data.get('duration', '30 минут')
