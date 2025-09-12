@@ -199,7 +199,7 @@ class LegalDocumentAnalysisView(APIView):
             logger.error("API ключ Hugging Face не настроен")
             return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
-            document_text = extract_text_from_pdf(document)
+            document_text = extract_text_from_pdf(file)
             if not document_text:
                 return Response({'error': 'Не удалось извлечь текст из документа'}, status=status.HTTP_400_BAD_REQUEST)
             logger.info(f"Анализ юридического документа для {country}")
@@ -573,11 +573,13 @@ class PresentationGenerationView(APIView):
             Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
         """
         logger.info(f"Получен запрос на генерацию презентации: {request.data}")
+        def post(self, request, *args, **kwargs):
         topic = request.data.get('topic', '')
-        presentation_type = request.data.get('type', 'бизнес')
-        slides_count = request.data.get('slides_count', 10)
+        audience = request.data.get('audience', 'общая аудитория')
+        duration = request.data.get('duration', '30 минут')
+        style = request.data.get('style', 'профессиональный')
         if not topic:
-            return Response({'error': 'Тема презентации не указана'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Тема презентации не указана'}, status=status.HTTP_400_BAD_REQUEST)        
         HF_API_KEY = os.getenv('HF_API_KEY_SLD')
         if not HF_API_KEY:
             logger.error("API ключ Hugging Face не настроен")
@@ -589,19 +591,16 @@ class PresentationGenerationView(APIView):
             {SYSTEM_PROMPT}
             Создай структуру презентации по теме "{topic}" для {presentation_type} выступления.
             Количество слайдов: {slides_count}
-            Презентация должна включать:
-            1. Титульный слайд с названием и кратким описанием
-            2. Введение и цели презентации
-            3. Основную часть с ключевыми моментами (разделенную на логические блоки)
-            4. Визуальные элементы и графики (описание того, что должно быть на слайдах)
-            5. Заключение и рекомендации
-            6. Слайд с контактной информацией
-            Предоставь структуру в формате JSON со следующими полями:
-            - "title": "Название презентации"
-            - "slides": [
-                {"title": "Заголовок слайда", "content": "Содержание слайда", "notes": "Заметки докладчика"}
-            ]
-            Ответ должен быть только валидным JSON без дополнительного текста.
+            Создайте структуру презентации на тему: "{topic}"
+            Целевая аудитория: {audience}
+            Продолжительность: {duration}
+            Стиль: {style}
+            Структура должна включать:
+            - Заголовки всех слайдов
+            - Краткое содержание каждого слайда
+            - Рекомендации по визуальному оформлению
+            - Заметки докладчика для каждого слайда
+            - Рекомендации по времени на каждый слайд
             """
             response = client.chat_completion(
                 messages=[{"role": "user", "content": prompt}],
