@@ -31,7 +31,7 @@ logger = logging.getLogger(__name__)
 @method_decorator(csrf_exempt, name='dispatch')
 @permission_classes([AllowAny])
 
-def extract_text_from_pdf(file):
+def extract_text_from_pdf(document):
     try:
         file_stream = io.BytesIO(file.read())
         reader = PyPDF2.PdfReader(file_stream)
@@ -152,6 +152,9 @@ class LegalDocumentAnalysisView(APIView):
         logger.info(f"Получен запрос: {request.data}")
         logger.info(f"FILES: {request.FILES}")
         logger.info(f"Content-Type: {request.content_type}")
+        document_text = extract_text_from_pdf(document)
+        if not document_text:
+            return Response({'error': 'Не удалось извлечь текст из документа'}, status=status.HTTP_400_BAD_REQUEST)
         # Получаем файл из запроса
         document = request.FILES.get('document')
         if not document:
@@ -166,28 +169,18 @@ class LegalDocumentAnalysisView(APIView):
         elif 'document' in request.FILES:
             logger.info("Обработка файла из FILES")
             document_file = request.FILES['document']
-            if hasattr(document_file, 'read'):
-                try:
-                    document_content = document_file.read()
-                    if isinstance(document_content, (bytes, bytearray)):
-                        document = document_content
-                    else:
-                        document = document_content
-                except Exception as e:
-                    logger.error(f"Ошибка при чтении файла: {str(e)}")
-                    return Response({'error': f'Ошибка при чтении файла: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
-            else:
-                document = str(document_file)
-        elif 'document' in request.data:
-            document = request.data['document']
-            country = request.POST.get('country', 'Россия')
+        if hasattr(document_file, 'read'):
+            try:
+                document_content = document_file.read()
+                if isinstance(document_content, (bytes, bytearray)):
+                    document = document_content
+                else:
+                    document = document_content
+            except Exception as e:
+                logger.error(f"Ошибка при чтении файла: {str(e)}")
+                return Response({'error': f'Ошибка при чтении файла: {str(e)}'}, status=status.HTTP_400_BAD_REQUEST)
         else:
-            for key, value in request.data.items():
-                if 'document' in key.lower():
-                    document = value
-                    break
-            country = request.data.get('country', 'Россия')
-            logger.info("Обработка других типов запросов")
+            document = str(document_file)
         if not isinstance(document, str):
             try:
                 document = str(document)
@@ -199,9 +192,6 @@ class LegalDocumentAnalysisView(APIView):
             logger.error("API ключ Hugging Face не настроен")
             return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
-            document_text = extract_text_from_pdf(file)
-            if not document_text:
-                return Response({'error': 'Не удалось извлечь текст из документа'}, status=status.HTTP_400_BAD_REQUEST)
             logger.info(f"Анализ юридического документа для {country}")
             client = InferenceClient(model="Qwen/Qwen2.5-72B-Instruct", token=HF_API_KEY)
             prompt = f"""
