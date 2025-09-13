@@ -32,24 +32,6 @@ logger = logging.getLogger(__name__)
 @method_decorator(csrf_exempt, name='dispatch')
 @permission_classes([AllowAny])
 
-def extract_text_from_pdf(file):
-    try:
-        file_stream = io.BytesIO(file.read())
-        reader = PyPDF2.PdfReader(file_stream)
-        text = ""
-        for page_num in range(len(reader.pages)):
-            page = reader.pages[page_num]
-            page_text = page.extract_text()
-            if page_text:
-                try:
-                    corrected_text = page_text.encode('latin1').decode('cp1251')
-                    text += corrected_text + "\n"
-                except:
-                    text += page_text + "\n"
-        return text
-    except Exception as e:
-        logger.error(f"Ошибка при извлечении текста из PDF: {str(e)}")
-        return None
 #@api_view(['POST'])
 
 #from djstripe.models.core import PaymentIntent
@@ -139,6 +121,24 @@ class GenerateCourseView(APIView):
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class LegalDocumentAnalysisView(APIView):
+    def extract_text_from_pdf(file):
+        try:
+            file_stream = io.BytesIO(file.read())
+            reader = PyPDF2.PdfReader(file_stream)
+            text = ""
+            for page_num in range(len(reader.pages)):
+                page = reader.pages[page_num]
+                page_text = page.extract_text()
+                if page_text:
+                    try:
+                        corrected_text = page_text.encode('latin1').decode('cp1251')
+                        text += corrected_text + "\n"
+                    except:
+                        text += page_text + "\n"
+            return text
+        except Exception as e:
+            logger.error(f"Ошибка при извлечении текста из PDF: {str(e)}")
+            return None
     def post(self, request, *args, **kwargs):
         SYSTEM_PROMPT = """
             Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
