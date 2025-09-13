@@ -1,135 +1,258 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import { colors } from '../theme';
 
 function PhotoRestorationForm() {
-    const [photo, setPhoto] = useState<File | null>(null);
-    const [enhancementLevel, setEnhancementLevel] = useState<string>('стандартное');
-    const [result, setResult] = useState<any>(null);
+    const [imageFile, setImageFile] = useState<File | null>(null);
+    const [restoredImage, setRestoredImage] = useState<string | null>(null);
+    const [analysis, setAnalysis] = useState<string | null>(null);
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [error, setError] = useState<string>('');
+    const [error, setError] = useState<string | null>(null);
+    const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            setImageFile(e.target.files[0]);
+            setError(null);
+        }
+    };
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        if (!photo) {
-            setError('Пожалуйста, загрузите фотографию');
+        if (!imageFile) {
+            setError('Пожалуйста, загрузите изображение');
             return;
         }
         setIsLoading(true);
-        setError('');
+        setError(null);
         try {
             const formData = new FormData();
-            formData.append('photo', photo);
-            formData.append('enhancement_level', enhancementLevel);
+            formData.append('image', imageFile);
             const response = await axios.post(
                 'https://advice-project.onrender.com/photo-restoration/',
                 formData,
                 { 
-                    headers: { 'Content-Type': 'multipart/form-data' },
+                    headers: { 
+                        'Content-Type': 'multipart/form-data',
+                        'Authorization': `Bearer ${localStorage.getItem('session_token')}`
+                    },
                     timeout: 60000
                 }
             );
-            setResult(response.data);
+            if (response.data.restored_image) {
+                setRestoredImage(response.data.restored_image);
+            }
+            if (response.data.analysis) {
+                setAnalysis(response.data.analysis);
+            }
         } catch (err: any) {
             console.error('Ошибка реставрации фото:', err);
-            if (err.response) {
-                setError(`Ошибка ${err.response.status}: ${err.response.data.error || 'Не удалось обработать фото'}`);
-            } else if (err.request) {
-                setError('Нет ответа от сервера. Проверьте подключение к интернету.');
-            } else {
-                setError('Произошла ошибка при отправке запроса.');
-            }
+            setError(err.response?.data?.error || 'Не удалось обработать изображение');
         } finally {
             setIsLoading(false);
         }
     };
     return (
-        <div className="photo-restoration-form">
-            <h2>Реставрация старых фотографий</h2>
-            <p>Загрузите старое или поврежденное фото, и АКВИ поможет его восстановить и улучшить.</p>
+        <div style={{
+            maxWidth: '800px',
+            margin: '2rem auto',
+            padding: '2rem',
+            backgroundColor: 'rgba(255, 255, 255, 0.07)',
+            borderRadius: '12px',
+            boxShadow: '0 4px 20px rgba(0,0,0,0.15)'
+        }}>
+            <h2 style={{
+                fontSize: '2rem',
+                marginBottom: '1.5rem',
+                color: colors.primary,
+                textAlign: 'center'
+            }}>
+                Реставрация фотографий
+            </h2>
+            <p style={{
+                color: colors.textSecondary,
+                marginBottom: '1.5rem',
+                textAlign: 'center',
+                lineHeight: '1.6'
+            }}>
+                Загрузите поврежденное изображение, и Советница АКВИ выполнит его профессиональную реставрацию
+            </p>
             {error && (
-                <div className="error-message" style={{color: 'red', marginBottom: '1rem'}}>
+                <div style={{
+                    backgroundColor: 'rgba(255, 99, 71, 0.1)',
+                    color: '#ff6347',
+                    padding: '1rem',
+                    borderRadius: '8px',
+                    marginBottom: '1.5rem'
+                }}>
                     {error}
                 </div>
             )}
-            <form onSubmit={handleSubmit}>
-                <div className="form-group" style={{marginBottom: '1rem'}}>
-                    <label htmlFor="photo-upload" style={{display: 'block', marginBottom: '0.5rem'}}>
-                        Загрузите фотографию
-                    </label>
+            <form onSubmit={handleSubmit} style={{marginBottom: '2rem'}}>
+                <div style={{
+                    border: '2px dashed rgba(255, 255, 255, 0.2)',
+                    borderRadius: '12px',
+                    padding: '2rem',
+                    textAlign: 'center',
+                    backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                    marginBottom: '1.5rem'
+                }}>
                     <input
                         type="file"
-                        id="photo-upload"
-                        accept="image/png, image/jpeg"
-                        onChange={(e) => {
-                            if (e.target.files && e.target.files[0]) {
-                                setPhoto(e.target.files[0]);
-                            }
-                        }}
-                        style={{width: '100%', padding: '0.5rem'}}
+                        accept="image/*"
+                        onChange={handleFileChange}
+                        style={{display: 'none'}}
+                        id="image-upload"
                     />
-                    <small style={{color: '#666'}}>Поддерживаются форматы JPG, JPEG и PNG</small>
-                </div>
-                <div className="form-group" style={{marginBottom: '1.5rem'}}>
-                    <label htmlFor="enhancement" style={{display: 'block', marginBottom: '0.5rem'}}>
-                        Уровень улучшения
+                    <label htmlFor="image-upload" style={{
+                        cursor: 'pointer',
+                        display: 'inline-block',
+                        padding: '0.8rem 1.5rem',
+                        backgroundColor: colors.primary,
+                        color: 'white',
+                        borderRadius: '8px',
+                        fontWeight: 'bold'
+                    }}>
+                        {imageFile ? `Выбрано: ${imageFile.name}` : 'Выберите изображение'}
                     </label>
-                    <select 
-                        id="enhancement" 
-                        value={enhancementLevel} 
-                        onChange={(e) => setEnhancementLevel(e.target.value)}
-                        style={{width: '100%', padding: '0.5rem', fontSize: '1rem'}}
-                    >
-                        <option value="стандартное">Стандартное восстановление</option>
-                        <option value="детальное">Детальное восстановление</option>
-                        <option value="цветизация">Цветизация черно-белого фото</option>
-                        <option value="профессиональное">Профессиональное улучшение</option>
-                    </select>
+                    {imageFile && (
+                        <div style={{marginTop: '1rem'}}>
+                            <img 
+                                src={URL.createObjectURL(imageFile)} 
+                                alt="Preview" 
+                                style={{
+                                    maxWidth: '100%',
+                                    maxHeight: '200px',
+                                    borderRadius: '8px'
+                                }} 
+                            />
+                        </div>
+                    )}
                 </div>
-                <button 
-                    type="submit" 
-                    disabled={isLoading}
+                <button
+                    type="submit"
+                    disabled={isLoading || !imageFile}
                     style={{
-                        backgroundColor: isLoading ? '#cccccc' : '#007bff',
+                        backgroundColor: isLoading ? '#cccccc' : colors.primary,
                         color: 'white',
                         border: 'none',
-                        padding: '0.75rem 1.5rem',
-                        fontSize: '1rem',
-                        cursor: isLoading ? 'not-allowed' : 'pointer'
+                        padding: '0.85rem 2.5rem',
+                        fontSize: '1.1rem',
+                        borderRadius: '8px',
+                        cursor: isLoading ? 'not-allowed' : 'pointer',
+                        fontWeight: 'bold',
+                        width: '100',
+                        boxShadow: isLoading ? 'none' : '0 4px 15px rgba(122, 106, 200, 0.3)'
                     }}
                 >
-                    {isLoading ? 'Обработка фото...' : 'Восстановить фото'}
+                    {isLoading ? 'Восстановление фото...' : 'Восстановить фото'}
                 </button>
             </form>
-            {result && (
-                <div className="restoration-result" style={{marginTop: '2rem', border: '1px solid #ddd', padding: '1rem', borderRadius: '4px'}}>
-                    <h3 style={{marginTop: '0'}}>Результат реставрации:</h3>
-                    <div 
-                        className="restoration-description" 
+            {analysis && (
+                <div style={{
+                    backgroundColor: 'rgba(255, 255, 255, 0.05)',
+                    borderRadius: '10px',
+                    padding: '1.5rem',
+                    marginBottom: '2rem'
+                }}>
+                    <h3 style={{
+                        fontSize: '1.5rem',
+                        marginBottom: '1rem',
+                        color: colors.primary
+                    }}>
+                        Анализ повреждений
+                    </h3>
+                    <div style={{
+                        backgroundColor: 'rgba(0, 0, 0, 0.2)',
+                        borderRadius: '8px',
+                        padding: '1rem',
+                        color: colors.textSecondary,
+                        whiteSpace: 'pre-wrap'
+                    }}>
+                        {analysis}
+                    </div>
+                </div>
+            )}
+            {restoredImage && (
+                <div style={{textAlign: 'center'}}>
+                    <h3 style={{
+                        fontSize: '1.5rem',
+                        marginBottom: '1rem',
+                        color: colors.primary
+                    }}>
+                        Восстановленное изображение
+                    </h3>
+                    <div style={{
+                        display: 'flex',
+                        justifyContent: 'center',
+                        gap: '2rem',
+                        flexWrap: 'wrap'
+                    }}>
+                        <div>
+                            <h4 style={{color: colors.textSecondary, marginBottom: '0.5rem'}}>Оригинал</h4>
+                            <img 
+                                src={URL.createObjectURL(imageFile!)} 
+                                alt="Original" 
+                                style={{
+                                    maxWidth: '300px',
+                                    borderRadius: '8px',
+                                    border: '1px solid rgba(255, 255, 255, 0.1)'
+                                }} 
+                            />
+                        </div>
+                        <div>
+                            <h4 style={{color: colors.textSecondary, marginBottom: '0.5rem'}}>Восстановлено</h4>
+                            <img 
+                                src={restoredImage} 
+                                alt="Restored" 
+                                style={{
+                                    maxWidth: '300px',
+                                    borderRadius: '8px',
+                                    border: '1px solid rgba(255, 255, 255, 0.1)'
+                                }} 
+                            />
+                        </div>
+                    </div>
+                    <a 
+                        href={restoredImage} 
+                        download="restored_photo.jpg"
                         style={{
-                            whiteSpace: 'pre-wrap',
-                            lineHeight: '1.6',
-                            fontFamily: 'Arial, sans-serif',
-                            backgroundColor: '#f8f9fa',
-                            padding: '1rem',
-                            borderRadius: '4px'
+                            display: 'inline-block',
+                            marginTop: '1.5rem',
+                            backgroundColor: colors.secondary,
+                            color: 'white',
+                            padding: '0.75rem 1.5rem',
+                            borderRadius: '8px',
+                            textDecoration: 'none',
+                            fontWeight: 'bold'
                         }}
                     >
-                        {result.restoration_description}
-                    </div>
-                    <div style={{marginTop: '1rem', fontStyle: 'italic', color: '#666'}}>
-                        Уровень улучшения: {result.enhancement_level}
-                    </div>
+                        Скачать восстановленное изображение
+                    </a>
                 </div>
             )}
-            {photo && (
-                <div className="photo-preview" style={{marginTop: '1.5rem'}}>
-                    <h3>Предварительный просмотр:</h3>
-                    <img 
-                        src={URL.createObjectURL(photo)} 
-                        alt="Предварительный просмотр" 
-                        style={{maxWidth: '100%', maxHeight: '300px', borderRadius: '4px'}}
-                    />
-                </div>
-            )}
+            <div style={{
+                marginTop: '2rem',
+                padding: '1.5rem',
+                backgroundColor: 'rgba(122, 106, 200, 0.1)',
+                borderRadius: '10px'
+            }}>
+                <h3 style={{
+                    fontSize: '1.3rem',
+                    marginBottom: '0.5rem',
+                    color: colors.primary
+                }}>
+                    Как работает реставрация
+                </h3>
+                <ul style={{
+                    paddingLeft: '1.5rem',
+                    color: colors.textSecondary,
+                    lineHeight: '1.6'
+                }}>
+                    <li>Мы анализируем повреждения на изображении</li>
+                    <li>Применяем специализированные алгоритмы для восстановления</li>
+                    <li>Улучшаем цвет, резкость и детали</li>
+                    <li>Удаляем царапины и другие дефекты</li>
+                    <li>Сохраняем оригинальную стилистику изображения</li>
+                </ul>
+            </div>
         </div>
     );
 }

@@ -7,6 +7,7 @@ import json
 import uuid
 import PyPDF2
 import base64
+import numpy as np
 from .models import Advice, UserHistory
 from .serializers import AdviceSerializer, UserHistorySerializer
 from .utils import send_advice_email
@@ -265,44 +266,95 @@ class PhotoRestorationView(APIView):
             Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
             Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
         """
-        logger.info(f"Получен запрос на реставрацию фотографии: {request.FILES}")
-        # Получаем данные из запроса
+        logger.info(f"Получен запрос на реставрацию фотографии: {request.data}")
         image = request.FILES.get('image')
-        image_description = request.data.get('image_description', '')
-        # Если изображение загружено, но описание отсутствует, можно попробовать его определить
-        if image and not image_description:
-            image_description = "Загруженное изображение требует реставрации"
-        if not image_description:
-            return Response({'error': 'Описание изображения не указано'}, status=status.HTTP_400_BAD_REQUEST)
+        if not image:
+            return Response({'error': 'Изображение не загружено'}, status=status.HTTP_400_BAD_REQUEST)
         HF_API_KEY = os.getenv('HF_API_KEY_PREST')
         if not HF_API_KEY:
             logger.error("API ключ Hugging Face не настроен")
             return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
-            logger.info(f"Реставрация фотографии: {photo.name}, уровень улучшения: {enhancement_level}")
-            client = InferenceClient(model="Qwen/Qwen2-VL-72B-Instruct", token=HF_API_KEY)
-            prompt = f"""
-            {SYSTEM_PROMPT}
-            Вы - эксперт по обработке изображений с 8-летним опытом работы в цифровой реставрации.
-            Ваши рекомендации основаны на передовых методах обработки изображений.
-            Проанализируйте фотографию: "{image_description}" .
-            Ваш анализ должен включать:
-            - Описание текущего состояния фотографии
-            - Перечень необходимых процедур восстановления
-            - Пошаговый план реставрации с указанием инструментов
-            - Оценку времени и сложности работ
-            - Рекомендации по дальнейшему сохранению фотографии
-            """
-            response = client.chat_completion(
-                messages=[{"role": "user", "content": prompt}],
-                max_tokens=1000
+            # 1. Сначала получаем описание проблемы с изображением
+            image_data = image.read()
+            image_base64 = base64.b64encode(image_data).decode('utf-8')
+            image.seek(0)  # Сбрасываем указатель файла
+            # Используем Qwen-VL для анализа изображения
+            client = InferenceClient(
+                model="Qwen/Qwen2-VL-72B-Instruct",
+                token=HF_API_KEY
             )
-            return Response({
-                'restoration_plan': response.choices[0].message.content,
-                'image_description': image_description
-            })
+            # Анализируем изображение
+            analysis_prompt = """
+            {SYSTEM_PROMPT}
+            Вы - эксперт по обработке изображений. Проанализируйте фотографию и определите:
+            1. Тип повреждений (царапины, потери цвета, размытость и т.д.)
+            2. Области, требующие восстановления
+            3. Рекомендуемые методы обработки
+            Верните ответ в формате JSON:
+                {
+                    "damage_type": "тип повреждений",
+                    "affected_areas": ["область 1", "область 2"],
+                    "recommended_methods": ["метод 1", "метод 2"]
+                }
+            """
+            analysis_messages = [
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": analysis_prompt},
+                        {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{image_base64}"}}
+                    ]
+                }
+            ]
+            analysis_response = client.chat_completion(
+                messages=analysis_messages,
+                max_tokens=500,
+                response_format={"type": "json_object"}
+            )
+            # 2. Теперь обрабатываем изображение с помощью подходящей модели
+            try:
+                # Конвертируем в PIL Image для обработки
+                img = Image.open(io.BytesIO(image_data))
+                img = img.convert('RGB')  # Убедимся, что изображение в RGB
+                # Подготовим изображение для обработки
+                buffered = io.BytesIO()
+                img.save(buffered, format="JPEG")
+                img_byte = buffered.getvalue()
+                img_base64 = base64.b64encode(img_byte).decode('utf-8')
+                # Используем модель для фактической реставрации
+                restoration_client = InferenceClient(
+                    model="SG161222/Realistic_Vision_V5.1_noVAE",
+                    token=HF_API_KEY
+                )
+                # Создаем промпт для реставрации
+                restoration_prompt = "high quality restored photo, improved details, vibrant colors, no damage, professional restoration"
+                # Выполняем инференс для генерации улучшенного изображения
+                output = restoration_client.post(
+                    json={
+                        "inputs": restoration_prompt,
+                        "image": f"data:image/jpeg;base64,{img_base64}",
+                        "num_inference_steps": 30
+                    }
+                )
+                # Получаем обработанное изображение
+                restored_image_base64 = base64.b64encode(output).decode('utf-8')
+                # 3. Возвращаем обработанное изображение и анализ
+                return Response({
+                    'restored_image': f"data:image/jpeg;base64,{restored_image_base64}",
+                    'analysis': analysis_response.choices[0].message.content,
+                    'status': 'success'
+                })
+            except Exception as process_error:
+                logger.error(f"Ошибка обработки изображения: {str(process_error)}", exc_info=True)
+                # Если не удалось обработать, возвращаем хотя бы анализ
+                return Response({
+                    'analysis': analysis_response.choices[0].message.content,
+                    'error': 'Не удалось выполнить обработку изображения, но анализ предоставлен',
+                    'status': 'partial'
+                })
         except Exception as e:
-            logger.error(f"Ошибка генерации плана реставрации: {str(e)}", exc_info=True)
+            logger.error(f"Ошибка анализа изображения: {str(e)}", exc_info=True)
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class MedicalImageView(APIView):
