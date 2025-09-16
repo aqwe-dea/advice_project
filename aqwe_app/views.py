@@ -293,7 +293,7 @@ class PhotoRestorationView(APIView):
             image.seek(0)  # Сбрасываем указатель файла
             # Используем Qwen-VL для анализа изображения
             client = InferenceClient(
-                model="Qwen/Qwen2-VL-72B-Instruct",
+                model="Qwen/Qwen2.5-VL-72B-Instruct",
                 token=HF_API_KEY
             )
             # Анализируем изображение
@@ -394,7 +394,7 @@ class MedicalImageView(APIView):
             image.seek(0)  # Сбрасываем указатель файла
             # Используем правильный клиент
             client = InferenceClient(
-                model="Qwen/Qwen2-VL-72B-Instruct",
+                model="Qwen/Qwen2.5-VL-72B-Instruct",
                 token=HF_API_KEY
             )
             # Создаем сообщение с изображением
