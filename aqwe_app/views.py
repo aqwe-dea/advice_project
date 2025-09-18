@@ -82,8 +82,11 @@ class ChatView(APIView):
 
 class GenerateCourseView(APIView):
     def post(self, request, *args, **kwargs):
+        logger.info(f"Получен запрос на генерацию курса: {request.data}")
         SYSTEM_PROMPT = """
             Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
+            Вы - педагогический эксперт с 15-летним опытом разработки учебных программ.
+            Ваши курсы соответствуют международным стандартам образования и учитывают особенности обучения в цифровой среде.
             Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
             Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
             Вы не говорите, что вы ИИ или Qwen - вы всегда представляетесь как Советница АКВИ.
@@ -91,8 +94,8 @@ class GenerateCourseView(APIView):
             Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
         """
         topic = request.data.get('topic', '')
-        level = request.data.get('level', 'начинающий')
-        duration = request.data.get('duration', '1 месяц')
+        level = request.data.get('level', 'начальный')
+        duration = request.data.get('duration', '4 недели')
         if not topic:
             return Response({'error': 'Тема курса не указана'}, status=status.HTTP_400_BAD_REQUEST)
         HF_API_KEY = os.getenv('HF_API_KEY')
@@ -100,29 +103,44 @@ class GenerateCourseView(APIView):
             logger.error("Hugging Face API ключ не настроен")
             return Response({'error': 'API ключ Hugging Face не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
-            client = InferenceClient( model="Qwen/Qwen2.5-72B-Instruct", token=HF_API_KEY )
             prompt = f"""
-                {SYSTEM_PROMPT}
-                Вы - педагогический эксперт с 15-летним опытом разработки учебных программ.
-                Ваши курсы соответствуют международным стандартам образования и учитывают особенности обучения в цифровой среде.
-                Создайте персональный курс по запросу: "{topic}" для уровня "{level}".
-                Структура курса должна включать:
-                - Введение с обоснованием актуальности темы
-                - Пошаговую программу с указанием времени на каждый модуль
-                - Рекомендуемые материалы (книги, статьи, видео)
-                - Практические задания с критериями оценки
-                - Тесты для самопроверки
-                - Дополнительные ресурсы для углубленного изучения
+            {SYSTEM_PROMPT}
+            Вы - эксперт в области педагогики и разработки учебных программ.
+            Ваши курсы учитывают:
+            - Уровень подготовки обучающегося
+            - Цели обучения
+            - Временные рамки
+            - Практическую применимость материала
+            - Интерактивные элементы для поддержания вовлеченности        
+            Ваши рекомендации должны быть структурированы, информативны и соответствовать твоей роли эксперта.
+            Не упоминайте, что вы ИИ или Qwen - вы всегда Советница АКВИ.
+            Создайте персональный курс по запросу: "{topic}" для уровня "{level}" с продолжительностью "{duration}".
+            Структура курса должна включать:
+            1. Введение с обоснованием актуальности темы
+            2. Пошаговую программу с указанием времени на каждый модуль
+            3. Рекомендуемые материалы (книги, статьи, видео)
+            4. Практические задания с критериями оценки
+            5. Тесты для самопроверки
+            6. Дополнительные ресурсы для углубленного изучения            
+            Ответ должен быть подробным, структурированным и профессиональным.
             """
+            client = InferenceClient(
+                model="Qwen/Qwen2.5-72B-Instruct",
+                token=HF_API_KEY
+            )
             response = client.chat_completion(
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=1000
+                max_tokens=1200
             )
-            course_plan = response.choices[0].message.content
-            return Response({'course_plan': course_plan})
+            return Response({
+                'course': response.choices[0].message.content,
+                'topic': topic,
+                'level': level,
+                'duration': duration
+            })
         except Exception as e:
-            logger.error(f"Ошибка генерации курса: {str(e)}")
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            logger.error(f"Ошибка генерации курса: {str(e)}", exc_info=True)
+            return Response({'error': f'Ошибка сервера: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class LegalDocumentAnalysisView(APIView):
     def extract_text_from_pdf(file):
