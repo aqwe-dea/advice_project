@@ -1021,6 +1021,14 @@ class CommunicationOptimizationView(APIView):
             return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
             logger.info(f"Оптимизация коммуникации для компании размером {company_size} в отрасли {industry}")
+            client = InferenceClient(
+                model="Qwen/Qwen2.5-72B-Instruct",
+                token=HF_API_KEY
+            )
+            response = client.chat_completion(
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=900
+            )
             prompt = f"""
             {SYSTEM_PROMPT}
             Проведи анализ и оптимизацию коммуникации для крупной организации с учетом следующих параметров:
@@ -1065,14 +1073,6 @@ class CommunicationOptimizationView(APIView):
             - Резервные планы
             Ответ должен быть профессиональным, содержать конкретные рекомендации и примеры из реальных компаний.
             """
-            client = InferenceClient(
-                model="Qwen/Qwen2.5-72B-Instruct",
-                token=HF_API_KEY
-            )
-            response = client.chat_completion(
-                messages=[{"role": "user", "content": prompt}],
-                max_tokens=900
-            )
             return Response({
                 'optimization_plan': response.choices[0].message.content,
                 'company_size': company_size,
