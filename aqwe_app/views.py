@@ -72,7 +72,7 @@ class ChatView(APIView):
             )
             response = client.chat_completion(
                 messages=[{"role": "user", "content": user_message}],
-                max_tokens=300
+                max_tokens=1500
             )
             ai_response = response.choices[0].message.content
             return Response({'response': ai_response})
@@ -213,7 +213,7 @@ class LegalDocumentAnalysisView(APIView):
             """
             response = client.chat_completion(
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=400
+                max_tokens=1500
             )
             return Response({
                 'legal_analysis': response.choices[0].message.content,
@@ -268,7 +268,7 @@ class FinancialAnalysisView(APIView):
             )
             response = client.chat_completion(
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=500
+                max_tokens=1500
             )
             return Response({
                 'summary': {
@@ -336,7 +336,7 @@ class PhotoRestorationView(APIView):
             ]
             analysis_response = client.chat_completion(
                 messages=analysis_messages,
-                max_tokens=500,
+                max_tokens=1500,
                 response_format={"type": "json_object"}
             )
             # 2. Теперь обрабатываем изображение с помощью подходящей модели
@@ -425,7 +425,7 @@ class MedicalImageView(APIView):
             # Правильный вызов API
             response = client.chat_completion(
                 messages=messages,
-                max_tokens=500
+                max_tokens=1500
             )
             return Response({
                 'medical_analysis': response.choices[0].message.content,
@@ -475,7 +475,7 @@ class ThreeDToProjectView(APIView):
             """
             response = client.chat_completion(
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=500
+                max_tokens=1500
             )
             return Response({
                 'conversion_plan': response.choices[0].message.content,
@@ -538,7 +538,7 @@ class HealthRecommendationView(APIView):
             """
             response = client.chat_completion(
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=600
+                max_tokens=1500
             )
             return Response({
                 'recommendation': response.choices[0].message.content,
@@ -600,7 +600,7 @@ class BusinessPlanView(APIView):
             """
             response = client.chat_completion(
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=1000
+                max_tokens=1500
             )
             return Response({
                 'business_plan': response.choices[0].message.content,
@@ -655,7 +655,7 @@ class PresentationGenerationView(APIView):
             """
             response = client.chat_completion(
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=500
+                max_tokens=1500
             )
             return Response({
                 'presentation': response.choices[0].message.content,
@@ -724,7 +724,7 @@ class InvestmentAnalysisView(APIView):
             """
             response = client.chat_completion(
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=800
+                max_tokens=1500
             )
             return Response({
                 'analysis': response.choices[0].message.content,
@@ -810,7 +810,7 @@ class MarketingStrategyView(APIView):
             """
             response = client.chat_completion(
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=500
+                max_tokens=1500
             )
             return Response({
                 'marketing_strategy': response.choices[0].message.content,
@@ -899,7 +899,7 @@ class TravelPlannerView(APIView):
             """
             response = client.chat_completion(
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=600
+                max_tokens=1500
             )
             return Response({
                 'travel_plan': response.choices[0].message.content,
@@ -983,7 +983,7 @@ class CompetitorAnalysisView(APIView):
             """
             response = client.chat_completion(
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=500
+                max_tokens=1500
             )
             return Response({
                 'analysis': response.choices[0].message.content,
@@ -1071,7 +1071,7 @@ class CommunicationOptimizationView(APIView):
             """
             response = client.chat_completion(
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=1600
+                max_tokens=1500
             )
             return Response({
                 'optimization_plan': response.choices[0].message.content,
