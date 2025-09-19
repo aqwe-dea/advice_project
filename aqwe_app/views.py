@@ -130,7 +130,7 @@ class GenerateCourseView(APIView):
             )
             response = client.chat_completion(
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=500
+                max_tokens=2200
             )
             return Response({
                 'course': response.choices[0].message.content,
