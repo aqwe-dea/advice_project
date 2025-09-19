@@ -130,7 +130,7 @@ class GenerateCourseView(APIView):
             )
             response = client.chat_completion(
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=2200
+                max_tokens=1900
             )
             return Response({
                 'course': response.choices[0].message.content,
@@ -1071,7 +1071,7 @@ class CommunicationOptimizationView(APIView):
             """
             response = client.chat_completion(
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=2200
+                max_tokens=1900
             )
             return Response({
                 'optimization_plan': response.choices[0].message.content,
