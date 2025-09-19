@@ -1071,7 +1071,7 @@ class CommunicationOptimizationView(APIView):
             """
             response = client.chat_completion(
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=700
+                max_tokens=1500
             )
             return Response({
                 'optimization_plan': response.choices[0].message.content,
