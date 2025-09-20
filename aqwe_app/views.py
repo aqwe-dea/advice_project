@@ -944,7 +944,7 @@ class CompetitorAnalysisView(APIView):
             )
             prompt = f"""
                 {SYSTEM_PROMPT}
-                Проведи глубокий анализ конкурентов для бизнеса "{business_name}" в сегменте "{market_segment}".
+                Проведи глубокий анализ конкурентов для бизнеса "{business_name}" в сегменте "{market_segment}"
                 Описание бизнеса: {business_description}
                 Конкуренты: {competitors}
                 Страна: {country}
@@ -983,7 +983,7 @@ class CompetitorAnalysisView(APIView):
             """
             response = client.chat_completion(
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=1400
+                max_tokens=1000
             )
             return Response({
                 'analysis': response.choices[0].message.content,
