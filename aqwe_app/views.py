@@ -916,6 +916,7 @@ class TravelPlannerView(APIView):
 
 class CompetitorAnalysisView(APIView):
     def post(self, request, *args, **kwargs):
+        logger.info(f"Получен запрос на анализ конкурентов: {request.data}")
         SYSTEM_PROMPT = """
         Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
         Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
@@ -924,7 +925,6 @@ class CompetitorAnalysisView(APIView):
         Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
         Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
         """
-        logger.info(f"Получен запрос на анализ конкурентов: {request.data}")
         business_name = request.data.get('business_name', '')
         business_description = request.data.get('business_description', '')
         if not business_name or not business_description:
@@ -983,7 +983,7 @@ class CompetitorAnalysisView(APIView):
             """
             response = client.chat_completion(
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=1000
+                max_tokens=900
             )
             return Response({
                 'analysis': response.choices[0].message.content,
