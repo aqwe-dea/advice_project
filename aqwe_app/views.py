@@ -983,7 +983,7 @@ class CompetitorAnalysisView(APIView):
             """
             response = client.chat_completion(
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=900
+                max_tokens=1400
             )
             return Response({
                 'analysis': response.choices[0].message.content,
