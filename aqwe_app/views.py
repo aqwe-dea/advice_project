@@ -33,6 +33,24 @@ logger = logging.getLogger(__name__)
 @method_decorator(csrf_exempt, name='dispatch')
 @permission_classes([AllowAny])
 
+def extract_text_from_pdf(file):
+        try:
+            file_stream = io.BytesIO(file.read())
+            reader = PyPDF2.PdfReader(file_stream)
+            text = ""
+            for page_num in range(len(reader.pages)):
+                page = reader.pages[page_num]
+                page_text = page.extract_text()
+                if page_text:
+                    try:
+                        corrected_text = page_text.encode('latin1').decode('cp1251')
+                        text += corrected_text + "\n"
+                    except:
+                        text += page_text + "\n"
+                        return text
+        except Exception as e:
+            logger.error(f"Ошибка при извлечении текста из PDF: {str(e)}")
+            return None
 #@api_view(['POST'])
 
 #from djstripe.models.core import PaymentIntent
@@ -72,7 +90,7 @@ class ChatView(APIView):
             )
             response = client.chat_completion(
                 messages=[{"role": "user", "content": user_message}],
-                max_tokens=2000
+                max_tokens=1800
             )
             ai_response = response.choices[0].message.content
             return Response({'response': ai_response})
@@ -130,7 +148,7 @@ class GenerateCourseView(APIView):
             """
             response = client.chat_completion(
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=2000
+                max_tokens=1800
             )
             return Response({
                 'course': response.choices[0].message.content,
@@ -143,24 +161,6 @@ class GenerateCourseView(APIView):
             return Response({'error': f'Ошибка сервера: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class LegalDocumentAnalysisView(APIView):
-    def extract_text_from_pdf(file):
-        try:
-            file_stream = io.BytesIO(file.read())
-            reader = PyPDF2.PdfReader(file_stream)
-            text = ""
-            for page_num in range(len(reader.pages)):
-                page = reader.pages[page_num]
-                page_text = page.extract_text()
-                if page_text:
-                    try:
-                        corrected_text = page_text.encode('latin1').decode('cp1251')
-                        text += corrected_text + "\n"
-                    except:
-                        text += page_text + "\n"
-                        return text
-        except Exception as e:
-            logger.error(f"Ошибка при извлечении текста из PDF: {str(e)}")
-            return None
     def post(self, request, *args, **kwargs):
         logger.info(f"Получен запрос: {request.data}")
         logger.info(f"FILES: {request.FILES}")
@@ -211,7 +211,7 @@ class LegalDocumentAnalysisView(APIView):
             """
             response = client.chat_completion(
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=2000
+                max_tokens=1800
             )
             return Response({
                 'legal_analysis': response.choices[0].message.content,
@@ -266,7 +266,7 @@ class FinancialAnalysisView(APIView):
             """
             response = client.chat_completion(
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=1200
+                max_tokens=1000
             )
             return Response({
                 'summary': {
