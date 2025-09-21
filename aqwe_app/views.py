@@ -516,11 +516,11 @@ class HealthRecommendationView(APIView):
             prompt = f"""
                 {SYSTEM_PROMPT}
                 Проанализируй следующие симптомы и дай рекомендации по улучшению здоровья:
-                    Симптомы: {symptoms}
-                    Возраст: {age}
-                    Пол: {gender}
-                    Страна: {country}
-                    Тип рекомендаций: {recommendation_type}
+                Симптомы: {symptoms}
+                Возраст: {age}
+                Пол: {gender}
+                Страна: {country}
+                Тип рекомендаций: {recommendation_type}
                 Задачи:
                     1. Опиши возможные причины симптомов
                     2. Предоставь рекомендации по образу жизни для улучшения состояния
@@ -538,7 +538,7 @@ class HealthRecommendationView(APIView):
             """
             response = client.chat_completion(
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=1800
+                max_tokens=1600
             )
             return Response({
                 'recommendation': response.choices[0].message.content,
