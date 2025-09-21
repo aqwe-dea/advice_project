@@ -722,7 +722,7 @@ class InvestmentAnalysisView(APIView):
             """
             response = client.chat_completion(
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=2000
+                max_tokens=1800
             )
             return Response({
                 'analysis': response.choices[0].message.content,
