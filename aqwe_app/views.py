@@ -287,12 +287,12 @@ class PhotoRestorationView(APIView):
     def post(self, request, *args, **kwargs):
         logger.info(f"Получен запрос на реставрацию фотографии: {request.data}")
         SYSTEM_PROMPT = """
-            Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
-            Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
-            Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
-            Вы не говорите, что вы ИИ или Qwen - вы всегда представляетесь как Советница АКВИ.
-            Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
-            Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
+        Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
+        Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
+        Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
+        Вы не говорите, что вы ИИ или Qwen - вы всегда представляетесь как Советница АКВИ.
+        Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
+        Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
         """
         image = request.FILES.get('image')
         if not image:
@@ -302,28 +302,25 @@ class PhotoRestorationView(APIView):
             logger.error("API ключ Hugging Face не настроен")
             return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
-            # 1. Сначала получаем описание проблемы с изображением
             image_data = image.read()
             image_base64 = base64.b64encode(image_data).decode('utf-8')
-            image.seek(0)  # Сбрасываем указатель файла
-            # Используем Qwen-VL для анализа изображения
+            image.seek(0)
             client = InferenceClient(
                 model="Qwen/Qwen2.5-VL-72B-Instruct",
                 token=HF_API_KEY
             )
-            # Анализируем изображение
             analysis_prompt = """
-            {SYSTEM_PROMPT}
-            Вы - эксперт по обработке изображений. Проанализируйте фотографию и определите:
-            1. Тип повреждений (царапины, потери цвета, размытость и т.д.)
-            2. Области, требующие восстановления
-            3. Рекомендуемые методы обработки
-            Верните ответ в формате JSON:
-            {
-                "damage_type": "тип повреждений",
-                "affected_areas": ["область 1", "область 2"],
-                "recommended_methods": ["метод 1", "метод 2"]
-            }
+                {SYSTEM_PROMPT}
+                Вы - эксперт по обработке изображений. Проанализируйте фотографию и определите:
+                    1. Тип повреждений (царапины, потери цвета, размытость и т.д.)
+                    2. Области, требующие восстановления
+                    3. Рекомендуемые методы обработки
+                Верните ответ в формате JSON:
+                    {
+                        "damage_type": "тип повреждений",
+                        "affected_areas": ["область 1", "область 2"],
+                        "recommended_methods": ["метод 1", "метод 2"]
+                    }
             """
             analysis_messages = [
                 {
@@ -336,27 +333,21 @@ class PhotoRestorationView(APIView):
             ]
             analysis_response = client.chat_completion(
                 messages=analysis_messages,
-                max_tokens=1000,
+                max_tokens=2000,
                 response_format={"type": "json_object"}
             )
-            # 2. Теперь обрабатываем изображение с помощью подходящей модели
             try:
-                # Конвертируем в PIL Image для обработки
                 img = Image.open(io.BytesIO(image_data))
-                img = img.convert('RGB')  # Убедимся, что изображение в RGB
-                # Подготовим изображение для обработки
+                img = img.convert('RGB')
                 buffered = io.BytesIO()
                 img.save(buffered, format="JPEG")
                 img_byte = buffered.getvalue()
                 img_base64 = base64.b64encode(img_byte).decode('utf-8')
-                # Используем модель для фактической реставрации
                 restoration_client = InferenceClient(
                     model="SG161222/Realistic_Vision_V5.1_noVAE",
                     token=HF_API_KEY
                 )
-                # Создаем промпт для реставрации
                 restoration_prompt = "high quality restored photo, improved details, vibrant colors, no damage, professional restoration"
-                # Выполняем инференс для генерации улучшенного изображения
                 output = restoration_client.post(
                     json={
                         "inputs": restoration_prompt,
@@ -364,9 +355,7 @@ class PhotoRestorationView(APIView):
                         "num_inference_steps": 30
                     }
                 )
-                # Получаем обработанное изображение
                 restored_image_base64 = base64.b64encode(output).decode('utf-8')
-                # 3. Возвращаем обработанное изображение и анализ
                 return Response({
                     'restored_image': f"data:image/jpeg;base64,{restored_image_base64}",
                     'analysis': analysis_response.choices[0].message.content,
@@ -374,7 +363,6 @@ class PhotoRestorationView(APIView):
                 })
             except Exception as process_error:
                 logger.error(f"Ошибка обработки изображения: {str(process_error)}", exc_info=True)
-                # Если не удалось обработать, возвращаем хотя бы анализ
                 return Response({
                     'analysis': analysis_response.choices[0].message.content,
                     'error': 'Не удалось выполнить обработку изображения, но анализ предоставлен',
