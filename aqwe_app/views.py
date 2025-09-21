@@ -456,7 +456,7 @@ class ThreeDToProjectView(APIView):
             logger.error("API ключ Hugging Face не настроен")
             return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
-            logger.info(f"Преобразование 3D-модели: {model.name}, тип проекта: {project_type}")
+            logger.info(f"Преобразование 3D-модели: {model_file}, тип проекта: {project_type}")
             client = InferenceClient(
                 model="Qwen/Qwen2-VL-72B-Instruct",
                 token=HF_API_KEY
@@ -475,7 +475,7 @@ class ThreeDToProjectView(APIView):
             model_content = model.read()
             response = client.chat_completion(
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=2000
+                max_tokens=1800
             )
             return Response({
                 'conversion_plan': response.choices[0].message.content,
