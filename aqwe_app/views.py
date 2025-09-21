@@ -268,7 +268,7 @@ class FinancialAnalysisView(APIView):
             """
             response = client.chat_completion(
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=1600
+                max_tokens=1400
             )
             return Response({
                 'summary': {
