@@ -546,7 +546,7 @@ class BusinessPlanView(APIView):
         Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
         """
         business_idea = request.data.get('idea', '')
-         if not business_idea:
+        if not business_idea:
             return Response({'error': 'Идея бизнеса не указана'}, status=status.HTTP_400_BAD_REQUEST)
         business_type = request.data.get('type', 'стартап')
         country = request.data.get('country', 'Россия')
