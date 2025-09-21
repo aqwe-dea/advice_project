@@ -899,7 +899,7 @@ class TravelPlannerView(APIView):
             """
             response = client.chat_completion(
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=1800
+                max_tokens=1600
             )
             return Response({
                 'travel_plan': response.choices[0].message.content,
