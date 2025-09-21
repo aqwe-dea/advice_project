@@ -538,7 +538,7 @@ class HealthRecommendationView(APIView):
             """
             response = client.chat_completion(
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=1400
+                max_tokens=1200
             )
             return Response({
                 'recommendation': response.choices[0].message.content,
