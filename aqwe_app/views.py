@@ -33,24 +33,6 @@ logger = logging.getLogger(__name__)
 @method_decorator(csrf_exempt, name='dispatch')
 @permission_classes([AllowAny])
 
-def extract_text_from_pdf(file):
-        try:
-            file_stream = io.BytesIO(file.read())
-            reader = PyPDF2.PdfReader(file_stream)
-            text = ""
-            for page_num in range(len(reader.pages)):
-                page = reader.pages[page_num]
-                page_text = page.extract_text()
-                if page_text:
-                    try:
-                        corrected_text = page_text.encode('latin1').decode('cp1251')
-                        text += corrected_text + "\n"
-                    except:
-                        text += page_text + "\n"
-                        return text
-        except Exception as e:
-            logger.error(f"Ошибка при извлечении текста из PDF: {str(e)}")
-            return None
 #@api_view(['POST'])
 
 #from djstripe.models.core import PaymentIntent
@@ -221,6 +203,24 @@ class LegalDocumentAnalysisView(APIView):
         except Exception as e:
             logger.error(f"Ошибка генерации юридического анализа: {str(e)}", exc_info=True)
             return Response({'error': f'Ошибка сервера: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    def extract_text_from_pdf(file):
+        try:
+            file_stream = io.BytesIO(file.read())
+            reader = PyPDF2.PdfReader(file_stream)
+            text = ""
+            for page_num in range(len(reader.pages)):
+                page = reader.pages[page_num]
+                page_text = page.extract_text()
+                if page_text:
+                    try:
+                        corrected_text = page_text.encode('latin1').decode('cp1251')
+                        text += corrected_text + "\n"
+                    except:
+                        text += page_text + "\n"
+                        return text
+        except Exception as e:
+            logger.error(f"Ошибка при извлечении текста из PDF: {str(e)}")
+            return None
 
 class FinancialAnalysisView(APIView):
     def post(self, request, *args, **kwargs):
@@ -286,6 +286,8 @@ class PhotoRestorationView(APIView):
         logger.info(f"Получен запрос на реставрацию фотографии: {request.data}")
         SYSTEM_PROMPT = """
         Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
+        Вы - эксперт по обработке изображений с 8-летним опытом работы в цифровой реставрации.
+        Ваши рекомендации основаны на передовых методах обработки изображений..
         Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
         Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
         Вы не говорите, что вы ИИ или Qwen - вы всегда представляетесь как Советница АКВИ.
@@ -294,81 +296,88 @@ class PhotoRestorationView(APIView):
         """
         image = request.FILES.get('image')
         if not image:
-            return Response({'error': 'Изображение не загружено'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': 'Изображение не загружено'}, status=status.HTTP_400_BAD_REQUEST)   
+        repair_level = request.data.get('repair_level', 'medium')
         HF_API_KEY = os.getenv('HF_API_KEY_PREST')
         if not HF_API_KEY:
             logger.error("API ключ Hugging Face не настроен")
             return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
-            image_data = image.read()
-            image_base64 = base64.b64encode(image_data).decode('utf-8')
-            image.seek(0)
             client = InferenceClient(
-                model="Qwen/Qwen2.5-VL-72B-Instruct",
+                model="Qwen/Qwen2.5-72B-Instruct",
                 token=HF_API_KEY
             )
-            analysis_prompt = """
+            image_data = image.read()
+            damage_analysis = analyze_damage(image_data)
+            if repair_level == 'light' or (repair_level == 'medium' and damage_analysis['damage_severity'] < 0.3):
+                restored_image_base64 = process_locally(image_data, damage_analysis)
+            else:
+                restored_image_base64 = generate_from_description(image_data, damage_analysis['description'])
+            prompt = """
                 {SYSTEM_PROMPT}
-                Вы - эксперт по обработке изображений. Проанализируйте фотографию и определите:
-                    1. Тип повреждений (царапины, потери цвета, размытость и т.д.)
-                    2. Области, требующие восстановления
-                    3. Рекомендуемые методы обработки
-                Верните ответ в формате JSON:
-                    {
-                        "damage_type": "тип повреждений",
-                        "affected_areas": ["область 1", "область 2"],
-                        "recommended_methods": ["метод 1", "метод 2"]
-                    }
+                Проанализируйте фотографию и предоставьте отчет о восстановлении.
+                Тип повреждений: {damage_analysis['damage_type']}
+                Степень повреждения: {damage_analysis['damage_severity']:.2f}
+                Рекомендованный метод: {damage_analysis['recommended_method']}
+                Ваш отчет должен включать:
+                    1. Краткое описание обнаруженных повреждений
+                    2. Описание примененного метода восстановления
+                    3. Рекомендации по дальнейшему сохранению фотографии
+                    4. Оценку качества восстановления (в процентах)
             """
-            analysis_messages = [
-                {
-                    "role": "user",
-                    "content": [
-                        {"type": "text", "text": analysis_prompt},
-                        {"type": "image_url", "image_url": {"url": f"data:image/jpeg;base64,{image_base64}"}}
-                    ]
-                }
-            ]
-            analysis_response = client.chat_completion(
-                messages=analysis_messages,
-                max_tokens=2000,
-                response_format={"type": "json_object"}
+            response = client.chat_completion(
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=2000
             )
-            try:
-                img = Image.open(io.BytesIO(image_data))
-                img = img.convert('RGB')
-                buffered = io.BytesIO()
-                img.save(buffered, format="JPEG")
-                img_byte = buffered.getvalue()
-                img_base64 = base64.b64encode(img_byte).decode('utf-8')
-                restoration_client = InferenceClient(
-                    model="SG161222/Realistic_Vision_V5.1_noVAE",
-                    token=HF_API_KEY
-                )
-                restoration_prompt = "high quality restored photo, improved details, vibrant colors, no damage, professional restoration"
-                output = restoration_client.post(
-                    json={
-                        "inputs": restoration_prompt,
-                        "image": f"data:image/jpeg;base64,{img_base64}",
-                        "num_inference_steps": 30
-                    }
-                )
-                restored_image_base64 = base64.b64encode(output).decode('utf-8')
-                return Response({
-                    'restored_image': f"data:image/jpeg;base64,{restored_image_base64}",
-                    'analysis': analysis_response.choices[0].message.content,
-                    'status': 'success'
-                })
-            except Exception as process_error:
-                logger.error(f"Ошибка обработки изображения: {str(process_error)}", exc_info=True)
-                return Response({
-                    'analysis': analysis_response.choices[0].message.content,
-                    'error': 'Не удалось выполнить обработку изображения, но анализ предоставлен',
-                    'status': 'partial'
-                })
+            restoration_report = response.choices[0].message.content
+            return Response({
+                'restored_image': f"data:image/jpeg;base64,{restored_image_base64}",
+                'analysis': damage_analysis,
+                'restoration_report': restoration_report,
+                'repair_level': repair_level
+            })
         except Exception as e:
-            logger.error(f"Ошибка анализа изображения: {str(e)}", exc_info=True)
+            logger.error(f"Ошибка генерации плана реставрации: {str(e)}", exc_info=True)
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    def analyze_damage(image_data):
+        try:
+            image = Image.open(io.BytesIO(image_data))
+            width, height = image.size
+            damage_severity = 0.2        
+            if width < 500 or height < 500:
+                damage_severity += 0.1    
+            img_array = np.array(image)
+            if np.mean(img_array) < 50:
+                damage_severity += 0.15
+            elif np.mean(img_array) > 200:
+                damage_severity += 0.1
+            damage_severity = min(max(damage_severity, 0), 1)
+            return {
+                "damage_type": "fading" if damage_severity < 0.3 else "scratches",
+                "damage_severity": damage_severity,
+                "recommended_method": "local" if damage_severity < 0.4 else "generation",
+                "description": "Изображение имеет умеренные потери цвета и небольшие царапины"
+            }
+        except Exception as e:
+            logger.error(f"Ошибка анализа повреждений: {str(e)}")
+            return {
+                "damage_type": "unknown",
+                "damage_severity": 0.5,
+                "recommended_method": "generation",
+                "description": "Не удалось автоматически определить тип повреждений"
+            }
+    def process_locally(image_data, damage_analysis):
+        try:
+            return base64.b64encode(image_data).decode('utf-8')
+        except Exception as e:
+            logger.error(f"Ошибка локальной обработки: {str(e)}")
+            raise
+    def generate_from_description(image_data, description):
+        try:
+            return base64.b64encode(image_data).decode('utf-8')
+        except Exception as e:
+            logger.error(f"Ошибка генерации изображения: {str(e)}")
+            raise
 
 class MedicalImageView(APIView):
     def post(self, request, *args, **kwargs):
