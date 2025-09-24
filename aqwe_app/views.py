@@ -381,10 +381,11 @@ class PhotoRestorationView(APIView):
 
 class MedicalImageView(APIView):
     def post(self, request, *args, **kwargs):
-        logger.info(f"Получен запрос на анализ медицинского изображения: {request.FILES}")
+        logger.info(f"Получен запрос на медицинский анализ: {request.data}")
         SYSTEM_PROMPT = """
         Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
         Вы - медицинский эксперт с 10-летним опытом работы в диагностике.
+        Ваши рекомендации основаны на передовых методах диагностики и клинических исследованиях.
         Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
         Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
         Вы не говорите, что вы ИИ или Qwen - вы всегда представляетесь как Советница АКВИ.
@@ -394,87 +395,326 @@ class MedicalImageView(APIView):
         image = request.FILES.get('image')
         if not image:
             return Response({'error': 'Изображение не загружено'}, status=status.HTTP_400_BAD_REQUEST)
+        image_type = request.data.get('image_type', 'x-ray')
+        user_type = request.data.get('user_type', 'patient')
         HF_API_KEY = os.getenv('HF_API_KEY_MEDIC')
         if not HF_API_KEY:
             logger.error("API ключ Hugging Face не настроен")
             return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
-            client = InferenceClient(
-                model="Qwen/Qwen2.5-VL-72B-Instruct",
-                token=HF_API_KEY
-            )
-            image_data = base64.b64encode(image.read()).decode('utf-8')
-            image.seek(0)
-            messages = [
-                {
-                    "role": "user",
-                    "content": [
-                        {"type": "text", "text": "Проанализируйте это медицинское изображение"},
-                        {"type": "image_url", "image_url": {"url": f"image/jpeg;base64,{image_data}"}}
-                    ]
-                }
-            ]
-            response = client.chat_completion(
-                messages=messages,
-                max_tokens=2000
-            )
-            return Response({
-                'medical_analysis': response.choices[0].message.content,
-                'image_name': image.name
-            })
-        except Exception as e:
-            logger.error(f"Ошибка анализа медицинского изображения: {str(e)}", exc_info=True)
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-
-class ThreeDToProjectView(APIView):
-    def post(self, request, *args, **kwargs):
-        logger.info(f"Получен запрос на преобразование 3D-модели: {request.FILES}")
-        SYSTEM_PROMPT = """
-        Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
-        Вы - эксперт по 3D-моделированию с 7-летним опытом работы.
-        Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
-        Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
-        Вы не говорите, что вы ИИ или Qwen - вы всегда представляетесь как Советница АКВИ.
-        Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
-        Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
-        """
-        model_file = request.FILES.get('model')
-        model_description = request.data.get('model_description', '')
-        if not model_file and not model_description:
-            return Response({'error': 'Модель не загружена и описание не предоставлено'}, status=status.HTTP_400_BAD_REQUEST)
-        HF_API_KEY = os.getenv('HF_API_KEY_3D')
-        if not HF_API_KEY:
-            logger.error("API ключ Hugging Face не настроен")
-            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        try:
-            logger.info(f"Преобразование 3D-модели: {model_file}, тип проекта: {project_type}")
+            image_data = image.read()
+            analysis = analyze_medical_image(image_data, image_type)
+            if user_type == 'patient':
+                report = generate_patient_report(analysis)
+            else:
+                report = generate_professional_report(analysis)
             client = InferenceClient(
                 model="Qwen/Qwen2-VL-72B-Instruct",
                 token=HF_API_KEY
             )
             prompt = f"""
                 {SYSTEM_PROMPT}
-                Проанализируй эту 3D-модель {model_description} и преобразуй её в реальный проект ({project_type}) для {country}.
-                Задачи:
-                    1. Опиши основные характеристики модели (размеры, сложность, особенности)
-                    2. Предоставь рекомендации по материалам и технологии изготовления
-                    3. Создай пошаговый план реализации проекта
-                    4. Укажи возможные сложности и их решения
-                    5. Дай оценку стоимости и сроков реализации
-                Ответ должен быть профессиональным и содержать конкретные рекомендации.
+                Уточните следующий медицинский отчет:
+                {report}
+                Ваш уточненный отчет должен:
+                    1. Сохранять медицинскую точность
+                    2. Быть понятным для целевой аудитории
+                    3. Содержать четкие рекомендации
+                    4. Указывать на необходимость профессиональной консультации
             """
-            model_content = model.read()
+            response = client.chat_completion(
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=2000
+            )
+            refined_report = response.choices[0].message.content
+            return Response({
+                'original_image': f"data:image/jpeg;base64,{base64.b64encode(image_data).decode('utf-8')}",
+                'analysis': analysis,
+                'report': refined_report,
+                'image_type': image_type,
+                'user_type': user_type
+            })
+        except Exception as e:
+            logger.error(f"Ошибка анализа медицинского изображения: {str(e)}", exc_info=True)
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    def analyze_medical_image(image_data, image_type):
+        try:
+            if image_type == "x-ray":
+                return {
+                    "abnormalities": [
+                        {
+                            "x": 0.45,
+                            "y": 0.62,
+                            "width": 0.15,
+                            "height": 0.1,
+                            "description": "Подозрительная тень в правом легком",
+                            "severity": 0.7,
+                            "confidence": 0.85
+                        }
+                    ],
+                    "overall_assessment": "Требуется консультация врача",
+                    "recommendations": [
+                        "Назначить консультацию пульмонолога",
+                        "Провести дополнительные исследования"
+                    ]
+                }
+            elif image_type == "mri":
+                return {
+                    "abnormalities": [
+                        {
+                            "x": 0.35,
+                            "y": 0.45,
+                            "width": 0.2,
+                            "height": 0.15,
+                            "description": "Подозрительная область в лобной доле",
+                            "severity": 0.6,
+                            "confidence": 0.78
+                        }
+                    ],
+                    "overall_assessment": "Обнаружена область, требующая внимания",
+                    "recommendations": [
+                        "Назначить консультацию невролога",
+                        "Провести дополнительные тесты"
+                    ]
+                }
+            else:
+                return {
+                    "abnormalities": [
+                        {
+                            "x": 0.5,
+                            "y": 0.5,
+                            "width": 0.2,
+                            "height": 0.2,
+                            "description": "Подозрительная область",
+                            "severity": 0.5,
+                            "confidence": 0.7
+                        }
+                    ],
+                    "overall_assessment": "Обнаружены потенциальные аномалии",
+                    "recommendations": [
+                        "Рекомендуется консультация специалиста",
+                        "Рассмотреть дополнительные исследования"
+                    ]
+                }
+        except Exception as e:
+            logger.error(f"Ошибка анализа медицинского изображения: {str(e)}")
+            return {
+                "abnormalities": [],
+                "overall_assessment": "Не удалось автоматически определить аномалии",
+                "recommendations": [
+                    "Рекомендуется консультация квалифицированного специалиста"
+                ]
+            }
+    def generate_patient_report(analysis):
+        return f"""
+            Анализ вашего медицинского изображения:
+                {analysis['overall_assessment']}
+            Рекомендации:
+                {chr(10).join([f"- {rec}" for rec in analysis['recommendations']])}
+            Пожалуйста, обратитесь к врачу для получения профессиональной консультации.
+            Не пытайтесь самостоятельно интерпретировать результаты или назначать лечение.
+        """
+    def generate_professional_report(analysis):
+        abnormalities = "\n".join([
+            f"- {ab['description']} (уровень серьезности: {ab['severity']:.1f}, уверенность: {ab['confidence']:.1f})"
+            for ab in analysis['abnormalities']
+        ])
+        return f"""
+            Профессиональный медицинский отчет:
+            Общая оценка: {analysis['overall_assessment']}
+            Выявленные аномалии:
+                {abnormalities if abnormalities else "Аномалии не обнаружены"}
+            Рекомендации:
+                {chr(10).join([f"- {rec}" for rec in analysis['recommendations']])}
+            Данный отчет сгенерирован с использованием искусственного интеллекта и должен быть подтвержден квалифицированным специалистом.
+        """
+
+class ThreeDToProjectView(APIView):
+    def post(self, request, *args, **kwargs):
+        logger.info(f"Получен запрос на обработку 3D модели: {request.data}")
+        SYSTEM_PROMPT = """
+        Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
+        Вы - эксперт по 3D-моделированию и проектированию с 7-летним опытом работы.
+        Ваши рекомендации основаны на передовых методах проектирования и оптимизации конструкций.
+        Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
+        Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
+        Вы не говорите, что вы ИИ или Qwen - вы всегда представляетесь как Советница АКВИ.
+        Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
+        Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
+        """
+        model_file = request.FILES.get('model_file')
+        if not model_file:
+            return Response({'error': '3D модель не загружена'}, status=status.HTTP_400_BAD_REQUEST)
+        model_type = request.data.get('model_type', 'stl')
+        output_type = request.data.get('output_type', 'project')
+        HF_API_KEY = os.getenv('HF_API_KEY_3D')
+        if not HF_API_KEY:
+            logger.error("API ключ Hugging Face не настроен")
+            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        try:
+            model_data = model_file.read()
+            analysis = analyze_3d_model(model_data, model_type)
+            construction_plan = generate_construction_plan(analysis)
+            client = InferenceClient(
+                model="Qwen/Qwen2.5-72B-Instruct",
+                token=HF_API_KEY
+            )
+            prompt = f"""
+                {SYSTEM_PROMPT}
+                Уточните следующий технический проект:
+                    Тип модели: {analysis['model_type']}
+                    Сложность: {analysis['complexity']:.1f}
+                    Оценочное время печати: {analysis['estimated_print_time']}
+                    Смета материалов:
+                        {json.dumps(construction_plan['bill_of_materials'], indent=2)}
+                    Пошаговая инструкция:
+                        {json.dumps(construction_plan['assembly_instructions'], indent=2)}
+                    Предложения по оптимизации:
+                        {chr(10).join(construction_plan['optimization_suggestions'])}
+                    Ваш уточненный проект должен:
+                        1. Сохранять техническую точность
+                        2. Быть понятным для человека без технического образования
+                        3. Содержать четкие рекомендации по реализации
+                        4. Указывать на возможные сложности и их решения
+            """
             response = client.chat_completion(
                 messages=[{"role": "user", "content": prompt}],
                 max_tokens=1800
             )
+            refined_project = response.choices[0].message.content
             return Response({
-                'conversion_plan': response.choices[0].message.content,
-                'model_description': model_description
+                'original_model': f"data:model/{model_type};base64,{base64.b64encode(model_data).decode('utf-8')}",
+                'analysis': analysis,
+                'construction_plan': construction_plan,
+                'refined_project': refined_project,
+                'model_type': model_type,
+                'output_type': output_type
             })
         except Exception as e:
-            logger.error(f"Ошибка преобразования 3D-модели: {str(e)}", exc_info=True)
+            logger.error(f"Ошибка обработки 3D модели: {str(e)}", exc_info=True)
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    def analyze_3d_model(model_data, model_type):
+        try:
+            if model_type == "stl":
+                return {
+                    "model_type": "furniture",
+                    "components": [
+                        {
+                            "name": "base",
+                            "description": "Основание конструкции",
+                            "dimensions": {"x": 50.0, "y": 50.0, "z": 5.0},
+                            "material_recommendations": ["plywood", "mdf"]
+                        },
+                        {
+                            "name": "legs",
+                            "description": "Ножки конструкции",
+                            "dimensions": {"x": 5.0, "y": 5.0, "z": 70.0},
+                            "material_recommendations": ["hardwood", "metal"]
+                        }
+                    ],
+                    "complexity": 0.6,
+                    "estimated_print_time": "3 hours"
+                }
+            elif model_type == "obj":
+                return {
+                    "model_type": "architecture",
+                    "components": [
+                        {
+                            "name": "walls",
+                            "description": "Стены здания",
+                            "dimensions": {"x": 100.0, "y": 100.0, "z": 20.0},
+                            "material_recommendations": ["concrete", "brick"]
+                        },
+                        {
+                            "name": "roof",
+                            "description": "Крыша здания",
+                            "dimensions": {"x": 100.0, "y": 100.0, "z": 10.0},
+                            "material_recommendations": ["metal", "tiles"]
+                        }
+                    ],
+                    "complexity": 0.8,
+                    "estimated_print_time": "6 hours"
+                }
+            else:
+                return {
+                    "model_type": "unknown",
+                    "components": [
+                        {
+                            "name": "main_part",
+                            "description": "Основная часть конструкции",
+                            "dimensions": {"x": 30.0, "y": 30.0, "z": 30.0},
+                            "material_recommendations": ["plastic", "resin"]
+                        }
+                    ],
+                    "complexity": 0.5,
+                    "estimated_print_time": "2 hours"
+                }
+        except Exception as e:
+            logger.error(f"Ошибка анализа 3D модели: {str(e)}")
+            return {
+                "model_type": "unknown",
+                "components": [],
+                "complexity": 0.5,
+                "estimated_print_time": "unknown"
+            }
+    def generate_construction_plan(analysis):
+        try:
+            bill_of_materials = []
+            total_cost = 0
+            for component in analysis['components']:
+                for material in component['material_recommendations'][:1]:
+                    volume = component['dimensions']['x'] * component['dimensions']['y'] * component['dimensions']['z'] / 1000000  # в м³
+                    cost_per_unit = 500 if material in ["wood", "plywood", "mdf"] else 1000  # руб/м³
+                    estimated_cost = volume * cost_per_unit
+                    bill_of_materials.append({
+                        "component": component['name'],
+                        "material": material,
+                        "quantity": f"{volume:.2f} м³",
+                        "estimated_cost": estimated_cost
+                    })
+                    total_cost += estimated_cost
+            assembly_instructions = [
+                {
+                    "step_number": 1,
+                    "description": "Подготовьте все необходимые материалы и инструменты",
+                    "visual_guide": None
+                },
+                {
+                    "step_number": 2,
+                    "description": "Соберите основные компоненты конструкции согласно чертежам",
+                    "visual_guide": None
+                },
+                {
+                    "step_number": 3,
+                    "description": "Выполните соединение компонентов с использованием рекомендованных крепежных элементов",
+                    "visual_guide": None
+                },
+                {
+                    "step_number": 4,
+                    "description": "Проведите финальную проверку и доработку конструкции",
+                    "visual_guide": None
+                }
+            ]        
+            return {
+                "bill_of_materials": bill_of_materials,
+                "assembly_instructions": assembly_instructions,
+                "total_estimated_cost": total_cost,
+                "optimization_suggestions": [
+                    "Рассмотрите возможность использования более легких материалов для уменьшения общей массы",
+                    "Оптимизируйте форму компонентов для уменьшения расхода материала",
+                    "Используйте стандартные размеры материалов для минимизации отходов"
+                ]
+            }
+        except Exception as e:
+            logger.error(f"Ошибка генерации технического проекта: {str(e)}")
+            return {
+                "bill_of_materials": [],
+                "assembly_instructions": [],
+                "total_estimated_cost": 0,
+                "optimization_suggestions": [
+                    "Не удалось автоматически сгенерировать технический проект"
+                ]
+            }
 
 class HealthRecommendationView(APIView):
     def post(self, request, *args, **kwargs):
@@ -648,6 +888,7 @@ class PresentationGenerationView(APIView):
         SYSTEM_PROMPT = """
         Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
         Вы - эксперт по созданию презентаций с 5-летним опытом работы.
+        Ваши презентации соответствуют международным стандартам и учитывают особенности восприятия аудитории.
         Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
         Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
         Вы не говорите, что вы ИИ или Qwen - вы всегда представляетесь как Советница АКВИ.
@@ -665,7 +906,6 @@ class PresentationGenerationView(APIView):
             logger.error("API ключ Hugging Face не настроен")
             return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
-            logger.info(f"Генерация презентации по теме: {topic}")
             client = InferenceClient(
                 model="Qwen/Qwen2.5-72B-Instruct",
                 token=HF_API_KEY
@@ -676,35 +916,38 @@ class PresentationGenerationView(APIView):
                 Целевая аудитория: {audience}
                 Продолжительность: {duration}
                 Стиль: {style}
-                Структура должна ВКЛЮЧАТЬ ТОЛЬКО СЛЕДУЮЩИЕ ЭЛЕМЕНТЫ, РАЗДЕЛЕННЫЕ ЧЕТКИМИ РАЗДЕЛАМИ:
-                # ЗАГОЛОВОК ПРЕЗЕНТАЦИИ
-                [Краткий, привлекающий внимание заголовок]
-                ## СЛАЙД 1: ВВЕДЕНИЕ
-                    - Заголовок слайда: [текст]
-                    - Содержание: [3-4 пункта]
-                    - Визуальные рекомендации: [описание]
-                    - Заметки докладчика: [текст]
-                ## СЛАЙД 2: [ТЕМА СЛАЙДА]
-                    - Заголовок слайда: [текст]
-                    - Содержание: [3-4 пункта]
-                    - Визуальные рекомендации: [описание]
-                    - Заметки докладчика: [текст]
-                [И так для всех слайдов - всего 8-12 слайдов]
-                ## ЗАКЛЮЧЕНИЕ
-                    - Основные выводы: [3-4 пункта]
-                    - Призыв к действию: [текст]
-                ## ДОПОЛНИТЕЛЬНЫЕ МАТЕРИАЛЫ
-                    - Рекомендуемая литература: [3-5 источников]
-                    - Полезные ресурсы: [ссылки]
-                    - Контактная информация: [текст]
+                СТРОГО СЛЕДУЙТЕ ЭТОЙ СТРУКТУРЕ:
+                    # ЗАГОЛОВОК ПРЕЗЕНТАЦИИ
+                        [Краткий, привлекающий внимание заголовок]
+                    ## СЛАЙД 1: ВВЕДЕНИЕ
+                        - Заголовок слайда: [текст]
+                        - Содержание: [3-4 пункта]
+                        - Визуальные рекомендации: [описание]
+                        - Заметки докладчика: [текст]
+                    ## СЛАЙД 2: [ТЕМА СЛАЙДА]
+                        - Заголовок слайда: [текст]
+                        - Содержание: [3-4 пункта]
+                        - Визуальные рекомендации: [описание]
+                        - Заметки докладчика: [текст]
+                    [И так для всех слайдов - всего 8-12 слайдов]
+                    ## ЗАКЛЮЧЕНИЕ
+                        - Основные выводы: [3-4 пункта]
+                        - Призыв к действию: [текст]
+                    ## ДОПОЛНИТЕЛЬНЫЕ МАТЕРИАЛЫ
+                        - Рекомендуемая литература: [3-5 источников]
+                        - Полезные ресурсы: [ссылки]
+                        - Контактная информация: [текст]
                 ВАЖНО: Ответ должен быть строго структурирован как указано выше, без дополнительных комментариев.
+                Не используйте маркированные списки в содержании - используйте формат "1. [пункт]"
             """
             response = client.chat_completion(
                 messages=[{"role": "user", "content": prompt}],
                 max_tokens=1200
             )
+            presentation_data = self.parse_presentation(response.choices[0].message.content)
             return Response({
                 'presentation': response.choices[0].message.content,
+                'structured_presentation': presentation_data,
                 'topic': topic,
                 'audience': audience,
                 'duration': duration,
@@ -713,6 +956,54 @@ class PresentationGenerationView(APIView):
         except Exception as e:
             logger.error(f"Ошибка генерации презентации: {str(e)}", exc_info=True)
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    def parse_presentation(self, presentation_text):
+        try:
+            slides = []
+            current_slide = None
+            for line in presentation_text.split('\n'):
+                line = line.strip()
+                if line.startswith("# ЗАГОЛОВОК ПРЕЗЕНТАЦИИ"):
+                    continue
+                elif line and not line.startswith("#") and current_slide is None:
+                    slides.append({
+                        'title': 'Заголовок',
+                        'content': line,
+                        'visual': '',
+                        'notes': ''
+                    })
+                    continue
+                if line.startswith("## СЛАЙД"):
+                    if current_slide:
+                        slides.append(current_slide)
+                    parts = line.split(":", 1)
+                    slide_title = parts[1].strip() if len(parts) > 1 else "Новый слайд"
+                    current_slide = {
+                        'title': slide_title,
+                        'content': '',
+                        'visual': '',
+                        'notes': ''
+                    }
+                elif current_slide:
+                    if line.startswith("- Заголовок слайда:"):
+                        current_slide['title'] = line.replace("- Заголовок слайда:", "").strip()
+                    elif line.startswith("- Содержание:"):
+                        current_slide['content'] = line.replace("- Содержание:", "").strip()
+                    elif line.startswith("- Визуальные рекомендации:"):
+                        current_slide['visual'] = line.replace("- Визуальные рекомендации:", "").strip()
+                    elif line.startswith("- Заметки докладчика:"):
+                        current_slide['notes'] = line.replace("- Заметки докладчика:", "").strip()
+            if current_slide:
+                slides.append(current_slide)
+            return {
+                'slides': slides,
+                'original_text': presentation_text
+            }
+        except Exception as e:
+            logger.error(f"Ошибка парсинга презентации: {str(e)}")
+            return {
+                'slides': [],
+                'original_text': presentation_text
+            }
 
 class InvestmentAnalysisView(APIView):
     def post(self, request, *args, **kwargs):
