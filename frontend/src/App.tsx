@@ -6,6 +6,7 @@ import logo from '../src/logo.svg';
 import './App.css';
 import Home from './components/Home';
 import About from './components/About';
+import PortfolioView from './components/PortfolioView';
 import Sovet from './components/Sovet';
 import DetailedAdviceForm from './components/DetailedAdviceForm';
 import AdviceList from './components/AdviceList';
@@ -295,6 +296,11 @@ function AppContent() {
               transition: 'all 0.2s'
             }}>О проекте</Link>
           </li>
+          <li>
+            <a href="/portfolio" style={{color: '#f8f8f0', textDecoration: 'none'}}>
+              Наше портфолио
+            </a>
+          </li>
         </ul>
       </nav>
       <Navbar />
@@ -309,6 +315,7 @@ function AppContent() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
+          <Route path="/portfolio" element={<PortfolioView />} />
           <Route path="/sovet" element={<Sovet />} />
           <Route path="/detailed-advice" element={<DetailedAdviceForm />} />
           <Route path="/chat" element={<Chat />} />

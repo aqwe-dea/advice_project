@@ -8,6 +8,8 @@
     "@fortawesome/free-solid-svg-icons": "^6.7.2",
     "@fortawesome/react-fontawesome": "^0.2.2",
     "@huggingface/inference": "^3.13.0",
+    "@react-three/drei": "^10.7.6",
+    "@react-three/fiber": "^9.3.0",
     "@stripe/react-stripe-js": "^3.7.0",
     "@stripe/stripe-js": "^7.3.1",
     "@testing-library/dom": "^10.4.0",
@@ -52,6 +54,7 @@
     "svgo": "^3.3.2",
     "swagger-typescript-api-generator": "^0.18.0",
     "test": "^3.3.0",
+    "three": "^0.180.0",
     "typescript": "^4.8.4",
     "uuid": "^11.1.0",
     "webpack": "^5.98.0"
