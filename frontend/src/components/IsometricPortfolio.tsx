@@ -6,20 +6,21 @@ import * as THREE from 'three';
 
 // Компонент для 3D-представления ДЕА
 function DeaModel({ position }: { position: [number, number, number] }) {
-  const group = useRef<THREE.Group>(null!);
   const [hovered, setHovered] = useState(false);
-  
+
+  const props = useSpring({
+    scale: hovered ? [1.2, 1.2, 1.2] : [1, 1, 1],
+    config: { mass: 5, tension: 500, friction: 80 }
+  });
+
+  const group = useRef<THREE.Group>(null!);
+
   useFrame((state, delta) => {
     if (group.current) {
       group.current.rotation.y += delta * 0.2;
     }
   });
-  
-  const props = useSpring({
-    scale: hovered ? [1.2, 1.2, 1.2] : [1, 1, 1],
-    config: { mass: 5, tension: 500, friction: 80 }
-  });
-  
+
   return (
     <a.group 
       ref={group} 
@@ -28,14 +29,16 @@ function DeaModel({ position }: { position: [number, number, number] }) {
       onPointerOver={() => setHovered(true)}
       onPointerOut={() => setHovered(false)}
     >
-      <mesh>
-        <icosahedronGeometry args={[1, 0]} />
-        <meshStandardMaterial color="#4a14e0" metalness={0.5} roughness={0.2} />
-      </mesh>
-      <mesh position={[0, 1.5, 0]}>
-        <textGeometry args={['ДЕА', { font: 'helvetiker', size: 0.5, height: 0.1 }]} />
-        <meshStandardMaterial color="white" />
-      </mesh>
+
+    <mesh>
+      <icosahedronGeometry args={[1, 0]} />
+      <meshStandardMaterial color="#4a14e0" metalness={0.5} roughness={0.2} />
+    </mesh>
+
+    <mesh position={[0, 1.5, 0]}>
+      <textGeometry args={['ДЕА']} />
+      <meshStandardMaterial color="white" />
+    </mesh>
     </a.group>
   );
 }
@@ -64,59 +67,57 @@ function AqviSphere({ position }: { position: [number, number, number] }) {
       onPointerOver={() => setHovered(true)}
       onPointerOut={() => setHovered(false)}
     >
-      <mesh>
-        <sphereGeometry args={[1, 32, 32]} />
-        <meshStandardMaterial 
-          color="#7a6ac8" 
-          metalness={0.8} 
-          roughness={0.2} 
-          emissive="#4a14e0"
-          emissiveIntensity={0.2}
-        />
-      </mesh>
-      <mesh position={[0, 1.5, 0]}>
-        <textGeometry args={['АКВИ', { font: 'helvetiker', size: 0.5, height: 0.1 }]} />
-        <meshStandardMaterial color="white" />
-      </mesh>
+
+    <mesh>
+      <sphereGeometry args={[1, 32, 32]} />
+      <meshStandardMaterial 
+        color="#7a6ac8" 
+        metalness={0.8} 
+        roughness={0.2} 
+        emissive="#4a14e0"
+        emissiveIntensity={0.2}
+      />
+    </mesh>
+
+    <mesh position={[0, 1.5, 0]}>
+      <textGeometry args={['АКВИ']} />
+      <meshStandardMaterial color="white" />
+    </mesh>
     </a.group>
   );
 }
 
-// Компонент для связи между ДЕА и АКВИ
-//function ConnectionLine() {
-  //const lineRef = useRef<THREE.Line>(null!);
+function ConnectionLine() {
+  const lineRef = useRef<THREE.Line>(null!);
   
-  //useFrame((state) => {
-    //if (lineRef.current && lineRef.current.geometry) {
-      //const positions = lineRef.current.geometry.attributes.position.array as Float32Array;
+  useFrame((state) => {
+    if (lineRef.current && lineRef.current.geometry) {
+      const time = state.clock.getElapsedTime();
+      const positions = lineRef.current.geometry.attributes.position.array as Float32Array;
       
-      // Анимация линии
-      //const time = state.clock.getElapsedTime();
-      //for (let i = 0; i < positions.length; i += 3) {
-        //positions[i + 2] = Math.sin(time * 2 + i * 0.1) * 0.1;
-      //}
+      // Простая пульсация по оси Z
+      const amplitude = 0.1;
+      positions[2] = Math.sin(time * 2) * amplitude;
+      positions[5] = Math.sin(time * 2) * amplitude;
       
-      //lineRef.current.geometry.attributes.position.needsUpdate = true;
-    //}
-  //});
+      lineRef.current.geometry.attributes.position.needsUpdate = true;
+    }
+  });
   
-  //return (
-    //<line ref={lineRef}>
-      //<bufferGeometry>
-        //<bufferAttribute
-          //attach="attributes-position"
-          //count={2}
-          //itemSize={3}
-          //array={new Float32Array([
-            //-3, 0, 0, // Начальная точка (ДЕА)
-            //3, 0, 0  // Конечная точка (АКВИ)
-          //])}
-        ///>
-      //</bufferGeometry>
-      //<lineBasicMaterial color="#4a14e0" linewidth={2} />
-    //</line>
-  //);
-//}
+  return (
+    <line ref={lineRef}>
+      <bufferGeometry>
+        <bufferAttribute
+          attach="attributes-position"
+          count={2}
+          itemSize={3}
+          array={new Float32Array([-3, 0, 0, 3, 0, 0])}
+        />
+      </bufferGeometry>
+      <lineBasicMaterial color="#4a14e0" linewidth={2} />
+    </line>
+  );
+}
 
 // Основной компонент изометрического портфолио
 function IsometricPortfolio() {
@@ -127,7 +128,6 @@ function IsometricPortfolio() {
         <directionalLight position={[10, 10, 5]} intensity={1} />
         <spotLight position={[10, 10, 10]} angle={0.15} penumbra={1} />
         <pointLight position={[-10, -10, -10]} color="#7a6ac8" />
-        
         <DeaModel position={[-3, 0, 0]} />
         <AqviSphere position={[3, 0, 0]} />
         <ConnectionLine />
