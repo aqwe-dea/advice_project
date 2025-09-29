@@ -1,0 +1,42 @@
+result: {
+id: "chatcmpl-RDH4Umnh6fu8QutNxF3tcn8C"
+choices: [
+0: {
+finishReason: "FINISH_REASON_STOP"
+message: {
+content: "Here is a character profile based on your request:
+
+**Name:** Kairi Sakuraba
+
+**Age:** 17
+
+**Height:** 5'6" (168 cm)
+
+**Weight:** 120 lbs (54 kg)
+
+**Hair:** Vibrant purple hair that falls in loose waves down her back, with subtle hints of lavender and pink undertones. Her hair is long, reaching the middle of her back, and is often styled with a few loose strands framing her face.
+
+**Eyes:** Lilac-colored eyes that seem to shimmer in the light, with a subtle sparkle that gives them an ethereal quality. Her eyes are almond-shaped and slanted slightly upwards at the outer corners, giving her an exotic and mysterious appearance.
+
+**Style:** Kairi has a unique and eclectic sense of style that blends elements of Japanese street fashion with a touch of whimsy. She favors flowing skirts and dresses with intricate lace details, paired with fitted tops and cardigans in bold, bright colors. Her outfits often feature statement pieces, such as oversized bows or chunky jewelry, that add a touch of playfulness to her overall look.
+
+**Personality:** Kairi is a creative and free-spirited individual who sees the world through the lens of art and imagination. She is a talented painter and musician, and is often lost in her own thoughts as she navigates the world around her. Despite her dreamy nature, Kairi is fiercely loyal to those she cares about, and will go to great lengths to protect and support them.
+
+**Background:** Kairi was born and raised in a small town in rural Japan, where she grew up surrounded by the beauty of nature and the inspiration of her artistic family. She moved to the city to attend art school, where she hopes to hone her skills and make a name for herself in the art world.
+
+**Special talents:** Kairi has a natural talent for art, music, and poetry, and is able to express herself in a variety of creative ways. She is also an intuitive and empathetic person, with a deep understanding of the emotions and motivations of those around her.
+
+I hope this character fits your vision! Let me know if there's anything else I can add or change."
+role: "MESSAGE_ROLE_ASSISTANT"
+}
+}
+]
+createTime: "2025-09-27T00:50:12Z"
+model: "meta-llama/Llama-3.3-70B-Instruct"
+usage: {
+completionTokens: 455
+promptTokens: 29
+}
+serviceProvider: "SERVICE_PROVIDER_DEEPINFRA"
+}
+}

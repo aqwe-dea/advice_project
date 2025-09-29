@@ -1,8 +1,9 @@
 import React, { useRef, useState } from 'react';
 import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, Environment, ContactShadows } from '@react-three/drei';
+import { OrbitControls, Line } from '@react-three/drei';
 import { useSpring, a } from '@react-spring/three';
 import * as THREE from 'three';
+import { buffer, geometry, three, vector3 } from 'maath';
 
 // Компонент для 3D-представления ДЕА
 function DeaModel({ position }: { position: [number, number, number] }) {
@@ -29,16 +30,10 @@ function DeaModel({ position }: { position: [number, number, number] }) {
       onPointerOver={() => setHovered(true)}
       onPointerOut={() => setHovered(false)}
     >
-
-    <mesh>
-      <icosahedronGeometry args={[1, 0]} />
-      <meshStandardMaterial color="#4a14e0" metalness={0.5} roughness={0.2} />
-    </mesh>
-
-    <mesh position={[0, 1.5, 0]}>
-      <textGeometry args={['ДЕА']} />
-      <meshStandardMaterial color="white" />
-    </mesh>
+      <mesh>
+        <icosahedronGeometry args={[1, 0]} />
+        <meshStandardMaterial color="#4a14e0" metalness={0.5} roughness={0.2} />
+      </mesh>
     </a.group>
   );
 }
@@ -67,55 +62,41 @@ function AqviSphere({ position }: { position: [number, number, number] }) {
       onPointerOver={() => setHovered(true)}
       onPointerOut={() => setHovered(false)}
     >
-
-    <mesh>
-      <sphereGeometry args={[1, 32, 32]} />
-      <meshStandardMaterial 
-        color="#7a6ac8" 
-        metalness={0.8} 
-        roughness={0.2} 
-        emissive="#4a14e0"
-        emissiveIntensity={0.2}
-      />
-    </mesh>
-
-    <mesh position={[0, 1.5, 0]}>
-      <textGeometry args={['АКВИ']} />
-      <meshStandardMaterial color="white" />
-    </mesh>
+      <mesh>
+        <sphereGeometry args={[1, 32, 32]} />
+        <meshStandardMaterial 
+          color="#7a6ac8" 
+          metalness={0.8} 
+          roughness={0.2} 
+          emissive="#4a14e0"
+          emissiveIntensity={0.2}
+        />
+      </mesh>
     </a.group>
   );
 }
 
 function ConnectionLine() {
-  const lineRef = useRef<THREE.Line>(null!);
-  
-  useFrame((state) => {
-    if (lineRef.current && lineRef.current.geometry) {
-      const time = state.clock.getElapsedTime();
-      const positions = lineRef.current.geometry.attributes.position.array as Float32Array;
-      
-      // Простая пульсация по оси Z
-      const amplitude = 0.1;
-      positions[2] = Math.sin(time * 2) * amplitude;
-      positions[5] = Math.sin(time * 2) * amplitude;
-      
-      lineRef.current.geometry.attributes.position.needsUpdate = true;
-    }
+  const points = [
+    new THREE.Vector3(-3, 0, 0),
+    new THREE.Vector3(3, 0, 0)
+  ];
+  const [pulsePosition, setPulsePosition] = useState(0);
+
+  useFrame(() => {
+    setPulsePosition((prev) => (prev + 0.01) % 1);
   });
-  
+
+  const pulseX = -3 + 6 * pulsePosition;
+
   return (
-    <line ref={lineRef}>
-      <bufferGeometry>
-        <bufferAttribute
-          attach="attributes-position"
-          count={2}
-          itemSize={3}
-          array={new Float32Array([-3, 0, 0, 3, 0, 0])}
-        />
-      </bufferGeometry>
-      <lineBasicMaterial color="#4a14e0" linewidth={2} />
-    </line>
+    <>
+      <Line points={points} color="#4a14e0" lineWidth={2} transparent opacity={0.7} />
+      <mesh position={[pulseX, 0, 0]}>
+        <sphereGeometry args={[0.2, 16, 16]} />
+        <meshBasicMaterial color="#ff6b6b" transparent opacity={0.8} />
+      </mesh>
+    </>
   );
 }
 
@@ -151,18 +132,6 @@ function IsometricPortfolio() {
             </mesh>
           );
         })}
-        
-        <ContactShadows 
-          rotation-x={Math.PI / 2} 
-          position={[0, -1.45, 0]} 
-          opacity={0.4} 
-          width={7} 
-          height={7} 
-          blur={2.5} 
-          far={0.8} 
-        />
-        
-        <Environment preset="city" />
         <OrbitControls autoRotate autoRotateSpeed={0.5} />
       </Canvas>
       

@@ -1,35 +1,31 @@
-import React, { useRef } from 'react';
-import { Canvas, useFrame } from '@react-three/fiber';
-import { OrbitControls, Line } from '@react-three/drei';
+import React, { useRef, useState } from 'react';
 import * as THREE from 'three';
+import { Canvas, useFrame } from '@react-three/fiber';
+import { OrbitControls } from '@react-three/drei';
+import { Line } from '@react-three/drei';
+import { buffer, geometry, three, vector3 } from 'maath';
 
 function ConnectionLine() {
-  const pointsRef = useRef([[-3, 0, 0], [3, 0, 0]]);
-  const lineRef = useRef<any>(null);
-  
-  useFrame((state) => {
-    if (lineRef.current) {
-      const time = state.clock.getElapsedTime();
-      const amplitude = 0.1;
-      
-      // Анимация по оси Z
-      pointsRef.current[0][2] = Math.sin(time * 2) * amplitude;
-      pointsRef.current[1][2] = Math.sin(time * 2) * amplitude;
-      
-      // Обновляем геометрию
-      lineRef.current.geometry.setFromPoints(
-        pointsRef.current.map(p => new THREE.Vector3(...p))
-      );
-    }
+  const points = [
+    new THREE.Vector3(-3, 0, 0),
+    new THREE.Vector3(3, 0, 0)
+  ];
+  const [pulsePosition, setPulsePosition] = useState(0);
+
+  useFrame(() => {
+    setPulsePosition((prev) => (prev + 0.01) % 1);
   });
-  
+
+  const pulseX = -3 + 6 * pulsePosition;
+
   return (
-    <Line
-      ref={lineRef}
-      points={pointsRef.current}
-      color="#4a14e0"
-      lineWidth={2}
-    />
+    <>
+      <Line points={points} color="#4a14e0" lineWidth={2} transparent opacity={0.7} />
+      <mesh position={[pulseX, 0, 0]}>
+        <sphereGeometry args={[0.2, 16, 16]} />
+        <meshBasicMaterial color="#ff6b6b" transparent opacity={0.8} />
+      </mesh>
+    </>
   );
 }
 
@@ -119,6 +115,19 @@ function SimplePortfolio() {
           <circleGeometry args={[2, 32]} />
           <meshStandardMaterial color="#333" roughness={0.7} metalness={0.2} />
         </mesh>
+
+        {[...Array(5)].map((_, i) => {
+          const angle = (i / 5) * Math.PI * 2;
+          const x = Math.cos(angle) * 7;
+          const z = Math.sin(angle) * 7;
+          
+          return (
+            <mesh key={i} position={[x, 0, z]}>
+              <boxGeometry args={[1.5, 1.5, 1.5]} />
+              <meshStandardMaterial color="#7a6ac8" metalness={0.8} roughness={0.2} />
+            </mesh>
+          );
+        })}
         <OrbitControls />
       </Canvas>
     </div>
