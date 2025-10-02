@@ -33,14 +33,6 @@ logger = logging.getLogger(__name__)
 @method_decorator(csrf_exempt, name='dispatch')
 @permission_classes([AllowAny])
 
-#@api_view(['POST'])
-
-#from djstripe.models.core import PaymentIntent
-#from djstripe.models import core
-#from djstripe.models import PaymentIntent        
-
-#from django.http import response
-
 class ChatView(APIView):
     def post(self, request, *args, **kwargs):
         SYSTEM_PROMPT = """
@@ -143,6 +135,24 @@ class GenerateCourseView(APIView):
             return Response({'error': f'Ошибка сервера: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class LegalDocumentAnalysisView(APIView):
+    def extract_text_from_pdf(file):
+        try:
+            file_stream = io.BytesIO(file.read())
+            reader = PyPDF2.PdfReader(file_stream)
+            text = ""
+            for page_num in range(len(reader.pages)):
+                page = reader.pages[page_num]
+                page_text = page.extract_text()
+                if page_text:
+                    try:
+                        corrected_text = page_text.encode('latin1').decode('cp1251')
+                        text += corrected_text + "\n"
+                    except:
+                        text += page_text + "\n"
+                        return text
+        except Exception as e:
+            logger.error(f"Ошибка при извлечении текста из PDF: {str(e)}")
+            return None
     def post(self, request, *args, **kwargs):
         logger.info(f"Получен запрос: {request.data}")
         logger.info(f"FILES: {request.FILES}")
@@ -203,25 +213,7 @@ class LegalDocumentAnalysisView(APIView):
         except Exception as e:
             logger.error(f"Ошибка генерации юридического анализа: {str(e)}", exc_info=True)
             return Response({'error': f'Ошибка сервера: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    def extract_text_from_pdf(file):
-        try:
-            file_stream = io.BytesIO(file.read())
-            reader = PyPDF2.PdfReader(file_stream)
-            text = ""
-            for page_num in range(len(reader.pages)):
-                page = reader.pages[page_num]
-                page_text = page.extract_text()
-                if page_text:
-                    try:
-                        corrected_text = page_text.encode('latin1').decode('cp1251')
-                        text += corrected_text + "\n"
-                    except:
-                        text += page_text + "\n"
-                        return text
-        except Exception as e:
-            logger.error(f"Ошибка при извлечении текста из PDF: {str(e)}")
-            return None
-
+    
 class FinancialAnalysisView(APIView):
     def post(self, request, *args, **kwargs):
         SYSTEM_PROMPT = """
@@ -282,6 +274,45 @@ class FinancialAnalysisView(APIView):
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class PhotoRestorationView(APIView):
+    def analyze_damage(image_data):
+        try:
+            image = Image.open(io.BytesIO(image_data))
+            width, height = image.size
+            damage_severity = 0.2        
+            if width < 500 or height < 500:
+                damage_severity += 0.1    
+            img_array = np.array(image)
+            if np.mean(img_array) < 50:
+                damage_severity += 0.15
+            elif np.mean(img_array) > 200:
+                damage_severity += 0.1
+            damage_severity = min(max(damage_severity, 0), 1)
+            return {
+                "damage_type": "fading" if damage_severity < 0.3 else "scratches",
+                "damage_severity": damage_severity,
+                "recommended_method": "local" if damage_severity < 0.4 else "generation",
+                "description": "Изображение имеет умеренные потери цвета и небольшие царапины"
+            }
+        except Exception as e:
+            logger.error(f"Ошибка анализа повреждений: {str(e)}")
+            return {
+                "damage_type": "unknown",
+                "damage_severity": 0.5,
+                "recommended_method": "generation",
+                "description": "Не удалось автоматически определить тип повреждений"
+            }
+    def process_locally(image_data, damage_analysis):
+        try:
+            return base64.b64encode(image_data).decode('utf-8')
+        except Exception as e:
+            logger.error(f"Ошибка локальной обработки: {str(e)}")
+            raise
+    def generate_from_description(image_data, description):
+        try:
+            return base64.b64encode(image_data).decode('utf-8')
+        except Exception as e:
+            logger.error(f"Ошибка генерации изображения: {str(e)}")
+            raise
     def post(self, request, *args, **kwargs):
         logger.info(f"Получен запрос на реставрацию фотографии: {request.data}")
         SYSTEM_PROMPT = """
@@ -339,104 +370,8 @@ class PhotoRestorationView(APIView):
         except Exception as e:
             logger.error(f"Ошибка генерации плана реставрации: {str(e)}", exc_info=True)
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    def analyze_damage(image_data):
-        try:
-            image = Image.open(io.BytesIO(image_data))
-            width, height = image.size
-            damage_severity = 0.2        
-            if width < 500 or height < 500:
-                damage_severity += 0.1    
-            img_array = np.array(image)
-            if np.mean(img_array) < 50:
-                damage_severity += 0.15
-            elif np.mean(img_array) > 200:
-                damage_severity += 0.1
-            damage_severity = min(max(damage_severity, 0), 1)
-            return {
-                "damage_type": "fading" if damage_severity < 0.3 else "scratches",
-                "damage_severity": damage_severity,
-                "recommended_method": "local" if damage_severity < 0.4 else "generation",
-                "description": "Изображение имеет умеренные потери цвета и небольшие царапины"
-            }
-        except Exception as e:
-            logger.error(f"Ошибка анализа повреждений: {str(e)}")
-            return {
-                "damage_type": "unknown",
-                "damage_severity": 0.5,
-                "recommended_method": "generation",
-                "description": "Не удалось автоматически определить тип повреждений"
-            }
-    def process_locally(image_data, damage_analysis):
-        try:
-            return base64.b64encode(image_data).decode('utf-8')
-        except Exception as e:
-            logger.error(f"Ошибка локальной обработки: {str(e)}")
-            raise
-    def generate_from_description(image_data, description):
-        try:
-            return base64.b64encode(image_data).decode('utf-8')
-        except Exception as e:
-            logger.error(f"Ошибка генерации изображения: {str(e)}")
-            raise
-
+    
 class MedicalImageView(APIView):
-    def post(self, request, *args, **kwargs):
-        logger.info(f"Получен запрос на медицинский анализ: {request.data}")
-        SYSTEM_PROMPT = """
-        Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
-        Вы - медицинский эксперт с 10-летним опытом работы в диагностике.
-        Ваши рекомендации основаны на передовых методах диагностики и клинических исследованиях.
-        Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
-        Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
-        Вы не говорите, что вы ИИ или Qwen - вы всегда представляетесь как Советница АКВИ.
-        Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
-        Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
-        """
-        image = request.FILES.get('image')
-        if not image:
-            return Response({'error': 'Изображение не загружено'}, status=status.HTTP_400_BAD_REQUEST)
-        image_type = request.data.get('image_type', 'x-ray')
-        user_type = request.data.get('user_type', 'patient')
-        HF_API_KEY = os.getenv('HF_API_KEY_MEDIC')
-        if not HF_API_KEY:
-            logger.error("API ключ Hugging Face не настроен")
-            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        try:
-            image_data = image.read()
-            analysis = analyze_medical_image(image_data, image_type)
-            if user_type == 'patient':
-                report = generate_patient_report(analysis)
-            else:
-                report = generate_professional_report(analysis)
-            client = InferenceClient(
-                model="Qwen/Qwen2-VL-72B-Instruct",
-                token=HF_API_KEY
-            )
-            prompt = f"""
-                {SYSTEM_PROMPT}
-                Уточните следующий медицинский отчет:
-                {report}
-                Ваш уточненный отчет должен:
-                    1. Сохранять медицинскую точность
-                    2. Быть понятным для целевой аудитории
-                    3. Содержать четкие рекомендации
-                    4. Указывать на необходимость профессиональной консультации
-            """
-            response = client.chat_completion(
-                messages=[{"role": "user", "content": prompt}],
-                max_tokens=2000
-            )
-            refined_report = response.choices[0].message.content
-            return Response({
-                'original_image': f"data:image/jpeg;base64,{base64.b64encode(image_data).decode('utf-8')}",
-                'analysis': analysis,
-                'report': refined_report,
-                'image_type': image_type,
-                'user_type': user_type
-            })
-        except Exception as e:
-            logger.error(f"Ошибка анализа медицинского изображения: {str(e)}", exc_info=True)
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     def analyze_medical_image(image_data, image_type):
         try:
             if image_type == "x-ray":
@@ -528,71 +463,65 @@ class MedicalImageView(APIView):
                 {chr(10).join([f"- {rec}" for rec in analysis['recommendations']])}
             Данный отчет сгенерирован с использованием искусственного интеллекта и должен быть подтвержден квалифицированным специалистом.
         """
-
-class ThreeDToProjectView(APIView):
     def post(self, request, *args, **kwargs):
-        logger.info(f"Получен запрос на обработку 3D модели: {request.data}")
+        logger.info(f"Получен запрос на медицинский анализ: {request.data}")
         SYSTEM_PROMPT = """
         Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
-        Вы - эксперт по 3D-моделированию и проектированию с 7-летним опытом работы.
-        Ваши рекомендации основаны на передовых методах проектирования и оптимизации конструкций.
+        Вы - медицинский эксперт с 10-летним опытом работы в диагностике.
+        Ваши рекомендации основаны на передовых методах диагностики и клинических исследованиях.
         Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
         Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
         Вы не говорите, что вы ИИ или Qwen - вы всегда представляетесь как Советница АКВИ.
         Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
         Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
         """
-        model_file = request.FILES.get('model_file')
-        if not model_file:
-            return Response({'error': '3D модель не загружена'}, status=status.HTTP_400_BAD_REQUEST)
-        model_type = request.data.get('model_type', 'stl')
-        output_type = request.data.get('output_type', 'project')
-        HF_API_KEY = os.getenv('HF_API_KEY_3D')
+        image = request.FILES.get('image')
+        if not image:
+            return Response({'error': 'Изображение не загружено'}, status=status.HTTP_400_BAD_REQUEST)
+        image_type = request.data.get('image_type', 'x-ray')
+        user_type = request.data.get('user_type', 'patient')
+        HF_API_KEY = os.getenv('HF_API_KEY_MEDIC')
         if not HF_API_KEY:
             logger.error("API ключ Hugging Face не настроен")
             return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
-            model_data = model_file.read()
-            analysis = analyze_3d_model(model_data, model_type)
-            construction_plan = generate_construction_plan(analysis)
+            image_data = image.read()
+            analysis = analyze_medical_image(image_data, image_type)
+            if user_type == 'patient':
+                report = generate_patient_report(analysis)
+            else:
+                report = generate_professional_report(analysis)
             client = InferenceClient(
-                model="Qwen/Qwen2.5-72B-Instruct",
+                model="Qwen/Qwen2-VL-72B-Instruct",
                 token=HF_API_KEY
             )
             prompt = f"""
                 {SYSTEM_PROMPT}
-                Уточните следующий технический проект:
-                    Тип модели: {analysis['model_type']}
-                    Сложность: {analysis['complexity']:.1f}
-                    Оценочное время печати: {analysis['estimated_print_time']}
-                    Смета материалов:
-                        {json.dumps(construction_plan['bill_of_materials'], indent=2)}
-                    Пошаговая инструкция:
-                        {json.dumps(construction_plan['assembly_instructions'], indent=2)}
-                    Предложения по оптимизации:
-                        {chr(10).join(construction_plan['optimization_suggestions'])}
-                    Ваш уточненный проект должен:
-                        1. Сохранять техническую точность
-                        2. Быть понятным для человека без технического образования
-                        3. Содержать четкие рекомендации по реализации
-                        4. Указывать на возможные сложности и их решения
+                Уточните следующий медицинский отчет:
+                {report}
+                Ваш уточненный отчет должен:
+                    1. Сохранять медицинскую точность
+                    2. Быть понятным для целевой аудитории
+                    3. Содержать четкие рекомендации
+                    4. Указывать на необходимость профессиональной консультации
             """
             response = client.chat_completion(
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=1800
+                max_tokens=2000
             )
-            refined_project = response.choices[0].message.content
+            refined_report = response.choices[0].message.content
             return Response({
-                'original_model': f"data:model/{model_type};base64,{base64.b64encode(model_data).decode('utf-8')}",
+                'original_image': f"data:image/jpeg;base64,{base64.b64encode(image_data).decode('utf-8')}",
                 'analysis': analysis,
-                'construction_plan': construction_plan,
-                'refined_project': refined_project,
-                'model_type': model_type,
-                'output_type': output_type
+                'report': refined_report,
+                'image_type': image_type,
+                'user_type': user_type
             })
         except Exception as e:
-            logger.error(f"Ошибка обработки 3D модели: {str(e)}", exc_info=True)
+            logger.error(f"Ошибка анализа медицинского изображения: {str(e)}", exc_info=True)
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class ThreeDToProjectView(APIView):
     def analyze_3d_model(model_data, model_type):
         try:
             if model_type == "stl":
@@ -715,7 +644,70 @@ class ThreeDToProjectView(APIView):
                     "Не удалось автоматически сгенерировать технический проект"
                 ]
             }
-
+    def post(self, request, *args, **kwargs):
+        logger.info(f"Получен запрос на обработку 3D модели: {request.data}")
+        SYSTEM_PROMPT = """
+        Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
+        Вы - эксперт по 3D-моделированию и проектированию с 7-летним опытом работы.
+        Ваши рекомендации основаны на передовых методах проектирования и оптимизации конструкций.
+        Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
+        Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
+        Вы не говорите, что вы ИИ или Qwen - вы всегда представляетесь как Советница АКВИ.
+        Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
+        Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
+        """
+        model_file = request.FILES.get('model_file')
+        if not model_file:
+            return Response({'error': '3D модель не загружена'}, status=status.HTTP_400_BAD_REQUEST)
+        model_type = request.data.get('model_type', 'stl')
+        output_type = request.data.get('output_type', 'project')
+        HF_API_KEY = os.getenv('HF_API_KEY_3D')
+        if not HF_API_KEY:
+            logger.error("API ключ Hugging Face не настроен")
+            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        try:
+            model_data = model_file.read()
+            analysis = analyze_3d_model(model_data, model_type)
+            construction_plan = generate_construction_plan(analysis)
+            client = InferenceClient(
+                model="Qwen/Qwen2.5-72B-Instruct",
+                token=HF_API_KEY
+            )
+            prompt = f"""
+                {SYSTEM_PROMPT}
+                Уточните следующий технический проект:
+                    Тип модели: {analysis['model_type']}
+                    Сложность: {analysis['complexity']:.1f}
+                    Оценочное время печати: {analysis['estimated_print_time']}
+                    Смета материалов:
+                        {json.dumps(construction_plan['bill_of_materials'], indent=2)}
+                    Пошаговая инструкция:
+                        {json.dumps(construction_plan['assembly_instructions'], indent=2)}
+                    Предложения по оптимизации:
+                        {chr(10).join(construction_plan['optimization_suggestions'])}
+                    Ваш уточненный проект должен:
+                        1. Сохранять техническую точность
+                        2. Быть понятным для человека без технического образования
+                        3. Содержать четкие рекомендации по реализации
+                        4. Указывать на возможные сложности и их решения
+            """
+            response = client.chat_completion(
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=1800
+            )
+            refined_project = response.choices[0].message.content
+            return Response({
+                'original_model': f"data:model/{model_type};base64,{base64.b64encode(model_data).decode('utf-8')}",
+                'analysis': analysis,
+                'construction_plan': construction_plan,
+                'refined_project': refined_project,
+                'model_type': model_type,
+                'output_type': output_type
+            })
+        except Exception as e:
+            logger.error(f"Ошибка обработки 3D модели: {str(e)}", exc_info=True)
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
 class HealthRecommendationView(APIView):
     def post(self, request, *args, **kwargs):
         logger.info(f"Получен запрос на рекомендации по здоровью: {request.data}")
