@@ -5,9 +5,11 @@ import stripe
 import logging
 import json
 import uuid
-import PyPDF2
 import base64
 import numpy as np
+import re
+from PyPDF2 import PdfReader
+from typing import Dict, List
 from .models import Advice, UserHistory
 from .serializers import AdviceSerializer, UserHistorySerializer
 from .utils import send_advice_email
@@ -24,6 +26,7 @@ from rest_framework import response
 from django.conf import settings
 from django.http import JsonResponse
 from django.core.files.base import ContentFile
+from django.core.files.storage import default_storage
 from django.utils import timezone
 from PIL import Image
 from django.utils.decorators import method_decorator
@@ -135,84 +138,81 @@ class GenerateCourseView(APIView):
             return Response({'error': f'Ошибка сервера: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class LegalDocumentAnalysisView(APIView):
-    def extract_text_from_pdf(file):
-        try:
-            file_stream = io.BytesIO(file.read())
-            reader = PyPDF2.PdfReader(file_stream)
-            text = ""
-            for page_num in range(len(reader.pages)):
-                page = reader.pages[page_num]
-                page_text = page.extract_text()
-                if page_text:
-                    try:
-                        corrected_text = page_text.encode('latin1').decode('cp1251')
-                        text += corrected_text + "\n"
-                    except:
-                        text += page_text + "\n"
-                        return text
-        except Exception as e:
-            logger.error(f"Ошибка при извлечении текста из PDF: {str(e)}")
-            return None
     def post(self, request, *args, **kwargs):
-        logger.info(f"Получен запрос: {request.data}")
-        logger.info(f"FILES: {request.FILES}")
-        logger.info(f"Content-Type: {request.content_type}")
         SYSTEM_PROMPT = """
         Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
         Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
         Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
-        Вы не говорите, что вы ИИ или Qwen - вы всегда представляетесь как Советница АКВИ.
+        Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
         Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
         Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
         """
-        document = request.FILES.get('document')
-        if not document:
-            return Response({'error': 'Документ не загружен'}, status=status.HTTP_400_BAD_REQUEST)
-        if not document.name.lower().endswith('.pdf'):
-            return Response({'error': 'Поддерживаются только PDF файлы'}, status=status.HTTP_400_BAD_REQUEST)
-        HF_API_KEY = os.getenv('HF_API_KEY_UR')
-        if not HF_API_KEY:
-            logger.error("API ключ Hugging Face не настроен")
-            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        if 'file' not in request.FILES:
+            return Response(
+                {'error': 'Файл не предоставлен'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        uploaded_file = request.FILES['file']
+        if not uploaded_file.name.lower().endswith('.pdf'):
+            return Response(
+                {'error': 'Поддерживаются только PDF-файлы'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        file_path = default_storage.save(f'tmp/{uploaded_file.name}', ContentFile(uploaded_file.read()))
         try:
-            logger.info(f"Начало обработки документа: {document_text}") 
-            document.seek(0)
-            document_text = extract_text_from_pdf(document)
-            if not document_text or len(document_text.strip()) < 100:
-                return Response({
-                    'error': 'Не удалось извлечь достаточное количество текста из документа',
-                    'suggestion': 'Для PDF с кириллицей рекомендуется скопировать текст в редактор и вставить его в текстовое поле'
-                }, status=status.HTTP_400_BAD_REQUEST)
-            logger.info(f"Извлечено {len(document_text)} символов из документа")
+            with open(default_storage.path(file_path), 'rb') as f:
+                pdf_reader = PdfReader(f)
+                text = ""
+                for page in pdf_reader.pages:
+                    text += page.extract_text() or ""
+            HF_API_KEY = os.getenv('HF_API_KEY_UR')
+            if not HF_API_KEY:
+                return Response(
+                    {'error': 'API ключ для юридического анализа не настроен'},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+            prompt = f"""
+                {SYSTEM_PROMPT}
+                Вы - сертифицированный юрист с опытом работы в юридической фирме.
+                Ваши рекомендации соответствуют законодательству Российской Федерации.
+                
+                Проанализируйте юридический документ: "{text[:5000]}"
+                
+                Ваш анализ должен включать:
+                1. Выявление ключевых рисков и уязвимостей в документе
+                2. Проверку соответствия документа Гражданскому кодексу РФ
+                3. Определение потенциальных нарушений законодательства
+                4. Предложение конкретных правок для минимизации юридических рисков
+                5. Сравнение с судебной практикой по аналогичным делам
+                6. Формирование структурированного отчета с рекомендациями
+                
+                Ответ должен быть профессиональным, структурированным и содержать ссылки на конкретные статьи ГК РФ.
+            """
             client = InferenceClient(
                 model="Qwen/Qwen2.5-72B-Instruct",
                 token=HF_API_KEY
             )
-            prompt = f"""
-                {SYSTEM_PROMPT}
-                Вы - юридический эксперт с 10-летним опытом работы в сфере гражданского права РФ.
-                Ваши рекомендации основаны на актуальном законодательстве РФ и судебной практике.
-                Проанализируйте следующий юридический документ:
-                    {document_text[:4000]}
-                Ваш анализ должен включать:
-                    - Выявление нарушений законодательства с указанием конкретных статей
-                    - Оценку рисков для каждой стороны
-                    - Рекомендации по исправлению выявленных проблем
-                    - Примеры из судебной практики по аналогичным случаям
-                    - Предложения по улучшению документа
-            """
             response = client.chat_completion(
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=1800
+                max_tokens=1500
             )
             return Response({
-                'legal_analysis': response.choices[0].message.content,
-                'document_name': document.name,
-                'extracted_text_length': len(document_text)
+                'document_summary': {
+                    'file_name': uploaded_file.name,
+                    'page_count': len(pdf_reader.pages),
+                    'text_length': len(text)
+                },
+                'analysis': response.choices[0].message.content
             })
         except Exception as e:
-            logger.error(f"Ошибка генерации юридического анализа: {str(e)}", exc_info=True)
-            return Response({'error': f'Ошибка сервера: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            logger.error(f"Ошибка при обработке юридического документа: {str(e)}")
+            return Response(
+                {'error': 'Произошла ошибка при обработке документа'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        finally:
+            if 'file_path' in locals() and default_storage.exists(file_path):
+                default_storage.delete(file_path)
     
 class FinancialAnalysisView(APIView):
     def post(self, request, *args, **kwargs):

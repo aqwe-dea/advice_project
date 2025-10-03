@@ -1,189 +1,206 @@
-import React, { useState } from 'react';
-import axios from 'axios';
+import React, { useState, useRef } from 'react';
+import '../App.css';
 
-function LegalDocumentAnalysisForm() {
-    const [document, setDocument] = useState<string>('');
-    const [country, setCountry] = useState<string>('Россия');
-    const [analysis, setAnalysis] = useState<string>('');
-    const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [error, setError] = useState<string>('');
-    const [file, setFile] = useState<File | null>(null);
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!document && !file) {
-            setError('Пожалуйста, укажите документ или загрузите файл');
-            return;
+const LegalDocumentAnalysisForm = () => {
+  const [file, setFile] = useState<File | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<any>(null);
+  const [progress, setProgress] = useState(0);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const selectedFile = e.target.files[0];
+      if (!selectedFile.name.toLowerCase().endsWith('.pdf')) {
+        setError('Поддерживаются только PDF-файлы');
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
         }
-        setIsLoading(true);
-        setError('');
-        try {
-            const formData = new FormData();
-            if (file) {
-                formData.append('document', file);
-                formData.append('country', country);
-            } else {
-                formData.append('document', document);
-                formData.append('country', country);
-            }
-            const response = await axios.post(
-                'https://advice-project.onrender.com/legal-document-analysis/',
-                file ? formData : { document, country },
-                { 
-                    headers: { 
-                        'Content-Type': file ? 'multipart/form-data' : 'application/json'
-                    },
-                    timeout: 30000
-                }
-            );
-            if (response.data.analysis) {
-                setAnalysis(response.data.analysis);
-            } else {
-                setError('Сервер вернул пустой ответ. Попробуйте другой документ.');
-            }
-        } catch (err: any) {
-            console.error('Ошибка юридического анализа:', err);
-            if (err.response) {
-                setError(`Ошибка ${err.response.status}: ${err.response.data.error || 'Не удалось проанализировать документ'}`);
-            } else if (err.request) {
-                setError('Нет ответа от сервера. Проверьте подключение к интернету.');
-            } else {
-                setError('Произошла ошибка при отправке запроса.');
-            }
-        } finally {
-            setIsLoading(false);
+        return;
+      }
+      if (selectedFile.size > 10 * 1024 * 1024) {
+        setError('Файл слишком большой. Максимальный размер: 10MB');
+        if (fileInputRef.current) {
+          fileInputRef.current.value = '';
         }
+        return;
+      }
+      setFile(selectedFile);
+      setError(null);
+    }
+  };
+  const handleAnalyze = async () => {
+    if (!file) {
+      setError('Пожалуйста, выберите PDF-файл');
+      return;
+    }
+    setIsLoading(true);
+    setError(null);
+    setResult(null);
+    setProgress(0);
+    try {
+      const progressInterval = setInterval(() => {
+        setProgress(prev => {
+          if (prev >= 95) {
+            clearInterval(progressInterval);
+            return prev;
+          }
+          return prev + 5;
+        });
+      }, 300);
+      const formData = new FormData();
+      formData.append('file', file);
+      const response = await fetch('https://advice-project.onrender.com/legal-document-analysis/', {
+        method: 'POST',
+        body: formData
+      });
+      clearInterval(progressInterval);
+      setProgress(100);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Ошибка при анализе документа');
+      }
+      const data = await response.json();
+      setResult(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Произошла ошибка при анализе документа');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  const renderAnalysisResults = () => {
+    if (!result || !result.analysis) return null;
+    const analysis = result.analysis;
+    const sections = {
+      risks: extractSection(analysis, "1.", "2."),
+      compliance: extractSection(analysis, "2.", "3."),
+      violations: extractSection(analysis, "3.", "4."),
+      revisions: extractSection(analysis, "4.", "5."),
+      caseLaw: extractSection(analysis, "5.", "6."),
+      summary: extractSection(analysis, "6.", null)
     };
     return (
-        <div className="legal-analysis-form">
-            <h2>Юридический анализ документов</h2>
-            <p>Загрузите документ или введите его текст для проверки на соответствие законодательству выбранной страны.</p>      
-            {error && (
-                <div className="error-message" style={{color: 'red', marginBottom: '1rem'}}>
-                    {error}
-                </div>
-            )}            
-            <form onSubmit={handleSubmit}>
-                <div className="form-group" style={{marginBottom: '1rem'}}>
-                    <label htmlFor="document-type" style={{display: 'block', marginBottom: '0.5rem'}}>
-                        Тип ввода
-                    </label>
-                    <select 
-                        id="document-type" 
-                        onChange={(e) => {
-                            if (e.target.value === 'text') {
-                                setFile(null);
-                            } else {
-                                setDocument('');
-                            }
-                        }}
-                        style={{width: '100%', padding: '0.5rem', fontSize: '1rem'}}
-                    >
-                        <option value="text">Текстовый ввод</option>
-                        <option value="file">Загрузка файла</option>
-                    </select>
-                </div>                
-                {document && (
-                    <div className="form-group" style={{marginBottom: '1rem'}}>
-                        <label htmlFor="document" style={{display: 'block', marginBottom: '0.5rem'}}>
-                            Текст документа
-                        </label>
-                        <textarea
-                            id="document"
-                            placeholder="Введите текст юридического документа"
-                            value={document}
-                            onChange={(e) => setDocument(e.target.value)}
-                            style={{width: '100%', height: '200px', padding: '0.5rem', fontSize: '1rem'}}
-                            disabled={file !== null}
-                        />
-                    </div>
-                )}                
-                {file && (
-                    <div className="form-group" style={{marginBottom: '1rem'}}>
-                        <label style={{display: 'block', marginBottom: '0.5rem'}}>
-                            Загруженный файл: {file.name}
-                        </label>
-                        <button 
-                            type="button" 
-                            onClick={() => setFile(null)}
-                            style={{
-                                backgroundColor: '#dc3545',
-                                color: 'white',
-                                border: 'none',
-                                padding: '0.25rem 0.5rem',
-                                borderRadius: '4px',
-                                cursor: 'pointer'
-                            }}
-                        >
-                            Удалить файл
-                        </button>
-                    </div>
-                )}                
-                {!document && !file && (
-                    <div className="form-group" style={{marginBottom: '1rem'}}>
-                        <label htmlFor="file-upload" style={{display: 'block', marginBottom: '0.5rem'}}>
-                            Загрузите документ
-                        </label>
-                        <input
-                            type="file"
-                            id="file-upload"
-                            onChange={(e) => {
-                                if (e.target.files && e.target.files[0]) {
-                                    setFile(e.target.files[0]);
-                                }
-                            }}
-                            style={{width: '100%', padding: '0.5rem'}}
-                        />
-                    </div>
-                )}                
-                <div className="form-group" style={{marginBottom: '1.5rem'}}>
-                    <label htmlFor="country" style={{display: 'block', marginBottom: '0.5rem'}}>
-                        Страна
-                    </label>
-                    <select 
-                        id="country" 
-                        value={country} 
-                        onChange={(e) => setCountry(e.target.value)}
-                        style={{width: '100%', padding: '0.5rem', fontSize: '1rem'}}
-                    >
-                        <option value="Россия">Россия</option>
-                        <option value="США">США</option>
-                        <option value="ЕС">Европейский Союз</option>
-                        <option value="Китай">Китай</option>
-                        <option value="Япония">Япония</option>
-                    </select>
-                </div>                
-                <button 
-                    type="submit" 
-                    disabled={isLoading}
-                    style={{
-                        backgroundColor: isLoading ? '#cccccc' : '#007bff',
-                        color: 'white',
-                        border: 'none',
-                        padding: '0.75rem 1.5rem',
-                        fontSize: '1rem',
-                        cursor: isLoading ? 'not-allowed' : 'pointer'
-                    }}
-                >
-                    {isLoading ? 'Анализ документа...' : 'Проанализировать документ'}
-                </button>
-            </form>            
-            {analysis && (
-                <div className="analysis-result" style={{marginTop: '2rem', border: '1px solid #ddd', padding: '1rem', borderRadius: '4px'}}>
-                    <h3 style={{marginTop: '0'}}>Результат анализа:</h3>
-                    <div 
-                        className="analysis-content" 
-                        style={{
-                            whiteSpace: 'pre-wrap',
-                            lineHeight: '1.6',
-                            fontFamily: 'Arial, sans-serif'
-                        }}
-                    >
-                        {analysis}
-                    </div>
-                </div>
-            )}
+      <div className="analysis-results">
+        <h3>Результаты юридического анализа</h3>
+        <div className="analysis-section">
+          <h4>1. Выявление ключевых рисков и уязвимостей в документе</h4>
+          <div className="section-content">{sections.risks || "Не найдено"}</div>
         </div>
+        <div className="analysis-section">
+          <h4>2. Проверка соответствия документа Гражданскому кодексу РФ</h4>
+          <div className="section-content">{sections.compliance || "Не найдено"}</div>
+        </div>
+        <div className="analysis-section">
+          <h4>3. Определение потенциальных нарушений законодательства</h4>
+          <div className="section-content">{sections.violations || "Не найдено"}</div>
+        </div>
+        <div className="analysis-section">
+          <h4>4. Предложение конкретных правок для минимизации юридических рисков</h4>
+          <div className="section-content">{sections.revisions || "Не найдено"}</div>
+        </div>
+        <div className="analysis-section">
+          <h4>5. Сравнение с судебной практикой по аналогичным делам</h4>
+          <div className="section-content">{sections.caseLaw || "Не найдено"}</div>
+        </div>
+        <div className="analysis-section">
+          <h4>6. Формирование структурированного отчета с рекомендациями</h4>
+          <div className="section-content">{sections.summary || "Не найдено"}</div>
+        </div>
+        <button 
+          onClick={() => setResult(null)}
+          className="reset-button"
+        >
+          Проанализировать другой документ
+        </button>
+      </div>
     );
-}
+  };
+  const extractSection = (text: string, startMarker: string, endMarker: string | null): string => {
+    const startIndex = text.indexOf(startMarker);
+    if (startIndex === -1) return "";
+    let endIndex = -1;
+    if (endMarker) {
+      endIndex = text.indexOf(endMarker, startIndex + startMarker.length);
+    }
+    if (endIndex === -1) {
+      return text.substring(startIndex + startMarker.length).trim();
+    }
+    return text.substring(startIndex + startMarker.length, endIndex).trim();
+  };
+  return (
+    <div className="legal-analysis-container">
+      <h2>Юридический анализ документов</h2>
+      <p>Загрузите PDF-документ для автоматического анализа на юридические риски</p>
+      {error && (
+        <div className="error-message">
+          {error}
+        </div>
+      )}
+      <div className="file-upload-section">
+        <input
+          type="file"
+          accept=".pdf"
+          onChange={handleFileChange}
+          ref={fileInputRef}
+          disabled={isLoading}
+        />
+        {file && (
+          <div className="file-info">
+            <span>Выбран файл: {file.name}</span>
+            <button 
+              onClick={() => {
+                setFile(null);
+                if (fileInputRef.current) {
+                  fileInputRef.current.value = '';
+                }
+              }}
+              disabled={isLoading}
+              className="remove-file-button"
+            >
+              Удалить
+            </button>
+          </div>
+        )}
+      </div>
+      {isLoading && (
+        <div className="progress-section">
+          <div className="progress-bar">
+            <div 
+              className="progress-fill" 
+              style={{ width: `${progress}%` }}
+            ></div>
+          </div>
+          <p className="progress-text">
+            {progress < 30 ? 'Анализируем документ...' : 
+             progress < 60 ? 'Идентифицируем риски...' :
+             progress < 90 ? 'Формируем рекомендации...' : 'Готовим результаты...'}
+          </p>
+        </div>
+      )}
+      {result ? (
+        renderAnalysisResults()
+      ) : (
+        <button 
+          onClick={handleAnalyze} 
+          disabled={isLoading || !file}
+          className="analyze-button"
+        >
+          {isLoading ? (
+            <>
+              <span className="spinner"></span>
+              Анализируем документ...
+            </>
+          ) : (
+            'Анализировать документ'
+          )}
+        </button>
+      )}
+      <div className="footer-note">
+        Советница АКВИ анализирует документы с использованием передовых моделей искусственного интеллекта 
+        и проверенных юридических практик. Результаты носят рекомендательный характер.
+      </div>
+    </div>
+  );
+};
 
 export default LegalDocumentAnalysisForm;
