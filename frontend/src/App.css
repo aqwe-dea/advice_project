@@ -169,3 +169,120 @@
   border-radius: 4px;
   margin-bottom: 15px;
 }
+
+.course-generation-container {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.course-generation-container h2 {
+  color: #7a6ac8;
+  margin-bottom: 10px;
+}
+
+.course-generation-container p {
+  color: #666;
+  margin-bottom: 20px;
+}
+
+.error-message {
+  background-color: #ffebee;
+  color: #b71c1c;
+  padding: 10px;
+  border-radius: 4px;
+  margin-bottom: 15px;
+}
+
+.course-form {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 15px;
+}
+
+.form-group {
+  margin-bottom: 15px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 5px;
+  font-weight: bold;
+  color: #333;
+}
+
+.form-group input[type="text"],
+.form-group select,
+.form-group textarea {
+  width: 100%;
+  padding: 8px;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 16px;
+}
+
+.radio-group {
+  display: flex;
+  gap: 15px;
+}
+
+.radio-group label {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+
+.generate-button {
+  background-color: #7a6ac8;
+  color: white;
+  border: none;
+  padding: 10px 20px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 16px;
+  width: 100%;
+}
+
+.generate-button:disabled {
+  background-color: #cccccc;
+  cursor: not-allowed;
+}
+
+.course-structure {
+  margin-top: 20px;
+}
+
+.section {
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 1px solid #eee;
+}
+
+.section h4 {
+  color: #7a6ac8;
+  margin-bottom: 10px;
+}
+
+.section-content {
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.reset-button {
+  background-color: #555;
+  color: white;
+  border: none;
+  padding: 8px 15px;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 14px;
+  margin-top: 10px;
+}
+
+.footer-note {
+  margin-top: 30px;
+  font-size: 12px;
+  color: #888;
+  text-align: center;
+}
