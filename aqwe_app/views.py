@@ -429,156 +429,170 @@ class PhotoRestorationView(APIView):
         except Exception as e:
             logger.error(f"Ошибка генерации плана реставрации: {str(e)}", exc_info=True)
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
+   
 class MedicalImageView(APIView):
-    def analyze_medical_image(image_data, image_type):
-        try:
-            if image_type == "x-ray":
-                return {
-                    "abnormalities": [
-                        {
-                            "x": 0.45,
-                            "y": 0.62,
-                            "width": 0.15,
-                            "height": 0.1,
-                            "description": "Подозрительная тень в правом легком",
-                            "severity": 0.7,
-                            "confidence": 0.85
-                        }
-                    ],
-                    "overall_assessment": "Требуется консультация врача",
-                    "recommendations": [
-                        "Назначить консультацию пульмонолога",
-                        "Провести дополнительные исследования"
-                    ]
-                }
-            elif image_type == "mri":
-                return {
-                    "abnormalities": [
-                        {
-                            "x": 0.35,
-                            "y": 0.45,
-                            "width": 0.2,
-                            "height": 0.15,
-                            "description": "Подозрительная область в лобной доле",
-                            "severity": 0.6,
-                            "confidence": 0.78
-                        }
-                    ],
-                    "overall_assessment": "Обнаружена область, требующая внимания",
-                    "recommendations": [
-                        "Назначить консультацию невролога",
-                        "Провести дополнительные тесты"
-                    ]
-                }
-            else:
-                return {
-                    "abnormalities": [
-                        {
-                            "x": 0.5,
-                            "y": 0.5,
-                            "width": 0.2,
-                            "height": 0.2,
-                            "description": "Подозрительная область",
-                            "severity": 0.5,
-                            "confidence": 0.7
-                        }
-                    ],
-                    "overall_assessment": "Обнаружены потенциальные аномалии",
-                    "recommendations": [
-                        "Рекомендуется консультация специалиста",
-                        "Рассмотреть дополнительные исследования"
-                    ]
-                }
-        except Exception as e:
-            logger.error(f"Ошибка анализа медицинского изображения: {str(e)}")
-            return {
-                "abnormalities": [],
-                "overall_assessment": "Не удалось автоматически определить аномалии",
-                "recommendations": [
-                    "Рекомендуется консультация квалифицированного специалиста"
-                ]
-            }
-    def generate_patient_report(analysis):
-        return f"""
-            Анализ вашего медицинского изображения:
-                {analysis['overall_assessment']}
-            Рекомендации:
-                {chr(10).join([f"- {rec}" for rec in analysis['recommendations']])}
-            Пожалуйста, обратитесь к врачу для получения профессиональной консультации.
-            Не пытайтесь самостоятельно интерпретировать результаты или назначать лечение.
-        """
-    def generate_professional_report(analysis):
-        abnormalities = "\n".join([
-            f"- {ab['description']} (уровень серьезности: {ab['severity']:.1f}, уверенность: {ab['confidence']:.1f})"
-            for ab in analysis['abnormalities']
-        ])
-        return f"""
-            Профессиональный медицинский отчет:
-            Общая оценка: {analysis['overall_assessment']}
-            Выявленные аномалии:
-                {abnormalities if abnormalities else "Аномалии не обнаружены"}
-            Рекомендации:
-                {chr(10).join([f"- {rec}" for rec in analysis['recommendations']])}
-            Данный отчет сгенерирован с использованием искусственного интеллекта и должен быть подтвержден квалифицированным специалистом.
-        """
     def post(self, request, *args, **kwargs):
         logger.info(f"Получен запрос на медицинский анализ: {request.data}")
         SYSTEM_PROMPT = """
-        Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
-        Вы - медицинский эксперт с 10-летним опытом работы в диагностике.
-        Ваши рекомендации основаны на передовых методах диагностики и клинических исследованиях.
+        Вы - Советница АКВИ, профессиональный медицинский консультант с экспертными знаниями в диагностике и лечении заболеваний.
         Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
         Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
-        Вы не говорите, что вы ИИ или Qwen - вы всегда представляетесь как Советница АКВИ.
-        Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
+        Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
+        Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных медицинских источниках.
         Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
         """
-        image = request.FILES.get('image')
-        if not image:
-            return Response({'error': 'Изображение не загружено'}, status=status.HTTP_400_BAD_REQUEST)
-        image_type = request.data.get('image_type', 'x-ray')
-        user_type = request.data.get('user_type', 'patient')
-        HF_API_KEY = os.getenv('HF_API_KEY_MEDIC')
-        if not HF_API_KEY:
-            logger.error("API ключ Hugging Face не настроен")
-            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        if 'image' not in request.FILES:
+            return Response(
+                {'error': 'Изображение не предоставлено'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        image_file = request.FILES['image']
+        allowed_extensions = ['.jpg', '.jpeg', '.png', '.dcm']
+        file_ext = os.path.splitext(image_file.name)[1].lower()
+        if file_ext not in allowed_extensions:
+            return Response(
+                {'error': f'Поддерживаются только форматы: {", ".join(allowed_extensions)}'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        patient_info = {
+            'age': request.data.get('age', ''),
+            'gender': request.data.get('gender', 'не указан'),
+            'symptoms': request.data.get('symptoms', ''),
+            'medical_history': request.data.get('medical_history', ''),
+            'imaging_type': request.data.get('imaging_type', 'рентген')
+        }
+        file_path = default_storage.save(f'tmp/{image_file.name}', ContentFile(image_file.read()))
         try:
-            image_data = image.read()
-            analysis = analyze_medical_image(image_data, image_type)
-            if user_type == 'patient':
-                report = generate_patient_report(analysis)
-            else:
-                report = generate_professional_report(analysis)
+            HF_API_KEY = os.getenv('HF_API_KEY_MEDIC')
+            if not HF_API_KEY:
+                logger.error("API ключ Hugging Face для медицинского анализа не настроен")
+                return Response(
+                    {'error': 'API ключ не настроен'},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+            image_description = self.analyze_image(file_path, HF_API_KEY)
+            medical_analysis = self.generate_medical_analysis(
+                image_description, 
+                patient_info,
+                HF_API_KEY
+            )
+            return Response({
+                'image_description': image_description,
+                'medical_analysis': medical_analysis,
+                'patient_info': patient_info,
+                'image_type': file_ext[1:].upper()
+            })    
+        except Exception as e:
+            logger.error(f"Ошибка медицинского анализа: {str(e)}", exc_info=True)
+            return Response(
+                {'error': 'Произошла ошибка при анализе изображения'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        finally:
+            if 'file_path' in locals() and default_storage.exists(file_path):
+                default_storage.delete(file_path)
+    def analyze_image(self, image_path, hf_api_key):
+        try:
             client = InferenceClient(
                 model="Qwen/Qwen2-VL-72B-Instruct",
-                token=HF_API_KEY
+                token=hf_api_key
+            )
+            prompt = """
+            Вы - профессиональный медицинский специалист, который анализирует медицинские изображения.
+            Внимательно изучите предоставленное изображение и опишите:
+            1. Тип изображения (рентген, УЗИ, МРТ, КТ и т.д.)
+            2. Общее качество изображения
+            3. Видимые анатомические структуры
+            4. Патологические изменения, если они обнаружены
+            5. Подозрительные области, требующие дополнительного внимания
+            
+            Ваш ответ должен быть профессиональным, точным и структурированным.
+            """
+            response = client.chat_completion(
+                messages=[
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": prompt},
+                            {"type": "image_url", "image_url": {"url": f"file://{image_path}"}}
+                        ]
+                    }
+                ],
+                max_tokens=800
+            )
+            return response.choices[0].message.content
+        except Exception as e:
+            logger.error(f"Ошибка анализа изображения: {str(e)}")
+            return "Не удалось проанализировать изображение"
+    def generate_medical_analysis(self, image_description, patient_info, hf_api_key):
+        try:
+            client = InferenceClient(
+                model="Qwen/Qwen2.5-72B-Instruct",
+                token=hf_api_key
             )
             prompt = f"""
                 {SYSTEM_PROMPT}
-                Уточните следующий медицинский отчет:
-                {report}
-                Ваш уточненный отчет должен:
-                    1. Сохранять медицинскую точность
-                    2. Быть понятным для целевой аудитории
-                    3. Содержать четкие рекомендации
-                    4. Указывать на необходимость профессиональной консультации
+                Проведите комплексный медицинский анализ на основе следующих данных:
+                
+                Описание изображения:
+                {image_description}
+                
+                Информация о пациенте:
+                - Возраст: {patient_info['age']}
+                - Пол: {patient_info['gender']}
+                - Симптомы: {patient_info['symptoms']}
+                - Медицинская история: {patient_info['medical_history']}
+                - Тип изображения: {patient_info['imaging_type']}
+                
+                Ваш анализ должен включать:
+                
+                1. Интерпретация результатов
+                    - Подробное описание выявленных аномалий
+                    - Сравнение с нормой
+                    - Оценка степени тяжести выявленных изменений
+                
+                2. Диагностические рекомендации
+                    - Какие дополнительные исследования могут понадобиться
+                    - Какие специалисты должны быть привлечены
+                    - Какие лабораторные анализы рекомендованы
+                
+                3. Возможные диагнозы
+                    - Основные предполагаемые диагнозы (в порядке вероятности)
+                    - Дифференциальная диагностика
+                    - Критерии, подтверждающие или исключающие каждый диагноз
+                
+                4. Рекомендации по лечению
+                    - Неотложные меры, если они необходимы
+                    - Консервативные методы лечения
+                    - Хирургические варианты, если применимо
+                    - Рекомендации по медикаментозной терапии
+                
+                5. Рекомендации по наблюдению
+                    - Как часто следует проводить контрольные исследования
+                    - Какие показатели необходимо отслеживать
+                    - При каких условиях требуется срочное обращение к врачу
+                
+                6. Прогноз
+                    - Краткосрочный прогноз
+                    - Долгосрочный прогноз
+                    - Факторы, которые могут повлиять на прогноз
+                
+                7. Рекомендации по образу жизни
+                    - Диетические рекомендации
+                    - Физическая активность
+                    - Психологические аспекты и рекомендации
+                
+                Важно: Это не заменяет профессиональную медицинскую консультацию.
+                Ответ должен быть структурирован, безопасен и профессионален.
             """
             response = client.chat_completion(
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=2000
+                max_tokens=1500
             )
-            refined_report = response.choices[0].message.content
-            return Response({
-                'original_image': f"data:image/jpeg;base64,{base64.b64encode(image_data).decode('utf-8')}",
-                'analysis': analysis,
-                'report': refined_report,
-                'image_type': image_type,
-                'user_type': user_type
-            })
+            return response.choices[0].message.content
         except Exception as e:
-            logger.error(f"Ошибка анализа медицинского изображения: {str(e)}", exc_info=True)
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            logger.error(f"Ошибка генерации медицинского анализа: {str(e)}")
+            return "Не удалось сгенерировать медицинский анализ"
 
 class ThreeDToProjectView(APIView):
     def analyze_3d_model(model_data, model_type):
