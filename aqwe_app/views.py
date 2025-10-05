@@ -396,7 +396,7 @@ class PhotoRestorationView(APIView):
     def analyze_photo_condition(self, image_path, hf_api_key):
         try:
             client = InferenceClient(
-                model="Qwen/Qwen2.5-VL-72B-Instruct",
+                model="Qwen/Qwen3-VL-235B-A22B-Instruct",
                 token=hf_api_key
             )
             prompt = """
@@ -582,7 +582,7 @@ class MedicalImageView(APIView):
     def analyze_image(self, image_path, hf_api_key):
         try:
             client = InferenceClient(
-                model="Qwen/Qwen2.5-VL-72B-Instruct",
+                model="Qwen/Qwen3-VL-235B-A22B-Instruct",
                 token=hf_api_key
             )
             prompt = """
