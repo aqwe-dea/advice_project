@@ -1,332 +1,293 @@
-import React, { useState } from 'react';
-import axios from 'axios';
-import { colors } from '../theme';
+import React, { useState, useRef } from 'react';
+import '../App.css';
 
-function PhotoRestorationForm() {
+const PhotoRestorationForm = () => {
   const [image, setImage] = useState<File | null>(null);
-  const [repairLevel, setRepairLevel] = useState<'light' | 'medium' | 'heavy' | 'full'>('medium');
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [restorationInfo, setRestorationInfo] = useState({
+    damage_type: 'потертости и царапины',
+    damage_level: 'средняя',
+    restoration_style: 'оригинальный стиль',
+    special_requests: '',
+    photo_age: 'неизвестно'
+  });
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<{
-    restored_image: string;
-    analysis: {
-      damage_type: string;
-      damage_severity: number;
-      recommended_method: string;
-      description: string;
-    };
-    restoration_report: string;
-  } | null>(null);
-  const sessionToken = localStorage.getItem('session_token');
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const [result, setResult] = useState<any>(null);
+  const [progress, setProgress] = useState(0);
+  const imageInputRef = useRef<HTMLInputElement>(null);
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
-      setImage(e.target.files[0]);
+      const selectedImage = e.target.files[0];
+      const allowedExtensions = ['.jpg', '.jpeg', '.png', '.tiff', '.bmp'];
+      const fileExt = selectedImage.name.toLowerCase().split('.').pop();
+      if (!fileExt || !allowedExtensions.includes(`.${fileExt}`)) {
+        setError(`Поддерживаются только форматы: ${allowedExtensions.join(', ')}`);
+        if (imageInputRef.current) {
+          imageInputRef.current.value = '';
+        }
+        return;
+      }
+      setImage(selectedImage);
       setError(null);
     }
   };
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleRestorationInfoChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setRestorationInfo(prev => ({ ...prev, [name]: value }));
+  };
+  const handleRestore = async () => {
     if (!image) {
-      setError('Пожалуйста, загрузите изображение');
+      setError('Пожалуйста, загрузите фотографию');
       return;
     }
     setIsLoading(true);
     setError(null);
+    setResult(null);
+    setProgress(0);
     try {
+      const progressInterval = setInterval(() => {
+        setProgress(prev => {
+          if (prev >= 95) {
+            clearInterval(progressInterval);
+            return prev;
+          }
+          return prev + 5;
+        });
+      }, 300);
       const formData = new FormData();
       formData.append('image', image);
-      formData.append('repair_level', repairLevel);
-      const response = await axios.post(
-        'https://advice-project.onrender.com/photo-restoration/',
-        formData,
-        { 
-          headers: { 
-            'Content-Type': 'multipart/form-data',
-            'Authorization': sessionToken ? `Bearer ${sessionToken}` : ''
-          },
-          timeout: 45000
-        }
-      );
-      setResult(response.data);
-    } catch (err: any) {
-      console.error('Ошибка реставрации фото:', err);
-      if (err.response) {
-        setError(`Ошибка ${err.response.status}: ${err.response.data.error || 'Не удалось обработать изображение'}`);
-      } else if (err.request) {
-        setError('Нет ответа от сервера. Проверьте подключение к интернету.');
-      } else {
-        setError('Произошла ошибка при отправке запроса.');
+      formData.append('damage_type', restorationInfo.damage_type);
+      formData.append('damage_level', restorationInfo.damage_level);
+      formData.append('restoration_style', restorationInfo.restoration_style);
+      formData.append('special_requests', restorationInfo.special_requests);
+      formData.append('photo_age', restorationInfo.photo_age);
+      const response = await fetch('https://advice-project.onrender.com/photo-restoration/', {
+        method: 'POST',
+        body: formData
+      });
+      clearInterval(progressInterval);
+      setProgress(100);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Ошибка при реставрации фотографии');
       }
+      const data = await response.json();
+      setResult(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Произошла ошибка при реставрации фотографии');
     } finally {
       setIsLoading(false);
     }
   };
-  const downloadRestoredImage = () => {
-    if (!result) return;
-    const link = document.createElement('a');
-    link.href = result.restored_image;
-    link.download = `restored_${new Date().toISOString().slice(0, 10)}.jpg`;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
+  const renderRestorationPlan = () => {
+    if (!result || !result.restoration_plan) return null;
+    const sections = {
+      analysis: extractSection(result.restoration_plan, "1.", "2."),
+      methods: extractSection(result.restoration_plan, "2.", "3."),
+      expected: extractSection(result.restoration_plan, "3.", "4."),
+      preservation: extractSection(result.restoration_plan, "4.", "5."),
+      additional: extractSection(result.restoration_plan, "5.", "6."),
+      timeline: extractSection(result.restoration_plan, "6.", "7."),
+      care: extractSection(result.restoration_plan, "7.", null)
+    };
+    return (
+      <div className="restoration-plan">
+        <h3>План реставрации фотографии: {result.image_type}</h3>
+        <div className="section">
+          <h4>1. Анализ состояния фотографии</h4>
+          <div className="section-content">{sections.analysis || "Не найдено"}</div>
+        </div>
+        <div className="section">
+          <h4>2. Методы реставрации</h4>
+          <div className="section-content">{sections.methods || "Не найдено"}</div>
+        </div>
+        <div className="section">
+          <h4>3. Ожидаемый результат</h4>
+          <div className="section-content">{sections.expected || "Не найдено"}</div>
+        </div>
+        <div className="section">
+          <h4>4. Рекомендации по сохранению</h4>
+          <div className="section-content">{sections.preservation || "Не найдено"}</div>
+        </div>
+        <div className="section">
+          <h4>5. Дополнительные услуги</h4>
+          <div className="section-content">{sections.additional || "Не найдено"}</div>
+        </div>
+        <div className="section">
+          <h4>6. Сроки и стоимость</h4>
+          <div className="section-content">{sections.timeline || "Не найдено"}</div>
+        </div>
+        <div className="section">
+          <h4>7. Советы по дальнейшему уходу</h4>
+          <div className="section-content">{sections.care || "Не найдено"}</div>
+        </div>
+        <button 
+          onClick={() => setResult(null)}
+          className="reset-button"
+        >
+          Запланировать новую реставрацию
+        </button>
+      </div>
+    );
+  };
+  const extractSection = (text: string, startMarker: string, endMarker: string | null): string => {
+    const startIndex = text.indexOf(startMarker);
+    if (startIndex === -1) return "";
+    let endIndex = -1;
+    if (endMarker) {
+      endIndex = text.indexOf(endMarker, startIndex + startMarker.length);
+    }
+    if (endIndex === -1) {
+      return text.substring(startIndex + startMarker.length).trim();
+    }
+    return text.substring(startIndex + startMarker.length, endIndex).trim();
   };
   return (
-    <div style={{
-      maxWidth: '800px',
-      margin: '2rem auto',
-      padding: '2rem',
-      backgroundColor: 'rgba(255, 255, 255, 0.07)',
-      borderRadius: '12px',
-      boxShadow: '0 4px 20px rgba(0,0,0,0.15)'
-    }}>
-      <h2 style={{
-        fontSize: '2rem',
-        marginBottom: '1.5rem',
-        color: colors.primary,
-        textAlign: 'center'
-      }}>
-        Реставрация фотографий
-      </h2>
-      <p style={{
-        color: colors.textSecondary,
-        marginBottom: '1.5rem',
-        textAlign: 'center',
-        lineHeight: '1.6'
-      }}>
-        Загрузите поврежденное изображение, и Советница АКВИ выполнит его профессиональную реставрацию
-      </p>
+    <div className="restoration-container">
+      <h2>Реставрация фотографий</h2>
+      <p>Загрузите поврежденную фотографию для профессионального анализа и планирования реставрации</p>
       {error && (
-        <div style={{
-          backgroundColor: 'rgba(255, 99, 71, 0.1)',
-          color: '#ff6347',
-          padding: '1rem',
-          borderRadius: '8px',
-          marginBottom: '1.5rem'
-        }}>
+        <div className="error-message">
           {error}
         </div>
       )}
-      <form onSubmit={handleSubmit} style={{marginBottom: '2rem'}}>
-        <div style={{
-          border: '2px dashed rgba(255, 255, 255, 0.2)',
-          borderRadius: '12px',
-          padding: '2rem',
-          textAlign: 'center',
-          backgroundColor: 'rgba(0, 0, 0, 0.1)',
-          marginBottom: '1.5rem'
-        }}>
+      <div className="form-section">
+        <div className="form-group">
+          <label htmlFor="image">Фотография *</label>
           <input
             type="file"
-            accept="image/*"
-            onChange={handleImageUpload}
-            style={{display: 'none'}}
-            id="image-upload"
+            id="image"
+            accept=".jpg,.jpeg,.png,.tiff,.bmp"
+            onChange={handleImageChange}
+            ref={imageInputRef}
+            disabled={isLoading}
           />
-          <label htmlFor="image-upload" style={{
-            cursor: 'pointer',
-            display: 'inline-block',
-            padding: '0.8rem 1.5rem',
-            backgroundColor: colors.primary,
-            color: 'white',
-            borderRadius: '8px',
-            fontWeight: 'bold'
-          }}>
-            {image ? `Выбрано: ${image.name}` : 'Выберите изображение'}
-          </label>
           {image && (
-            <div style={{marginTop: '1rem'}}>
-              <img 
-                src={URL.createObjectURL(image)} 
-                alt="Preview" 
-                style={{
-                  maxWidth: '100%',
-                  maxHeight: '200px',
-                  borderRadius: '8px'
-                }} 
-              />
+            <div className="file-info">
+              <span>Выбрано изображение: {image.name}</span>
+              <button 
+                onClick={() => {
+                  setImage(null);
+                  if (imageInputRef.current) {
+                    imageInputRef.current.value = '';
+                  }
+                }}
+                disabled={isLoading}
+                className="remove-file-button"
+              >
+                Удалить
+              </button>
             </div>
           )}
         </div>
-        <div style={{marginBottom: '1.5rem'}}>
-          <label style={{
-            display: 'block',
-            marginBottom: '0.5rem',
-            color: '#f8f8f0',
-            fontWeight: '500'
-          }}>
-            Уровень восстановления
-          </label>
-          <div style={{
-            display: 'grid',
-            gridTemplateColumns: 'repeat(4, 1fr)',
-            gap: '0.5rem'
-          }}>
-            {['light', 'medium', 'heavy', 'full'].map(level => (
-              <button
-                key={level}
-                type="button"
-                onClick={() => setRepairLevel(level as any)}
-                style={{
-                  backgroundColor: repairLevel === level ? colors.primary : 'rgba(255, 255, 255, 0.1)',
-                  color: 'white',
-                  border: 'none',
-                  padding: '0.75rem',
-                  borderRadius: '8px',
-                  cursor: 'pointer',
-                  fontWeight: repairLevel === level ? 'bold' : 'normal'
-                }}
-              >
-                {level === 'light' && 'Легкий'}
-                {level === 'medium' && 'Средний'}
-                {level === 'heavy' && 'Серьезный'}
-                {level === 'full' && 'Полное'}
-              </button>
-            ))}
+        <div className="form-group">
+          <label htmlFor="damage_type">Тип повреждений</label>
+          <input
+            type="text"
+            id="damage_type"
+            name="damage_type"
+            value={restorationInfo.damage_type}
+            onChange={handleRestorationInfoChange}
+            placeholder="Например: потертости, царапины, пятна, выцветание"
+            disabled={isLoading}
+          />
+        </div>
+        <div className="form-row">
+          <div className="form-group">
+            <label htmlFor="damage_level">Степень повреждения</label>
+            <select
+              id="damage_level"
+              name="damage_level"
+              value={restorationInfo.damage_level}
+              onChange={handleRestorationInfoChange}
+              disabled={isLoading}
+            >
+              <option value="незначительная">Незначительная</option>
+              <option value="средняя">Средняя</option>
+              <option value="серьезная">Серьезная</option>
+              <option value="критическая">Критическая</option>
+            </select>
+          </div>
+          <div className="form-group">
+            <label htmlFor="photo_age">Возраст фотографии</label>
+            <input
+              type="text"
+              id="photo_age"
+              name="photo_age"
+              value={restorationInfo.photo_age}
+              onChange={handleRestorationInfoChange}
+              placeholder="Например: 1950-е годы"
+              disabled={isLoading}
+            />
           </div>
         </div>
-        <button
-          type="submit"
-          disabled={isLoading || !image}
-          style={{
-            backgroundColor: isLoading ? '#cccccc' : colors.primary,
-            color: 'white',
-            border: 'none',
-            padding: '0.85rem 2.5rem',
-            fontSize: '1.1rem',
-            borderRadius: '8px',
-            cursor: isLoading ? 'not-allowed' : 'pointer',
-            fontWeight: 'bold',
-            width: '100',
-            boxShadow: isLoading ? 'none' : '0 4px 15px rgba(122, 106, 200, 0.3)'
-          }}
-        >
-          {isLoading ? 'Восстановление фото...' : 'Восстановить фото'}
-        </button>
-      </form>
-      {result && (
-        <div style={{textAlign: 'center'}}>
-          <h3 style={{
-            fontSize: '1.5rem',
-            marginBottom: '1rem',
-            color: colors.primary
-          }}>
-            Результат восстановления
-          </h3>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            gap: '2rem',
-            flexWrap: 'wrap',
-            marginBottom: '1.5rem'
-          }}>
-            <div>
-              <h4 style={{color: colors.textSecondary, marginBottom: '0.5rem'}}>Оригинал</h4>
-              <img 
-                src={URL.createObjectURL(image!)} 
-                alt="Original" 
-                style={{
-                  maxWidth: '300px',
-                  borderRadius: '8px',
-                  border: '1px solid rgba(255, 255, 255, 0.1)'
-                }} 
-              />
-            </div>
-            <div>
-              <h4 style={{color: colors.textSecondary, marginBottom: '0.5rem'}}>Восстановлено</h4>
-              <img 
-                src={result.restored_image} 
-                alt="Restored" 
-                style={{
-                  maxWidth: '300px',
-                  borderRadius: '8px',
-                  border: '1px solid rgba(255, 255, 255, 0.1)'
-                }} 
-              />
-            </div>
-          </div>
-          <div style={{
-            backgroundColor: 'rgba(255, 255, 255, 0.05)',
-            borderRadius: '10px',
-            padding: '1.5rem',
-            marginBottom: '1.5rem'
-          }}>
-            <h4 style={{
-              fontSize: '1.2rem',
-              marginBottom: '1rem',
-              color: colors.secondary
-            }}>
-              Анализ повреждений
-            </h4>
-            <div style={{textAlign: 'left', display: 'inline-block'}}>
-              <p><strong>Тип повреждений:</strong> {result.analysis.damage_type}</p>
-              <p><strong>Степень повреждения:</strong> {(result.analysis.damage_severity * 100).toFixed(0)}%</p>
-              <p><strong>Рекомендованный метод:</strong> {result.analysis.recommended_method === 'local' ? 'Локальная обработка' : 'Генерация нового изображения'}</p>
-            </div>
-          </div>
-          <div style={{
-            backgroundColor: 'rgba(255, 255, 255, 0.05)',
-            borderRadius: '10px',
-            padding: '1.5rem',
-            marginBottom: '1.5rem'
-          }}>
-            <h4 style={{
-              fontSize: '1.2rem',
-              marginBottom: '1rem',
-              color: colors.secondary
-            }}>
-              Отчет о восстановлении
-            </h4>
-            <div style={{
-              textAlign: 'left',
-              whiteSpace: 'pre-wrap',
-              lineHeight: '1.6'
-            }}>
-              {result.restoration_report}
-            </div>
-          </div>
-          <button
-            onClick={downloadRestoredImage}
-            style={{
-              backgroundColor: colors.secondary,
-              color: 'white',
-              border: 'none',
-              padding: '0.75rem 1.5rem',
-              borderRadius: '8px',
-              cursor: 'pointer',
-              fontWeight: 'bold'
-            }}
+        <div className="form-group">
+          <label htmlFor="restoration_style">Стиль реставрации</label>
+          <select
+            id="restoration_style"
+            name="restoration_style"
+            value={restorationInfo.restoration_style}
+            onChange={handleRestorationInfoChange}
+            disabled={isLoading}
           >
-            Скачать восстановленное изображение
-          </button>
+            <option value="оригинальный стиль">Оригинальный стиль</option>
+            <option value="современная интерпретация">Современная интерпретация</option>
+            <option value="минималистичный">Минималистичный</option>
+            <option value="художественная реставрация">Художественная реставрация</option>
+          </select>
+        </div>
+        <div className="form-group">
+          <label htmlFor="special_requests">Специальные пожелания</label>
+          <textarea
+            id="special_requests"
+            name="special_requests"
+            value={restorationInfo.special_requests}
+            onChange={handleRestorationInfoChange}
+            placeholder="Укажите особые требования к реставрации"
+            rows={3}
+            disabled={isLoading}
+          />
+        </div>
+      </div>
+      {isLoading && (
+        <div className="progress-section">
+          <div className="progress-bar">
+            <div 
+              className="progress-fill" 
+              style={{ width: `${progress}%` }}
+            ></div>
+          </div>
+          <p className="progress-text">
+            {progress < 30 ? 'Анализируем фотографию...' : 
+             progress < 60 ? 'Определяем тип повреждений...' :
+             progress < 90 ? 'Формируем план реставрации...' : 'Готовим рекомендации...'}
+          </p>
         </div>
       )}
-      <div style={{
-        marginTop: '2rem',
-        padding: '1.5rem',
-        backgroundColor: 'rgba(122, 106, 200, 0.1)',
-        borderRadius: '10px'
-      }}>
-        <h3 style={{
-          fontSize: '1.3rem',
-          marginBottom: '0.5rem',
-          color: colors.primary
-        }}>
-          Как работает реставрация
-        </h3>
-        <ul style={{
-          paddingLeft: '1.5rem',
-          color: colors.textSecondary,
-          lineHeight: '1.6'
-        }}>
-          <li>Мы анализируем повреждения на изображении</li>
-          <li>Применяем специализированные алгоритмы для восстановления</li>
-          <li>Улучшаем цвет, резкость и детали</li>
-          <li>Удаляем царапины и другие дефекты</li>
-          <li>Сохраняем оригинальную стилистику изображения</li>
-        </ul>
+      {result ? (
+        renderRestorationPlan()
+      ) : (
+        <button 
+          onClick={handleRestore} 
+          disabled={isLoading || !image}
+          className="restore-button"
+        >
+          {isLoading ? (
+            <>
+              <span className="spinner"></span>
+              Планируем реставрацию...
+            </>
+          ) : (
+            'Запланировать реставрацию'
+          )}
+        </button>
+      )}
+      <div className="footer-note">
+        Советница АКВИ анализирует состояние фотографий и планирует реставрацию с использованием передовых моделей искусственного интеллекта. 
+        Результаты носят рекомендательный характер и могут быть адаптированы под ваши потребности.
       </div>
     </div>
   );
-}
+};
 
 export default PhotoRestorationForm;

@@ -333,102 +333,190 @@ class FinancialAnalysisView(APIView):
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class PhotoRestorationView(APIView):
-    def analyze_damage(image_data):
-        try:
-            image = Image.open(io.BytesIO(image_data))
-            width, height = image.size
-            damage_severity = 0.2        
-            if width < 500 or height < 500:
-                damage_severity += 0.1    
-            img_array = np.array(image)
-            if np.mean(img_array) < 50:
-                damage_severity += 0.15
-            elif np.mean(img_array) > 200:
-                damage_severity += 0.1
-            damage_severity = min(max(damage_severity, 0), 1)
-            return {
-                "damage_type": "fading" if damage_severity < 0.3 else "scratches",
-                "damage_severity": damage_severity,
-                "recommended_method": "local" if damage_severity < 0.4 else "generation",
-                "description": "Изображение имеет умеренные потери цвета и небольшие царапины"
-            }
-        except Exception as e:
-            logger.error(f"Ошибка анализа повреждений: {str(e)}")
-            return {
-                "damage_type": "unknown",
-                "damage_severity": 0.5,
-                "recommended_method": "generation",
-                "description": "Не удалось автоматически определить тип повреждений"
-            }
-    def process_locally(image_data, damage_analysis):
-        try:
-            return base64.b64encode(image_data).decode('utf-8')
-        except Exception as e:
-            logger.error(f"Ошибка локальной обработки: {str(e)}")
-            raise
-    def generate_from_description(image_data, description):
-        try:
-            return base64.b64encode(image_data).decode('utf-8')
-        except Exception as e:
-            logger.error(f"Ошибка генерации изображения: {str(e)}")
-            raise
     def post(self, request, *args, **kwargs):
         logger.info(f"Получен запрос на реставрацию фотографии: {request.data}")
         SYSTEM_PROMPT = """
         Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
-        Вы - эксперт по обработке изображений с 8-летним опытом работы в цифровой реставрации.
-        Ваши рекомендации основаны на передовых методах обработки изображений..
         Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
         Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
-        Вы не говорите, что вы ИИ или Qwen - вы всегда представляетесь как Советница АКВИ.
+        Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
         Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
         Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
         """
-        image = request.FILES.get('image')
-        if not image:
-            return Response({'error': 'Изображение не загружено'}, status=status.HTTP_400_BAD_REQUEST)   
-        repair_level = request.data.get('repair_level', 'medium')
-        HF_API_KEY = os.getenv('HF_API_KEY_PREST')
-        if not HF_API_KEY:
-            logger.error("API ключ Hugging Face не настроен")
-            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        if 'image' not in request.FILES:
+            return Response(
+                {'error': 'Изображение не предоставлено'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        image_file = request.FILES['image']
+        allowed_extensions = ['.jpg', '.jpeg', '.png', '.tiff', '.bmp']
+        file_ext = os.path.splitext(image_file.name)[1].lower()
+        if file_ext not in allowed_extensions:
+            return Response(
+                {'error': f'Поддерживаются только форматы: {", ".join(allowed_extensions)}'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        restoration_info = {
+            'damage_type': request.data.get('damage_type', 'потертости и царапины'),
+            'damage_level': request.data.get('damage_level', 'средняя'),
+            'restoration_style': request.data.get('restoration_style', 'оригинальный стиль'),
+            'special_requests': request.data.get('special_requests', ''),
+            'photo_age': request.data.get('photo_age', 'неизвестно')
+        }
+        file_path = default_storage.save(f'tmp/{image_file.name}', ContentFile(image_file.read()))
+        try:
+            HF_API_KEY = os.getenv('HF_API_KEY_PREST')
+            if not HF_API_KEY:
+                logger.error("API ключ Hugging Face для реставрации фотографий не настроен")
+                return Response(
+                    {'error': 'API ключ не настроен'},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+            image_description = self.analyze_photo_condition(file_path, HF_API_KEY)
+            restoration_plan = self.generate_restoration_plan(
+                image_description, 
+                restoration_info,
+                HF_API_KEY
+            )
+            return Response({
+                'image_description': image_description,
+                'restoration_plan': restoration_plan,
+                'restoration_info': restoration_info,
+                'image_type': file_ext[1:].upper()
+            })   
+        except Exception as e:
+            logger.error(f"Ошибка реставрации фотографии: {str(e)}", exc_info=True)
+            return Response(
+                {'error': 'Произошла ошибка при анализе фотографии'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        finally:
+            if 'file_path' in locals() and default_storage.exists(file_path):
+                default_storage.delete(file_path)
+    def analyze_photo_condition(self, image_path, hf_api_key):
+        try:
+            client = InferenceClient(
+                model="Qwen/Qwen2.5-VL-72B-Instruct",
+                token=hf_api_key
+            )
+            prompt = """
+            Вы - профессиональный реставратор фотографий с многолетним опытом работы.
+            Внимательно изучите предоставленное изображение и опишите его состояние:
+            
+            1. Общее состояние фотографии:
+               - Тип повреждений (потертости, царапины, пятна, выцветание и т.д.)
+               - Степень повреждения (незначительная, средняя, серьезная)
+               - Области с наибольшими повреждениями
+            
+            2. Характеристики оригинальной фотографии:
+               - Примерный возраст снимка
+               - Технология съемки (черно-белая, цветная, пленка и т.д.)
+               - Размер и формат оригинала
+            
+            3. Особенности, влияющие на реставрацию:
+               - Чувствительность красителей
+               - Тип бумаги или носителя
+               - Наличие текста или подписи
+            
+            4. Предварительная оценка сложности реставрации:
+               - Какие участки будут сложнее всего восстановить
+               - Какие элементы могут быть утеряны навсегда
+               - Какие техники реставрации будут наиболее подходящими
+            
+            Ваш ответ должен быть профессиональным, точным и структурированным.
+            """
+            response = client.chat_completion(
+                messages=[
+                    {
+                        "role": "user",
+                        "content": [
+                            {"type": "text", "text": prompt},
+                            {"type": "image_url", "image_url": {"url": f"file://{image_path}"}}
+                        ]
+                    }
+                ],
+                max_tokens=800
+            )
+            return response.choices[0].message.content
+        except Exception as e:
+            logger.error(f"Ошибка анализа состояния фотографии: {str(e)}")
+            return "Не удалось проанализировать состояние фотографии"
+    def generate_restoration_plan(self, image_description, restoration_info, hf_api_key):
+        SYSTEM_PROMPT = """
+        Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
+        Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
+        Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
+        Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
+        Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
+        Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
+        """
         try:
             client = InferenceClient(
                 model="Qwen/Qwen2.5-72B-Instruct",
-                token=HF_API_KEY
+                token=hf_api_key
             )
-            image_data = image.read()
-            damage_analysis = analyze_damage(image_data)
-            if repair_level == 'light' or (repair_level == 'medium' and damage_analysis['damage_severity'] < 0.3):
-                restored_image_base64 = process_locally(image_data, damage_analysis)
-            else:
-                restored_image_base64 = generate_from_description(image_data, damage_analysis['description'])
-            prompt = """
+            prompt = f"""
                 {SYSTEM_PROMPT}
-                Проанализируйте фотографию и предоставьте отчет о восстановлении.
-                Тип повреждений: {damage_analysis['damage_type']}
-                Степень повреждения: {damage_analysis['damage_severity']:.2f}
-                Рекомендованный метод: {damage_analysis['recommended_method']}
-                Ваш отчет должен включать:
-                    1. Краткое описание обнаруженных повреждений
-                    2. Описание примененного метода восстановления
-                    3. Рекомендации по дальнейшему сохранению фотографии
-                    4. Оценку качества восстановления (в процентах)
+                Разработайте подробный план реставрации фотографии на основе следующих данных:
+                
+                Описание состояния фотографии:
+                {image_description}
+                
+                Информация о реставрации:
+                - Тип повреждений: {restoration_info['damage_type']}
+                - Степень повреждения: {restoration_info['damage_level']}
+                - Стиль реставрации: {restoration_info['restoration_style']}
+                - Специальные пожелания: {restoration_info['special_requests']}
+                - Возраст фотографии: {restoration_info['photo_age']}
+                
+                Ваш план реставрации должен включать:
+                
+                1. Анализ состояния фотографии
+                    - Подробное описание выявленных повреждений
+                    - Оценка степени тяжести каждого типа повреждения
+                    - Области, требующие особого внимания
+                
+                2. Методы реставрации
+                    - Пошаговый процесс очистки и подготовки
+                    - Техники для устранения конкретных типов повреждений
+                    - Рекомендуемые материалы и инструменты
+                
+                3. Ожидаемый результат
+                    - Как будет выглядеть фотография после реставрации
+                    - Какие элементы будут полностью восстановлены
+                    - Какие элементы могут остаться с незначительными дефектами
+                
+                4. Рекомендации по сохранению
+                    - Условия хранения после реставрации
+                    - Материалы для архивации
+                    - Как часто требуется проверять состояние
+                
+                5. Дополнительные услуги
+                    - Возможность создания цифровой копии
+                    - Оформление в рамку с защитой от УФ
+                    - Сертификат реставрации
+                
+                6. Сроки и стоимость
+                    - Примерные сроки выполнения работ
+                    - Ориентировочная стоимость
+                    - Факторы, которые могут повлиять на сроки и стоимость
+                
+                7. Советы по дальнейшему уходу
+                    - Как обращаться с восстановленной фотографией
+                    - Как избежать повторного повреждения
+                    - Что делать в случае новых повреждений
+                
+                Важно: Это не заменяет консультацию профессионального реставратора.
+                Ответ должен быть структурирован, безопасен и профессионален.
             """
             response = client.chat_completion(
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=2000
+                max_tokens=1500
             )
-            restoration_report = response.choices[0].message.content
-            return Response({
-                'restored_image': f"data:image/jpeg;base64,{restored_image_base64}",
-                'analysis': damage_analysis,
-                'restoration_report': restoration_report,
-                'repair_level': repair_level
-            })
+            return response.choices[0].message.content
         except Exception as e:
-            logger.error(f"Ошибка генерации плана реставрации: {str(e)}", exc_info=True)
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            logger.error(f"Ошибка генерации плана реставрации: {str(e)}")
+            return "Не удалось сгенерировать план реставрации"
    
 class MedicalImageView(APIView):
     def post(self, request, *args, **kwargs):
@@ -494,7 +582,7 @@ class MedicalImageView(APIView):
     def analyze_image(self, image_path, hf_api_key):
         try:
             client = InferenceClient(
-                model="Qwen/Qwen-VL-Chat",
+                model="Qwen/Qwen2.5-VL-72B-Instruct",
                 token=hf_api_key
             )
             prompt = """
