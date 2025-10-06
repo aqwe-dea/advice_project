@@ -1,465 +1,246 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
-import { colors } from '../theme';
+import React, { useState, useRef } from 'react';
+import '../App.css';
 
-function PresentationForm() {
-    const [topic, setTopic] = useState<string>('');
-    const [audience, setAudience] = useState<string>('общая аудитория');
-    const [duration, setDuration] = useState<string>('30 минут');
-    const [style, setStyle] = useState<string>('профессиональный');
-    const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [error, setError] = useState<string | null>(null);
-    const [presentation, setPresentation] = useState<any>(null);
-    const [slides, setSlides] = useState<any[]>([]);
-    const sessionToken = localStorage.getItem('session_token');
-    useEffect(() => {
-        if (presentation) {
-            parsePresentationToSlides(presentation.presentation);
-        }
-    }, [presentation]);
-    const parsePresentationToSlides = (presentationText: string) => {
-        const slideRegex = /## СЛАЙД \d+: ([^\n]+)/g;
-        let match;
-        const extractedSlides = [];
-        while ((match = slideRegex.exec(presentationText)) !== null) {
-            const slideTitle = match[1];
-            const slideContent = extractSlideContent(presentationText, slideTitle);
-            extractedSlides.push({
-                title: slideTitle,
-                content: slideContent.content,
-                visual: slideContent.visual,
-                notes: slideContent.notes
-            });
-        }
-        setSlides(extractedSlides);
-    };
-    const extractSlideContent = (text: string, slideTitle: string) => {
-        const contentRegex = new RegExp(`## СЛАЙД \\d+: ${slideTitle}\\n- Заголовок слайда: [^\\n]+\\n- Содержание: ([^\\n]+)`);
-        const visualRegex = /- Визуальные рекомендации: ([^\n]+)/;
-        const notesRegex = /- Заметки докладчика: ([\s\S]*?)(?=\n## СЛАЙД|\n## ЗАКЛЮЧЕНИЕ|$)/;
-        const contentMatch = text.match(contentRegex);
-        const visualMatch = text.match(visualRegex);
-        const notesMatch = text.match(notesRegex);        
-        return {
-            content: contentMatch ? contentMatch[1] : '',
-            visual: visualMatch ? visualMatch[1] : '',
-            notes: notesMatch ? notesMatch[1].trim() : ''
-        };
-    };
-    const handleSubmit = async (e: React.FormEvent) => {
-        e.preventDefault();
-        if (!topic.trim()) {
-            setError('Пожалуйста, укажите тему презентации');
-            return;
-        }
-        setIsLoading(true);
-        setError(null);
-        try {
-            const response = await axios.post(
-                'https://advice-project.onrender.com/generate-presentation/',
-                { 
-                    topic,
-                    audience,
-                    duration,
-                    style
-                },
-                { 
-                    headers: { 
-                        'Content-Type': 'application/json',
-                        'Authorization': sessionToken ? `Bearer ${sessionToken}` : ''
-                    },
-                    timeout: 60000
-                }
-            );
-            setPresentation(response.data);
-        } catch (err: any) {
-            console.error('Ошибка генерации презентации:', err);
-            if (err.response) {
-                setError(`Ошибка ${err.response.status}: ${err.response.data.error || 'Не удалось сгенерировать презентацию'}`);
-            } else if (err.request) {
-                setError('Нет ответа от сервера. Проверьте подключение к интернету.');
-            } else {
-                setError('Произошла ошибка при отправке запроса.');
-            }
-        } finally {
-            setIsLoading(false);
-        }
-    };
-    const saveAsPDF = () => {
-        if (!presentation) return;
-        const presentationContent = document.getElementById('presentation-content');
-        if (!presentationContent) return;
-        html2canvas(presentationContent, {
-            scale: 2,
-            useCORS: true,
-            logging: false
-        }).then(canvas => {
-            const imgData = canvas.toDataURL('image/png');
-            const pdf = new jsPDF({
-                orientation: 'portrait',
-                unit: 'mm',
-                format: 'a4'
-            });
-            const imgWidth = 210; // A4 width in mm
-            const pageHeight = 297; // A4 height in mm
-            const imgHeight = canvas.height * imgWidth / canvas.width;
-            let heightLeft = imgHeight;
-            let position = 0;
-            pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-            heightLeft -= pageHeight;
-            while (heightLeft >= 0) {
-                position = heightLeft - imgHeight;
-                pdf.addPage();
-                pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight);
-                heightLeft -= pageHeight;
-            }
-            pdf.save(`презентация-${encodeURIComponent(topic)}.pdf`);
+const PresentationForm = () => {
+  const [formData, setFormData] = useState({
+    topic: '',
+    audience: 'широкая аудитория',
+    duration: '15-20 минут',
+    purpose: 'информирование',
+    style: 'профессиональный',
+    slides_count: '15-20'
+  });
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [result, setResult] = useState<any>(null);
+  const [progress, setProgress] = useState(0);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
+  };
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!formData.topic.trim()) {
+      setError('Пожалуйста, укажите тему презентации');
+      return;
+    }
+    setIsLoading(true);
+    setError(null);
+    setResult(null);
+    setProgress(0);
+    try {
+      const progressInterval = setInterval(() => {
+        setProgress(prev => {
+          if (prev >= 95) {
+            clearInterval(progressInterval);
+            return prev;
+          }
+          return prev + 5;
         });
+      }, 300);
+      const response = await fetch('https://advice-project.onrender.com/generate-presentation/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      });
+      clearInterval(progressInterval);
+      setProgress(100);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Ошибка при генерации презентации');
+      }
+      const data = await response.json();
+      setResult(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Произошла ошибка при генерации презентации');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  const renderPresentation = () => {
+    if (!result || !result.presentation) return null;
+    const sections = {
+      title: extractSection(result.presentation, "# НАЗВАНИЕ ПРЕЗЕНТАЦИИ", "## 1."),
+      introduction: extractSection(result.presentation, "## 1. ВВЕДЕНИЕ", "## 2."),
+      main: extractSection(result.presentation, "## 2. ОСНОВНАЯ ЧАСТЬ", "## 3."),
+      conclusions: extractSection(result.presentation, "## 3. КЛЮЧЕВЫЕ ВЫВОДЫ", "## 4."),
+      faq: extractSection(result.presentation, "## 4. ЧАСТЫЕ ВОПРОСЫ И ОТВЕТЫ", "## 5."),
+      conclusion: extractSection(result.presentation, "## 5. ЗАКЛЮЧЕНИЕ", "## 6."),
+      additional: extractSection(result.presentation, "## 6. ДОПОЛНИТЕЛЬНЫЕ МАТЕРИАЛЫ", "## 7."),
+      recommendations: extractSection(result.presentation, "## 7. РЕКОМЕНДАЦИИ ПО ПОДГОТОВКЕ", null)
     };
-    const saveAsText = () => {
-        if (!presentation) return;
-        let textContent = `ПРЕЗЕНТАЦИЯ: ${topic}\n\n`;
-        slides.forEach((slide, index) => {
-            textContent += `СЛАЙД ${index + 1}: ${slide.title}\n`;
-            textContent += `Содержание: ${slide.content}\n`;
-            textContent += `Визуальные рекомендации: ${slide.visual}\n`;
-            textContent += `Заметки докладчика: ${slide.notes}\n\n`;
-        });
-        const blob = new Blob([textContent], { type: 'text/plain' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = `презентация-${encodeURIComponent(topic)}.txt`;
-        document.body.appendChild(a);
-        a.click();
-        setTimeout(() => {
-            document.body.removeChild(a);
-            URL.revokeObjectURL(url);
-        }, 0);
-    };
-    const renderSlidePreview = (slide: any, index: number) => (
-        <div key={index} className="slide-preview" style={{
-            border: '1px solid rgba(255, 255, 255, 0.1)',
-            borderRadius: '8px',
-            padding: '1rem',
-            marginBottom: '1rem',
-            backgroundColor: 'rgba(0, 0, 0, 0.1)'
-        }}>
-            <h4 style={{
-                color: colors.primary,
-                marginBottom: '0.5rem'
-            }}>
-                Слайд {index + 1}: {slide.title}
-            </h4>
-            <div style={{marginBottom: '0.5rem'}}>
-                <strong>Содержание:</strong> {slide.content}
-            </div>
-            <div style={{marginBottom: '0.5rem'}}>
-                <strong>Визуальные рекомендации:</strong> {slide.visual}
-            </div>
-            <div>
-                <strong>Заметки докладчика:</strong> {slide.notes}
-            </div>
-        </div>
-    );
     return (
-        <div style={{
-            maxWidth: '800px',
-            margin: '2rem auto',
-            padding: '2rem',
-            backgroundColor: 'rgba(255, 255, 255, 0.07)',
-            borderRadius: '12px',
-            boxShadow: '0 4px 20px rgba(0,0,0,0.15)'
-        }}>
-            <h2 style={{
-                fontSize: '2rem',
-                marginBottom: '1.5rem',
-                color: colors.primary,
-                textAlign: 'center'
-            }}>
-                Генерация презентаций
-            </h2>
-            <p style={{
-                color: colors.textSecondary,
-                marginBottom: '1.5rem',
-                textAlign: 'center',
-                lineHeight: '1.6'
-            }}>
-                Создайте профессиональную презентацию за несколько минут с помощью Советницы АКВИ
-            </p>
-            {error && (
-                <div style={{
-                    backgroundColor: 'rgba(255, 99, 71, 0.1)',
-                    color: '#ff6347',
-                    padding: '1rem',
-                    borderRadius: '8px',
-                    marginBottom: '1.5rem'
-                }}>
-                    {error}
-                </div>
-            )}
-            <form onSubmit={handleSubmit} style={{marginBottom: '2rem'}}>
-                <div style={{marginBottom: '1.5rem'}}>
-                    <label htmlFor="topic" style={{
-                        display: 'block',
-                        marginBottom: '0.5rem',
-                        color: '#f8f8f0',
-                        fontWeight: '500'
-                    }}>
-                        Тема презентации
-                    </label>
-                    <input
-                        type="text"
-                        id="topic"
-                        value={topic}
-                        onChange={(e) => setTopic(e.target.value)}
-                        placeholder="Введите тему презентации"
-                        style={{
-                            width: '100%',
-                            padding: '0.75rem',
-                            fontSize: '1rem',
-                            borderRadius: '8px',
-                            border: '1px solid rgba(255, 255, 255, 0.2)',
-                            backgroundColor: 'rgba(0, 0, 0, 0.1)',
-                            color: '#f8f8f0'
-                        }}
-                    />
-                </div>
-                <div style={{marginBottom: '1.5rem'}}>
-                    <label htmlFor="audience" style={{
-                        display: 'block',
-                        marginBottom: '0.5rem',
-                        color: '#f8f8f0',
-                        fontWeight: '500'
-                    }}>
-                        Целевая аудитория
-                    </label>
-                    <select
-                        id="audience"
-                        value={audience}
-                        onChange={(e) => setAudience(e.target.value)}
-                        style={{
-                            width: '100%',
-                            padding: '0.75rem',
-                            fontSize: '1rem',
-                            borderRadius: '8px',
-                            border: '1px solid rgba(255, 255, 255, 0.2)',
-                            backgroundColor: 'rgba(0, 0, 0, 0.1)',
-                            color: '#f8f8f0'
-                        }}
-                    >
-                        <option value="общая аудитория">Общая аудитория</option>
-                        <option value="специалисты">Специалисты</option>
-                        <option value="руководители">Руководители</option>
-                        <option value="инвесторы">Инвесторы</option>
-                        <option value="студенты">Студенты</option>
-                    </select>
-                </div>
-                <div style={{marginBottom: '1.5rem'}}>
-                    <label htmlFor="duration" style={{
-                        display: 'block',
-                        marginBottom: '0.5rem',
-                        color: '#f8f8f0',
-                        fontWeight: '500'
-                    }}>
-                        Продолжительность
-                    </label>
-                    <select
-                        id="duration"
-                        value={duration}
-                        onChange={(e) => setDuration(e.target.value)}
-                        style={{
-                            width: '100%',
-                            padding: '0.75rem',
-                            fontSize: '1rem',
-                            borderRadius: '8px',
-                            border: '1px solid rgba(255, 255, 255, 0.2)',
-                            backgroundColor: 'rgba(0, 0, 0, 0.1)',
-                            color: '#f8f8f0'
-                        }}
-                    >
-                        <option value="10 минут">10 минут (5-7 слайдов)</option>
-                        <option value="20 минут">20 минут (10-12 слайдов)</option>
-                        <option value="30 минут">30 минут (15-18 слайдов)</option>
-                        <option value="45 минут">45 минут (20-25 слайдов)</option>
-                        <option value="60 минут">60 минут (25-30 слайдов)</option>
-                    </select>
-                </div>
-                <div style={{marginBottom: '1.5rem'}}>
-                    <label htmlFor="style" style={{
-                        display: 'block',
-                        marginBottom: '0.5rem',
-                        color: '#f8f8f0',
-                        fontWeight: '500'
-                    }}>
-                        Стиль презентации
-                    </label>
-                    <select
-                        id="style"
-                        value={style}
-                        onChange={(e) => setStyle(e.target.value)}
-                        style={{
-                            width: '100%',
-                            padding: '0.75rem',
-                            fontSize: '1rem',
-                            borderRadius: '8px',
-                            border: '1px solid rgba(255, 255, 255, 0.2)',
-                            backgroundColor: 'rgba(0, 0, 0, 0.1)',
-                            color: '#f8f8f0'
-                        }}
-                    >
-                        <option value="профессиональный">Профессиональный</option>
-                        <option value="академический">Академический</option>
-                        <option value="креативный">Креативный</option>
-                        <option value="минималистичный">Минималистичный</option>
-                        <option value="интерактивный">Интерактивный</option>
-                    </select>
-                </div>
-                <button
-                    type="submit"
-                    disabled={isLoading || !topic.trim()}
-                    style={{
-                        backgroundColor: isLoading ? '#cccccc' : colors.primary,
-                        color: 'white',
-                        border: 'none',
-                        padding: '0.85rem 2.5rem',
-                        fontSize: '1.1rem',
-                        borderRadius: '8px',
-                        cursor: isLoading ? 'not-allowed' : 'pointer',
-                        fontWeight: 'bold',
-                        width: '100',
-                        boxShadow: isLoading ? 'none' : '0 4px 15px rgba(122, 106, 200, 0.3)'
-                    }}
-                >
-                    {isLoading ? 'Генерация презентации...' : 'Создать презентацию'}
-                </button>
-            </form>
-            {presentation && (
-                <div id="presentation-content" style={{marginTop: '2rem'}}>
-                    <h3 style={{
-                        fontSize: '1.5rem',
-                        marginBottom: '1rem',
-                        color: colors.primary
-                    }}>
-                        Ваша презентация: {topic}
-                    </h3>
-                    <div style={{
-                        backgroundColor: 'rgba(255, 255, 255, 0.05)',
-                        borderRadius: '10px',
-                        padding: '1.5rem',
-                        marginBottom: '1.5rem'
-                    }}>
-                        <h4 style={{
-                            fontSize: '1.2rem',
-                            marginBottom: '1rem',
-                            color: colors.secondary
-                        }}>
-                            Целевая аудитория: {audience}
-                        </h4>
-                        <h4 style={{
-                            fontSize: '1.2rem',
-                            marginBottom: '1rem',
-                            color: colors.secondary
-                        }}>
-                            Продолжительность: {duration}
-                        </h4>
-                        <h4 style={{
-                            fontSize: '1.2rem',
-                            marginBottom: '1rem',
-                            color: colors.secondary
-                        }}>
-                            Стиль: {style}
-                        </h4>
-                    </div>
-                    <h4 style={{
-                        fontSize: '1.3rem',
-                        marginBottom: '1rem',
-                        color: colors.primary
-                    }}>
-                        Структура презентации
-                    </h4>
-                    {slides.length > 0 ? (
-                        <div>
-                            {slides.map(renderSlidePreview)}
-                            <div style={{
-                                display: 'flex',
-                                justifyContent: 'center',
-                                gap: '1rem',
-                                marginTop: '2rem',
-                                flexWrap: 'wrap'
-                            }}>
-                                <button
-                                    onClick={saveAsPDF}
-                                    style={{
-                                        backgroundColor: colors.primary,
-                                        color: 'white',
-                                        border: 'none',
-                                        padding: '0.75rem 1.5rem',
-                                        borderRadius: '8px',
-                                        cursor: 'pointer',
-                                        fontWeight: 'bold'
-                                    }}
-                                >
-                                    Скачать как PDF
-                                </button>
-                                <button
-                                    onClick={saveAsText}
-                                    style={{
-                                        backgroundColor: colors.secondary,
-                                        color: 'white',
-                                        border: 'none',
-                                        padding: '0.75rem 1.5rem',
-                                        borderRadius: '8px',
-                                        cursor: 'pointer',
-                                        fontWeight: 'bold'
-                                    }}
-                                >
-                                    Экспорт в текст
-                                </button>
-                            </div>
-                        </div>
-                    ) : (
-                        <div style={{
-                            backgroundColor: 'rgba(255, 165, 0, 0.1)',
-                            borderLeft: '4px solid #ffa500',
-                            padding: '1rem',
-                            borderRadius: '0 5px 5px 0',
-                            color: colors.textSecondary
-                        }}>
-                            Советница АКВИ анализирует структуру презентации...
-                        </div>
-                    )}
-                </div>
-            )}
-            <div style={{
-                marginTop: '2rem',
-                padding: '1.5rem',
-                backgroundColor: 'rgba(122, 106, 200, 0.1)',
-                borderRadius: '10px'
-            }}>
-                <h3 style={{
-                    fontSize: '1.3rem',
-                    marginBottom: '0.5rem',
-                    color: colors.primary
-                }}>
-                    Как работает генерация презентаций
-                </h3>
-                <ul style={{
-                    paddingLeft: '1.5rem',
-                    color: colors.textSecondary,
-                    lineHeight: '1.6'
-                }}>
-                    <li>Советница АКВИ анализирует вашу тему и целевую аудиторию</li>
-                    <li>Создает структуру презентации с учетом продолжительности</li>
-                    <li>Генерирует содержание каждого слайда с рекомендациями по оформлению</li>
-                    <li>Предоставляет заметки докладчика для каждого слайда</li>
-                    <li>Позволяет сохранить презентацию в удобном формате</li>
-                </ul>
-            </div>
+      <div className="presentation">
+        <h3>Презентация: {formData.topic}</h3>
+        <div className="section">
+          <h4>Название презентации</h4>
+          <div className="section-content">{sections.title || "Не найдено"}</div>
         </div>
+        <div className="section">
+          <h4>1. Введение</h4>
+          <div className="section-content">{sections.introduction || "Не найдено"}</div>
+        </div>
+        <div className="section">
+          <h4>2. Основная часть</h4>
+          <div className="section-content">{sections.main || "Не найдено"}</div>
+        </div>
+        <div className="section">
+          <h4>3. Ключевые выводы</h4>
+          <div className="section-content">{sections.conclusions || "Не найдено"}</div>
+        </div>
+        <div className="section">
+          <h4>4. Частые вопросы и ответы</h4>
+          <div className="section-content">{sections.faq || "Не найдено"}</div>
+        </div>
+        <div className="section">
+          <h4>5. Заключение</h4>
+          <div className="section-content">{sections.conclusion || "Не найдено"}</div>
+        </div>
+        <div className="section">
+          <h4>6. Дополнительные материалы</h4>
+          <div className="section-content">{sections.additional || "Не найдено"}</div>
+        </div>
+        <div className="section">
+          <h4>7. Рекомендации по подготовке</h4>
+          <div className="section-content">{sections.recommendations || "Не найдено"}</div>
+        </div>
+        <button 
+          onClick={() => setResult(null)}
+          className="reset-button"
+        >
+          Сгенерировать новую презентацию
+        </button>
+      </div>
     );
-}
+  };
+  const extractSection = (text: string, startMarker: string, endMarker: string | null): string => {
+    const startIndex = text.indexOf(startMarker);
+    if (startIndex === -1) return "";
+    let endIndex = -1;
+    if (endMarker) {
+      endIndex = text.indexOf(endMarker, startIndex + startMarker.length);
+    }
+    if (endIndex === -1) {
+      return text.substring(startIndex + startMarker.length).trim();
+    }
+    return text.substring(startIndex + startMarker.length, endIndex).trim();
+  };
+  return (
+    <div className="presentation-container">
+      <h2>Генерация презентации</h2>
+      <p>Заполните форму для создания структурированной презентации</p>
+      {error && (
+        <div className="error-message">
+          {error}
+        </div>
+      )}
+      {!result ? (
+        <form onSubmit={handleSubmit} className="presentation-form">
+          <div className="form-group">
+            <label htmlFor="topic">Тема презентации *</label>
+            <textarea
+              id="topic"
+              name="topic"
+              value={formData.topic}
+              onChange={handleChange}
+              placeholder="Опишите тему вашей презентации"
+              rows={3}
+              required
+            />
+          </div>  
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="audience">Целевая аудитория</label>
+              <input
+                type="text"
+                id="audience"
+                name="audience"
+                value={formData.audience}
+                onChange={handleChange}
+                placeholder="Например: руководители, студенты, инвесторы"
+              />
+            </div>
+            <div className="form-group">
+              <label htmlFor="duration">Продолжительность</label>
+              <input
+                type="text"
+                id="duration"
+                name="duration"
+                value={formData.duration}
+                onChange={handleChange}
+                placeholder="Например: 15-20 минут"
+              />
+            </div>
+          </div>
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="purpose">Цель презентации</label>
+              <select
+                id="purpose"
+                name="purpose"
+                value={formData.purpose}
+                onChange={handleChange}
+              >
+                <option value="информирование">Информирование</option>
+                <option value="убеждение">Убеждение</option>
+                <option value="обучение">Обучение</option>
+                <option value="мотивация">Мотивация</option>
+                <option value="продажа">Продажа</option>
+              </select>
+            </div>
+            <div className="form-group">
+              <label htmlFor="slides_count">Количество слайдов</label>
+              <input
+                type="text"
+                id="slides_count"
+                name="slides_count"
+                value={formData.slides_count}
+                onChange={handleChange}
+                placeholder="Например: 15-20"
+              />
+            </div>
+          </div>
+          <div className="form-group">
+            <label htmlFor="style">Стиль презентации</label>
+            <select
+              id="style"
+              name="style"
+              value={formData.style}
+              onChange={handleChange}
+            >
+              <option value="профессиональный">Профессиональный</option>
+              <option value="креативный">Креативный</option>
+              <option value="минималистичный">Минималистичный</option>
+              <option value="информационный">Информационный</option>
+              <option value="сторителлинг">Сторителлинг</option>
+            </select>
+          </div>
+          <button 
+            type="submit" 
+            className="generate-button"
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <>
+                <span className="spinner"></span>
+                Генерируем презентацию...
+              </>
+            ) : (
+              'Сгенерировать презентацию'
+            )}
+          </button>
+        </form>
+      ) : (
+        renderPresentation()
+      )}
+      <div className="footer-note">
+        Советница АКВИ создает структурированные презентации с использованием передовых моделей искусственного интеллекта. 
+        Результаты носят рекомендательный характер и могут быть адаптированы под ваши потребности.
+      </div>
+    </div>
+  );
+};
 
 export default PresentationForm;

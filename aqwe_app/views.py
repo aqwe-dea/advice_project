@@ -718,190 +718,110 @@ class MedicalImageView(APIView):
             return "Не удалось сгенерировать медицинский анализ"
 
 class ThreeDToProjectView(APIView):
-    def analyze_3d_model(model_data, model_type):
-        try:
-            if model_type == "stl":
-                return {
-                    "model_type": "furniture",
-                    "components": [
-                        {
-                            "name": "base",
-                            "description": "Основание конструкции",
-                            "dimensions": {"x": 50.0, "y": 50.0, "z": 5.0},
-                            "material_recommendations": ["plywood", "mdf"]
-                        },
-                        {
-                            "name": "legs",
-                            "description": "Ножки конструкции",
-                            "dimensions": {"x": 5.0, "y": 5.0, "z": 70.0},
-                            "material_recommendations": ["hardwood", "metal"]
-                        }
-                    ],
-                    "complexity": 0.6,
-                    "estimated_print_time": "3 hours"
-                }
-            elif model_type == "obj":
-                return {
-                    "model_type": "architecture",
-                    "components": [
-                        {
-                            "name": "walls",
-                            "description": "Стены здания",
-                            "dimensions": {"x": 100.0, "y": 100.0, "z": 20.0},
-                            "material_recommendations": ["concrete", "brick"]
-                        },
-                        {
-                            "name": "roof",
-                            "description": "Крыша здания",
-                            "dimensions": {"x": 100.0, "y": 100.0, "z": 10.0},
-                            "material_recommendations": ["metal", "tiles"]
-                        }
-                    ],
-                    "complexity": 0.8,
-                    "estimated_print_time": "6 hours"
-                }
-            else:
-                return {
-                    "model_type": "unknown",
-                    "components": [
-                        {
-                            "name": "main_part",
-                            "description": "Основная часть конструкции",
-                            "dimensions": {"x": 30.0, "y": 30.0, "z": 30.0},
-                            "material_recommendations": ["plastic", "resin"]
-                        }
-                    ],
-                    "complexity": 0.5,
-                    "estimated_print_time": "2 hours"
-                }
-        except Exception as e:
-            logger.error(f"Ошибка анализа 3D модели: {str(e)}")
-            return {
-                "model_type": "unknown",
-                "components": [],
-                "complexity": 0.5,
-                "estimated_print_time": "unknown"
-            }
-    def generate_construction_plan(analysis):
-        try:
-            bill_of_materials = []
-            total_cost = 0
-            for component in analysis['components']:
-                for material in component['material_recommendations'][:1]:
-                    volume = component['dimensions']['x'] * component['dimensions']['y'] * component['dimensions']['z'] / 1000000  # в м³
-                    cost_per_unit = 500 if material in ["wood", "plywood", "mdf"] else 1000  # руб/м³
-                    estimated_cost = volume * cost_per_unit
-                    bill_of_materials.append({
-                        "component": component['name'],
-                        "material": material,
-                        "quantity": f"{volume:.2f} м³",
-                        "estimated_cost": estimated_cost
-                    })
-                    total_cost += estimated_cost
-            assembly_instructions = [
-                {
-                    "step_number": 1,
-                    "description": "Подготовьте все необходимые материалы и инструменты",
-                    "visual_guide": None
-                },
-                {
-                    "step_number": 2,
-                    "description": "Соберите основные компоненты конструкции согласно чертежам",
-                    "visual_guide": None
-                },
-                {
-                    "step_number": 3,
-                    "description": "Выполните соединение компонентов с использованием рекомендованных крепежных элементов",
-                    "visual_guide": None
-                },
-                {
-                    "step_number": 4,
-                    "description": "Проведите финальную проверку и доработку конструкции",
-                    "visual_guide": None
-                }
-            ]        
-            return {
-                "bill_of_materials": bill_of_materials,
-                "assembly_instructions": assembly_instructions,
-                "total_estimated_cost": total_cost,
-                "optimization_suggestions": [
-                    "Рассмотрите возможность использования более легких материалов для уменьшения общей массы",
-                    "Оптимизируйте форму компонентов для уменьшения расхода материала",
-                    "Используйте стандартные размеры материалов для минимизации отходов"
-                ]
-            }
-        except Exception as e:
-            logger.error(f"Ошибка генерации технического проекта: {str(e)}")
-            return {
-                "bill_of_materials": [],
-                "assembly_instructions": [],
-                "total_estimated_cost": 0,
-                "optimization_suggestions": [
-                    "Не удалось автоматически сгенерировать технический проект"
-                ]
-            }
     def post(self, request, *args, **kwargs):
-        logger.info(f"Получен запрос на обработку 3D модели: {request.data}")
+        logger.info(f"Получен запрос на план 3D-моделирования: {request.data}")
         SYSTEM_PROMPT = """
         Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
-        Вы - эксперт по 3D-моделированию и проектированию с 7-летним опытом работы.
-        Ваши рекомендации основаны на передовых методах проектирования и оптимизации конструкций.
         Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
         Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
-        Вы не говорите, что вы ИИ или Qwen - вы всегда представляетесь как Советница АКВИ.
+        Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
         Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
         Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
         """
-        model_file = request.FILES.get('model_file')
-        if not model_file:
-            return Response({'error': '3D модель не загружена'}, status=status.HTTP_400_BAD_REQUEST)
-        model_type = request.data.get('model_type', 'stl')
-        output_type = request.data.get('output_type', 'project')
+        model_idea = request.data.get('idea', '')
+        if not model_idea:
+            return Response({'error': 'Идея 3D-модели не указана'}, status=status.HTTP_400_BAD_REQUEST)
+        model_type = request.data.get('model_type', 'персонаж')
+        software = request.data.get('software', 'Blender, Maya, ZBrush')
+        complexity = request.data.get('complexity', 'средняя')
+        purpose = request.data.get('purpose', 'визуализация, анимация')
+        timeframe = request.data.get('timeframe', '2-4 недели')
         HF_API_KEY = os.getenv('HF_API_KEY_3D')
         if not HF_API_KEY:
-            logger.error("API ключ Hugging Face не настроен")
+            logger.error("API ключ Hugging Face для 3D-моделирования не настроен")
             return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
-            model_data = model_file.read()
-            analysis = analyze_3d_model(model_data, model_type)
-            construction_plan = generate_construction_plan(analysis)
+            logger.info(f"Генерация плана 3D-моделирования для идеи: {model_idea}")
             client = InferenceClient(
                 model="Qwen/Qwen2.5-72B-Instruct",
                 token=HF_API_KEY
             )
             prompt = f"""
                 {SYSTEM_PROMPT}
-                Уточните следующий технический проект:
-                    Тип модели: {analysis['model_type']}
-                    Сложность: {analysis['complexity']:.1f}
-                    Оценочное время печати: {analysis['estimated_print_time']}
-                    Смета материалов:
-                        {json.dumps(construction_plan['bill_of_materials'], indent=2)}
-                    Пошаговая инструкция:
-                        {json.dumps(construction_plan['assembly_instructions'], indent=2)}
-                    Предложения по оптимизации:
-                        {chr(10).join(construction_plan['optimization_suggestions'])}
-                    Ваш уточненный проект должен:
-                        1. Сохранять техническую точность
-                        2. Быть понятным для человека без технического образования
-                        3. Содержать четкие рекомендации по реализации
-                        4. Указывать на возможные сложности и их решения
+                Создайте подробный план создания 3D-модели на основе следующих параметров:
+                    - Идея модели: {model_idea}
+                    - Тип модели: {model_type}
+                    - Программное обеспечение: {software}
+                    - Сложность: {complexity}
+                    - Цель: {purpose}
+                    - Временные рамки: {timeframe}
+                
+                План должен включать:
+                
+                1. Подготовительный этап
+                    - Сбор референсов и исследование
+                    - Создание концепт-артов и скетчей
+                    - Определение технических требований
+                    - Планирование этапов работы
+                
+                2. Этап моделирования
+                    - Создание базовой формы (blocking)
+                    - Детализация формы (sculpting или polygon modeling)
+                    - Топология для анимации (если требуется)
+                    - Создание дополнительных элементов и аксессуаров
+                
+                3. Текстурирование и материалы
+                    - Создание UV-развертки
+                    - Генерация текстур (ручная или с помощью процедурных методов)
+                    - Настройка материалов и шейдеров
+                    - Добавление деталей (рельеф, нормали, roughness и т.д.)
+                
+                4. Риггинг и анимация (если применимо)
+                    - Создание скелета и системы деформации
+                    - Настройка контроллеров и ограничений
+                    - Тестирование анимации базовых поз
+                    - Создание базовых анимаций (если требуется)
+                
+                5. Освещение и рендеринг
+                    - Настройка освещения сцены
+                    - Выбор подходящего движка рендеринга
+                    - Тестовые рендеры для проверки качества
+                    - Финальная настройка и рендеринг
+                
+                6. Пост-обработка
+                    - Коррекция цвета и контраста
+                    - Добавление эффектов (глубина резкости, блики)
+                    - Композитинг и финальная доработка
+                    - Подготовка к экспортации в требуемые форматы
+                
+                7. Экспорт и интеграция
+                    - Выбор подходящего формата экспорта
+                    - Проверка совместимости с целевой платформой
+                    - Оптимизация для веб или игр (если требуется)
+                    - Интеграция в конечный проект
+                
+                8. Рекомендации по улучшению
+                    - Какие аспекты можно улучшить
+                    - Альтернативные подходы к созданию модели
+                    - Советы по оптимизации процесса
+                
+                Ответ должен быть структурирован, профессионален и содержать конкретные рекомендации с примерами.
             """
             response = client.chat_completion(
                 messages=[{"role": "user", "content": prompt}],
                 max_tokens=1800
             )
-            refined_project = response.choices[0].message.content
             return Response({
-                'original_model': f"data:model/{model_type};base64,{base64.b64encode(model_data).decode('utf-8')}",
-                'analysis': analysis,
-                'construction_plan': construction_plan,
-                'refined_project': refined_project,
+                'modeling_plan': response.choices[0].message.content,
+                'model_idea': model_idea,
                 'model_type': model_type,
-                'output_type': output_type
+                'software': software,
+                'complexity': complexity,
+                'purpose': purpose,
+                'timeframe': timeframe
             })
         except Exception as e:
-            logger.error(f"Ошибка обработки 3D модели: {str(e)}", exc_info=True)
+            logger.error(f"Ошибка генерации плана 3D-моделирования: {str(e)}")
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
 class HealthRecommendationView(APIView):
@@ -1075,123 +995,124 @@ class PresentationGenerationView(APIView):
         logger.info(f"Получен запрос на генерацию презентации: {request.data}")
         SYSTEM_PROMPT = """
         Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
-        Вы - эксперт по созданию презентаций с 5-летним опытом работы.
-        Ваши презентации соответствуют международным стандартам и учитывают особенности восприятия аудитории.
         Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
         Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
-        Вы не говорите, что вы ИИ или Qwen - вы всегда представляетесь как Советница АКВИ.
+        Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
         Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
         Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
         """
         topic = request.data.get('topic', '')
         if not topic:
             return Response({'error': 'Тема презентации не указана'}, status=status.HTTP_400_BAD_REQUEST)
-        audience = request.data.get('audience', 'общая аудитория')
-        duration = request.data.get('duration', '30 минут')
+        audience = request.data.get('audience', 'широкая аудитория')
+        duration = request.data.get('duration', '15-20 минут')
+        purpose = request.data.get('purpose', 'информирование')
         style = request.data.get('style', 'профессиональный')
+        slides_count = request.data.get('slides_count', '15-20')
         HF_API_KEY = os.getenv('HF_API_KEY_SLD')
         if not HF_API_KEY:
-            logger.error("API ключ Hugging Face не настроен")
+            logger.error("API ключ Hugging Face для генерации презентаций не настроен")
             return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
+            logger.info(f"Генерация презентации на тему: {topic}")
             client = InferenceClient(
                 model="Qwen/Qwen2.5-72B-Instruct",
                 token=HF_API_KEY
             )
             prompt = f"""
                 {SYSTEM_PROMPT}
-                Создайте профессиональную презентацию на тему: "{topic}"
-                Целевая аудитория: {audience}
-                Продолжительность: {duration}
-                Стиль: {style}
-                СТРОГО СЛЕДУЙТЕ ЭТОЙ СТРУКТУРЕ:
-                    # ЗАГОЛОВОК ПРЕЗЕНТАЦИИ
-                        [Краткий, привлекающий внимание заголовок]
-                    ## СЛАЙД 1: ВВЕДЕНИЕ
-                        - Заголовок слайда: [текст]
-                        - Содержание: [3-4 пункта]
-                        - Визуальные рекомендации: [описание]
-                        - Заметки докладчика: [текст]
-                    ## СЛАЙД 2: [ТЕМА СЛАЙДА]
-                        - Заголовок слайда: [текст]
-                        - Содержание: [3-4 пункта]
-                        - Визуальные рекомендации: [описание]
-                        - Заметки докладчика: [текст]
-                    [И так для всех слайдов - всего 8-12 слайдов]
-                    ## ЗАКЛЮЧЕНИЕ
-                        - Основные выводы: [3-4 пункта]
-                        - Призыв к действию: [текст]
-                    ## ДОПОЛНИТЕЛЬНЫЕ МАТЕРИАЛЫ
-                        - Рекомендуемая литература: [3-5 источников]
-                        - Полезные ресурсы: [ссылки]
-                        - Контактная информация: [текст]
+                Создайте структуру профессиональной презентации на тему: "{topic}"
+                ПАРАМЕТРЫ ПРЕЗЕНТАЦИИ:
+                    - Целевая аудитория: {audience}
+                    - Продолжительность: {duration}
+                    - Цель: {purpose}
+                    - Стиль: {style}
+                    - Количество слайдов: {slides_count}
+                
+                СТРУКТУРА ПРЕЗЕНТАЦИИ ДОЛЖНА СТРОГО СОДЕРЖАТЬ СЛЕДУЮЩИЕ РАЗДЕЛЫ:
+                
+                # НАЗВАНИЕ ПРЕЗЕНТАЦИИ
+                    [Привлекательное название, отражающее суть]
+                
+                ## 1. ТИТУЛЬНЫЙ СЛАЙД
+                    - Заголовок презентации
+                    - Ваше имя и должность
+                    - Дата и место проведения
+                    - Логотип компании (если применимо)
+                
+                ## 2. ВВЕДЕНИЕ
+                    - Краткое представление темы
+                    - Почему эта тема важна сейчас
+                    - Основные проблемы или возможности
+                    - Цель презентации
+                
+                ## 3. ОСНОВНАЯ ЧАСТЬ (ДЕТАЛИЗИРОВАННАЯ)
+                    - Подраздел 1: [Название]
+                        * Ключевые моменты
+                        * Поддерживающие данные и факты
+                        * Визуализация (графики, изображения)
+                        * Примеры или кейсы
+                    
+                    - Подраздел 2: [Название]
+                        * Ключевые моменты
+                        * Поддерживающие данные и факты
+                        * Визуализация (графики, изображения)
+                        * Примеры или кейсы
+                    
+                    - Подраздел 3: [Название]
+                        * Ключевые моменты
+                        * Поддерживающие данные и факты
+                        * Визуализация (графики, изображения)
+                        * Примеры или кейсы
+                
+                ## 4. КЛЮЧЕВЫЕ ВЫВОДЫ
+                    - Самые важные моменты
+                    - Как это влияет на аудиторию
+                    - Основные рекомендации
+                    - Дальнейшие шаги
+                
+                ## 5. ЧАСТЫЕ ВОПРОСЫ И ОТВЕТЫ
+                    - Топ-5 ожидаемых вопросов
+                    - Краткие и четкие ответы
+                    - Дополнительные ресурсы для изучения
+                
+                ## 6. ЗАКЛЮЧЕНИЕ
+                    - Краткое резюме основных моментов
+                    - Призыв к действию
+                    - Контактная информация
+                    - Благодарность за внимание
+                
+                ## 7. ДОПОЛНИТЕЛЬНЫЕ МАТЕРИАЛЫ
+                    - Список рекомендуемой литературы
+                    - Полезные ссылки и ресурсы
+                    - Дополнительные данные и исследования
+                    - Как получить дополнительную информацию
+                
+                ## 8. РЕКОМЕНДАЦИИ ПО ПОДГОТОВКЕ
+                    - Как эффективно представить эту презентацию
+                    - На что обратить особое внимание
+                    - Как адаптировать под разную аудиторию
+                    - Советы по визуальному оформлению
+                
                 ВАЖНО: Ответ должен быть строго структурирован как указано выше, без дополнительных комментариев.
-                Не используйте маркированные списки в содержании - используйте формат "1. [пункт]"
+                Каждый раздел должен содержать конкретные рекомендации и примеры.
             """
             response = client.chat_completion(
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=1200
+                max_tokens=1800
             )
-            presentation_data = self.parse_presentation(response.choices[0].message.content)
             return Response({
                 'presentation': response.choices[0].message.content,
-                'structured_presentation': presentation_data,
                 'topic': topic,
                 'audience': audience,
                 'duration': duration,
-                'style': style
+                'purpose': purpose,
+                'style': style,
+                'slides_count': slides_count
             })
         except Exception as e:
-            logger.error(f"Ошибка генерации презентации: {str(e)}", exc_info=True)
+            logger.error(f"Ошибка генерации презентации: {str(e)}")
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    def parse_presentation(self, presentation_text):
-        try:
-            slides = []
-            current_slide = None
-            for line in presentation_text.split('\n'):
-                line = line.strip()
-                if line.startswith("# ЗАГОЛОВОК ПРЕЗЕНТАЦИИ"):
-                    continue
-                elif line and not line.startswith("#") and current_slide is None:
-                    slides.append({
-                        'title': 'Заголовок',
-                        'content': line,
-                        'visual': '',
-                        'notes': ''
-                    })
-                    continue
-                if line.startswith("## СЛАЙД"):
-                    if current_slide:
-                        slides.append(current_slide)
-                    parts = line.split(":", 1)
-                    slide_title = parts[1].strip() if len(parts) > 1 else "Новый слайд"
-                    current_slide = {
-                        'title': slide_title,
-                        'content': '',
-                        'visual': '',
-                        'notes': ''
-                    }
-                elif current_slide:
-                    if line.startswith("- Заголовок слайда:"):
-                        current_slide['title'] = line.replace("- Заголовок слайда:", "").strip()
-                    elif line.startswith("- Содержание:"):
-                        current_slide['content'] = line.replace("- Содержание:", "").strip()
-                    elif line.startswith("- Визуальные рекомендации:"):
-                        current_slide['visual'] = line.replace("- Визуальные рекомендации:", "").strip()
-                    elif line.startswith("- Заметки докладчика:"):
-                        current_slide['notes'] = line.replace("- Заметки докладчика:", "").strip()
-            if current_slide:
-                slides.append(current_slide)
-            return {
-                'slides': slides,
-                'original_text': presentation_text
-            }
-        except Exception as e:
-            logger.error(f"Ошибка парсинга презентации: {str(e)}")
-            return {
-                'slides': [],
-                'original_text': presentation_text
-            }
 
 class InvestmentAnalysisView(APIView):
     def post(self, request, *args, **kwargs):

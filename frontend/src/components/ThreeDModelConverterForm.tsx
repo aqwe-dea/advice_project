@@ -1,578 +1,243 @@
-import React, { useState, useEffect } from 'react';
-import axios from 'axios';
-import { colors } from '../theme';
+import React, { useState, useRef } from 'react';
+import '../App.css';
 
-function ThreeDModelConverterForm() {
-  const [modelFile, setModelFile] = useState<File | null>(null);
-  const [modelType, setModelType] = useState<'stl' | 'obj' | 'gltf'>('stl');
-  const [outputType, setOutputType] = useState<'analysis' | 'project'>('project');
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+const ThreeDModelConverterForm = () => {
+  const [formData, setFormData] = useState({
+    idea: '',
+    model_type: 'персонаж',
+    software: 'Blender, Maya, ZBrush',
+    complexity: 'средняя',
+    purpose: 'визуализация, анимация',
+    timeframe: '2-4 недели'
+  });
+  const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [result, setResult] = useState<{
-    original_model: string;
-    analysis: {
-      model_type: string;
-      components: Array<{
-        name: string;
-        description: string;
-        dimensions: {x: number; y: number; z: number};
-        material_recommendations: string[];
-      }>;
-      complexity: number;
-      estimated_print_time: string;
-    };
-    construction_plan: {
-      bill_of_materials: Array<{
-        component: string;
-        material: string;
-        quantity: string;
-        estimated_cost: number;
-      }>;
-      assembly_instructions: Array<{
-        step_number: number;
-        description: string;
-        visual_guide: string | null;
-      }>;
-      total_estimated_cost: number;
-      optimization_suggestions: string[];
-    };
-    refined_project: string;
-    model_type: string;
-    output_type: string;
-  } | null>(null);
-  const sessionToken = localStorage.getItem('session_token');
-  const handleModelUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      const file = e.target.files[0];
-      setModelFile(file);
-      const extension = file.name.split('.').pop()?.toLowerCase();
-      if (extension === 'stl') setModelType('stl');
-      else if (extension === 'obj') setModelType('obj');
-      else if (extension === 'gltf' || extension === 'glb') setModelType('gltf');
-      setError(null);
-    }
+  const [result, setResult] = useState<any>(null);
+  const [progress, setProgress] = useState(0);
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+    const { name, value } = e.target;
+    setFormData(prev => ({ ...prev, [name]: value }));
   };
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!modelFile) {
-      setError('Пожалуйста, загрузите 3D модель');
+    if (!formData.idea.trim()) {
+      setError('Пожалуйста, укажите идею 3D-модели');
       return;
     }
     setIsLoading(true);
     setError(null);
+    setResult(null);
+    setProgress(0);
     try {
-      const formData = new FormData();
-      formData.append('model_file', modelFile);
-      formData.append('model_type', modelType);
-      formData.append('output_type', outputType);
-      const response = await axios.post(
-        'https://advice-project.onrender.com/3d-to-project/',
-        formData,
-        { 
-          headers: { 
-            'Content-Type': 'multipart/form-data',
-            'Authorization': sessionToken ? `Bearer ${sessionToken}` : ''
-          },
-          timeout: 60000
-        }
-      );
-      setResult(response.data);
-    } catch (err: any) {
-      console.error('Ошибка обработки 3D модели:', err);
-      if (err.response) {
-        setError(`Ошибка ${err.response.status}: ${err.response.data.error || 'Не удалось обработать 3D модель'}`);
-      } else if (err.request) {
-        setError('Нет ответа от сервера. Проверьте подключение к интернету.');
-      } else {
-        setError('Произошла ошибка при отправке запроса.');
+      const progressInterval = setInterval(() => {
+        setProgress(prev => {
+          if (prev >= 95) {
+            clearInterval(progressInterval);
+            return prev;
+          }
+          return prev + 5;
+        });
+      }, 300);
+      const response = await fetch('https://advice-project.onrender.com/3d-to-project/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(formData)
+      });
+      clearInterval(progressInterval);
+      setProgress(100);
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Ошибка при генерации плана 3D-моделирования');
       }
+      const data = await response.json();
+      setResult(data);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Произошла ошибка при генерации плана 3D-моделирования');
     } finally {
       setIsLoading(false);
     }
   };
-  const renderComplexityMeter = (complexity: number) => {
-    const level = complexity * 10;
-    const color = complexity < 0.4 ? '#44aa44' : complexity < 0.7 ? '#ffaa33' : '#ff4444';
+  const renderModelingPlan = () => {
+    if (!result || !result.modeling_plan) return null;
+    const sections = {
+      preparation: extractSection(result.modeling_plan, "1.", "2."),
+      modeling: extractSection(result.modeling_plan, "2.", "3."),
+      texturing: extractSection(result.modeling_plan, "3.", "4."),
+      rigging: extractSection(result.modeling_plan, "4.", "5."),
+      lighting: extractSection(result.modeling_plan, "5.", "6."),
+      postprocessing: extractSection(result.modeling_plan, "6.", "7."),
+      export: extractSection(result.modeling_plan, "7.", "8."),
+      recommendations: extractSection(result.modeling_plan, "8.", null)
+    };
     return (
-      <div style={{
-        width: '100%',
-        backgroundColor: 'rgba(255, 255, 255, 0.1)',
-        borderRadius: '10px',
-        overflow: 'hidden',
-        height: '20px',
-        marginTop: '0.5rem'
-      }}>
-        <div style={{
-          width: `${level * 10}%`,
-          backgroundColor: color,
-          height: '100%',
-          transition: 'width 0.5s ease-in-out'
-        }}></div>
-        <div style={{
-          position: 'absolute',
-          top: '5px',
-          left: `${level * 10 + 2}%`,
-          color: '#f8f8f0',
-          fontSize: '0.8rem'
-        }}>
-          {level.toFixed(1)} / 10
+      <div className="modeling-plan">
+        <h3>План 3D-моделирования: {formData.model_type}</h3>
+        <div className="section">
+          <h4>1. Подготовительный этап</h4>
+          <div className="section-content">{sections.preparation || "Не найдено"}</div>
         </div>
+        <div className="section">
+          <h4>2. Этап моделирования</h4>
+          <div className="section-content">{sections.modeling || "Не найдено"}</div>
+        </div>
+        <div className="section">
+          <h4>3. Текстурирование и материалы</h4>
+          <div className="section-content">{sections.texturing || "Не найдено"}</div>
+        </div>
+        <div className="section">
+          <h4>4. Риггинг и анимация</h4>
+          <div className="section-content">{sections.rigging || "Не найдено"}</div>
+        </div>
+        <div className="section">
+          <h4>5. Освещение и рендеринг</h4>
+          <div className="section-content">{sections.lighting || "Не найдено"}</div>
+        </div>
+        <div className="section">
+          <h4>6. Пост-обработка</h4>
+          <div className="section-content">{sections.postprocessing || "Не найдено"}</div>
+        </div>
+        <div className="section">
+          <h4>7. Экспорт и интеграция</h4>
+          <div className="section-content">{sections.export || "Не найдено"}</div>
+        </div>
+        <div className="section">
+          <h4>8. Рекомендации по улучшению</h4>
+          <div className="section-content">{sections.recommendations || "Не найдено"}</div>
+        </div>
+        <button 
+          onClick={() => setResult(null)}
+          className="reset-button"
+        >
+          Сгенерировать новый план
+        </button>
       </div>
     );
   };
-  const downloadModel = () => {
-    if (!result || !modelFile) return;
-    const link = document.createElement('a');
-    link.href = result.original_model;
-    link.download = modelFile.name;
-    document.body.appendChild(link);
-    link.click();
-    document.body.removeChild(link);
-  };
-  const exportProjectToText = () => {
-    if (!result) return;
-    let textContent = `ТЕХНИЧЕСКИЙ ПРОЕКТ: 3D МОДЕЛЬ\n\n`;
-    textContent += `Тип модели: ${result.model_type}\n`;
-    textContent += `Тип вывода: ${result.output_type === 'analysis' ? 'Анализ' : 'Технический проект'}\n\n`;
-    textContent += `=== АНАЛИЗ МОДЕЛИ ===\n`;
-    textContent += `Тип конструкции: ${result.analysis.model_type}\n`;
-    textContent += `Сложность: ${(result.analysis.complexity * 100).toFixed(0)}%\n`;
-    textContent += `Оценочное время печати: ${result.analysis.estimated_print_time}\n\n`;
-    textContent += `Компоненты:\n`;
-    result.analysis.components.forEach(component => {
-      textContent += `- ${component.name}: ${component.description}\n`;
-      textContent += `  Размеры: ${component.dimensions.x}x${component.dimensions.y}x${component.dimensions.z} мм\n`;
-      textContent += `  Рекомендуемые материалы: ${component.material_recommendations.join(', ')}\n\n`;
-    });
-    textContent += `=== СМЕТА МАТЕРИАЛОВ ===\n`;
-    result.construction_plan.bill_of_materials.forEach(item => {
-      textContent += `- ${item.component} (${item.material}):\n`;
-      textContent += `  Количество: ${item.quantity}\n`;
-      textContent += `  Стоимость: ${item.estimated_cost.toFixed(2)} руб.\n\n`;
-    });
-    textContent += `Общая стоимость: ${result.construction_plan.total_estimated_cost.toFixed(2)} руб.\n\n`;
-    textContent += `=== ПОШАГОВАЯ ИНСТРУКЦИЯ ===\n`;
-    result.construction_plan.assembly_instructions.forEach(step => {
-      textContent += `${step.step_number}. ${step.description}\n`;
-    });
-    textContent += `\n=== РЕКОМЕНДАЦИИ ПО ОПТИМИЗАЦИИ ===\n`;
-    result.construction_plan.optimization_suggestions.forEach(suggestion => {
-      textContent += `- ${suggestion}\n`;
-    });
-    const blob = new Blob([textContent], { type: 'text/plain' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `3d_project_${new Date().toISOString().slice(0, 10)}.txt`;
-    document.body.appendChild(a);
-    a.click();
-    setTimeout(() => {
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
-    }, 0);
+  const extractSection = (text: string, startMarker: string, endMarker: string | null): string => {
+    const startIndex = text.indexOf(startMarker);
+    if (startIndex === -1) return "";
+    let endIndex = -1;
+    if (endMarker) {
+      endIndex = text.indexOf(endMarker, startIndex + startMarker.length);
+    }
+    if (endIndex === -1) {
+      return text.substring(startIndex + startMarker.length).trim();
+    }
+    return text.substring(startIndex + startMarker.length, endIndex).trim();
   };
   return (
-    <div style={{
-      maxWidth: '1000px',
-      margin: '2rem auto',
-      padding: '2rem',
-      backgroundColor: 'rgba(255, 255, 255, 0.07)',
-      borderRadius: '12px',
-      boxShadow: '0 4px 20px rgba(0,0,0,0.15)'
-    }}>
-      <h2 style={{
-        fontSize: '2rem',
-        marginBottom: '1.5rem',
-        color: colors.primary,
-        textAlign: 'center'
-      }}>
-        3D Моделирование
-      </h2>
-      <p style={{
-        color: colors.textSecondary,
-        marginBottom: '1.5rem',
-        textAlign: 'center',
-        lineHeight: '1.6'
-      }}>
-        Загрузите 3D модель для анализа и получения технического проекта. Советница АКВИ поможет превратить вашу модель в реальный проект.
-      </p>
+    <div className="modeling-container">
+      <h2>План 3D-моделирования</h2>
+      <p>Заполните форму для создания структурированного плана по созданию 3D-модели</p>
       {error && (
-        <div style={{
-          backgroundColor: 'rgba(255, 99, 71, 0.1)',
-          color: '#ff6347',
-          padding: '1rem',
-          borderRadius: '8px',
-          marginBottom: '1.5rem'
-        }}>
+        <div className="error-message">
           {error}
         </div>
       )}
-      <form onSubmit={handleSubmit} style={{marginBottom: '2rem'}}>
-        <div style={{
-          border: '2px dashed rgba(255, 255, 255, 0.2)',
-          borderRadius: '12px',
-          padding: '2rem',
-          textAlign: 'center',
-          backgroundColor: 'rgba(0, 0, 0, 0.1)',
-          marginBottom: '1.5rem'
-        }}>
-          <input
-            type="file"
-            accept=".stl,.obj,.gltf,.glb"
-            onChange={handleModelUpload}
-            style={{display: 'none'}}
-            id="model-upload"
-          />
-          <label htmlFor="model-upload" style={{
-            cursor: 'pointer',
-            display: 'inline-block',
-            padding: '0.8rem 1.5rem',
-            backgroundColor: colors.primary,
-            color: 'white',
-            borderRadius: '8px',
-            fontWeight: 'bold'
-          }}>
-            {modelFile ? `Выбрано: ${modelFile.name}` : 'Загрузите 3D модель'}
-          </label>
-          {modelFile && (
-            <div style={{marginTop: '1rem'}}>
-              <span style={{
-                backgroundColor: 'rgba(122, 106, 200, 0.2)',
-                color: '#e8e8d3',
-                padding: '0.25rem 0.75rem',
-                borderRadius: '12px',
-                fontSize: '0.9rem'
-              }}>
-                Тип модели: {modelType.toUpperCase()}
-              </span>
-            </div>
-          )}
-        </div>
-        <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem', marginBottom: '1.5rem'}}>
-          <div>
-            <label style={{
-              display: 'block',
-              marginBottom: '0.5rem',
-              color: '#f8f8f0',
-              fontWeight: '500'
-            }}>
-              Формат модели
-            </label>
-            <select
-              value={modelType}
-              onChange={(e) => setModelType(e.target.value as any)}
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                fontSize: '1rem',
-                borderRadius: '8px',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                backgroundColor: 'rgba(0, 0, 0, 0.1)',
-                color: '#f8f8f0'
-              }}
-            >
-              <option value="stl">STL</option>
-              <option value="obj">OBJ</option>
-              <option value="gltf">GLTF/GLB</option>
-            </select>
+      {!result ? (
+        <form onSubmit={handleSubmit} className="modeling-form">
+          <div className="form-group">
+            <label htmlFor="idea">Идея модели *</label>
+            <textarea
+              id="idea"
+              name="idea"
+              value={formData.idea}
+              onChange={handleChange}
+              placeholder="Опишите идею вашей 3D-модели"
+              rows={4}
+              required
+            />
           </div>
-          <div>
-            <label style={{
-              display: 'block',
-              marginBottom: '0.5rem',
-              color: '#f8f8f0',
-              fontWeight: '500'
-            }}>
-              Тип вывода
-            </label>
-            <select
-              value={outputType}
-              onChange={(e) => setOutputType(e.target.value as any)}
-              style={{
-                width: '100%',
-                padding: '0.75rem',
-                fontSize: '1rem',
-                borderRadius: '8px',
-                border: '1px solid rgba(255, 255, 255, 0.2)',
-                backgroundColor: 'rgba(0, 0, 0, 0.1)',
-                color: '#f8f8f0'
-              }}
-            >
-              <option value="analysis">Анализ модели</option>
-              <option value="project">Технический проект</option>
-            </select>
-          </div>
-        </div>
-        <button
-          type="submit"
-          disabled={isLoading || !modelFile}
-          style={{
-            backgroundColor: isLoading ? '#cccccc' : colors.primary,
-            color: 'white',
-            border: 'none',
-            padding: '0.85rem 2.5rem',
-            fontSize: '1.1rem',
-            borderRadius: '8px',
-            cursor: isLoading ? 'not-allowed' : 'pointer',
-            fontWeight: 'bold',
-            width: '100',
-            boxShadow: isLoading ? 'none' : '0 4px 15px rgba(122, 106, 200, 0.3)'
-          }}
-        >
-          {isLoading ? 'Обработка модели...' : 'Обработать модель'}
-        </button>
-      </form>
-      {result && (
-        <div>
-          <h3 style={{
-            fontSize: '1.5rem',
-            marginBottom: '1rem',
-            color: colors.primary,
-            textAlign: 'center'
-          }}>
-            Результат обработки
-          </h3>
-          <div style={{
-            backgroundColor: 'rgba(255, 255, 255, 0.05)',
-            borderRadius: '10px',
-            padding: '1.5rem',
-            marginBottom: '1.5rem'
-          }}>
-            <div style={{display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '1.5rem'}}>
-              <div>
-                <h4 style={{
-                  fontSize: '1.2rem',
-                  marginBottom: '0.5rem',
-                  color: colors.secondary
-                }}>
-                  Тип конструкции
-                </h4>
-                <p style={{color: colors.textSecondary}}>
-                  {result.analysis.model_type === 'furniture' ? 'Мебель' : 
-                   result.analysis.model_type === 'architecture' ? 'Архитектура' : 'Неизвестно'}
-                </p>
-              </div>
-              <div>
-                <h4 style={{
-                  fontSize: '1.2rem',
-                  marginBottom: '0.5rem',
-                  color: colors.secondary
-                }}>
-                  Сложность
-                </h4>
-                {renderComplexityMeter(result.analysis.complexity)}
-              </div>
+          <div className="form-row">
+            <div className="form-group">
+              <label htmlFor="model_type">Тип модели</label>
+              <select
+                id="model_type"
+                name="model_type"
+                value={formData.model_type}
+                onChange={handleChange}
+              >
+                <option value="персонаж">Персонаж</option>
+                <option value="объект">Объект</option>
+                <option value="среда">Среда/Локация</option>
+                <option value="транспорт">Транспорт</option>
+                <option value="архитектура">Архитектура</option>
+              </select>
             </div>
-            <div style={{marginTop: '1rem'}}>
-              <h4 style={{
-                fontSize: '1.2rem',
-                marginBottom: '0.5rem',
-                color: colors.secondary
-              }}>
-                Оценочное время печати
-              </h4>
-              <p style={{color: colors.textSecondary}}>
-                {result.analysis.estimated_print_time}
-              </p>
+            <div className="form-group">
+              <label htmlFor="complexity">Сложность</label>
+              <select
+                id="complexity"
+                name="complexity"
+                value={formData.complexity}
+                onChange={handleChange}
+              >
+                <option value="низкая">Низкая</option>
+                <option value="средняя">Средняя</option>
+                <option value="высокая">Высокая</option>
+                <option value="очень высокая">Очень высокая</option>
+              </select>
             </div>
           </div>
-          <div style={{
-            backgroundColor: 'rgba(255, 255, 255, 0.05)',
-            borderRadius: '10px',
-            padding: '1.5rem',
-            marginBottom: '1.5rem'
-          }}>
-            <h4 style={{
-              fontSize: '1.2rem',
-              marginBottom: '1rem',
-              color: colors.secondary
-            }}>
-              Компоненты модели
-            </h4>
-            <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1rem'}}>
-              {result.analysis.components.map((component, index) => (
-                <div key={index} style={{
-                  backgroundColor: 'rgba(0, 0, 0, 0.1)',
-                  borderRadius: '8px',
-                  padding: '1rem'
-                }}>
-                  <h5 style={{
-                    color: colors.primary,
-                    marginBottom: '0.5rem'
-                  }}>
-                    {component.name}
-                  </h5>
-                  <p style={{color: colors.textSecondary, marginBottom: '0.5rem'}}>
-                    {component.description}
-                  </p>
-                  <p style={{color: colors.textSecondary, marginBottom: '0.5rem'}}>
-                    <strong>Размеры:</strong> {component.dimensions.x}x{component.dimensions.y}x{component.dimensions.z} мм
-                  </p>
-                  <p style={{color: colors.textSecondary}}>
-                    <strong>Материалы:</strong> {component.material_recommendations.join(', ')}
-                  </p>
-                </div>
-              ))}
-            </div>
+          <div className="form-group">
+            <label htmlFor="software">Программное обеспечение</label>
+            <input
+              type="text"
+              id="software"
+              name="software"
+              value={formData.software}
+              onChange={handleChange}
+              placeholder="Например: Blender, Maya, ZBrush"
+            />
           </div>
-          <div style={{
-            backgroundColor: 'rgba(255, 255, 255, 0.05)',
-            borderRadius: '10px',
-            padding: '1.5rem',
-            marginBottom: '1.5rem'
-          }}>
-            <h4 style={{
-              fontSize: '1.2rem',
-              marginBottom: '1rem',
-              color: colors.secondary
-            }}>
-              Смета материалов
-            </h4>
-            <div style={{overflowX: 'auto'}}>
-              <table style={{
-                width: '100%',
-                borderCollapse: 'separate',
-                borderSpacing: '0 0.5rem'
-              }}>
-                <thead>
-                  <tr>
-                    <th style={{textAlign: 'left', padding: '0.5rem', color: colors.textSecondary}}>Компонент</th>
-                    <th style={{textAlign: 'left', padding: '0.5rem', color: colors.textSecondary}}>Материал</th>
-                    <th style={{textAlign: 'left', padding: '0.5rem', color: colors.textSecondary}}>Количество</th>
-                    <th style={{textAlign: 'left', padding: '0.5rem', color: colors.textSecondary}}>Стоимость</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {result.construction_plan.bill_of_materials.map((item, index) => (
-                    <tr key={index} style={{backgroundColor: 'rgba(0, 0, 0, 0.05)', borderRadius: '4px'}}>
-                      <td style={{padding: '0.75rem', color: colors.textSecondary}}>{item.component}</td>
-                      <td style={{padding: '0.75rem', color: colors.textSecondary}}>{item.material}</td>
-                      <td style={{padding: '0.75rem', color: colors.textSecondary}}>{item.quantity}</td>
-                      <td style={{padding: '0.75rem', color: colors.textSecondary}}>{item.estimated_cost.toFixed(2)} руб.</td>
-                    </tr>
-                  ))}
-                  <tr style={{fontWeight: 'bold', backgroundColor: 'rgba(122, 106, 200, 0.1)'}}>
-                    <td colSpan={3} style={{padding: '0.75rem', color: colors.textSecondary}}>Общая стоимость</td>
-                    <td style={{padding: '0.75rem', color: colors.textSecondary}}>{result.construction_plan.total_estimated_cost.toFixed(2)} руб.</td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
+          <div className="form-group">
+            <label htmlFor="purpose">Цель модели</label>
+            <input
+              type="text"
+              id="purpose"
+              name="purpose"
+              value={formData.purpose}
+              onChange={handleChange}
+              placeholder="Например: визуализация, анимация, игра, VR"
+            />
           </div>
-          <div style={{
-            backgroundColor: 'rgba(255, 255, 255, 0.05)',
-            borderRadius: '10px',
-            padding: '1.5rem',
-            marginBottom: '1.5rem'
-          }}>
-            <h4 style={{
-              fontSize: '1.2rem',
-              marginBottom: '1rem',
-              color: colors.secondary
-            }}>
-              Пошаговая инструкция
-            </h4>
-            <ol style={{
-              paddingLeft: '1.5rem',
-              color: colors.textSecondary,
-              lineHeight: '1.6'
-            }}>
-              {result.construction_plan.assembly_instructions.map((step, index) => (
-                <li key={index} style={{marginBottom: '1rem'}}>
-                  {step.description}
-                </li>
-              ))}
-            </ol>
+          <div className="form-group">
+            <label htmlFor="timeframe">Временные рамки</label>
+            <input
+              type="text"
+              id="timeframe"
+              name="timeframe"
+              value={formData.timeframe}
+              onChange={handleChange}
+              placeholder="Например: 2-4 недели"
+            />
           </div>
-          <div style={{
-            backgroundColor: 'rgba(255, 255, 255, 0.05)',
-            borderRadius: '10px',
-            padding: '1.5rem',
-            marginBottom: '1.5rem'
-          }}>
-            <h4 style={{
-              fontSize: '1.2rem',
-              marginBottom: '1rem',
-              color: colors.secondary
-            }}>
-              Рекомендации Советницы АКВИ
-            </h4>
-            <div style={{
-              textAlign: 'left',
-              whiteSpace: 'pre-wrap',
-              lineHeight: '1.6'
-            }}>
-              {result.refined_project}
-            </div>
-          </div>
-          <div style={{
-            display: 'flex',
-            justifyContent: 'center',
-            gap: '1rem',
-            marginTop: '2rem',
-            flexWrap: 'wrap'
-          }}>
-            <button
-              onClick={downloadModel}
-              style={{
-                backgroundColor: colors.secondary,
-                color: 'white',
-                border: 'none',
-                padding: '0.75rem 1.5rem',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontWeight: 'bold'
-              }}
-            >
-              Скачать исходную модель
-            </button>
-            <button
-              onClick={exportProjectToText}
-              style={{
-                backgroundColor: colors.primary,
-                color: 'white',
-                border: 'none',
-                padding: '0.75rem 1.5rem',
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontWeight: 'bold'
-              }}
-            >
-              Экспорт проекта в текст
-            </button>
-          </div>
-        </div>
+          <button 
+            type="submit" 
+            className="generate-button"
+            disabled={isLoading}
+          >
+            {isLoading ? (
+              <>
+                <span className="spinner"></span>
+                Генерируем план 3D-моделирования...
+              </>
+            ) : (
+              'Сгенерировать план'
+            )}
+          </button>
+        </form>
+      ) : (
+        renderModelingPlan()
       )}
-      <div style={{
-        marginTop: '2rem',
-        padding: '1.5rem',
-        backgroundColor: 'rgba(122, 106, 200, 0.1)',
-        borderRadius: '10px'
-      }}>
-        <h3 style={{
-          fontSize: '1.3rem',
-          marginBottom: '0.5rem',
-          color: colors.primary
-        }}>
-          Как работает 3D моделирование
-        </h3>
-        <ul style={{
-          paddingLeft: '1.5rem',
-          color: colors.textSecondary,
-          lineHeight: '1.6'
-        }}>
-          <li>Мы анализируем вашу 3D модель и определяем её компоненты и сложность</li>
-          <li>Генерируем смету материалов и пошаговую инструкцию по сборке</li>
-          <li>Предоставляем рекомендации по оптимизации конструкции и выбору материалов</li>
-          <li>Помогаем превратить цифровую модель в реальный проект</li>
-        </ul>
-        <p style={{marginTop: '1rem', color: colors.textSecondary}}>
-          <strong>Примечание:</strong> После 1 октября, когда возобновятся кредиты на Hugging Face, 
-          мы сможем интегрировать реальные модели для более точного анализа 3D моделей.
-        </p>
+      <div className="footer-note">
+        Советница АКВИ создает структурированные планы по 3D-моделированию с использованием передовых моделей искусственного интеллекта. 
+        Результаты носят рекомендательный характер и могут быть адаптированы под ваши потребности.
       </div>
     </div>
   );
-}
+};
 
 export default ThreeDModelConverterForm;
