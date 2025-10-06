@@ -14,10 +14,11 @@ const PresentationForm = () => {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<any>(null);
   const [progress, setProgress] = useState(0);
+  
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
-  };
+  };  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!formData.topic.trim()) {
@@ -62,14 +63,15 @@ const PresentationForm = () => {
   const renderPresentation = () => {
     if (!result || !result.presentation) return null;
     const sections = {
-      title: extractSection(result.presentation, "# НАЗВАНИЕ ПРЕЗЕНТАЦИИ", "## 1."),
-      introduction: extractSection(result.presentation, "## 1. ВВЕДЕНИЕ", "## 2."),
-      main: extractSection(result.presentation, "## 2. ОСНОВНАЯ ЧАСТЬ", "## 3."),
-      conclusions: extractSection(result.presentation, "## 3. КЛЮЧЕВЫЕ ВЫВОДЫ", "## 4."),
-      faq: extractSection(result.presentation, "## 4. ЧАСТЫЕ ВОПРОСЫ И ОТВЕТЫ", "## 5."),
-      conclusion: extractSection(result.presentation, "## 5. ЗАКЛЮЧЕНИЕ", "## 6."),
-      additional: extractSection(result.presentation, "## 6. ДОПОЛНИТЕЛЬНЫЕ МАТЕРИАЛЫ", "## 7."),
-      recommendations: extractSection(result.presentation, "## 7. РЕКОМЕНДАЦИИ ПО ПОДГОТОВКЕ", null)
+      title: extractSection(result.presentation, "# НАЗВАНИЕ ПРЕЗЕНТАЦИИ", "## 1. ТИТУЛЬНЫЙ СЛАЙД"),
+      title_slide: extractSection(result.presentation, "## 1. ТИТУЛЬНЫЙ СЛАЙД", "## 2. ВВЕДЕНИЕ"),
+      introduction: extractSection(result.presentation, "## 2. ВВЕДЕНИЕ", "## 3. ОСНОВНАЯ ЧАСТЬ"),
+      main: extractSection(result.presentation, "## 3. ОСНОВНАЯ ЧАСТЬ", "## 4. КЛЮЧЕВЫЕ ВЫВОДЫ"),
+      conclusions: extractSection(result.presentation, "## 4. КЛЮЧЕВЫЕ ВЫВОДЫ", "## 5. ЧАСТЫЕ ВОПРОСЫ И ОТВЕТЫ"),
+      faq: extractSection(result.presentation, "## 5. ЧАСТЫЕ ВОПРОСЫ И ОТВЕТЫ", "## 6. ЗАКЛЮЧЕНИЕ"),
+      conclusion: extractSection(result.presentation, "## 6. ЗАКЛЮЧЕНИЕ", "## 7. ДОПОЛНИТЕЛЬНЫЕ МАТЕРИАЛЫ"),
+      additional: extractSection(result.presentation, "## 7. ДОПОЛНИТЕЛЬНЫЕ МАТЕРИАЛЫ", "## 8. РЕКОМЕНДАЦИИ ПО ПОДГОТОВКЕ"),
+      recommendations: extractSection(result.presentation, "## 8. РЕКОМЕНДАЦИИ ПО ПОДГОТОВКЕ", null)
     };
     return (
       <div className="presentation">
@@ -79,31 +81,35 @@ const PresentationForm = () => {
           <div className="section-content">{sections.title || "Не найдено"}</div>
         </div>
         <div className="section">
-          <h4>1. Введение</h4>
+          <h4>1. Титульный слайд</h4>
+          <div className="section-content">{sections.title_slide || "Не найдено"}</div>
+        </div>
+        <div className="section">
+          <h4>2. Введение</h4>
           <div className="section-content">{sections.introduction || "Не найдено"}</div>
         </div>
         <div className="section">
-          <h4>2. Основная часть</h4>
+          <h4>3. Основная часть</h4>
           <div className="section-content">{sections.main || "Не найдено"}</div>
         </div>
         <div className="section">
-          <h4>3. Ключевые выводы</h4>
+          <h4>4. Ключевые выводы</h4>
           <div className="section-content">{sections.conclusions || "Не найдено"}</div>
         </div>
         <div className="section">
-          <h4>4. Частые вопросы и ответы</h4>
+          <h4>5. Частые вопросы и ответы</h4>
           <div className="section-content">{sections.faq || "Не найдено"}</div>
         </div>
         <div className="section">
-          <h4>5. Заключение</h4>
+          <h4>6. Заключение</h4>
           <div className="section-content">{sections.conclusion || "Не найдено"}</div>
         </div>
         <div className="section">
-          <h4>6. Дополнительные материалы</h4>
+          <h4>7. Дополнительные материалы</h4>
           <div className="section-content">{sections.additional || "Не найдено"}</div>
         </div>
         <div className="section">
-          <h4>7. Рекомендации по подготовке</h4>
+          <h4>8. Рекомендации по подготовке</h4>
           <div className="section-content">{sections.recommendations || "Не найдено"}</div>
         </div>
         <button 
@@ -116,11 +122,28 @@ const PresentationForm = () => {
     );
   };
   const extractSection = (text: string, startMarker: string, endMarker: string | null): string => {
-    const startIndex = text.indexOf(startMarker);
+    const normalizeText = (str: string) => str.toLowerCase().replace(/\s+/g, ' ').trim();
+    let startIndex = -1;
+    const normalizedText = normalizeText(text);
+    const normalizedStartMarker = normalizeText(startMarker);
+    for (let i = 0; i < text.length - normalizedStartMarker.length; i++) {
+      const segment = normalizeText(text.substring(i, i + normalizedStartMarker.length + 10));
+      if (segment.includes(normalizedStartMarker)) {
+        startIndex = i;
+        break;
+      }
+    }
     if (startIndex === -1) return "";
     let endIndex = -1;
     if (endMarker) {
-      endIndex = text.indexOf(endMarker, startIndex + startMarker.length);
+      const normalizedEndMarker = normalizeText(endMarker);
+      for (let i = startIndex + startMarker.length; i < text.length - normalizedEndMarker.length; i++) {
+        const segment = normalizeText(text.substring(i, i + normalizedEndMarker.length + 10));
+        if (segment.includes(normalizedEndMarker)) {
+          endIndex = i;
+          break;
+        }
+      }
     }
     if (endIndex === -1) {
       return text.substring(startIndex + startMarker.length).trim();
