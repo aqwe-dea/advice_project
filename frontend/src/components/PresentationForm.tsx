@@ -38,7 +38,7 @@ const PresentationForm = () => {
           return prev + 5;
         });
       }, 300);
-      const response = await fetch('https://advice-project.onrender.com/generate-presentation/', {
+      const response = await fetch('/generate-presentation/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
