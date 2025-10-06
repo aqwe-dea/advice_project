@@ -809,7 +809,7 @@ class ThreeDToProjectView(APIView):
             """
             response = client.chat_completion(
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=1800
+                max_tokens=1400
             )
             return Response({
                 'modeling_plan': response.choices[0].message.content,
@@ -1099,7 +1099,7 @@ class PresentationGenerationView(APIView):
             """
             response = client.chat_completion(
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=1800
+                max_tokens=1000
             )
             return Response({
                 'presentation': response.choices[0].message.content,
