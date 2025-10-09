@@ -981,7 +981,7 @@ class BusinessPlanView(APIView):
             """
             response = client.chat_completion(
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=1800
+                max_tokens=1400
             )
             return Response({
                 'business_plan': response.choices[0].message.content,
@@ -1063,7 +1063,7 @@ class BusinessPlanView(APIView):
             """            
             response = client.chat_completion(
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=1800
+                max_tokens=1400
             )
             return Response({
                 'industry_template': response.choices[0].message.content,
@@ -1156,7 +1156,7 @@ class BusinessPlanView(APIView):
             """            
             response = client.chat_completion(
                 messages=[{"role": "user", "content": prompt}],
-                max_tokens=1800
+                max_tokens=1400
             )            
             return Response({
                 'pitch_deck': response.choices[0].message.content,
