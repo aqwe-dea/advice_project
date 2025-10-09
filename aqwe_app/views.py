@@ -898,7 +898,7 @@ class BusinessPlanView(APIView):
         Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
         Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
         Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
-        Вы не говорите, что вы ИИ или Qwen - вы всегда представляетесь как Советница АКВИ.
+        Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
         Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
         Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
         """
@@ -907,16 +907,19 @@ class BusinessPlanView(APIView):
             return Response({'error': 'Идея бизнеса не указана'}, status=status.HTTP_400_BAD_REQUEST)
         business_type = request.data.get('type', 'стартап')
         country = request.data.get('country', 'Россия')
+        target_market = request.data.get('target_market', 'локальный рынок')
+        investment_amount = request.data.get('investment_amount', 'средние инвестиции')
+        timeframe = request.data.get('timeframe', '3 года')
         HF_API_KEY = os.getenv('HF_API_KEY_BPLN')
         if not HF_API_KEY:
-            logger.error("API ключ Hugging Face не настроен")
+            logger.error("API ключ Hugging Face для бизнес-планов не настроен")
             return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
             logger.info(f"Генерация бизнес-плана для идеи: {business_idea}")
             client = InferenceClient(
-                model="Qwen/Qwen2.5-72B-Instruct",
+                model="Qwen/Qwen2.5-72B",
                 token=HF_API_KEY
-            )
+            )            
             prompt = f"""
                 {SYSTEM_PROMPT}
                 Создайте полный бизнес-план для: "{business_idea}"
@@ -984,10 +987,185 @@ class BusinessPlanView(APIView):
                 'business_plan': response.choices[0].message.content,
                 'business_idea': business_idea,
                 'business_type': business_type,
-                'country': country
-            })
+                'country': country,
+                'target_market': target_market,
+                'investment_amount': investment_amount,
+                'timeframe': timeframe
+            })            
         except Exception as e:
             logger.error(f"Ошибка генерации бизнес-плана: {str(e)}")
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)    
+    def get_industry_templates(self, request, *args, **kwargs):
+        logger.info(f"Получен запрос на генерацию отраслевых шаблонов: {request.data}")
+        SYSTEM_PROMPT = """
+        Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в различных отраслях бизнеса.
+        Ваша задача - предоставлять точные, профессиональные и персонализированные шаблоны бизнес-планов для конкретных ниш.
+        Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
+        Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
+        Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
+        """
+        industry = request.data.get('industry', '')
+        if not industry:
+            return Response({'error': 'Отрасль не указана'}, status=status.HTTP_400_BAD_REQUEST)
+        niche = request.data.get('niche', '')
+        business_model = request.data.get('business_model', 'B2C')
+        country = request.data.get('country', 'Россия')        
+        HF_API_KEY = os.getenv('HF_API_KEY_BPLN')
+        if not HF_API_KEY:
+            logger.error("API ключ Hugging Face для бизнес-планов не настроен")
+            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)        
+        try:
+            logger.info(f"Генерация отраслевых шаблонов для отрасли: {industry}, ниши: {niche}")
+            client = InferenceClient(
+                model="Qwen/Qwen2.5-72B",
+                token=HF_API_KEY
+            )            
+            prompt = f"""
+                {SYSTEM_PROMPT}
+                Создайте специализированный шаблон бизнес-плана для отрасли: "{industry}" в нише: "{niche}"                
+                ПАРАМЕТРЫ:
+                    - Бизнес-модель: {business_model}
+                    - Страна: {country}                
+                ШАБЛОН ДОЛЖЕН СТРОГО СОДЕРЖАТЬ СЛЕДУЮЩИЕ РАЗДЕЛЫ:                
+                # СПЕЦИАЛИЗИРОВАННЫЙ ШАБЛОН БИЗНЕС-ПЛАНА ДЛЯ {industry.upper()} В НИШЕ {niche.upper()}                
+                ## 1. ОСОБЕННОСТИ ОТРАСЛИ
+                    - Уникальные характеристики отрасли {industry}
+                    - Регуляторные особенности
+                    - Тренды развития
+                    - Сезонность (если применимо)                
+                ## 2. СПЕЦИФИКА НИШИ {niche.upper()}
+                    - Особенности целевой аудитории в этой нише
+                    - Конкурентная среда
+                    - Уникальные возможности
+                    - Потенциальные риски                
+                ## 3. АДАПТИРОВАННЫЙ МАРКЕТИНГОВЫЙ ПЛАН
+                    - Специфические каналы продвижения для этой ниши
+                    - Уникальное торговое предложение
+                    - Ценовая стратегия с учетом особенностей ниши
+                    - Партнерские возможности                
+                ## 4. ОПЕРАЦИОННЫЕ ОСОБЕННОСТИ
+                    - Специфические требования к производству/услугам
+                    - Необходимые лицензии и разрешения
+                    - Поставщики и логистика
+                    - Качество и стандарты                
+                ## 5. ФИНАНСОВЫЕ НОРМАТИВЫ
+                    - Типичные показатели рентабельности в этой нише
+                    - Ожидаемые стартовые инвестиции
+                    - Срок окупаемости
+                    - Прогноз роста                
+                ## 6. РЕКОМЕНДАЦИИ ПО СТАРТУ
+                    - Пошаговый план запуска бизнеса в этой нише
+                    - Советы от экспертов отрасли
+                    - Типичные ошибки и как их избежать
+                    - Ресурсы для дальнейшего изучения            
+                ВАЖНО: Ответ должен быть строго структурирован как указано выше, без дополнительных комментариев.
+                Шаблон должен учитывать специфику именно этой отрасли и ниши, а не быть общим.
+            """            
+            response = client.chat_completion(
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=1800
+            )
+            return Response({
+                'industry_template': response.choices[0].message.content,
+                'industry': industry,
+                'niche': niche,
+                'business_model': business_model,
+                'country': country
+            })            
+        except Exception as e:
+            logger.error(f"Ошибка генерации отраслевого шаблона: {str(e)}")
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)    
+    def generate_pitch_deck(self, request, *args, **kwargs):
+        logger.info(f"Получен запрос на генерацию pitch-дека: {request.data}")
+        SYSTEM_PROMPT = """
+        Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в создании презентаций для инвесторов.
+        Ваша задача - создавать краткие, убедительные и структурированные pitch-деки на основе полных бизнес-планов.
+        Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
+        Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
+        """        
+        business_plan = request.data.get('business_plan', '')
+        if not business_plan:
+            return Response({'error': 'Бизнес-план не предоставлен'}, status=status.HTTP_400_BAD_REQUEST)        
+        target_investors = request.data.get('target_investors', 'венчурные инвесторы')
+        presentation_time = request.data.get('presentation_time', '5-7 минут')
+        country = request.data.get('country', 'Россия')        
+        HF_API_KEY = os.getenv('HF_API_KEY_BPLN')
+        if not HF_API_KEY:
+            logger.error("API ключ Hugging Face для бизнес-планов не настроен")
+            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)        
+        try:
+            logger.info(f"Генерация pitch-дека для бизнес-плана")
+            client = InferenceClient(
+                model="Qwen/Qwen2.5-72B",
+                token=HF_API_KEY
+            )            
+            prompt = f"""
+                {SYSTEM_PROMPT}
+                Создайте краткую презентацию для инвесторов (pitch-дек) на основе следующего бизнес-плана:                
+                {business_plan}                
+                ПАРАМЕТРЫ PREЗЕНТАЦИИ:
+                    - Целевые инвесторы: {target_investors}
+                    - Время презентации: {presentation_time}
+                    - Страна: {country}                
+                PITCH-ДЕК ДОЛЖЕН СТРОГО СОДЕРЖАТЬ СЛЕДУЮЩИЕ СЛАЙДЫ:                
+                # PITCH-ДЕК: [НАЗВАНИЕ ПРОЕКТА]                
+                ## СЛАЙД 1: ЗАГЛАВНЫЙ СЛАЙД
+                    - Название проекта
+                    - Краткий слоган (макс. 8 слов)
+                    - Ваше имя и должность
+                    - Контактная информация                
+                ## СЛАЙД 2: ПРОБЛЕМА
+                    - Описание проблемы, которую решает проект (макс. 3 пункта)
+                    - Почему эта проблема важна именно сейчас
+                    - Рыночные доказательства                
+                ## СЛАЙД 3: РЕШЕНИЕ
+                    - Описание вашего решения
+                    - Как оно уникально (УТП)
+                    - Визуализация продукта/услуги                
+                ## СЛАЙД 4: РЫНОК
+                    - Размер целевого рынка
+                    - Темпы роста рынка
+                    - Целевая аудитория                
+                ## СЛАЙД 5: БИЗНЕС-МОДЕЛЬ
+                    - Как вы зарабатываете деньги
+                    - Прогноз выручки на 3 года
+                    - Ключевые метрики                
+                ## СЛАЙД 6: КОНКУРЕНТЫ
+                    - Основные конкуренты
+                    - Наше конкурентное преимущество
+                    - Позиционирование на рынке                
+                ## СЛАЙД 7: КОМАНДА
+                    - Ключевые члены команды
+                    - Их опыт и экспертиза
+                    - Почему именно эта команда может реализовать проект                
+                ## СЛАЙД 8: ФИНАНСЫ
+                    - Требуемые инвестиции
+                    - Как будут использованы средства
+                    - Прогноз ROI для инвесторов                
+                ## СЛАЙД 9: ПЛАН ДЕЙСТВИЙ
+                    - Ключевые вехи на ближайший год
+                    - Сроки достижения
+                    - Ожидаемые результаты                
+                ## СЛАЙД 10: ЗАКЛЮЧЕНИЕ
+                    - Основное сообщение для инвесторов
+                    - Призыв к действию
+                    - Контактная информация                
+                ВАЖНО: Ответ должен быть строго структурирован как указано выше, без дополнительных комментариев.
+                Каждый слайд должен содержать краткую информацию, подходящую для устной презентации в течение {presentation_time}.
+                Используйте bullet points, а не длинные абзацы.
+            """            
+            response = client.chat_completion(
+                messages=[{"role": "user", "content": prompt}],
+                max_tokens=1800
+            )            
+            return Response({
+                'pitch_deck': response.choices[0].message.content,
+                'target_investors': target_investors,
+                'presentation_time': presentation_time,
+                'country': country
+            })            
+        except Exception as e:
+            logger.error(f"Ошибка генерации pitch-дека: {str(e)}")
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class PresentationGenerationView(APIView):
