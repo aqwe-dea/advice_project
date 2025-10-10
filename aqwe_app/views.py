@@ -911,16 +911,16 @@ class BusinessPlanView(APIView):
         target_market = request.data.get('target_market', 'локальный рынок')
         investment_amount = request.data.get('investment_amount', 'средние инвестиции')
         timeframe = request.data.get('timeframe', '3 года')
-        HF_API_KEY = os.getenv('HF_API_KEY_BPLN')
-        if not HF_API_KEY:
-            logger.error("API ключ Hugging Face для бизнес-планов не настроен")
+        ALIBABA_API_KEY = os.getenv('ACS_AQWE_BUSINESS')
+        if not ALIBABA_API_KEY:
+            logger.error("API ключ Alibaba Cloud для бизнес-планов не настроен")
             return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
             logger.info(f"Генерация бизнес-плана для идеи: {business_idea}")
-            client = InferenceClient(
-                model="Qwen/Qwen2.5-72B",
-                token=HF_API_KEY
-            )            
+            client = OpenAI(
+                api_key=ALIBABA_API_KEY,
+                base_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
+            )           
             prompt = f"""
                 {SYSTEM_PROMPT}
                 Создайте полный бизнес-план для: "{business_idea}"
@@ -980,9 +980,13 @@ class BusinessPlanView(APIView):
                     - Меры по минимизации
                 ВАЖНО: Ответ должен быть строго структурирован как указано выше, без дополнительных комментариев.
             """
-            response = client.chat_completion(
-                messages=[{"role": "user", "content": prompt}],
-                max_tokens=1400
+            response = client.chat.completions.create(
+                model="Qwen2.5-72B",
+                messages=[
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": f"Создайте полный бизнес-план для идеи: \"{business_idea}\""}
+                ],
+                max_tokens=1800
             )
             return Response({
                 'business_plan': response.choices[0].message.content,
@@ -1066,7 +1070,7 @@ class BusinessPlanView(APIView):
                 model="Qwen2.5-72B",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": f"Создайте специализированный шаблон бизнес-плана для отрасли: \"{industry}\" в нише \"{niche}\""}
+                    {"role": "user", "content": f"Создайте специализированный шаблон бизнес-плана для отрасли: \"{industry}\""}
                 ],
                 max_tokens=1800
             )
