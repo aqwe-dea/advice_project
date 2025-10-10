@@ -15,6 +15,7 @@ from .serializers import AdviceSerializer, UserHistorySerializer
 from .utils import send_advice_email
 from huggingface_hub import InferenceClient
 from huggingface_hub import InferenceApi
+from openai import OpenAI
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.decorators import permission_classes
@@ -1010,15 +1011,15 @@ class BusinessPlanView(APIView):
         niche = request.data.get('niche', '')
         business_model = request.data.get('business_model', 'B2C')
         country = request.data.get('country', 'Россия')        
-        HF_API_KEY = os.getenv('HF_API_KEY_BPLN')
-        if not HF_API_KEY:
-            logger.error("API ключ Hugging Face для бизнес-планов не настроен")
+        ALIBABA_API_KEY = os.getenv('ACS_AQWE_BUSINESS')
+        if not ALIBABA_API_KEY:
+            logger.error("API ключ Alibaba Cloud для бизнес-планов не настроен")
             return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)        
         try:
             logger.info(f"Генерация отраслевых шаблонов для отрасли: {industry}, ниши: {niche}")
-            client = InferenceClient(
-                model="Qwen/Qwen2.5-72B",
-                token=HF_API_KEY
+            client = OpenAI(
+                api_key=ALIBABA_API_KEY,
+                base_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
             )            
             prompt = f"""
                 {SYSTEM_PROMPT}
@@ -1061,9 +1062,13 @@ class BusinessPlanView(APIView):
                 ВАЖНО: Ответ должен быть строго структурирован как указано выше, без дополнительных комментариев.
                 Шаблон должен учитывать специфику именно этой отрасли и ниши, а не быть общим.
             """            
-            response = client.chat_completion(
-                messages=[{"role": "user", "content": prompt}],
-                max_tokens=1400
+            response = client.chat.completions.create(
+                model="Qwen2.5-72B",
+                messages=[
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": f"Создайте специализированный шаблон бизнес-плана для отрасли: \"{industry}\" в нише \"{niche}\""}
+                ],
+                max_tokens=1800
             )
             return Response({
                 'industry_template': response.choices[0].message.content,
