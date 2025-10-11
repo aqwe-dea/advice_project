@@ -981,12 +981,12 @@ class BusinessPlanView(APIView):
                 ВАЖНО: Ответ должен быть строго структурирован как указано выше, без дополнительных комментариев.
             """
             response = client.chat.completions.create(
-                model="Qwen2.5-72B",
+                model="Qwen-Plus",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": f"Создайте полный бизнес-план для идеи: \"{business_idea}\""}
                 ],
-                max_tokens=1800
+                max_tokens=1200
             )
             return Response({
                 'business_plan': response.choices[0].message.content,
@@ -1067,12 +1067,12 @@ class BusinessPlanView(APIView):
                 Шаблон должен учитывать специфику именно этой отрасли и ниши, а не быть общим.
             """            
             response = client.chat.completions.create(
-                model="Qwen2.5-72B",
+                model="Qwen-Plus",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": f"Создайте специализированный шаблон бизнес-плана для отрасли: \"{industry}\""}
                 ],
-                max_tokens=1800
+                max_tokens=1200
             )
             return Response({
                 'industry_template': response.choices[0].message.content,
