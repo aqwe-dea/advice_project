@@ -919,7 +919,7 @@ class BusinessPlanView(APIView):
             logger.info(f"Генерация бизнес-плана для идеи: {business_idea}")
             client = OpenAI(
                 api_key=ALIBABA_API_KEY,
-                base_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
+                base_url="https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
             )           
             prompt = f"""
                 {SYSTEM_PROMPT}
@@ -1023,7 +1023,7 @@ class BusinessPlanView(APIView):
             logger.info(f"Генерация отраслевых шаблонов для отрасли: {industry}, ниши: {niche}")
             client = OpenAI(
                 api_key=ALIBABA_API_KEY,
-                base_url="https://dashscope.aliyuncs.com/compatible-mode/v1"
+                base_url="https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
             )            
             prompt = f"""
                 {SYSTEM_PROMPT}
