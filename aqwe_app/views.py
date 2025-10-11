@@ -981,7 +981,7 @@ class BusinessPlanView(APIView):
                 ВАЖНО: Ответ должен быть строго структурирован как указано выше, без дополнительных комментариев.
             """
             response = client.chat.completions.create(
-                model="Qwen-Plus",
+                model="qwen-plus",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": f"Создайте полный бизнес-план для идеи: \"{business_idea}\""}
@@ -1067,7 +1067,7 @@ class BusinessPlanView(APIView):
                 Шаблон должен учитывать специфику именно этой отрасли и ниши, а не быть общим.
             """            
             response = client.chat.completions.create(
-                model="Qwen-Plus",
+                model="qwen-plus",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": f"Создайте специализированный шаблон бизнес-плана для отрасли: \"{industry}\""}
