@@ -911,15 +911,15 @@ class BusinessPlanView(APIView):
         target_market = request.data.get('target_market', 'локальный рынок')
         investment_amount = request.data.get('investment_amount', 'средние инвестиции')
         timeframe = request.data.get('timeframe', '3 года')
-        ALIBABA_API_KEY = os.getenv('ACS_AQWE_BUSINESS')
-        if not ALIBABA_API_KEY:
-            logger.error("API ключ Alibaba Cloud для бизнес-планов не настроен")
+        OPENROUTER_API_KEY = os.getenv('OPROUT_AQWE_BUSINESS')
+        if not OPENROUTER_API_KEY:
+            logger.error("API ключ OpenRouter для бизнес-планов не настроен")
             return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
             logger.info(f"Генерация бизнес-плана для идеи: {business_idea}")
             client = OpenAI(
-                api_key=ALIBABA_API_KEY,
-                base_url="https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
+                api_key=OPENROUTER_API_KEY,
+                base_url="https://openrouter.ai/api/v1"
             )           
             prompt = f"""
                 {SYSTEM_PROMPT}
@@ -981,7 +981,7 @@ class BusinessPlanView(APIView):
                 ВАЖНО: Ответ должен быть строго структурирован как указано выше, без дополнительных комментариев.
             """
             response = client.chat.completions.create(
-                model="qwen2.5-72b-instruct",
+                model="qwen/qwen-2.5-72b-instruct:free",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": f"Создайте полный бизнес-план для идеи: \"{business_idea}\""}
@@ -1015,15 +1015,15 @@ class BusinessPlanView(APIView):
         niche = request.data.get('niche', '')
         business_model = request.data.get('business_model', 'B2C')
         country = request.data.get('country', 'Россия')        
-        ALIBABA_API_KEY = os.getenv('ACS_AQWE_BUSINESS')
-        if not ALIBABA_API_KEY:
-            logger.error("API ключ Alibaba Cloud для бизнес-планов не настроен")
+        OPENROUTER_API_KEY = os.getenv('OPROUT_AQWE_BUSINESS')
+        if not OPENROUTER_API_KEY:
+            logger.error("API ключ OpenRouter для бизнес-планов не настроен")
             return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)        
         try:
             logger.info(f"Генерация отраслевых шаблонов для отрасли: {industry}, ниши: {niche}")
             client = OpenAI(
-                api_key=ALIBABA_API_KEY,
-                base_url="https://dashscope-intl.aliyuncs.com/compatible-mode/v1"
+                api_key=OPENROUTER_API_KEY,
+                base_url="https://openrouter.ai/api/v1"
             )            
             prompt = f"""
                 {SYSTEM_PROMPT}
@@ -1067,7 +1067,7 @@ class BusinessPlanView(APIView):
                 Шаблон должен учитывать специфику именно этой отрасли и ниши, а не быть общим.
             """            
             response = client.chat.completions.create(
-                model="qwen2.5-72b-instruct",
+                model="qwen/qwen-2.5-72b-instruct:free",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": f"Создайте специализированный шаблон бизнес-плана для отрасли: \"{industry}\""}
