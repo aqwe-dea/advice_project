@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 
 const BusinessPlanForm = () => {
   const [formData, setFormData] = useState({
@@ -61,51 +61,78 @@ const BusinessPlanForm = () => {
         const data = await response.json();
         setResult(data);
         setPitchData(prev => ({ ...prev, business_plan: data.business_plan }));
-      } 
-      else if (activeTab === 'template') {
-        if (!industryData.industry.trim()) {
-          setError('Пожалуйста, укажите отрасль');
-          return;
-        }        
-        const response = await fetch('/business-plan/industry-templates/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(industryData)
-        });        
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Ошибка при генерации отраслевого шаблона');
-        }        
-        const data = await response.json();
-        setIndustryTemplate(data);
-      }
-      else if (activeTab === 'pitch') {
-        if (!pitchData.business_plan) {
-          setError('Пожалуйста, сначала сгенерируйте бизнес-план');
-          return;
-        }        
-        const response = await fetch('/business-plan/pitch-deck/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(pitchData)
-        });        
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Ошибка при генерации pitch-дека');
-        }        
-        const data = await response.json();
-        setPitchDeck(data);
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Произошла ошибка');
     } finally {
       setIsLoading(false);
     }
-  };  
+  };
+  const handleGeneratePitchDeck = async (businessPlan: string) => {
+  setIsLoading(true);
+  setError(null);
+  
+  try {
+    const response = await fetch('/business-plan/pitch-deck/', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({
+        business_plan: businessPlan,
+        target_investors: 'венчурные инвесторы',
+        presentation_time: '5-7 минут',
+        country: formData.country
+      })
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Ошибка при генерации pitch-дека');
+    }
+    
+    const data = await response.json();
+    setPitchDeck(data);
+    setActiveTab('pitch');
+  } catch (err) {
+    setError(err instanceof Error ? err.message : 'Произошла ошибка');
+  } finally {
+    setIsLoading(false);
+  }
+  };
+  const handleGenerateIndustryTemplate = async (businessPlan: string) => {
+    setIsLoading(true);
+    setError(null);
+  
+    try {
+      const response = await fetch('/business-plan/industry-templates/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+        business_plan: businessPlan,
+        industry: '',
+        niche: '',
+        business_model: 'B2C',
+        country: formData.country
+      })
+    });
+    
+    if (!response.ok) {
+      const errorData = await response.json();
+      throw new Error(errorData.error || 'Ошибка при генерации отраслевого шаблона');
+    }
+    
+    const data = await response.json();
+    setIndustryTemplate(data);
+    setActiveTab('template');
+  } catch (err) {
+    setError(err instanceof Error ? err.message : 'Произошла ошибка');
+  } finally {
+    setIsLoading(false);
+  }
+  };
   const renderBusinessPlan = () => {
     if (!result || !result.business_plan) return null;    
     const sections = {

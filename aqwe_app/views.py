@@ -920,7 +920,7 @@ class BusinessPlanView(APIView):
             client = OpenAI(
                 api_key=OPENROUTER_API_KEY,
                 base_url="https://openrouter.ai/api/v1"
-            )           
+            )
             prompt = f"""
                 {SYSTEM_PROMPT}
                 Создайте полный бизнес-план для: "{business_idea}"
@@ -986,7 +986,7 @@ class BusinessPlanView(APIView):
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt}
                 ],
-                max_tokens=1500
+                max_tokens=1800
             )
             return Response({
                 'business_plan': response.choices[0].message.content,
@@ -996,10 +996,10 @@ class BusinessPlanView(APIView):
                 'target_market': target_market,
                 'investment_amount': investment_amount,
                 'timeframe': timeframe
-            })            
+            })    
         except Exception as e:
             logger.error(f"Ошибка генерации бизнес-плана: {str(e)}")
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)    
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     def get_industry_templates(self, request, *args, **kwargs):
         logger.info(f"Получен запрос на генерацию отраслевых шаблонов: {request.data}")
         SYSTEM_PROMPT = """
@@ -1009,81 +1009,103 @@ class BusinessPlanView(APIView):
         Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
         Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
         """
+        business_plan = request.data.get('business_plan', '')
         industry = request.data.get('industry', '')
-        if not industry:
-            return Response({'error': 'Отрасль не указана'}, status=status.HTTP_400_BAD_REQUEST)
+        business_idea = request.data.get('business_idea', '')
+        if not business_plan and not industry and not business_idea:
+            return Response({'error': 'Не указаны необходимые данные для генерации шаблона'}, status=status.HTTP_400_BAD_REQUEST)
+        if business_plan and not industry:
+            try:
+                industry = self.extract_industry_from_business_plan(business_plan)
+                if not industry:
+                    industry = "неизвестная отрасль"
+                logger.info(f"Извлечена отрасль из бизнес-плана: {industry}")
+            except Exception as e:
+                logger.warning(f"Не удалось извлечь отрасль из бизнес-плана: {str(e)}")
+                industry = "неизвестная отрасль"
         niche = request.data.get('niche', '')
         business_model = request.data.get('business_model', 'B2C')
-        country = request.data.get('country', 'Россия')        
+        country = request.data.get('country', 'Россия')
         OPENROUTER_API_KEY = os.getenv('OPROUT_AQWE_BUSINESS')
         if not OPENROUTER_API_KEY:
             logger.error("API ключ OpenRouter для бизнес-планов не настроен")
-            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)        
+            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
             logger.info(f"Генерация отраслевых шаблонов для отрасли: {industry}, ниши: {niche}")
             client = OpenAI(
                 api_key=OPENROUTER_API_KEY,
                 base_url="https://openrouter.ai/api/v1"
-            )            
+            )
             prompt = f"""
                 {SYSTEM_PROMPT}
-                Создайте специализированный шаблон бизнес-плана для отрасли: "{industry}" в нише: "{niche}"                
+                Создайте специализированный шаблон бизнес-плана для отрасли: "{industry}" в нише: "{niche}"
+                
                 ПАРАМЕТРЫ:
                     - Бизнес-модель: {business_model}
-                    - Страна: {country}                
-                ШАБЛОН ДОЛЖЕН СТРОГО СОДЕРЖАТЬ СЛЕДУЮЩИЕ РАЗДЕЛЫ:                
-                # СПЕЦИАЛИЗИРОВАННЫЙ ШАБЛОН БИЗНЕС-ПЛАНА ДЛЯ {industry.upper()} В НИШЕ {niche.upper()}                
+                    - Страна: {country}
+                
+                ШАБЛОН ДОЛЖЕН СТРОГО СОДЕРЖАТЬ СЛЕДУЮЩИЕ РАЗДЕЛЫ:
+                
+                # СПЕЦИАЛИЗИРОВАННЫЙ ШАБЛОН БИЗНЕС-ПЛАНА ДЛЯ {industry.upper()} В НИШЕ {niche.upper()}
+                
                 ## 1. ОСОБЕННОСТИ ОТРАСЛИ
                     - Уникальные характеристики отрасли {industry}
                     - Регуляторные особенности
                     - Тренды развития
-                    - Сезонность (если применимо)                
+                    - Сезонность (если применимо)
+                
                 ## 2. СПЕЦИФИКА НИШИ {niche.upper()}
                     - Особенности целевой аудитории в этой нише
                     - Конкурентная среда
                     - Уникальные возможности
-                    - Потенциальные риски                
+                    - Потенциальные риски
+                
                 ## 3. АДАПТИРОВАННЫЙ МАРКЕТИНГОВЫЙ ПЛАН
                     - Специфические каналы продвижения для этой ниши
                     - Уникальное торговое предложение
                     - Ценовая стратегия с учетом особенностей ниши
-                    - Партнерские возможности                
+                    - Партнерские возможности
+                
                 ## 4. ОПЕРАЦИОННЫЕ ОСОБЕННОСТИ
                     - Специфические требования к производству/услугам
                     - Необходимые лицензии и разрешения
                     - Поставщики и логистика
-                    - Качество и стандарты                
+                    - Качество и стандарты
+                
                 ## 5. ФИНАНСОВЫЕ НОРМАТИВЫ
                     - Типичные показатели рентабельности в этой нише
                     - Ожидаемые стартовые инвестиции
                     - Срок окупаемости
-                    - Прогноз роста                
+                    - Прогноз роста
+                
                 ## 6. РЕКОМЕНДАЦИИ ПО СТАРТУ
                     - Пошаговый план запуска бизнеса в этой нише
                     - Советы от экспертов отрасли
                     - Типичные ошибки и как их избежать
-                    - Ресурсы для дальнейшего изучения            
+                    - Ресурсы для дальнейшего изучения
+                
                 ВАЖНО: Ответ должен быть строго структурирован как указано выше, без дополнительных комментариев.
                 Шаблон должен учитывать специфику именно этой отрасли и ниши, а не быть общим.
-            """            
+            """
             response = client.chat.completions.create(
                 model="qwen/qwen-2.5-72b-instruct:free",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt}
                 ],
-                max_tokens=1500
+                max_tokens=1800
             )
             return Response({
                 'industry_template': response.choices[0].message.content,
                 'industry': industry,
                 'niche': niche,
                 'business_model': business_model,
-                'country': country
-            })            
+                'country': country,
+                'business_plan_used': bool(business_plan)
+            })    
         except Exception as e:
             logger.error(f"Ошибка генерации отраслевого шаблона: {str(e)}")
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)    
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     def generate_pitch_deck(self, request, *args, **kwargs):
         logger.info(f"Получен запрос на генерацию pitch-дека: {request.data}")
         SYSTEM_PROMPT = """
@@ -1091,95 +1113,137 @@ class BusinessPlanView(APIView):
         Ваша задача - создавать краткие, убедительные и структурированные pitch-деки на основе полных бизнес-планов.
         Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
         Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
-        """        
+        """
         business_plan = request.data.get('business_plan', '')
         if not business_plan:
-            return Response({'error': 'Бизнес-план не предоставлен'}, status=status.HTTP_400_BAD_REQUEST)        
+            business_idea = request.data.get('business_idea', '')
+            if business_idea:
+                logger.info("Бизнес-план не предоставлен, но есть идея бизнеса. Генерируем бизнес-план...")
+                business_plan_response = self.post(request, *args, **kwargs)
+                if 'business_plan' in business_plan_response.data:
+                    business_plan = business_plan_response.data['business_plan']
+                else:
+                    return Response({'error': 'Не удалось сгенерировать бизнес-план для pitch-дека'}, status=status.HTTP_400_BAD_REQUEST)
+            else:
+                return Response({'error': 'Бизнес-план или идея бизнеса не предоставлены'}, status=status.HTTP_400_BAD_REQUEST)
         target_investors = request.data.get('target_investors', 'венчурные инвесторы')
         presentation_time = request.data.get('presentation_time', '5-7 минут')
-        country = request.data.get('country', 'Россия')        
+        country = request.data.get('country', 'Россия')
         OPENROUTER_API_KEY = os.getenv('OPROUT_AQWE_BUSINESS')
         if not OPENROUTER_API_KEY:
             logger.error("API ключ OpenRouter для бизнес-планов не настроен")
-            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)        
+            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
             logger.info(f"Генерация pitch-дека для бизнес-плана")
             client = OpenAI(
                 api_key=OPENROUTER_API_KEY,
                 base_url="https://openrouter.ai/api/v1"
-            )              
+            )
             prompt = f"""
                 {SYSTEM_PROMPT}
-                Создайте краткую презентацию для инвесторов (pitch-дек) на основе следующего бизнес-плана:                
-                {business_plan}                
+                Создайте краткую презентацию для инвесторов (pitch-дек) на основе следующего бизнес-плана:
+                
+                {business_plan}
+                
                 ПАРАМЕТРЫ PREЗЕНТАЦИИ:
                     - Целевые инвесторы: {target_investors}
                     - Время презентации: {presentation_time}
-                    - Страна: {country}                
-                PITCH-ДЕК ДОЛЖЕН СТРОГО СОДЕРЖАТЬ СЛЕДУЮЩИЕ СЛАЙДЫ:                
-                # PITCH-ДЕК: [НАЗВАНИЕ ПРОЕКТА]                
+                    - Страна: {country}
+                
+                PITCH-ДЕК ДОЛЖЕН СТРОГО СОДЕРЖАТЬ СЛЕДУЮЩИЕ СЛАЙДЫ:
+                
+                # PITCH-ДЕК: [НАЗВАНИЕ ПРОЕКТА]
+                
                 ## СЛАЙД 1: ЗАГЛАВНЫЙ СЛАЙД
                     - Название проекта
                     - Краткий слоган (макс. 8 слов)
                     - Ваше имя и должность
-                    - Контактная информация                
+                    - Контактная информация
+                
                 ## СЛАЙД 2: ПРОБЛЕМА
                     - Описание проблемы, которую решает проект (макс. 3 пункта)
                     - Почему эта проблема важна именно сейчас
-                    - Рыночные доказательства                
+                    - Рыночные доказательства
+                
                 ## СЛАЙД 3: РЕШЕНИЕ
                     - Описание вашего решения
                     - Как оно уникально (УТП)
-                    - Визуализация продукта/услуги                
+                    - Визуализация продукта/услуги
+                
                 ## СЛАЙД 4: РЫНОК
                     - Размер целевого рынка
                     - Темпы роста рынка
-                    - Целевая аудитория                
+                    - Целевая аудитория
+                
                 ## СЛАЙД 5: БИЗНЕС-МОДЕЛЬ
                     - Как вы зарабатываете деньги
                     - Прогноз выручки на 3 года
-                    - Ключевые метрики                
+                    - Ключевые метрики
+                
                 ## СЛАЙД 6: КОНКУРЕНТЫ
                     - Основные конкуренты
                     - Наше конкурентное преимущество
-                    - Позиционирование на рынке                
+                    - Позиционирование на рынке
+                
                 ## СЛАЙД 7: КОМАНДА
                     - Ключевые члены команды
                     - Их опыт и экспертиза
-                    - Почему именно эта команда может реализовать проект                
+                    - Почему именно эта команда может реализовать проект
+                
                 ## СЛАЙД 8: ФИНАНСЫ
                     - Требуемые инвестиции
                     - Как будут использованы средства
-                    - Прогноз ROI для инвесторов                
+                    - Прогноз ROI для инвесторов
+                
                 ## СЛАЙД 9: ПЛАН ДЕЙСТВИЙ
                     - Ключевые вехи на ближайший год
                     - Сроки достижения
-                    - Ожидаемые результаты                
+                    - Ожидаемые результаты
+                
                 ## СЛАЙД 10: ЗАКЛЮЧЕНИЕ
                     - Основное сообщение для инвесторов
                     - Призыв к действию
-                    - Контактная информация                
+                    - Контактная информация
+                
                 ВАЖНО: Ответ должен быть строго структурирован как указано выше, без дополнительных комментариев.
                 Каждый слайд должен содержать краткую информацию, подходящую для устной презентации в течение {presentation_time}.
                 Используйте bullet points, а не длинные абзацы.
-            """            
+            """
             response = client.chat.completions.create(
                 model="qwen/qwen-2.5-72b-instruct:free",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt}
                 ],
-                max_tokens=1500
-            )            
+                max_tokens=1800
+            )
             return Response({
                 'pitch_deck': response.choices[0].message.content,
                 'target_investors': target_investors,
                 'presentation_time': presentation_time,
-                'country': country
-            })            
+                'country': country,
+                'business_plan_used': True
+            })    
         except Exception as e:
             logger.error(f"Ошибка генерации pitch-дека: {str(e)}")
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    def extract_industry_from_business_plan(self, business_plan):
+        industry_keywords = {
+            'IT': ['программное обеспечение', 'приложение', 'веб', 'интернет', 'технологии', 'софт', 'разработка'],
+            'Рестораны': ['ресторан', 'кафе', 'кафетерий', 'кухня', 'блюдо', 'еда', 'напиток'],
+            'Образование': ['образование', 'курсы', 'школа', 'обучение', 'преподавание', 'ученик', 'студент'],
+            'Медицина': ['клиника', 'больница', 'врач', 'здоровье', 'медицинский', 'аптека', 'лечение'],
+            'Розничная торговля': ['магазин', 'торговля', 'розница', 'товар', 'продукт', 'покупатель']
+        }
+        business_plan_lower = business_plan.lower()
+        max_matches = 0
+        detected_industry = "неизвестная отрасль"
+        for industry, keywords in industry_keywords.items():
+            matches = sum(1 for keyword in keywords if keyword in business_plan_lower)
+            if matches > max_matches:
+                max_matches = matches
+                detected_industry = industry
+        return detected_industry
 
 class PresentationGenerationView(APIView):
     def post(self, request, *args, **kwargs):
