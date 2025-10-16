@@ -1098,16 +1098,16 @@ class BusinessPlanView(APIView):
         target_investors = request.data.get('target_investors', 'венчурные инвесторы')
         presentation_time = request.data.get('presentation_time', '5-7 минут')
         country = request.data.get('country', 'Россия')        
-        HF_API_KEY = os.getenv('HF_API_KEY_BPLN')
-        if not HF_API_KEY:
-            logger.error("API ключ Hugging Face для бизнес-планов не настроен")
+        OPENROUTER_API_KEY = os.getenv('OPROUT_AQWE_BUSINESS')
+        if not OPENROUTER_API_KEY:
+            logger.error("API ключ OpenRouter для бизнес-планов не настроен")
             return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)        
         try:
             logger.info(f"Генерация pitch-дека для бизнес-плана")
-            client = InferenceClient(
-                model="Qwen/Qwen2.5-72B",
-                token=HF_API_KEY
-            )            
+            client = OpenAI(
+                api_key=OPENROUTER_API_KEY,
+                base_url="https://openrouter.ai/api/v1"
+            )              
             prompt = f"""
                 {SYSTEM_PROMPT}
                 Создайте краткую презентацию для инвесторов (pitch-дек) на основе следующего бизнес-плана:                
@@ -1163,9 +1163,13 @@ class BusinessPlanView(APIView):
                 Каждый слайд должен содержать краткую информацию, подходящую для устной презентации в течение {presentation_time}.
                 Используйте bullet points, а не длинные абзацы.
             """            
-            response = client.chat_completion(
-                messages=[{"role": "user", "content": prompt}],
-                max_tokens=1400
+            response = client.chat.completions.create(
+                model="qwen/qwen-2.5-72b-instruct:free",
+                messages=[
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": f"Создайте pitch-дек для бизнес-плана: \"{business_plan}\""}
+                ],
+                max_tokens=1200
             )            
             return Response({
                 'pitch_deck': response.choices[0].message.content,

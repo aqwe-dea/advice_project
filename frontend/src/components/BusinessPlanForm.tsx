@@ -309,15 +309,32 @@ const BusinessPlanForm = () => {
     );
   };  
   const extractSection = (text: string, startMarker: string, endMarker: string | null): string => {
-    const startIndex = text.indexOf(startMarker);
-    if (startIndex === -1) return "";    
+    const normalizeText = (str: string) => str.toLowerCase().replace(/\s+/g, ' ').trim();
+    let startIndex = -1;
+    const normalizedText = normalizeText(text);
+    const normalizedStartMarker = normalizeText(startMarker);
+    for (let i = 0; i < text.length - normalizedStartMarker.length; i++) {
+      const segment = normalizeText(text.substring(i, i + normalizedStartMarker.length + 10));
+      if (segment.includes(normalizedStartMarker)) {
+        startIndex = i;
+        break;
+      }
+    }
+    if (startIndex === -1) return "";
     let endIndex = -1;
     if (endMarker) {
-      endIndex = text.indexOf(endMarker, startIndex + startMarker.length);
-    }    
+      const normalizedEndMarker = normalizeText(endMarker);
+      for (let i = startIndex + startMarker.length; i < text.length - normalizedEndMarker.length; i++) {
+        const segment = normalizeText(text.substring(i, i + normalizedEndMarker.length + 10));
+        if (segment.includes(normalizedEndMarker)) {
+          endIndex = i;
+          break;
+        }
+      }
+    }
     if (endIndex === -1) {
       return text.substring(startIndex + startMarker.length).trim();
-    }    
+    }
     return text.substring(startIndex + startMarker.length, endIndex).trim();
   };
   return (
