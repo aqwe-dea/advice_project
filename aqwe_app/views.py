@@ -1070,9 +1070,9 @@ class BusinessPlanView(APIView):
                 model="qwen/qwen-2.5-72b-instruct:free",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": f"Создайте специализированный шаблон бизнес-плана для отрасли: \"{industry}\""}
+                    {"role": "user", "content": prompt}
                 ],
-                max_tokens=1200
+                max_tokens=1500
             )
             return Response({
                 'industry_template': response.choices[0].message.content,
@@ -1167,9 +1167,9 @@ class BusinessPlanView(APIView):
                 model="qwen/qwen-2.5-72b-instruct:free",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": f"Создайте pitch-дек для бизнес-плана: \"{business_plan}\""}
+                    {"role": "user", "content": prompt}
                 ],
-                max_tokens=1200
+                max_tokens=1500
             )            
             return Response({
                 'pitch_deck': response.choices[0].message.content,
