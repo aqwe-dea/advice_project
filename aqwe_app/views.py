@@ -984,9 +984,9 @@ class BusinessPlanView(APIView):
                 model="qwen/qwen-2.5-72b-instruct:free",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": f"Создайте полный бизнес-план для идеи: \"{business_idea}\""}
+                    {"role": "user", "content": prompt}
                 ],
-                max_tokens=1200
+                max_tokens=1500
             )
             return Response({
                 'business_plan': response.choices[0].message.content,

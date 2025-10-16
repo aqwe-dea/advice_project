@@ -309,6 +309,7 @@ const BusinessPlanForm = () => {
     );
   };  
   const extractSection = (text: string, startMarker: string, endMarker: string | null): string => {
+    if (!text || !startMarker) return "";
     const normalize = (str: string) => str.toLowerCase().replace(/\s+/g, ' ').trim();
     const normalizedText = normalize(text);
     const normalizedStart = normalize(startMarker);
@@ -316,15 +317,15 @@ const BusinessPlanForm = () => {
     for (let i = 0; i < text.length - normalizedStart.length; i++) {
         const segment = normalize(text.substring(i, i + normalizedStart.length + 10));
         if (segment.includes(normalizedStart)) {
-            startIndex = i;
+            startIndex = i + startMarker.length;
             break;
         }
     }
     if (startIndex === -1) return "";
-    let endIndex = -1;
+    let endIndex = text.length;
     if (endMarker) {
         const normalizedEnd = normalize(endMarker);
-        for (let i = startIndex + startMarker.length; i < text.length - normalizedEnd.length; i++) {
+        for (let i = startIndex; i < text.length - normalizedEnd.length; i++) {
             const segment = normalize(text.substring(i, i + normalizedEnd.length + 10));
             if (segment.includes(normalizedEnd)) {
                 endIndex = i;
@@ -332,10 +333,7 @@ const BusinessPlanForm = () => {
             }
         }
     }
-    if (endIndex === -1) {
-        return text.substring(startIndex + startMarker.length).trim();
-    }
-    return text.substring(startIndex + startMarker.length, endIndex).trim();
+    return text.substring(startIndex, endIndex).trim();
   };
   return (
     <div className="business-plan-container">
