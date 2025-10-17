@@ -1252,15 +1252,15 @@ class BusinessPlanView(APIView):
                 detected_industry = industry
         return detected_industry
     def extract_business_idea(self, business_plan):
-    lines = business_plan.split('\n')
-    for line in lines:
-        if "Бизнес-план:" in line or "# НАЗВАНИЕ БИЗНЕС-ПЛАНА" in line:
-            parts = line.split(':')
-            if len(parts) > 1:
-                return parts[1].strip()
-    if business_plan:
-        return business_plan.split('\n')[0].strip()
-    return "Неизвестная идея бизнеса"
+        lines = business_plan.split('\n')
+        for line in lines:
+            if "Бизнес-план:" in line or "# НАЗВАНИЕ БИЗНЕС-ПЛАНА" in line:
+                parts = line.split(':')
+                if len(parts) > 1:
+                    return parts[1].strip()
+        if business_plan:
+            return business_plan.split('\n')[0].strip()
+        return "Неизвестная идея бизнеса"
 
 class PresentationGenerationView(APIView):
     def post(self, request, *args, **kwargs):
