@@ -1000,7 +1000,7 @@ class BusinessPlanView(APIView):
         except Exception as e:
             logger.error(f"Ошибка генерации бизнес-плана: {str(e)}")
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    def get_industry_templates(self, request, *args, **kwargs):
+    def get_industry_templates(self, business_plan, business_idea, request, *args, **kwargs):
         logger.info(f"Получен запрос на генерацию отраслевых шаблонов: {request.data}")
         SYSTEM_PROMPT = """
         Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в различных отраслях бизнеса.
@@ -1106,7 +1106,7 @@ class BusinessPlanView(APIView):
         except Exception as e:
             logger.error(f"Ошибка генерации отраслевого шаблона: {str(e)}")
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    def generate_pitch_deck(self, request, *args, **kwargs):
+    def generate_pitch_deck(self, business_plan, business_idea, request, *args, **kwargs):
         logger.info(f"Получен запрос на генерацию pitch-дека: {request.data}")
         SYSTEM_PROMPT = """
         Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в создании презентаций для инвесторов.
@@ -1227,7 +1227,7 @@ class BusinessPlanView(APIView):
         except Exception as e:
             logger.error(f"Ошибка генерации pitch-дека: {str(e)}")
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    def extract_industry_from_business_plan(self, business_plan):
+    def extract_industry_from_business_plan(self, business_plan, business_idea):
         industry_keywords = {
             'IT': ['программное обеспечение', 'приложение', 'веб', 'интернет', 'технологии', 'софт', 'разработка'],
             'Рестораны': ['ресторан', 'кафе', 'кафетерий', 'кухня', 'блюдо', 'еда', 'напиток'],

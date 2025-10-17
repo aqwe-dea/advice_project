@@ -77,7 +77,7 @@ const BusinessPlanForm = () => {
     setError(null);
   
     try {
-      const response = await fetch('/business-plan/pitch-deck/', {
+      const response = await fetch('/business-plan/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -113,33 +113,33 @@ const BusinessPlanForm = () => {
     setError(null);
   
     try {
-      const response = await fetch('/business-plan/industry-templates/', {
+      const response = await fetch('/business-plan/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-        business_plan: businessPlan,
-        industry: '',
-        niche: '',
-        business_model: 'B2C',
-        country: formData.country
-      })
-    });
+          business_plan: businessPlan,
+          industry: '',
+          niche: '',
+          business_model: 'B2C',
+          country: formData.country
+        })
+      });
     
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Ошибка при генерации отраслевого шаблона');
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Ошибка при генерации отраслевого шаблона');
+      }
+    
+      const data = await response.json();
+      setIndustryTemplate(data);
+      setActiveTab('template');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Произошла ошибка');
+    } finally {
+      setIsLoading(false);
     }
-    
-    const data = await response.json();
-    setIndustryTemplate(data);
-    setActiveTab('template');
-  } catch (err) {
-    setError(err instanceof Error ? err.message : 'Произошла ошибка');
-  } finally {
-    setIsLoading(false);
-  }
   };
   const renderBusinessPlan = () => {
     if (!result || !result.business_plan) return null;    
@@ -550,19 +550,12 @@ const BusinessPlanForm = () => {
             </div>
           </div>          
           <button 
-            type="submit" 
+            onClick={() => handleGenerateIndustryTemplate(result.business_plan)}
             className="generate-button"
             disabled={isLoading}
           >
-            {isLoading ? (
-              <>
-                <span className="spinner"></span>
-                Генерируем отраслевой шаблон...
-              </>
-            ) : (
-              'Сгенерировать отраслевой шаблон'
-            )}
-          </button>
+            {isLoading ? 'Генерируем шаблон...' : 'Сгенерировать отраслевой шаблон'}
+          </button> 
         </form>
       )}      
       {activeTab === 'pitch' && (
@@ -616,18 +609,11 @@ const BusinessPlanForm = () => {
             />
           </div>          
           <button 
-            type="submit" 
+            onClick={() => handleGeneratePitchDeck(result.business_plan)}
             className="generate-button"
-            disabled={isLoading || !pitchData.business_plan}
+            disabled={isLoading}
           >
-            {isLoading ? (
-              <>
-                <span className="spinner"></span>
-                Генерируем pitch-дек...
-              </>
-            ) : (
-              'Сгенерировать pitch-дек'
-            )}
+            {isLoading ? 'Генерируем pitch-дек...' : 'Сгенерировать pitch-дек'}
           </button>
         </form>
       )}      
