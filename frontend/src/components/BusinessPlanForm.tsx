@@ -84,6 +84,7 @@ const BusinessPlanForm = () => {
         },
         body: JSON.stringify({
           business_plan: businessPlan,
+          business_idea: formData.idea,
           target_investors: 'венчурные инвесторы',
           presentation_time: '5-7 минут',
           country: formData.country
@@ -120,6 +121,7 @@ const BusinessPlanForm = () => {
         },
         body: JSON.stringify({
           business_plan: businessPlan,
+          business_idea: formData.idea,
           industry: '',
           niche: '',
           business_model: 'B2C',

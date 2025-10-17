@@ -1012,6 +1012,9 @@ class BusinessPlanView(APIView):
         business_plan = request.data.get('business_plan', '')
         industry = request.data.get('industry', '')
         business_idea = request.data.get('business_idea', '')
+        if not business_idea and business_plan:
+            business_idea = self.extract_business_idea(business_plan)
+            logger.info(f"Извлечена бизнес-идея из бизнес-плана: {business_idea}")    
         if not business_plan and not industry and not business_idea:
             return Response({'error': 'Не указаны необходимые данные для генерации шаблона'}, status=status.HTTP_400_BAD_REQUEST)
         if business_plan and not industry:
@@ -1115,6 +1118,10 @@ class BusinessPlanView(APIView):
         Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
         """
         business_plan = request.data.get('business_plan', '')
+        business_idea = request.data.get('business_idea', '')
+        if not business_idea and business_plan:
+            business_idea = self.extract_business_idea(business_plan)
+            logger.info(f"Извлечена бизнес-идея из бизнес-плана: {business_idea}")
         if not business_plan:
             business_idea = request.data.get('business_idea', '')
             if business_idea:
@@ -1244,6 +1251,16 @@ class BusinessPlanView(APIView):
                 max_matches = matches
                 detected_industry = industry
         return detected_industry
+    def extract_business_idea(self, business_plan):
+    lines = business_plan.split('\n')
+    for line in lines:
+        if "Бизнес-план:" in line or "# НАЗВАНИЕ БИЗНЕС-ПЛАНА" in line:
+            parts = line.split(':')
+            if len(parts) > 1:
+                return parts[1].strip()
+    if business_plan:
+        return business_plan.split('\n')[0].strip()
+    return "Неизвестная идея бизнеса"
 
 class PresentationGenerationView(APIView):
     def post(self, request, *args, **kwargs):
