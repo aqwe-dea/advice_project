@@ -69,38 +69,46 @@ const BusinessPlanForm = () => {
     }
   };
   const handleGeneratePitchDeck = async (businessPlan: string) => {
-  setIsLoading(true);
-  setError(null);
-  
-  try {
-    const response = await fetch('/business-plan/pitch-deck/', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        business_plan: businessPlan,
-        target_investors: 'венчурные инвесторы',
-        presentation_time: '5-7 минут',
-        country: formData.country
-      })
-    });
-    
-    if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(errorData.error || 'Ошибка при генерации pitch-дека');
+    if (!businessPlan || businessPlan.trim().length < 100) {
+      setError('Недостаточно данных в бизнес-плане для генерации. Сначала сгенерируйте полный бизнес-план.');
+      return;
     }
+    setIsLoading(true);
+    setError(null);
+  
+    try {
+      const response = await fetch('/business-plan/pitch-deck/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          business_plan: businessPlan,
+          target_investors: 'венчурные инвесторы',
+          presentation_time: '5-7 минут',
+          country: formData.country
+        })
+      });
     
-    const data = await response.json();
-    setPitchDeck(data);
-    setActiveTab('pitch');
-  } catch (err) {
-    setError(err instanceof Error ? err.message : 'Произошла ошибка');
-  } finally {
-    setIsLoading(false);
-  }
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Ошибка при генерации pitch-дека');
+      }
+    
+      const data = await response.json();
+      setPitchDeck(data);
+      setActiveTab('pitch');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Произошла ошибка');
+    } finally {
+      setIsLoading(false);
+    }
   };
   const handleGenerateIndustryTemplate = async (businessPlan: string) => {
+    if (!businessPlan || businessPlan.trim().length < 100) {
+      setError('Недостаточно данных в бизнес-плане для генерации. Сначала сгенерируйте полный бизнес-план.');
+      return;
+    }
     setIsLoading(true);
     setError(null);
   
@@ -136,16 +144,16 @@ const BusinessPlanForm = () => {
   const renderBusinessPlan = () => {
     if (!result || !result.business_plan) return null;    
     const sections = {
-      executive_summary: extractSection(result.business_plan, "## 1. ИСПОЛНИТЕЛЬНОЕ РЕЗЮМЕ", "## 2."),
-      business_description: extractSection(result.business_plan, "## 2. ОПИСАНИЕ БИЗНЕСА", "## 3."),
-      market_analysis: extractSection(result.business_plan, "## 3. АНАЛИЗ РЫНКА", "## 4."),
-      swot: extractSection(result.business_plan, "## 4. SWOT-АНАЛИЗ", "## 5."),
-      competitor_analysis: extractSection(result.business_plan, "## 5. КОНКУРЕНТНЫЙ АНАЛИЗ", "## 6."),
-      marketing_strategy: extractSection(result.business_plan, "## 6. МАРКЕТИНГОВАЯ СТРАТЕГИЯ", "## 7."),
-      operations_plan: extractSection(result.business_plan, "## 7. ПЛАН ОПЕРАЦИЙ", "## 8."),
-      organizational_structure: extractSection(result.business_plan, "## 8. ОРГАНИЗАЦИОННАЯ СТРУКТУРА", "## 9."),
-      financial_plan: extractSection(result.business_plan, "## 9. ФИНАНСОВЫЙ ПЛАН", "## 10."),
-      risks: extractSection(result.business_plan, "## 10. РИСКИ И ИХ МИНИМИЗАЦИЯ", null)
+      executive_summary: extractSection(result.business_plan, 1, "ИСПОЛНИТЕЛЬНОЕ РЕЗЮМЕ"),
+      business_description: extractSection(result.business_plan, 2, "ОПИСАНИЕ БИЗНЕСА"),
+      market_analysis: extractSection(result.business_plan, 3, "АНАЛИЗ РЫНКА"),
+      swot: extractSection(result.business_plan, 4, "SWOT-АНАЛИЗ"),
+      competitor_analysis: extractSection(result.business_plan, 5, "КОНКУРЕНТНЫЙ АНАЛИЗ"),
+      marketing_strategy: extractSection(result.business_plan, 6, "МАРКЕТИНГОВАЯ СТРАТЕГИЯ"),
+      operations_plan: extractSection(result.business_plan, 7, "ПЛАН ОПЕРАЦИЙ"),
+      organizational_structure: extractSection(result.business_plan, 8, "ОРГАНИЗАЦИОННАЯ СТРУКТУРА"),
+      financial_plan: extractSection(result.business_plan, 9, "ФИНАНСОВЫЙ ПЛАН"),
+      risks: extractSection(result.business_plan, 10, "РИСКИ И ИХ МИНИМИЗАЦИЯ")
     };    
     return (
       <div className="business-plan">
@@ -192,32 +200,18 @@ const BusinessPlanForm = () => {
         </div>        
         <div className="button-group">
           <button 
-            onClick={() => {
-              setActiveTab('template');
-              setIndustryData({
-                industry: '',
-                niche: '',
-                business_model: 'B2C',
-                country: formData.country
-              });
-            }}
+            onClick={() => handleGenerateIndustryTemplate(result.business_plan)}
             className="generate-button"
+            disabled={isLoading}
           >
-            Сгенерировать отраслевой шаблон
+            {isLoading ? 'Генерируем шаблон...' : 'Сгенерировать отраслевой шаблон'}
           </button>          
           <button 
-            onClick={() => {
-              setActiveTab('pitch');
-              setPitchData({
-                business_plan: result.business_plan,
-                target_investors: 'венчурные инвесторы',
-                presentation_time: '5-7 минут',
-                country: formData.country
-              });
-            }}
+            onClick={() => handleGeneratePitchDeck(result.business_plan)}
             className="generate-button"
+            disabled={isLoading}
           >
-            Сгенерировать pitch-дек
+            {isLoading ? 'Генерируем pitch-дек...' : 'Сгенерировать pitch-дек'}
           </button>
         </div>
       </div>
@@ -226,12 +220,12 @@ const BusinessPlanForm = () => {
   const renderIndustryTemplate = () => {
     if (!industryTemplate || !industryTemplate.industry_template) return null;    
     const sections = {
-      industry_features: extractSection(industryTemplate.industry_template, "## 1. ОСОБЕННОСТИ ОТРАСЛИ", "## 2."),
-      niche_specifics: extractSection(industryTemplate.industry_template, "## 2. СПЕЦИФИКА НИШИ", "## 3."),
-      marketing_plan: extractSection(industryTemplate.industry_template, "## 3. АДАПТИРОВАННЫЙ МАРКЕТИНГОВЫЙ ПЛАН", "## 4."),
-      operational_features: extractSection(industryTemplate.industry_template, "## 4. ОПЕРАЦИОННЫЕ ОСОБЕННОСТИ", "## 5."),
-      financial_norms: extractSection(industryTemplate.industry_template, "## 5. ФИНАНСОВЫЕ НОРМАТИВЫ", "## 6."),
-      startup_recommendations: extractSection(industryTemplate.industry_template, "## 6. РЕКОМЕНДАЦИИ ПО СТАРТУ", null)
+      industry_features: extractSection(industryTemplate.industry_template, 1, "ОСОБЕННОСТИ ОТРАСЛИ"),
+      niche_specifics: extractSection(industryTemplate.industry_template, 2, "СПЕЦИФИКА НИШИ"),
+      marketing_plan: extractSection(industryTemplate.industry_template, 3, "АДАПТИРОВАННЫЙ МАРКЕТИНГОВЫЙ ПЛАН"),
+      operational_features: extractSection(industryTemplate.industry_template, 4, "ОПЕРАЦИОННЫЕ ОСОБЕННОСТИ"),
+      financial_norms: extractSection(industryTemplate.industry_template, 5, "ФИНАНСОВЫЕ НОРМАТИВЫ"),
+      startup_recommendations: extractSection(industryTemplate.industry_template, 6, "РЕКОМЕНДАЦИИ ПО СТАРТУ")
     };    
     return (
       <div className="industry-template">
@@ -272,16 +266,16 @@ const BusinessPlanForm = () => {
   const renderPitchDeck = () => {
     if (!pitchDeck || !pitchDeck.pitch_deck) return null;    
     const slides = {
-      title: extractSection(pitchDeck.pitch_deck, "## СЛАЙД 1: ЗАГЛАВНЫЙ СЛАЙД", "## СЛАЙД 2."),
-      problem: extractSection(pitchDeck.pitch_deck, "## СЛАЙД 2: ПРОБЛЕМА", "## СЛАЙД 3."),
-      solution: extractSection(pitchDeck.pitch_deck, "## СЛАЙД 3: РЕШЕНИЕ", "## СЛАЙД 4."),
-      market: extractSection(pitchDeck.pitch_deck, "## СЛАЙД 4: РЫНОК", "## СЛАЙД 5."),
-      business_model: extractSection(pitchDeck.pitch_deck, "## СЛАЙД 5: БИЗНЕС-МОДЕЛЬ", "## СЛАЙД 6."),
-      competitors: extractSection(pitchDeck.pitch_deck, "## СЛАЙД 6: КОНКУРЕНТЫ", "## СЛАЙД 7."),
-      team: extractSection(pitchDeck.pitch_deck, "## СЛАЙД 7: КОМАНДА", "## СЛАЙД 8."),
-      finances: extractSection(pitchDeck.pitch_deck, "## СЛАЙД 8: ФИНАНСЫ", "## СЛАЙД 9."),
-      action_plan: extractSection(pitchDeck.pitch_deck, "## СЛАЙД 9: ПЛАН ДЕЙСТВИЙ", "## СЛАЙД 10."),
-      conclusion: extractSection(pitchDeck.pitch_deck, "## СЛАЙД 10: ЗАКЛЮЧЕНИЕ", null)
+      title: extractSection(pitchDeck.pitch_deck, 1, "СЛАЙД 1: ЗАГЛАВНЫЙ СЛАЙД"),
+      problem: extractSection(pitchDeck.pitch_deck, 2, "СЛАЙД 2: ПРОБЛЕМА"),
+      solution: extractSection(pitchDeck.pitch_deck, 3, "СЛАЙД 3: РЕШЕНИЕ"),
+      market: extractSection(pitchDeck.pitch_deck, 4, "СЛАЙД 4: РЫНОК"),
+      business_model: extractSection(pitchDeck.pitch_deck, 5, "СЛАЙД 5: БИЗНЕС-МОДЕЛЬ"),
+      competitors: extractSection(pitchDeck.pitch_deck, 6,  "СЛАЙД 6: КОНКУРЕНТЫ"),
+      team: extractSection(pitchDeck.pitch_deck, 7, "СЛАЙД 7: КОМАНДА"),
+      finances: extractSection(pitchDeck.pitch_deck, 8, "СЛАЙД 8: ФИНАНСЫ"),
+      action_plan: extractSection(pitchDeck.pitch_deck, 9, "СЛАЙД 9: ПЛАН ДЕЙСТВИЙ"),
+      conclusion: extractSection(pitchDeck.pitch_deck, 10, "СЛАЙД 10: ЗАКЛЮЧЕНИЕ")
     };    
     return (
       <div className="pitch-deck">
@@ -335,32 +329,49 @@ const BusinessPlanForm = () => {
       </div>
     );
   };  
-  const extractSection = (text: string, startMarker: string, endMarker: string | null): string => {
-    if (!text || !startMarker) return "";
-    const normalize = (str: string) => str.toLowerCase().replace(/\s+/g, ' ').trim();
-    const normalizedText = normalize(text);
-    const normalizedStart = normalize(startMarker);
+  const extractSection = (text: string, sectionNumber: number, sectionTitle: string): string => {
+    if (!text) return "Не найдено";
+    const patterns = [
+      new RegExp(`^\\s*${sectionNumber}\\.\\s*${sectionTitle}\\s*\\n`, 'i'),
+      new RegExp(`^\\s*${sectionNumber}\\.\\s*${sectionTitle.substring(0, 5)}`, 'i'),
+      new RegExp(`\\s*${sectionNumber}\\.\\s*${sectionTitle}\\s*\\n`, 'i'),
+      new RegExp(`\\s*${sectionNumber}\\.\\s*${sectionTitle.substring(0, 5)}`, 'i')
+    ];
     let startIndex = -1;
-    for (let i = 0; i < text.length - normalizedStart.length; i++) {
-        const segment = normalize(text.substring(i, i + normalizedStart.length + 10));
-        if (segment.includes(normalizedStart)) {
-            startIndex = i + startMarker.length;
-            break;
-        }
+    let patternUsed = '';
+    for (const pattern of patterns) {
+      const match = text.match(pattern);
+      if (match && match.index !== undefined) {
+        startIndex = match.index + match[0].length;
+        patternUsed = pattern.toString();
+        break;
+      }
     }
-    if (startIndex === -1) return "";
+    if (startIndex === -1) return "Не найдено";
     let endIndex = text.length;
-    if (endMarker) {
-        const normalizedEnd = normalize(endMarker);
-        for (let i = startIndex; i < text.length - normalizedEnd.length; i++) {
-            const segment = normalize(text.substring(i, i + normalizedEnd.length + 10));
-            if (segment.includes(normalizedEnd)) {
-                endIndex = i;
-                break;
-            }
+    for (let i = sectionNumber + 1; i <= 10; i++) {
+      const nextSectionPatterns = [
+        new RegExp(`\\s*${i}\\.`, 'i'),
+        new RegExp(`^\\s*${i}\\.`, 'i')
+      ];  
+      for (const nextPattern of nextSectionPatterns) {
+        const nextMatch = text.substring(startIndex).match(nextPattern);
+        if (nextMatch && nextMatch.index !== undefined) {
+          endIndex = startIndex + nextMatch.index;
+          break;
         }
+      }    
+      if (endIndex < text.length) break;
     }
-    return text.substring(startIndex, endIndex).trim();
+    let content = text.substring(startIndex, endIndex).trim();
+    const endingPatterns = [
+      new RegExp(`\\s*\\d+\\.\\s*[А-Яа-я]+\\s*$`),
+      new RegExp(`\\s*\\d+\\.\\s*$`)
+    ];
+    for (const endingPattern of endingPatterns) {
+      content = content.replace(endingPattern, '').trim();
+    }
+    return content || "Не найдено";
   };
   return (
     <div className="business-plan-container">
