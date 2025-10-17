@@ -981,7 +981,7 @@ class BusinessPlanView(APIView):
                 ВАЖНО: Ответ должен быть строго структурирован как указано выше, без дополнительных комментариев.
             """
             response = client.chat.completions.create(
-                model="qwen/qwen2.5-vl-32b-instruct:free",
+                model="qwen/qwen3-235b-a22b:free",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt}
@@ -1081,7 +1081,7 @@ class BusinessPlanView(APIView):
                 Шаблон должен учитывать специфику именно этой отрасли и ниши, а не быть общим.
             """
             response = client.chat.completions.create(
-                model="qwen/qwen2.5-vl-32b-instruct:free",
+                model="qwen/qwen3-235b-a22b:free",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt}
@@ -1192,7 +1192,7 @@ class BusinessPlanView(APIView):
                 Используйте bullet points, а не длинные абзацы.
             """
             response = client.chat.completions.create(
-                model="qwen/qwen2.5-vl-32b-instruct:free",
+                model="qwen/qwen3-235b-a22b:free",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt}
