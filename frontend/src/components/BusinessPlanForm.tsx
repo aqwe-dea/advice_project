@@ -77,7 +77,7 @@ const BusinessPlanForm = () => {
     setError(null);
   
     try {
-      const response = await fetch('/business-plan/', {
+      const response = await fetch('/business-plan/pitch-deck/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -113,7 +113,7 @@ const BusinessPlanForm = () => {
     setError(null);
   
     try {
-      const response = await fetch('/business-plan/', {
+      const response = await fetch('/business-plan/industry-templates/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
