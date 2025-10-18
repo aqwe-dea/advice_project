@@ -893,7 +893,7 @@ class HealthRecommendationView(APIView):
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class BusinessPlanView(APIView):
-    def post(self, request, business_plan, business_idea, *args, **kwargs):
+    def post(self, request, *args, **kwargs):
         logger.info(f"Получен запрос на генерацию бизнес-плана: {request.data}")
         SYSTEM_PROMPT = """
         Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
@@ -981,7 +981,7 @@ class BusinessPlanView(APIView):
                 ВАЖНО: Ответ должен быть строго структурирован как указано выше, без дополнительных комментариев.
             """
             response = client.chat.completions.create(
-                model="qwen/qwen3-235b-a22b:free",
+                model="qwen/qwen-2.5-coder-32b-instruct:free",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt}
@@ -1000,7 +1000,8 @@ class BusinessPlanView(APIView):
         except Exception as e:
             logger.error(f"Ошибка генерации бизнес-плана: {str(e)}")
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    def get_industry_templates(self, business_plan, business_idea, request, *args, **kwargs):
+    
+    def get_industry_templates(self, request, *args, **kwargs):
         logger.info(f"Получен запрос на генерацию отраслевых шаблонов: {request.data}")
         SYSTEM_PROMPT = """
         Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в различных отраслях бизнеса.
@@ -1081,7 +1082,7 @@ class BusinessPlanView(APIView):
                 Шаблон должен учитывать специфику именно этой отрасли и ниши, а не быть общим.
             """
             response = client.chat.completions.create(
-                model="qwen/qwen3-235b-a22b:free",
+                model="qwen/qwen-2.5-coder-32b-instruct:free",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt}
@@ -1099,7 +1100,25 @@ class BusinessPlanView(APIView):
         except Exception as e:
             logger.error(f"Ошибка генерации отраслевого шаблона: {str(e)}")
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    def generate_pitch_deck(self, business_plan, business_idea, request, *args, **kwargs):
+    def extract_industry_from_business_plan(self, business_plan):
+        industry_keywords = {
+            'IT': ['программное обеспечение', 'приложение', 'веб', 'интернет', 'технологии', 'софт', 'разработка'],
+            'Рестораны': ['ресторан', 'кафе', 'кафетерий', 'кухня', 'блюдо', 'еда', 'напиток'],
+            'Образование': ['образование', 'курсы', 'школа', 'обучение', 'преподавание', 'ученик', 'студент'],
+            'Медицина': ['клиника', 'больница', 'врач', 'здоровье', 'медицинский', 'аптека', 'лечение'],
+            'Розничная торговля': ['магазин', 'торговля', 'розница', 'товар', 'продукт', 'покупатель']
+        }
+        business_plan_lower = business_plan.lower()
+        max_matches = 0
+        detected_industry = "неизвестная отрасль"
+        for industry, keywords in industry_keywords.items():
+            matches = sum(1 for keyword in keywords if keyword in business_plan_lower)
+            if matches > max_matches:
+                max_matches = matches
+                detected_industry = industry
+        return detected_industry
+    
+    def generate_pitch_deck(self, request, *args, **kwargs):
         logger.info(f"Получен запрос на генерацию pitch-дека: {request.data}")
         SYSTEM_PROMPT = """
         Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в создании презентаций для инвесторов.
@@ -1138,8 +1157,7 @@ class BusinessPlanView(APIView):
             )
             prompt = f"""
                 {SYSTEM_PROMPT}
-                Создайте краткую презентацию для инвесторов (pitch-дек) на основе следующего бизнес-плана:
-                {business_plan}
+                Создайте краткую презентацию для инвесторов (pitch-дек) на основе следующего бизнес-плана: {business_plan}
                 ПАРАМЕТРЫ PREЗЕНТАЦИИ:
                     - Целевые инвесторы: {target_investors}
                     - Время презентации: {presentation_time}
@@ -1192,7 +1210,7 @@ class BusinessPlanView(APIView):
                 Используйте bullet points, а не длинные абзацы.
             """
             response = client.chat.completions.create(
-                model="qwen/qwen3-235b-a22b:free",
+                model="qwen/qwen-2.5-coder-32b-instruct:free",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt}
@@ -1209,23 +1227,6 @@ class BusinessPlanView(APIView):
         except Exception as e:
             logger.error(f"Ошибка генерации pitch-дека: {str(e)}")
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    def extract_industry_from_business_plan(self, business_plan, business_idea):
-        industry_keywords = {
-            'IT': ['программное обеспечение', 'приложение', 'веб', 'интернет', 'технологии', 'софт', 'разработка'],
-            'Рестораны': ['ресторан', 'кафе', 'кафетерий', 'кухня', 'блюдо', 'еда', 'напиток'],
-            'Образование': ['образование', 'курсы', 'школа', 'обучение', 'преподавание', 'ученик', 'студент'],
-            'Медицина': ['клиника', 'больница', 'врач', 'здоровье', 'медицинский', 'аптека', 'лечение'],
-            'Розничная торговля': ['магазин', 'торговля', 'розница', 'товар', 'продукт', 'покупатель']
-        }
-        business_plan_lower = business_plan.lower()
-        max_matches = 0
-        detected_industry = "неизвестная отрасль"
-        for industry, keywords in industry_keywords.items():
-            matches = sum(1 for keyword in keywords if keyword in business_plan_lower)
-            if matches > max_matches:
-                max_matches = matches
-                detected_industry = industry
-        return detected_industry
     def extract_business_idea(self, business_plan):
         lines = business_plan.split('\n')
         for line in lines:
