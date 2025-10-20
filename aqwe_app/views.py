@@ -923,10 +923,11 @@ class BusinessPlanView(APIView):
             )
             prompt = f"""
                 {SYSTEM_PROMPT}
-                Создайте полный бизнес-план для: "{business_idea}"
-                БИЗНЕС-ПЛАН ДОЛЖЕН СТРОГО СОДЕРЖАТЬ СЛЕДУЮЩИЕ РАЗДЕЛЫ:
-                # НАЗВАНИЕ БИЗНЕС-ПЛАНА
-                    [Название проекта]
+                Подготовьте профессиональный бизнес-план для: "{business_idea}"    
+                ВАЖНО: Ответ должен быть строго структурирован как указано ниже, без дополнительных комментариев.
+                Используйте профессиональную терминологию и конкретные цифры там, где это уместно.
+                Каждый раздел должен содержать подробную информацию, подходящую для реального бизнеса.
+                # ПРОФЕССИОНАЛЬНЫЙ БИЗНЕС-ПЛАН
                 ## 1. ИСПОЛНИТЕЛЬНОЕ РЕЗЮМЕ
                     - Краткое описание бизнес-идеи
                     - Целевые показатели
@@ -978,10 +979,9 @@ class BusinessPlanView(APIView):
                     - Вероятность возникновения
                     - Последствия
                     - Меры по минимизации
-                ВАЖНО: Ответ должен быть строго структурирован как указано выше, без дополнительных комментариев.
             """
             response = client.chat.completions.create(
-                model="qwen/qwen-2.5-coder-32b-instruct:free",
+                model="qwen/qwen3-coder:free",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt}
@@ -1000,243 +1000,335 @@ class BusinessPlanView(APIView):
         except Exception as e:
             logger.error(f"Ошибка генерации бизнес-плана: {str(e)}")
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
-    def get_industry_templates(self, request, *args, **kwargs):
-        logger.info(f"Получен запрос на генерацию отраслевых шаблонов: {request.data}")
+    def calculate_financial_plan(self, request, *args, **kwargs):
+        logger.info(f"Получен запрос на расчет финансового плана: {request.data}")
         SYSTEM_PROMPT = """
-        Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в различных отраслях бизнеса.
-        Ваша задача - предоставлять точные, профессиональные и персонализированные шаблоны бизнес-планов для конкретных ниш.
-        Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
-        Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
-        Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
-        """
-        business_plan = request.data.get('business_plan', '')
-        industry = request.data.get('industry', '')
-        business_idea = request.data.get('business_idea', '')
-        if not business_idea and business_plan:
-            business_idea = self.extract_business_idea(business_plan)
-            logger.info(f"Извлечена бизнес-идея из бизнес-плана: {business_idea}")    
-        if not business_plan and not industry and not business_idea:
-            return Response({'error': 'Не указаны необходимые данные для генерации шаблона'}, status=status.HTTP_400_BAD_REQUEST)
-        if business_plan and not industry:
-            try:
-                industry = self.extract_industry_from_business_plan(business_plan)
-                if not industry:
-                    industry = "неизвестная отрасль"
-                logger.info(f"Извлечена отрасль из бизнес-плана: {industry}")
-            except Exception as e:
-                logger.warning(f"Не удалось извлечь отрасль из бизнес-плана: {str(e)}")
-                industry = "неизвестная отрасль"
-        niche = request.data.get('niche', '')
-        business_model = request.data.get('business_model', 'B2C')
-        country = request.data.get('country', 'Россия')
-        OPENROUTER_API_KEY = os.getenv('OPROUT_AQWE_BUSINESS')
-        if not OPENROUTER_API_KEY:
-            logger.error("API ключ OpenRouter для бизнес-планов не настроен")
-            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        try:
-            logger.info(f"Генерация отраслевых шаблонов для отрасли: {industry}, ниши: {niche}")
-            client = OpenAI(
-                api_key=OPENROUTER_API_KEY,
-                base_url="https://openrouter.ai/api/v1"
-            )
-            prompt = f"""
-                {SYSTEM_PROMPT}
-                Создайте специализированный шаблон бизнес-плана для отрасли: "{industry}" в нише: "{niche}"                
-                ПАРАМЕТРЫ:
-                    - Бизнес-модель: {business_model}
-                    - Страна: {country}                
-                ШАБЛОН ДОЛЖЕН СТРОГО СОДЕРЖАТЬ СЛЕДУЮЩИЕ РАЗДЕЛЫ:                
-                # СПЕЦИАЛИЗИРОВАННЫЙ ШАБЛОН БИЗНЕС-ПЛАНА ДЛЯ {industry.upper()} В НИШЕ {niche.upper()}                
-                ## 1. ОСОБЕННОСТИ ОТРАСЛИ
-                    - Уникальные характеристики отрасли {industry}
-                    - Регуляторные особенности
-                    - Тренды развития
-                    - Сезонность (если применимо)                
-                ## 2. СПЕЦИФИКА НИШИ {niche.upper()}
-                    - Особенности целевой аудитории в этой нише
-                    - Конкурентная среда
-                    - Уникальные возможности
-                    - Потенциальные риски                
-                ## 3. АДАПТИРОВАННЫЙ МАРКЕТИНГОВЫЙ ПЛАН
-                    - Специфические каналы продвижения для этой ниши
-                    - Уникальное торговое предложение
-                    - Ценовая стратегия с учетом особенностей ниши
-                    - Партнерские возможности                
-                ## 4. ОПЕРАЦИОННЫЕ ОСОБЕННОСТИ
-                    - Специфические требования к производству/услугам
-                    - Необходимые лицензии и разрешения
-                    - Поставщики и логистика
-                    - Качество и стандарты                
-                ## 5. ФИНАНСОВЫЕ НОРМАТИВЫ
-                    - Типичные показатели рентабельности в этой нише
-                    - Ожидаемые стартовые инвестиции
-                    - Срок окупаемости
-                    - Прогноз роста
-                ## 6. РЕКОМЕНДАЦИИ ПО СТАРТУ
-                    - Пошаговый план запуска бизнеса в этой нише
-                    - Советы от экспертов отрасли
-                    - Типичные ошибки и как их избежать
-                    - Ресурсы для дальнейшего изучения                
-                ВАЖНО: Ответ должен быть строго структурирован как указано выше, без дополнительных комментариев.
-                Шаблон должен учитывать специфику именно этой отрасли и ниши, а не быть общим.
-            """
-            response = client.chat.completions.create(
-                model="qwen/qwen-2.5-coder-32b-instruct:free",
-                messages=[
-                    {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": prompt}
-                ],
-                max_tokens=1800
-            )
-            return Response({
-                'industry_template': response.choices[0].message.content,
-                'industry': industry,
-                'niche': niche,
-                'business_model': business_model,
-                'country': country,
-                'business_plan_used': bool(business_plan)
-            })    
-        except Exception as e:
-            logger.error(f"Ошибка генерации отраслевого шаблона: {str(e)}")
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    def extract_industry_from_business_plan(self, business_plan):
-        industry_keywords = {
-            'IT': ['программное обеспечение', 'приложение', 'веб', 'интернет', 'технологии', 'софт', 'разработка'],
-            'Рестораны': ['ресторан', 'кафе', 'кафетерий', 'кухня', 'блюдо', 'еда', 'напиток'],
-            'Образование': ['образование', 'курсы', 'школа', 'обучение', 'преподавание', 'ученик', 'студент'],
-            'Медицина': ['клиника', 'больница', 'врач', 'здоровье', 'медицинский', 'аптека', 'лечение'],
-            'Розничная торговля': ['магазин', 'торговля', 'розница', 'товар', 'продукт', 'покупатель']
-        }
-        business_plan_lower = business_plan.lower()
-        max_matches = 0
-        detected_industry = "неизвестная отрасль"
-        for industry, keywords in industry_keywords.items():
-            matches = sum(1 for keyword in keywords if keyword in business_plan_lower)
-            if matches > max_matches:
-                max_matches = matches
-                detected_industry = industry
-        return detected_industry
-    
-    def generate_pitch_deck(self, request, *args, **kwargs):
-        logger.info(f"Получен запрос на генерацию pitch-дека: {request.data}")
-        SYSTEM_PROMPT = """
-        Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в создании презентаций для инвесторов.
-        Ваша задача - создавать краткие, убедительные и структурированные pitch-деки на основе полных бизнес-планов.
+        Вы - Советница АКВИ, профессиональный финансовый аналитик с экспертными знаниями.
+        Ваша задача - предоставить детальный финансовый анализ и расчеты на основе бизнес-плана.
         Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
         Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
         """
         business_plan = request.data.get('business_plan', '')
-        business_idea = request.data.get('business_idea', '')
-        if not business_idea and business_plan:
-            business_idea = self.extract_business_idea(business_plan)
-            logger.info(f"Извлечена бизнес-идея из бизнес-плана: {business_idea}")
         if not business_plan:
-            business_idea = request.data.get('business_idea', '')
-            if business_idea:
-                logger.info("Бизнес-план не предоставлен, но есть идея бизнеса. Генерируем бизнес-план...")
-                business_plan_response = self.post(request, *args, **kwargs)
-                if 'business_plan' in business_plan_response.data:
-                    business_plan = business_plan_response.data['business_plan']
-                else:
-                    return Response({'error': 'Не удалось сгенерировать бизнес-план для pitch-дека'}, status=status.HTTP_400_BAD_REQUEST)
-            else:
-                return Response({'error': 'Бизнес-план или идея бизнеса не предоставлены'}, status=status.HTTP_400_BAD_REQUEST)
-        target_investors = request.data.get('target_investors', 'венчурные инвесторы')
-        presentation_time = request.data.get('presentation_time', '5-7 минут')
-        country = request.data.get('country', 'Россия')
+            return Response({'error': 'Бизнес-план не предоставлен'}, status=status.HTTP_400_BAD_REQUEST)
         OPENROUTER_API_KEY = os.getenv('OPROUT_AQWE_BUSINESS')
         if not OPENROUTER_API_KEY:
             logger.error("API ключ OpenRouter для бизнес-планов не настроен")
-            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)        
         try:
-            logger.info(f"Генерация pitch-дека для бизнес-плана")
+            logger.info(f"Расчет финансового плана на основе бизнес-плана")
             client = OpenAI(
                 api_key=OPENROUTER_API_KEY,
                 base_url="https://openrouter.ai/api/v1"
-            )
+            )            
             prompt = f"""
                 {SYSTEM_PROMPT}
-                Создайте краткую презентацию для инвесторов (pitch-дек) на основе следующего бизнес-плана: {business_plan}
-                ПАРАМЕТРЫ PREЗЕНТАЦИИ:
-                    - Целевые инвесторы: {target_investors}
-                    - Время презентации: {presentation_time}
-                    - Страна: {country}
-                PITCH-ДЕК ДОЛЖЕН СТРОГО СОДЕРЖАТЬ СЛЕДУЮЩИЕ СЛАЙДЫ:
-                # PITCH-ДЕК: [НАЗВАНИЕ ПРОЕКТА]
-                ## СЛАЙД 1: ЗАГЛАВНЫЙ СЛАЙД
-                    - Название проекта
-                    - Краткий слоган (макс. 8 слов)
-                    - Ваше имя и должность
-                    - Контактная информация
-                ## СЛАЙД 2: ПРОБЛЕМА
-                    - Описание проблемы, которую решает проект (макс. 3 пункта)
-                    - Почему эта проблема важна именно сейчас
-                    - Рыночные доказательства
-                ## СЛАЙД 3: РЕШЕНИЕ
-                    - Описание вашего решения
-                    - Как оно уникально (УТП)
-                    - Визуализация продукта/услуги
-                ## СЛАЙД 4: РЫНОК
-                    - Размер целевого рынка
-                    - Темпы роста рынка
-                    - Целевая аудитория
-                ## СЛАЙД 5: БИЗНЕС-МОДЕЛЬ
-                    - Как вы зарабатываете деньги
-                    - Прогноз выручки на 3 года
-                    - Ключевые метрики
-                ## СЛАЙД 6: КОНКУРЕНТЫ
-                    - Основные конкуренты
-                    - Наше конкурентное преимущество
-                    - Позиционирование на рынке
-                ## СЛАЙД 7: КОМАНДА
-                    - Ключевые члены команды
-                    - Их опыт и экспертиза
-                    - Почему именно эта команда может реализовать проект
-                ## СЛАЙД 8: ФИНАНСЫ
-                    - Требуемые инвестиции
-                    - Как будут использованы средства
-                    - Прогноз ROI для инвесторов
-                ## СЛАЙД 9: ПЛАН ДЕЙСТВИЙ
-                    - Ключевые вехи на ближайший год
-                    - Сроки достижения
-                    - Ожидаемые результаты
-                ## СЛАЙД 10: ЗАКЛЮЧЕНИЕ
-                    - Основное сообщение для инвесторов
-                    - Призыв к действию
-                    - Контактная информация
-                ВАЖНО: Ответ должен быть строго структурирован как указано выше, без дополнительных комментариев.
-                Каждый слайд должен содержать краткую информацию, подходящую для устной презентации в течение {presentation_time}.
-                Используйте bullet points, а не длинные абзацы.
-            """
+                Проведите детальный финансовый анализ и расчеты на основе следующего бизнес-плана: {business_plan}            
+                ФИНАНСОВЫЙ АНАЛИЗ ДОЛЖЕН СОДЕРЖАТЬ:                
+                # ДЕТАЛЬНЫЙ ФИНАНСОВЫЙ АНАЛИЗ
+                ## 1. ИНВЕСТИЦИОННЫЙ ПЛАН
+                    - Детальная смета стартовых инвестиций
+                    - Распределение инвестиций по категориям
+                    - Срок окупаемости инвестиций
+                ## 2. ПРОГНОЗ ДОХОДОВ
+                    - Ежемесячный прогноз доходов на 3 года
+                    - График роста выручки
+                    - Ключевые драйверы роста доходов                
+                ## 3. ПРОГНОЗ РАСХОДОВ
+                    - Постоянные расходы
+                    - Переменные расходы
+                    - Прогноз изменения расходов во времени                
+                ## 4. ТОЧКА БЕЗУБЫТОЧНОСТИ
+                    - Расчет точки безубыточности
+                    - Факторы, влияющие на точку безубыточности
+                    - Сценарии достижения точки безубыточности                
+                ## 5. ПРОГНОЗ ПРИБЫЛИ
+                    - Чистая прибыль по месяцам и годам
+                    - Рентабельность бизнеса
+                    - Прогноз возврата инвестиций                
+                ## 6. СЦЕНАРНЫЙ АНАЛИЗ
+                    - Оптимистичный сценарий
+                    - Базовый сценарий
+                    - Пессимистичный сценарий
+                    - Вероятность каждого сценария                
+                ## 7. РЕКОМЕНДАЦИИ ПО ОПТИМИЗАЦИИ
+                    - Как увеличить прибыль
+                    - Как снизить расходы
+                    - Что можно улучшить в финансовой модели                
+                ВАЖНО: Все расчеты должны быть основаны на данных из бизнес-плана.
+                Используйте конкретные цифры и формулы там, где это уместно.
+                Ответ должен быть строго структурирован как указано выше, без дополнительных комментариев.
+            """            
             response = client.chat.completions.create(
-                model="qwen/qwen-2.5-coder-32b-instruct:free",
+                model="qwen/qwen3-coder:free",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt}
                 ],
                 max_tokens=1800
-            )
+            )            
             return Response({
-                'pitch_deck': response.choices[0].message.content,
-                'target_investors': target_investors,
-                'presentation_time': presentation_time,
-                'country': country,
-                'business_plan_used': True
-            })    
+                'financial_analysis': response.choices[0].message.content,
+                'business_plan': business_plan
+            })            
         except Exception as e:
-            logger.error(f"Ошибка генерации pitch-дека: {str(e)}")
+            logger.error(f"Ошибка расчета финансового плана: {str(e)}")
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    def extract_business_idea(self, business_plan):
-        lines = business_plan.split('\n')
-        for line in lines:
-            if "Бизнес-план:" in line or "# НАЗВАНИЕ БИЗНЕС-ПЛАНА" in line:
-                parts = line.split(':')
-                if len(parts) > 1:
-                    return parts[1].strip()
-        if business_plan:
-            return business_plan.split('\n')[0].strip()
-        return "Неизвестная идея бизнеса"
+    def generate_marketing_strategy(self, request, *args, **kwargs):
+        logger.info(f"Получен запрос на генерацию детальной маркетинговой стратегии: {request.data}")
+        SYSTEM_PROMPT = """
+        Вы - Советница АКВИ, профессиональный маркетолог с экспертными знаниями.
+        Ваша задача - создать детальную маркетинговую стратегию на основе бизнес-плана.
+        Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
+        Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
+        """        
+        business_plan = request.data.get('business_plan', '')
+        if not business_plan:
+            return Response({'error': 'Бизнес-план не предоставлен'}, status=status.HTTP_400_BAD_REQUEST)        
+        OPENROUTER_API_KEY = os.getenv('OPROUT_AQWE_BUSINESS')
+        if not OPENROUTER_API_KEY:
+            logger.error("API ключ OpenRouter для бизнес-планов не настроен")
+            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)        
+        try:
+            logger.info(f"Генерация детальной маркетинговой стратегии")
+            client = OpenAI(
+                api_key=OPENROUTER_API_KEY,
+                base_url="https://openrouter.ai/api/v1"
+            )            
+            prompt = f"""
+                {SYSTEM_PROMPT}
+                Создайте детальную маркетинговую стратегию на основе следующего бизнес-плана: {business_plan}                
+                МАРКЕТИНГОВАЯ СТРАТЕГИЯ ДОЛЖНА СОДЕРЖАТЬ:                
+                # ДЕТАЛЬНАЯ МАРКЕТИНГОВАЯ СТРАТЕГИЯ                
+                ## 1. ЦЕЛЕВАЯ АУДИТОРИЯ
+                    - Демографический профиль
+                    - Психографический профиль
+                    - Поведенческий профиль
+                    - Сегментация целевой аудитории                
+                ## 2. УТП И ПОЗИЦИОНИРОВАНИЕ
+                    - Уникальное торговое предложение
+                    - Позиционирование на рынке
+                    - Ценностное предложение
+                    - Отличия от конкурентов                
+                ## 3. ЦЕННАЯ СТРАТЕГИЯ
+                    - Модель ценообразования
+                    - Стратегия скидок и акций
+                    - Ценовые пакеты
+                    - Сравнение с конкурентами                
+                ## 4. КАНАЛЫ ПРОДВИЖЕНИЯ
+                    - Онлайн-каналы (SEO, контекстная реклама, соцсети)
+                    - Офлайн-каналы (реклама, мероприятия)
+                    - Партнерские программы
+                    - Бюджет на каждый канал                
+                ## 5. КОНТЕНТ-СТРАТЕГИЯ
+                    - План контента
+                    - Календарь публикаций
+                    - Типы контента
+                    - Платформы для размещения                
+                ## 6. ПРОДАЖИ И КОНВЕРСИЯ
+                    - Процесс продаж
+                    - Воронка продаж
+                    - Метрики конверсии
+                    - Оптимизация процесса продаж                
+                ## 7. ИЗМЕРЕНИЕ ЭФФЕКТИВНОСТИ
+                    - Ключевые метрики
+                    - Инструменты аналитики
+                    - Периодичность отчетности
+                    - Целевые показатели эффективности                
+                ## 8. БЮДЖЕТ МАРКЕТИНГА
+                    - Распределение бюджета
+                    - ROI по каналам
+                    - Оптимизация бюджета
+                    - Прогноз эффективности                
+                ВАЖНО: Стратегия должна быть конкретной и реализуемой.
+                Все рекомендации должны быть основаны на данных из бизнес-плана.
+                Ответ должен быть строго структурирован как указано выше, без дополнительных комментариев.
+            """            
+            response = client.chat.completions.create(
+                model="qwen/qwen3-coder:free",
+                messages=[
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": prompt}
+                ],
+                max_tokens=1800
+            )            
+            return Response({
+                'marketing_strategy': response.choices[0].message.content,
+                'business_plan': business_plan
+            })            
+        except Exception as e:
+            logger.error(f"Ошибка генерации маркетинговой стратегии: {str(e)}")
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    def generate_risk_analysis(self, request, *args, **kwargs):        
+        logger.info(f"Получен запрос на глубокий анализ рисков: {request.data}")
+        SYSTEM_PROMPT = """
+        Вы - Советница АКВИ, профессиональный риск-менеджер с экспертными знаниями.
+        Ваша задача - провести глубокий анализ рисков на основе бизнес-плана.
+        Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
+        Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
+        """        
+        business_plan = request.data.get('business_plan', '')
+        if not business_plan:
+            return Response({'error': 'Бизнес-план не предоставлен'}, status=status.HTTP_400_BAD_REQUEST)        
+        OPENROUTER_API_KEY = os.getenv('OPROUT_AQWE_BUSINESS')
+        if not OPENROUTER_API_KEY:
+            logger.error("API ключ OpenRouter для бизнес-планов не настроен")
+            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)        
+        try:
+            logger.info(f"Глубокий анализ рисков на основе бизнес-плана")
+            client = OpenAI(
+                api_key=OPENROUTER_API_KEY,
+                base_url="https://openrouter.ai/api/v1"
+            )            
+            prompt = f"""
+                {SYSTEM_PROMPT}
+                Проведите глубокий анализ рисков на основе следующего бизнес-плана: {business_plan}            
+                АНАЛИЗ РИСКОВ ДОЛЖЕН СОДЕРЖАТЬ:                
+                # ГЛУБОКИЙ АНАЛИЗ РИСКОВ                
+                ## 1. ИДЕНТИФИКАЦИЯ РИСКОВ
+                    - Стратегические риски
+                    - Операционные риски
+                    - Финансовые риски
+                    - Рыночные риски
+                    - Юридические и регуляторные риски                
+                ## 2. ОЦЕНКА РИСКОВ
+                    - Вероятность возникновения
+                    - Потенциальный ущерб
+                    - Уровень риска (низкий, средний, высокий)
+                    - Временные рамки возникновения                
+                ## 3. КАРТА РИСКОВ
+                    - Матрица рисков (вероятность vs влияние)
+                    - Приоритизация рисков
+                    - Критические риски, требующие немедленного внимания                
+                ## 4. ПЛАНЫ МИНИМИЗАЦИИ
+                    - Стратегии снижения рисков
+                    - Конкретные действия для каждого риска
+                    - Ответственные за реализацию
+                    - Сроки выполнения                
+                ## 5. МОНИТОРИНГ РИСКОВ
+                    - Индикаторы раннего предупреждения
+                    - Процесс регулярного обзора рисков
+                    - Отчетность по рискам
+                    - Адаптация планов при изменении условий                
+                ## 6. СЦЕНАРИЙНОЕ ПЛАНИРОВАНИЕ
+                    - Лучший сценарий
+                    - Базовый сценарий
+                    - Наихудший сценарий
+                    - План действий для каждого сценария                
+                ## 7. СТРАХОВАНИЕ РИСКОВ
+                    - Возможные виды страхования
+                    - Стоимость страхования
+                    - Покрытие рисков
+                    - Рекомендации по страхованию                
+                ## 8. РЕЗЮМЕ И РЕКОМЕНДАЦИИ
+                    - Ключевые риски, требующие внимания
+                    - Приоритетные действия
+                    - Ожидаемый эффект от реализации планов
+                    - Долгосрочные рекомендации                
+                ВАЖНО: Анализ должен быть основан на данных из бизнес-плана.
+                Все рекомендации должны быть конкретными и реализуемыми.
+                Ответ должен быть строго структурирован как указано выше, без дополнительных комментариев.
+            """            
+            response = client.chat.completions.create(
+                model="qwen/qwen3-coder:free",
+                messages=[
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": prompt}
+                ],
+                max_tokens=1800
+            )            
+            return Response({
+                'risk_analysis': response.choices[0].message.content,
+                'business_plan': business_plan
+            })            
+        except Exception as e:
+            logger.error(f"Ошибка глубокого анализа рисков: {str(e)}")
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    def generate_action_plan(self, request, *args, **kwargs):
+        logger.info(f"Получен запрос на генерацию детального плана действий: {request.data}")
+        SYSTEM_PROMPT = """
+        Вы - Советница АКВИ, профессиональный проектный менеджер с экспертными знаниями.
+        Ваша задача - создать детальный план действий на основе бизнес-плана.
+        Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
+        Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
+        """        
+        business_plan = request.data.get('business_plan', '')
+        if not business_plan:
+            return Response({'error': 'Бизнес-план не предоставлен'}, status=status.HTTP_400_BAD_REQUEST)        
+        OPENROUTER_API_KEY = os.getenv('OPROUT_AQWE_BUSINESS')
+        if not OPENROUTER_API_KEY:
+            logger.error("API ключ OpenRouter для бизнес-планов не настроен")
+            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)        
+        try:
+            logger.info(f"Генерация детального плана действий")
+            client = OpenAI(
+                api_key=OPENROUTER_API_KEY,
+                base_url="https://openrouter.ai/api/v1"
+            )            
+            prompt = f"""
+                {SYSTEM_PROMPT}
+                Создайте детальный план действий на основе следующего бизнес-плана: {business_plan}            
+                ПЛАН ДЕЙСТВИЙ ДОЛЖЕН СОДЕРЖАТЬ:                
+                # ДЕТАЛЬНЫЙ ПЛАН ДЕЙСТВИЙ                
+                ## 1. КЛЮЧЕВЫЕ ЭТАПЫ ПРОЕКТА
+                    - Предстартовая фаза (0-3 месяца)
+                    - Запуск (4-6 месяцев)
+                    - Рост и масштабирование (7-18 месяцев)
+                    - Стабилизация и оптимизация (19-36 месяцев)            
+                ## 2. ДЕТАЛЬНЫЙ ГРАФИК РАБОТ
+                    - Список всех задач
+                    - Сроки выполнения
+                    - Зависимости между задачами
+                    - Критический путь проекта                
+                ## 3. РЕСУРСНОЕ ОБЕСПЕЧЕНИЕ
+                    - Необходимые человеческие ресурсы
+                    - Финансовые ресурсы
+                    - Технические ресурсы
+                    - Временные ресурсы                
+                ## 4. ОТВЕТСТВЕННЫЕ
+                    - Роли и обязанности
+                    - Ответственные за каждую задачу
+                    - Механизмы отчетности
+                    - Система контроля выполнения                
+                ## 5. КРИТЕРИИ УСПЕХА
+                    - Ключевые показатели эффективности (KPI)
+                    - Этапные цели
+                    - Метрики для оценки успеха
+                    - Пороговые значения для корректировки плана                
+                ## 6. БЮДЖЕТ ПО ЭТАПАМ
+                    - Распределение бюджета по этапам
+                    - Расходы на каждую задачу
+                    - Резервы на непредвиденные расходы
+                    - Прогноз возврата инвестиций по этапам                
+                ## 7. ПОТЕНЦИАЛЬНЫЕ ПРОБЛЕМЫ И РЕШЕНИЯ
+                    - Возможные задержки
+                    - Риски на каждом этапе
+                    - Планы минимизации проблем
+                    - Резервные варианты действий                
+                ## 8. СИСТЕМА МОНИТОРИНГА И ОТЧЕТНОСТИ
+                    - Периодичность отчетов
+                    - Формат отчетов
+                    - Участники процесса отчетности
+                    - Механизмы принятия решений на основе отчетов                
+                ВАЖНО: План должен быть конкретным и реализуемым.
+                Все задачи должны иметь четкие сроки и ответственных.
+                Ответ должен быть строго структурирован как указано выше, без дополнительных комментариев.
+            """            
+            response = client.chat.completions.create(
+                model="qwen/qwen3-coder:free",
+                messages=[
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": prompt}
+                ],
+                max_tokens=1800
+            )            
+            return Response({
+                'action_plan': response.choices[0].message.content,
+                'business_plan': business_plan
+            })            
+        except Exception as e:
+            logger.error(f"Ошибка генерации детального плана действий: {str(e)}")
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class PresentationGenerationView(APIView):
     def post(self, request, *args, **kwargs):

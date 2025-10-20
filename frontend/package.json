@@ -37,6 +37,7 @@
     "html2canvas": "^1.4.1",
     "interpret": "^3.1.1",
     "jspdf": "^2.5.2",
+    "jspdf-autotable": "^5.0.2",
     "localtunnel": "^2.0.2",
     "maath": "^0.10.8",
     "mime-types": "^2.1.35",

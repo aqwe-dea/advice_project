@@ -1,4 +1,6 @@
 import React, { useState } from 'react';
+import 'jspdf';
+import 'jspdf-autotable';
 
 const BusinessPlanForm = () => {
   const [formData, setFormData] = useState({
@@ -9,140 +11,199 @@ const BusinessPlanForm = () => {
     investment_amount: 'средние инвестиции',
     timeframe: '3 года'
   });
-  const [industryData, setIndustryData] = useState({
-    industry: '',
-    niche: '',
-    business_model: 'B2C',
-    country: 'Россия'
-  });
-  const [pitchData, setPitchData] = useState({
-    target_investors: 'венчурные инвесторы',
-    presentation_time: '5-7 минут',
-    country: 'Россия',
-    business_plan: 'string'
-  });
+  
+  // Добавлены недостающие состояния
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<any>(null);
-  const [industryTemplate, setIndustryTemplate] = useState<any>(null);
-  const [pitchDeck, setPitchDeck] = useState<any>(null);
-  const [activeTab, setActiveTab] = useState<'plan' | 'template' | 'pitch'>('plan');
+  const [financialAnalysis, setFinancialAnalysis] = useState<any>(null);
+  const [marketingStrategy, setMarketingStrategy] = useState<any>(null);
+  const [riskAnalysis, setRiskAnalysis] = useState<any>(null);
+  const [actionPlan, setActionPlan] = useState<any>(null);
+  const [activeTab, setActiveTab] = useState<'plan' | 'financial' | 'marketing' | 'risk' | 'action'>('plan');
+  
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
-    if (activeTab === 'plan') {
-      setFormData(prev => ({ ...prev, [name]: value }));
-    } else if (activeTab === 'template') {
-      setIndustryData(prev => ({ ...prev, [name]: value }));
-    } else {
-      setPitchData(prev => ({ ...prev, [name]: value }));
-    }
+    setFormData(prev => ({ ...prev, [name]: value }));
   };  
+  
+  const handleCalculateFinancialPlan = async (businessPlan: string) => {
+    if (!businessPlan || businessPlan.trim().length < 100) {
+      setError('Недостаточно данных в бизнес-плане для расчета. Сначала сгенерируйте полный бизнес-план.');
+      return;
+    }
+    setIsLoading(true);
+    setError(null);    
+    try {
+      const response = await fetch('/business-plan/calculate-financial-plan/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          business_plan: businessPlan
+        })
+      });      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Ошибка при расчете финансового плана');
+      }      
+      const data = await response.json();
+      setFinancialAnalysis(data);
+      setActiveTab('financial');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Произошла ошибка');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  const handleGenerateMarketingStrategy = async (businessPlan: string) => {
+    if (!businessPlan || businessPlan.trim().length < 100) {
+      setError('Недостаточно данных в бизнес-плане для генерации. Сначала сгенерируйте полный бизнес-план.');
+      return;
+    }    
+    setIsLoading(true);
+    setError(null);    
+    try {
+      const response = await fetch('/business-plan/generate-marketing-strategy/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          business_plan: businessPlan
+        })
+      });      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Ошибка при генерации маркетинговой стратегии');
+      }      
+      const data = await response.json();
+      setMarketingStrategy(data);
+      setActiveTab('marketing');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Произошла ошибка');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  const handleGenerateRiskAnalysis = async (businessPlan: string) => {
+    if (!businessPlan || businessPlan.trim().length < 100) {
+      setError('Недостаточно данных в бизнес-плане для анализа. Сначала сгенерируйте полный бизнес-план.');
+      return;
+    }    
+    setIsLoading(true);
+    setError(null);    
+    try {
+      const response = await fetch('/business-plan/generate-risk-analysis/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          business_plan: businessPlan
+        })
+      });      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Ошибка при анализе рисков');
+      }      
+      const data = await response.json();
+      setRiskAnalysis(data);
+      setActiveTab('risk');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Произошла ошибка');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  const handleGenerateActionPlan = async (businessPlan: string) => {
+    if (!businessPlan || businessPlan.trim().length < 100) {
+      setError('Недостаточно данных в бизнес-плане для генерации. Сначала сгенерируйте полный бизнес-план.');
+      return;
+    }    
+    setIsLoading(true);
+    setError(null);    
+    try {
+      const response = await fetch('/business-plan/generate-action-plan/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+          business_plan: businessPlan
+        })
+      });      
+      if (!response.ok) {
+        const errorData = await response.json();
+        throw new Error(errorData.error || 'Ошибка при генерации плана действий');
+      }      
+      const data = await response.json();
+      setActionPlan(data);
+      setActiveTab('action');
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Произошла ошибка');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
+  const downloadPDF = async (content: string) => {
+    setIsLoading(true);
+    setError(null);    
+    try {
+      const { jsPDF } = await import('jspdf');
+      await import('jspdf-autotable');
+      
+      const doc = new jsPDF();           
+      doc.setFontSize(16);
+      doc.text('Бизнес-план', 14, 20);
+      doc.setFontSize(12);      
+      const splitContent = doc.splitTextToSize(content, 180);
+      doc.text(splitContent, 14, 30);      
+      doc.save('business-plan.pdf');
+    } catch (err) {
+      setError('Не удалось сгенерировать PDF. Попробуйте позже.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();    
     setIsLoading(true);
     setError(null);    
     try {
-      if (activeTab === 'plan') {
-        if (!formData.idea.trim()) {
-          setError('Пожалуйста, укажите идею бизнеса');
-          return;
-        }        
-        const response = await fetch('/business-plan/', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify(formData)
-        });        
-        if (!response.ok) {
-          const errorData = await response.json();
-          throw new Error(errorData.error || 'Ошибка при генерации бизнес-плана');
-        }        
-        const data = await response.json();
-        setResult(data);
-        setPitchData(prev => ({ ...prev, business_plan: data.business_plan }));
-      }
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Произошла ошибка');
-    } finally {
-      setIsLoading(false);
-    }
-  };
-  const handleGeneratePitchDeck = async (businessPlan: string) => {
-    if (!businessPlan || businessPlan.trim().length < 100) {
-      setError('Недостаточно данных в бизнес-плане для генерации. Сначала сгенерируйте полный бизнес-план.');
-      return;
-    }
-    setIsLoading(true);
-    setError(null);
-  
-    try {
-      const response = await fetch('/business-plan/pitch-deck/', {
+      if (!formData.idea.trim()) {
+        setError('Пожалуйста, укажите идею бизнеса');
+        return;
+      }        
+      
+      const response = await fetch('/business-plan/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
-        body: JSON.stringify({
-          business_plan: businessPlan,
-          business_idea: formData.idea,
-          target_investors: 'венчурные инвесторы',
-          presentation_time: '5-7 минут',
-          country: formData.country
-        })
-      });
-    
+        body: JSON.stringify(formData)
+      });        
+      
       if (!response.ok) {
         const errorData = await response.json();
-        throw new Error(errorData.error || 'Ошибка при генерации pitch-дека');
-      }
-    
+        throw new Error(errorData.error || 'Ошибка при генерации бизнес-плана');
+      }        
+      
       const data = await response.json();
-      setPitchDeck(data);
-      setActiveTab('pitch');
+      setResult(data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Произошла ошибка');
     } finally {
       setIsLoading(false);
     }
   };
-  const handleGenerateIndustryTemplate = async (businessPlan: string) => {
-    if (!businessPlan || businessPlan.trim().length < 100) {
-      setError('Недостаточно данных в бизнес-плане для генерации. Сначала сгенерируйте полный бизнес-план.');
-      return;
-    }
-    setIsLoading(true);
-    setError(null);
   
-    try {
-      const response = await fetch('/business-plan/industry-templates/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-          business_plan: businessPlan,
-          business_idea: formData.idea,
-          industry: '',
-          niche: '',
-          business_model: 'B2C',
-          country: formData.country
-        })
-      });
-    
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Ошибка при генерации отраслевого шаблона');
-      }
-    
-      const data = await response.json();
-      setIndustryTemplate(data);
-      setActiveTab('template');
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Произошла ошибка');
-    } finally {
-      setIsLoading(false);
-    }
-  };
   const renderBusinessPlan = () => {
     if (!result || !result.business_plan) return null;    
     const sections = {
@@ -200,61 +261,51 @@ const BusinessPlanForm = () => {
           <h4>10. Риски и их минимизация</h4>
           <div className="section-content">{sections.risks || "Не найдено"}</div>
         </div>        
-        <div className="button-group">
-          <button 
-            onClick={() => handleGenerateIndustryTemplate(result.business_plan)}
-            className="generate-button"
-            disabled={isLoading}
-          >
-            {isLoading ? 'Генерируем шаблон...' : 'Сгенерировать отраслевой шаблон'}
-          </button>          
-          <button 
-            onClick={() => handleGeneratePitchDeck(result.business_plan)}
-            className="generate-button"
-            disabled={isLoading}
-          >
-            {isLoading ? 'Генерируем pitch-дек...' : 'Сгенерировать pitch-дек'}
-          </button>
-        </div>
       </div>
     );
   };
-  const renderIndustryTemplate = () => {
-    if (!industryTemplate || !industryTemplate.industry_template) return null;    
+  
+  const renderFinancialAnalysis = () => {
+    if (!financialAnalysis || !financialAnalysis.financial_analysis) return null;      
     const sections = {
-      industry_features: extractSection(industryTemplate.industry_template, 1, "ОСОБЕННОСТИ ОТРАСЛИ"),
-      niche_specifics: extractSection(industryTemplate.industry_template, 2, "СПЕЦИФИКА НИШИ"),
-      marketing_plan: extractSection(industryTemplate.industry_template, 3, "АДАПТИРОВАННЫЙ МАРКЕТИНГОВЫЙ ПЛАН"),
-      operational_features: extractSection(industryTemplate.industry_template, 4, "ОПЕРАЦИОННЫЕ ОСОБЕННОСТИ"),
-      financial_norms: extractSection(industryTemplate.industry_template, 5, "ФИНАНСОВЫЕ НОРМАТИВЫ"),
-      startup_recommendations: extractSection(industryTemplate.industry_template, 6, "РЕКОМЕНДАЦИИ ПО СТАРТУ")
+      investment_plan: extractSection(financialAnalysis.financial_analysis, 1, "1. ИНВЕСТИЦИОННЫЙ ПЛАН"),
+      revenue_forecast: extractSection(financialAnalysis.financial_analysis, 2, "2. ПРОГНОЗ ДОХОДОВ"),
+      expense_forecast: extractSection(financialAnalysis.financial_analysis, 3, "3. ПРОГНОЗ РАСХОДОВ"),
+      break_even: extractSection(financialAnalysis.financial_analysis, 4, "4. ТОЧКА БЕЗУБЫТОЧНОСТИ"),
+      profit_forecast: extractSection(financialAnalysis.financial_analysis, 5, "5. ПРОГНОЗ ПРИБЫЛИ"),
+      scenario_analysis: extractSection(financialAnalysis.financial_analysis, 6, "6. СЦЕНАРНЫЙ АНАЛИЗ"),
+      optimization_recommendations: extractSection(financialAnalysis.financial_analysis, 7, "7. РЕКОМЕНДАЦИИ ПО ОПТИМИЗАЦИИ")
     };    
     return (
-      <div className="industry-template">
-        <h3>Отраслевой шаблон: {industryTemplate.industry} в нише {industryTemplate.niche}</h3>        
+      <div className="financial-analysis">
+        <h3>Детальный финансовый анализ</h3>        
         <div className="section">
-          <h4>1. Особенности отрасли</h4>
-          <div className="section-content">{sections.industry_features || "Не найдено"}</div>
+          <h4>1. Инвестиционный план</h4>
+          <div className="section-content">{sections.investment_plan || "Не найдено"}</div>
         </div>        
         <div className="section">
-          <h4>2. Специфика ниши</h4>
-          <div className="section-content">{sections.niche_specifics || "Не найдено"}</div>
+          <h4>2. Прогноз доходов</h4>
+          <div className="section-content">{sections.revenue_forecast || "Не найдено"}</div>
         </div>        
         <div className="section">
-          <h4>3. Адаптированный маркетинговый план</h4>
-          <div className="section-content">{sections.marketing_plan || "Не найдено"}</div>
+          <h4>3. Прогноз расходов</h4>
+          <div className="section-content">{sections.expense_forecast || "Не найдено"}</div>
         </div>        
         <div className="section">
-          <h4>4. Операционные особенности</h4>
-          <div className="section-content">{sections.operational_features || "Не найдено"}</div>
+          <h4>4. Точка безубыточности</h4>
+          <div className="section-content">{sections.break_even || "Не найдено"}</div>
         </div>        
         <div className="section">
-          <h4>5. Финансовые нормативы</h4>
-          <div className="section-content">{sections.financial_norms || "Не найдено"}</div>
+          <h4>5. Прогноз прибыли</h4>
+          <div className="section-content">{sections.profit_forecast || "Не найдено"}</div>
         </div>        
         <div className="section">
-          <h4>6. Рекомендации по старту</h4>
-          <div className="section-content">{sections.startup_recommendations || "Не найдено"}</div>
+          <h4>6. Сценарный анализ</h4>
+          <div className="section-content">{sections.scenario_analysis || "Не найдено"}</div>
+        </div>        
+        <div className="section">
+          <h4>7. Рекомендации по оптимизации</h4>
+          <div className="section-content">{sections.optimization_recommendations || "Не найдено"}</div>
         </div>        
         <button 
           onClick={() => setActiveTab('plan')}
@@ -264,63 +315,54 @@ const BusinessPlanForm = () => {
         </button>
       </div>
     );
-  };  
-  const renderPitchDeck = () => {
-    if (!pitchDeck || !pitchDeck.pitch_deck) return null;    
-    const slides = {
-      title: extractSection(pitchDeck.pitch_deck, 1, "СЛАЙД 1: ЗАГЛАВНЫЙ СЛАЙД"),
-      problem: extractSection(pitchDeck.pitch_deck, 2, "СЛАЙД 2: ПРОБЛЕМА"),
-      solution: extractSection(pitchDeck.pitch_deck, 3, "СЛАЙД 3: РЕШЕНИЕ"),
-      market: extractSection(pitchDeck.pitch_deck, 4, "СЛАЙД 4: РЫНОК"),
-      business_model: extractSection(pitchDeck.pitch_deck, 5, "СЛАЙД 5: БИЗНЕС-МОДЕЛЬ"),
-      competitors: extractSection(pitchDeck.pitch_deck, 6,  "СЛАЙД 6: КОНКУРЕНТЫ"),
-      team: extractSection(pitchDeck.pitch_deck, 7, "СЛАЙД 7: КОМАНДА"),
-      finances: extractSection(pitchDeck.pitch_deck, 8, "СЛАЙД 8: ФИНАНСЫ"),
-      action_plan: extractSection(pitchDeck.pitch_deck, 9, "СЛАЙД 9: ПЛАН ДЕЙСТВИЙ"),
-      conclusion: extractSection(pitchDeck.pitch_deck, 10, "СЛАЙД 10: ЗАКЛЮЧЕНИЕ")
+  };
+  
+  const renderMarketingStrategy = () => {
+    if (!marketingStrategy || !marketingStrategy.marketing_strategy) return null;    
+    const sections = {
+      target_audience: extractSection(marketingStrategy.marketing_strategy, 1, "1. ЦЕЛЕВАЯ АУДИТОРИЯ"),
+      utp_positioning: extractSection(marketingStrategy.marketing_strategy, 2, "2. УТП И ПОЗИЦИОНИРОВАНИЕ"),
+      pricing_strategy: extractSection(marketingStrategy.marketing_strategy, 3, "3. ЦЕННАЯ СТРАТЕГИЯ"),
+      promotion_channels: extractSection(marketingStrategy.marketing_strategy, 4, "4. КАНАЛЫ ПРОДВИЖЕНИЯ"),
+      content_strategy: extractSection(marketingStrategy.marketing_strategy, 5, "5. КОНТЕНТ-СТРАТЕГИЯ"),
+      sales_conversion: extractSection(marketingStrategy.marketing_strategy, 6, "6. ПРОДАЖИ И КОНВЕРСИЯ"),
+      effectiveness_measurement: extractSection(marketingStrategy.marketing_strategy, 7, "7. ИЗМЕРЕНИЕ ЭФФЕКТИВНОСТИ"),
+      marketing_budget: extractSection(marketingStrategy.marketing_strategy, 8, "8. БЮДЖЕТ МАРКЕТИНГА")
     };    
     return (
-      <div className="pitch-deck">
-        <h3>Pitch-дек для инвесторов</h3>        
+      <div className="marketing-strategy">
+        <h3>Детальная маркетинговая стратегия</h3>        
         <div className="section">
-          <h4>Слайд 1: Заглавный слайд</h4>
-          <div className="section-content">{slides.title || "Не найдено"}</div>
+          <h4>1. Целевая аудитория</h4>
+          <div className="section-content">{sections.target_audience || "Не найдено"}</div>
         </div>        
         <div className="section">
-          <h4>Слайд 2: Проблема</h4>
-          <div className="section-content">{slides.problem || "Не найдено"}</div>
+          <h4>2. УТП и позиционирование</h4>
+          <div className="section-content">{sections.utp_positioning || "Не найдено"}</div>
         </div>        
         <div className="section">
-          <h4>Слайд 3: Решение</h4>
-          <div className="section-content">{slides.solution || "Не найдено"}</div>
+          <h4>3. Ценная стратегия</h4>
+          <div className="section-content">{sections.pricing_strategy || "Не найдено"}</div>
         </div>        
         <div className="section">
-          <h4>Слайд 4: Рынок</h4>
-          <div className="section-content">{slides.market || "Не найдено"}</div>
+          <h4>4. Каналы продвижения</h4>
+          <div className="section-content">{sections.promotion_channels || "Не найдено"}</div>
         </div>        
         <div className="section">
-          <h4>Слайд 5: Бизнес-модель</h4>
-          <div className="section-content">{slides.business_model || "Не найдено"}</div>
+          <h4>5. Контент-стратегия</h4>
+          <div className="section-content">{sections.content_strategy || "Не найдено"}</div>
         </div>        
         <div className="section">
-          <h4>Слайд 6: Конкуренты</h4>
-          <div className="section-content">{slides.competitors || "Не найдено"}</div>
+          <h4>6. Продажи и конверсия</h4>
+          <div className="section-content">{sections.sales_conversion || "Не найдено"}</div>
         </div>        
         <div className="section">
-          <h4>Слайд 7: Команда</h4>
-          <div className="section-content">{slides.team || "Не найдено"}</div>
+          <h4>7. Измерение эффективности</h4>
+          <div className="section-content">{sections.effectiveness_measurement || "Не найдено"}</div>
         </div>        
         <div className="section">
-          <h4>Слайд 8: Финансы</h4>
-          <div className="section-content">{slides.finances || "Не найдено"}</div>
-        </div>        
-        <div className="section">
-          <h4>Слайд 9: План действий</h4>
-          <div className="section-content">{slides.action_plan || "Не найдено"}</div>
-        </div>        
-        <div className="section">
-          <h4>Слайд 10: Заключение</h4>
-          <div className="section-content">{slides.conclusion || "Не найдено"}</div>
+          <h4>8. Бюджет маркетинга</h4>
+          <div className="section-content">{sections.marketing_budget || "Не найдено"}</div>
         </div>        
         <button 
           onClick={() => setActiveTab('plan')}
@@ -330,7 +372,122 @@ const BusinessPlanForm = () => {
         </button>
       </div>
     );
-  };  
+  };
+  
+  const renderRiskAnalysis = () => {
+    if (!riskAnalysis || !riskAnalysis.risk_analysis) return null;    
+    const sections = {
+      risk_identification: extractSection(riskAnalysis.risk_analysis, 1, "1. ИДЕНТИФИКАЦИЯ РИСКОВ"),
+      risk_assessment: extractSection(riskAnalysis.risk_analysis, 2, "2. ОЦЕНКА РИСКОВ"),
+      risk_map: extractSection(riskAnalysis.risk_analysis, 3, "3. КАРТА РИСКОВ"),
+      mitigation_plans: extractSection(riskAnalysis.risk_analysis, 4, "4. ПЛАНЫ МИНИМИЗАЦИИ"),
+      risk_monitoring: extractSection(riskAnalysis.risk_analysis, 5, "5. МОНИТОРИНГ РИСКОВ"),
+      scenario_planning: extractSection(riskAnalysis.risk_analysis, 6, "6. СЦЕНАРИЙНОЕ ПЛАНИРОВАНИЕ"),
+      risk_insurance: extractSection(riskAnalysis.risk_analysis, 7, "7. СТРАХОВАНИЕ РИСКОВ"),
+      recommendations: extractSection(riskAnalysis.risk_analysis, 8, "8. РЕЗЮМЕ И РЕКОМЕНДАЦИИ")
+    };    
+    return (
+      <div className="risk-analysis">
+        <h3>Глубокий анализ рисков</h3>        
+        <div className="section">
+          <h4>1. Идентификация рисков</h4>
+          <div className="section-content">{sections.risk_identification || "Не найдено"}</div>
+        </div>        
+        <div className="section">
+          <h4>2. Оценка рисков</h4>
+          <div className="section-content">{sections.risk_assessment || "Не найдено"}</div>
+        </div>        
+        <div className="section">
+          <h4>3. Карта рисков</h4>
+          <div className="section-content">{sections.risk_map || "Не найдено"}</div>
+        </div>        
+        <div className="section">
+          <h4>4. Планы минимизации</h4>
+          <div className="section-content">{sections.mitigation_plans || "Не найдено"}</div>
+        </div>        
+        <div className="section">
+          <h4>5. Мониторинг рисков</h4>
+          <div className="section-content">{sections.risk_monitoring || "Не найдено"}</div>
+        </div>        
+        <div className="section">
+          <h4>6. Сценарийное планирование</h4>
+          <div className="section-content">{sections.scenario_planning || "Не найдено"}</div>
+        </div>        
+        <div className="section">
+          <h4>7. Страхование рисков</h4>
+          <div className="section-content">{sections.risk_insurance || "Не найдено"}</div>
+        </div>        
+        <div className="section">
+          <h4>8. Резюме и рекомендации</h4>
+          <div className="section-content">{sections.recommendations || "Не найдено"}</div>
+        </div>        
+        <button 
+          onClick={() => setActiveTab('plan')}
+          className="reset-button"
+        >
+          Вернуться к бизнес-плану
+        </button>
+      </div>
+    );
+  };
+  
+  const renderActionPlan = () => {
+    if (!actionPlan || !actionPlan.action_plan) return null;    
+    const sections = {
+      project_phases: extractSection(actionPlan.action_plan, 1, "1. КЛЮЧЕВЫЕ ЭТАПЫ ПРОЕКТА"),
+      work_schedule: extractSection(actionPlan.action_plan, 2, "2. ДЕТАЛЬНЫЙ ГРАФИК РАБОТ"),
+      resource_provision: extractSection(actionPlan.action_plan, 3, "3. РЕСУРСНОЕ ОБЕСПЕЧЕНИЕ"),
+      responsible: extractSection(actionPlan.action_plan, 4, "4. ОТВЕТСТВЕННЫЕ"),
+      success_criteria: extractSection(actionPlan.action_plan, 5, "5. КРИТЕРИИ УСПЕХА"),
+      budget_by_stages: extractSection(actionPlan.action_plan, 6, "6. БЮДЖЕТ ПО ЭТАПАМ"),
+      potential_problems: extractSection(actionPlan.action_plan, 7, "7. ПОТЕНЦИАЛЬНЫЕ ПРОБЛЕМЫ И РЕШЕНИЯ"),
+      monitoring_system: extractSection(actionPlan.action_plan, 8, "8. СИСТЕМА МОНИТОРИНГА И ОТЧЕТНОСТИ")
+    };    
+    return (
+      <div className="action-plan">
+        <h3>Детальный план действий</h3>        
+        <div className="section">
+          <h4>1. Ключевые этапы проекта</h4>
+          <div className="section-content">{sections.project_phases || "Не найдено"}</div>
+        </div>        
+        <div className="section">
+          <h4>2. Детальный график работ</h4>
+          <div className="section-content">{sections.work_schedule || "Не найдено"}</div>
+        </div>        
+        <div className="section">
+          <h4>3. Ресурсное обеспечение</h4>
+          <div className="section-content">{sections.resource_provision || "Не найдено"}</div>
+        </div>        
+        <div className="section">
+          <h4>4. Ответственные</h4>
+          <div className="section-content">{sections.responsible || "Не найдено"}</div>
+        </div>        
+        <div className="section">
+          <h4>5. Критерии успеха</h4>
+          <div className="section-content">{sections.success_criteria || "Не найдено"}</div>
+        </div>        
+        <div className="section">
+          <h4>6. Бюджет по этапам</h4>
+          <div className="section-content">{sections.budget_by_stages || "Не найдено"}</div>
+        </div>        
+        <div className="section">
+          <h4>7. Потенциальные проблемы и решения</h4>
+          <div className="section-content">{sections.potential_problems || "Не найдено"}</div>
+        </div>        
+        <div className="section">
+          <h4>8. Система мониторинга и отчетности</h4>
+          <div className="section-content">{sections.monitoring_system || "Не найдено"}</div>
+        </div>        
+        <button 
+          onClick={() => setActiveTab('plan')}
+          className="reset-button"
+        >
+          Вернуться к бизнес-плану
+        </button>
+      </div>
+    );
+  };
+  
   const extractSection = (text: string, sectionNumber: number, sectionTitle: string): string => {
     if (!text) return "Не найдено";
     const patterns = [
@@ -340,12 +497,12 @@ const BusinessPlanForm = () => {
       new RegExp(`\\s*${sectionNumber}\\.\\s*${sectionTitle.substring(0, 5)}`, 'i')
     ];
     let startIndex = -1;
-    let patternUsed = '';
+    //let patternUsed = '';
     for (const pattern of patterns) {
       const match = text.match(pattern);
       if (match && match.index !== undefined) {
         startIndex = match.index + match[0].length;
-        patternUsed = pattern.toString();
+        //patternUsed = pattern.toString();
         break;
       }
     }
@@ -375,10 +532,11 @@ const BusinessPlanForm = () => {
     }
     return content || "Не найдено";
   };
+  
   return (
     <div className="business-plan-container">
       <h2>Генерация бизнес-планов</h2>
-      <p>Создавайте полные бизнес-планы, отраслевые шаблоны и pitch-деки для инвесторов</p>      
+      <p>Создавайте полные бизнес-планы для инвесторов</p>      
       <div className="tabs">
         <button 
           className={activeTab === 'plan' ? 'tab-active' : ''}
@@ -387,16 +545,28 @@ const BusinessPlanForm = () => {
           Бизнес-план
         </button>
         <button 
-          className={activeTab === 'template' ? 'tab-active' : ''}
-          onClick={() => setActiveTab('template')}
+          className={activeTab === 'financial' ? 'tab-active' : ''}
+          onClick={() => setActiveTab('financial')}
         >
-          Отраслевой шаблон
+          Финансовый анализ
         </button>
         <button 
-          className={activeTab === 'pitch' ? 'tab-active' : ''}
-          onClick={() => setActiveTab('pitch')}
+          className={activeTab === 'marketing' ? 'tab-active' : ''}
+          onClick={() => setActiveTab('marketing')}
         >
-          Pitch-дек
+          Маркетинговая стратегия
+        </button>
+        <button 
+          className={activeTab === 'risk' ? 'tab-active' : ''}
+          onClick={() => setActiveTab('risk')}
+        >
+          Анализ рисков
+        </button>
+        <button 
+          className={activeTab === 'action' ? 'tab-active' : ''}
+          onClick={() => setActiveTab('action')}
+        >
+          План действий
         </button>
       </div>      
       {error && (
@@ -404,7 +574,7 @@ const BusinessPlanForm = () => {
           {error}
         </div>
       )}      
-      {activeTab === 'plan' && (
+      {activeTab === 'plan' && !result && (
         <form onSubmit={handleSubmit} className="business-plan-form">
           <div className="form-group">
             <label htmlFor="idea">Идея бизнеса *</label>
@@ -496,134 +666,58 @@ const BusinessPlanForm = () => {
             )}
           </button>
         </form>
-      )}      
-      {activeTab === 'template' && (
-        <form onSubmit={handleSubmit} className="industry-template-form">
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="industry">Отрасль *</label>
-              <input
-                type="text"
-                id="industry"
-                name="industry"
-                value={industryData.industry}
-                onChange={handleChange}
-                placeholder="Например: IT, рестораны, образование"
-                required
-              />
-            </div>            
-            <div className="form-group">
-              <label htmlFor="niche">Ниша</label>
-              <input
-                type="text"
-                id="niche"
-                name="niche"
-                value={industryData.niche}
-                onChange={handleChange}
-                placeholder="Например: онлайн-образование для детей"
-              />
-            </div>
-          </div>          
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="business_model">Бизнес-модель</label>
-              <select
-                id="business_model"
-                name="business_model"
-                value={industryData.business_model}
-                onChange={handleChange}
-              >
-                <option value="B2C">B2C (бизнес для потребителей)</option>
-                <option value="B2B">B2B (бизнес для бизнеса)</option>
-                <option value="B2B2C">B2B2C</option>
-                <option value="C2C">C2C</option>
-              </select>
-            </div>            
-            <div className="form-group">
-              <label htmlFor="country">Страна</label>
-              <input
-                type="text"
-                id="country"
-                name="country"
-                value={industryData.country}
-                onChange={handleChange}
-                placeholder="Например: Россия"
-              />
-            </div>
-          </div>          
-          <button 
-            onClick={() => handleGenerateIndustryTemplate(result.business_plan)}
-            className="generate-button"
-            disabled={isLoading}
-          >
-            {isLoading ? 'Генерируем шаблон...' : 'Сгенерировать отраслевой шаблон'}
-          </button> 
-        </form>
-      )}      
-      {activeTab === 'pitch' && (
-        <form onSubmit={handleSubmit} className="pitch-deck-form">
-          <div className="form-group">
-            <label>Бизнес-план</label>
-            <div className="business-plan-preview">
-              {pitchData.business_plan ? (
-                <div>
-                  <p><strong>Идея:</strong> {formData.idea}</p>
-                  <p><strong>Тип бизнеса:</strong> {formData.type}</p>
-                </div>
-              ) : (
-                <p>Сначала сгенерируйте бизнес-план</p>
-              )}
-            </div>
-          </div>          
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="target_investors">Целевые инвесторы</label>
-              <input
-                type="text"
-                id="target_investors"
-                name="target_investors"
-                value={pitchData.target_investors}
-                onChange={handleChange}
-                placeholder="Например: венчурные инвесторы"
-              />
-            </div>            
-            <div className="form-group">
-              <label htmlFor="presentation_time">Время презентации</label>
-              <input
-                type="text"
-                id="presentation_time"
-                name="presentation_time"
-                value={pitchData.presentation_time}
-                onChange={handleChange}
-                placeholder="Например: 5-7 минут"
-              />
-            </div>
-          </div>          
-          <div className="form-group">
-            <label htmlFor="country">Страна</label>
-            <input
-              type="text"
-              id="country"
-              name="country"
-              value={pitchData.country}
-              onChange={handleChange}
-              placeholder="Например: Россия"
-            />
-          </div>          
-          <button 
-            onClick={() => handleGeneratePitchDeck(result.business_plan)}
-            className="generate-button"
-            disabled={isLoading}
-          >
-            {isLoading ? 'Генерируем pitch-дек...' : 'Сгенерировать pitch-дек'}
-          </button>
-        </form>
-      )}      
-      {activeTab === 'plan' && result && renderBusinessPlan()}
-      {activeTab === 'template' && industryTemplate && renderIndustryTemplate()}
-      {activeTab === 'pitch' && pitchDeck && renderPitchDeck()}      
+      )}
+      
+      {activeTab === 'plan' && result && (
+        <>
+          {renderBusinessPlan()}
+          <div className="button-group">
+            <button 
+              onClick={() => handleCalculateFinancialPlan(result.business_plan)}
+              className="generate-button"
+              disabled={isLoading}
+            >
+              {isLoading ? 'Рассчитываем финансовый план...' : 'Рассчитать финансовый план'}
+            </button>          
+            <button 
+              onClick={() => handleGenerateMarketingStrategy(result.business_plan)}
+              className="generate-button"
+              disabled={isLoading}
+            >
+              {isLoading ? 'Генерируем маркетинговую стратегию...' : 'Генерировать маркетинговую стратегию'}
+            </button>          
+            <button 
+              onClick={() => handleGenerateRiskAnalysis(result.business_plan)}
+              className="generate-button"
+              disabled={isLoading}
+            >
+              {isLoading ? 'Анализируем риски...' : 'Анализ рисков'}
+            </button>          
+            <button 
+              onClick={() => handleGenerateActionPlan(result.business_plan)}
+              className="generate-button"
+              disabled={isLoading}
+            >
+              {isLoading ? 'Генерируем план действий...' : 'План действий'}
+            </button>          
+            <button 
+              onClick={() => downloadPDF(result.business_plan)}
+              className="download-button"
+              disabled={isLoading}
+            >
+              Скачать PDF
+            </button>
+          </div>
+        </>
+      )}
+      
+      {activeTab === 'financial' && financialAnalysis && renderFinancialAnalysis()}
+      {activeTab === 'marketing' && marketingStrategy && renderMarketingStrategy()}
+      {activeTab === 'risk' && riskAnalysis && renderRiskAnalysis()}
+      {activeTab === 'action' && actionPlan && renderActionPlan()}     
+      
       <div className="footer-note">
-        Советница АКВИ создает профессиональные бизнес-планы, отраслевые шаблоны и pitch-деки с использованием передовых моделей искусственного интеллекта. 
+        Советница АКВИ создает профессиональные бизнес-планы с использованием передовых моделей искусственного интеллекта. 
         Результаты носят рекомендательный характер и могут быть адаптированы под ваши потребности.
       </div>
     </div>
