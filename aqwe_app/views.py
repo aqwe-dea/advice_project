@@ -981,12 +981,12 @@ class BusinessPlanView(APIView):
                     - Меры по минимизации
             """
             response = client.chat.completions.create(
-                model="qwen/qwen3-coder:free",
+                model="google/gemma-3-27b-it:free",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt}
                 ],
-                max_tokens=1800
+                max_tokens=4000
             )
             return Response({
                 'business_plan': response.choices[0].message.content,
@@ -1060,12 +1060,12 @@ class BusinessPlanView(APIView):
                 Ответ должен быть строго структурирован как указано выше, без дополнительных комментариев.
             """            
             response = client.chat.completions.create(
-                model="qwen/qwen3-coder:free",
+                model="google/gemma-3-27b-it:free",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt}
                 ],
-                max_tokens=1800
+                max_tokens=4000
             )            
             return Response({
                 'financial_analysis': response.choices[0].message.content,
@@ -1145,12 +1145,12 @@ class BusinessPlanView(APIView):
                 Ответ должен быть строго структурирован как указано выше, без дополнительных комментариев.
             """            
             response = client.chat.completions.create(
-                model="qwen/qwen3-coder:free",
+                model="google/gemma-3-27b-it:free",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt}
                 ],
-                max_tokens=1800
+                max_tokens=4000
             )            
             return Response({
                 'marketing_strategy': response.choices[0].message.content,
@@ -1230,12 +1230,12 @@ class BusinessPlanView(APIView):
                 Ответ должен быть строго структурирован как указано выше, без дополнительных комментариев.
             """            
             response = client.chat.completions.create(
-                model="qwen/qwen3-coder:free",
+                model="google/gemma-3-27b-it:free",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt}
                 ],
-                max_tokens=1800
+                max_tokens=4000
             )            
             return Response({
                 'risk_analysis': response.choices[0].message.content,
@@ -1315,12 +1315,12 @@ class BusinessPlanView(APIView):
                 Ответ должен быть строго структурирован как указано выше, без дополнительных комментариев.
             """            
             response = client.chat.completions.create(
-                model="qwen/qwen3-coder:free",
+                model="google/gemma-3-27b-it:free",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt}
                 ],
-                max_tokens=1800
+                max_tokens=4000
             )            
             return Response({
                 'action_plan': response.choices[0].message.content,
