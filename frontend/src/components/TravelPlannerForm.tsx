@@ -22,7 +22,7 @@ function TravelPlannerForm() {
         setError('');
         try {
             const response = await axios.post(
-                'https://advice-project.onrender.com/travel-planner/',
+                '/travel-planner/',
                 { 
                     destination,
                     budget,

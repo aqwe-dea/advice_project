@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import React, { useState } from 'react';
 import '../App.css';
 
 const PresentationForm = () => {
@@ -63,15 +63,15 @@ const PresentationForm = () => {
   const renderPresentation = () => {
     if (!result || !result.presentation) return null;
     const sections = {
-      title: extractSection(result.presentation, "# НАЗВАНИЕ ПРЕЗЕНТАЦИИ", "## 1. ТИТУЛЬНЫЙ СЛАЙД"),
-      title_slide: extractSection(result.presentation, "## 1. ТИТУЛЬНЫЙ СЛАЙД", "## 2. ВВЕДЕНИЕ"),
-      introduction: extractSection(result.presentation, "## 2. ВВЕДЕНИЕ", "## 3. ОСНОВНАЯ ЧАСТЬ"),
-      main: extractSection(result.presentation, "## 3. ОСНОВНАЯ ЧАСТЬ", "## 4. КЛЮЧЕВЫЕ ВЫВОДЫ"),
-      conclusions: extractSection(result.presentation, "## 4. КЛЮЧЕВЫЕ ВЫВОДЫ", "## 5. ЧАСТЫЕ ВОПРОСЫ И ОТВЕТЫ"),
-      faq: extractSection(result.presentation, "## 5. ЧАСТЫЕ ВОПРОСЫ И ОТВЕТЫ", "## 6. ЗАКЛЮЧЕНИЕ"),
-      conclusion: extractSection(result.presentation, "## 6. ЗАКЛЮЧЕНИЕ", "## 7. ДОПОЛНИТЕЛЬНЫЕ МАТЕРИАЛЫ"),
-      additional: extractSection(result.presentation, "## 7. ДОПОЛНИТЕЛЬНЫЕ МАТЕРИАЛЫ", "## 8. РЕКОМЕНДАЦИИ ПО ПОДГОТОВКЕ"),
-      recommendations: extractSection(result.presentation, "## 8. РЕКОМЕНДАЦИИ ПО ПОДГОТОВКЕ", null)
+      title: extractSection(result.presentation, "НАЗВАНИЕ ПРЕЗЕНТАЦИИ", "1. ТИТУЛЬНЫЙ СЛАЙД"),
+      title_slide: extractSection(result.presentation, "1. ТИТУЛЬНЫЙ СЛАЙД", "2. ВВЕДЕНИЕ"),
+      introduction: extractSection(result.presentation, "2. ВВЕДЕНИЕ", "3. ОСНОВНАЯ ЧАСТЬ"),
+      main: extractSection(result.presentation, "3. ОСНОВНАЯ ЧАСТЬ", "4. КЛЮЧЕВЫЕ ВЫВОДЫ"),
+      conclusions: extractSection(result.presentation, "4. КЛЮЧЕВЫЕ ВЫВОДЫ", "5. ЧАСТЫЕ ВОПРОСЫ И ОТВЕТЫ"),
+      faq: extractSection(result.presentation, "5. ЧАСТЫЕ ВОПРОСЫ И ОТВЕТЫ", "6. ЗАКЛЮЧЕНИЕ"),
+      conclusion: extractSection(result.presentation, "6. ЗАКЛЮЧЕНИЕ", "7. ДОПОЛНИТЕЛЬНЫЕ МАТЕРИАЛЫ"),
+      additional: extractSection(result.presentation, "7. ДОПОЛНИТЕЛЬНЫЕ МАТЕРИАЛЫ", "8. РЕКОМЕНДАЦИИ ПО ПОДГОТОВКЕ"),
+      recommendations: extractSection(result.presentation, "8. РЕКОМЕНДАЦИИ ПО ПОДГОТОВКЕ", null)
     };
     return (
       <div className="presentation">
@@ -124,7 +124,7 @@ const PresentationForm = () => {
   const extractSection = (text: string, startMarker: string, endMarker: string | null): string => {
     const normalizeText = (str: string) => str.toLowerCase().replace(/\s+/g, ' ').trim();
     let startIndex = -1;
-    const normalizedText = normalizeText(text);
+    //const normalizedText = normalizeText(text);
     const normalizedStartMarker = normalizeText(startMarker);
     for (let i = 0; i < text.length - normalizedStartMarker.length; i++) {
       const segment = normalizeText(text.substring(i, i + normalizedStartMarker.length + 10));

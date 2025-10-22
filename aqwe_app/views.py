@@ -1349,26 +1349,57 @@ class PresentationGenerationView(APIView):
         purpose = request.data.get('purpose', 'информирование')
         style = request.data.get('style', 'профессиональный')
         slides_count = request.data.get('slides_count', '15-20')
-        HF_API_KEY = os.getenv('HF_API_KEY_SLD')
-        if not HF_API_KEY:
-            logger.error("API ключ Hugging Face для генерации презентаций не настроен")
+        OPENROUTER_API_KEY = os.getenv('OPROUT_AQWE_SLIDES')
+        if not OPENROUTER_API_KEY:
+            logger.error("API ключ OpenRouter для презентаций не настроен")
             return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
             logger.info(f"Генерация презентации на тему: {topic}")
-            client = InferenceClient(
-                model="Qwen/Qwen2.5-72B-Instruct",
-                token=HF_API_KEY
+            client = OpenAI(
+                api_key=OPENROUTER_API_KEY,
+                base_url="https://openrouter.ai/api/v1"
             )
             prompt = f"""
                 {SYSTEM_PROMPT}
-                Создайте структуру профессиональной презентации на тему: "{topic}"
+                Создайте профессиональную презентацию на тему: "{topic}"
                 
-                ВАЖНЫЕ ИНСТРУКЦИИ:
-                1. СТРОГО соблюдайте следующую структуру
-                2. НЕ добавляйте никаких дополнительных комментариев или пояснений
-                3. Каждый раздел должен начинаться с указанного заголовка
-                4. Используйте ТОЧНО такой же формат заголовков, как указано ниже
-                5. Не пропускайте ни один раздел
+                ВАЖНО: Ответ должен быть строго структурирован как указано ниже, без дополнительных комментариев.
+                
+                # ПРОФЕССИОНАЛЬНАЯ ПРЕЗЕНТАЦИЯ
+                ## 1. ТИТУЛЬНЫЙ СЛАЙД
+                    - Название презентации
+                    - Имя докладчика
+                    - Дата
+                    - Логотип компании (при наличии)
+                
+                ## 2. ВВЕДЕНИЕ
+                    - Краткое описание темы
+                    - Цели и задачи презентации
+                    - Актуальность темы
+                    - Ожидаемые результаты
+                
+                ## 3. ОСНОВНАЯ ЧАСТЬ
+                    - Структурированное содержание
+                    - Ключевые моменты
+                    - Примеры и кейсы
+                    - Визуальные рекомендации
+                
+                ## 4. ЗАКЛЮЧЕНИЕ
+                    - Основные выводы
+                    - Рекомендации
+                    - Последующие шаги
+                    - Контактная информация
+                
+                ## 5. ЧАСТЫЕ ВОПРОСЫ И ОТВЕТЫ
+                    - 3-5 вероятных вопросов
+                    - Подробные ответы
+                    - Дополнительные материалы
+                
+                ## 6. РЕКОМЕНДАЦИИ ПО ПОДГОТОВКЕ
+                    - Время на подготовку
+                    - Советы по выступлению
+                    - Технические требования
+                    - Дополнительные ресурсы
                 
                 ПАРАМЕТРЫ ПРЕЗЕНТАЦИИ:
                     - Целевая аудитория: {audience}
@@ -1377,42 +1408,16 @@ class PresentationGenerationView(APIView):
                     - Стиль: {style}
                     - Количество слайдов: {slides_count}
                 
-                СТРУКТУРА ПРЕЗЕНТАЦИИ ДОЛЖНА СТРОГО СОДЕРЖАТЬ СЛЕДУЮЩИЕ РАЗДЕЛЫ:
-                
-                # НАЗВАНИЕ ПРЕЗЕНТАЦИИ
-                    [Привлекательное название, отражающее суть]
-                
-                ## 1. ТИТУЛЬНЫЙ СЛАЙД
-                    [Содержимое титульного слайда]
-                
-                ## 2. ВВЕДЕНИЕ
-                    [Содержимое раздела Введение]
-                
-                ## 3. ОСНОВНАЯ ЧАСТЬ (ДЕТАЛИЗИРОВАННАЯ)
-                    [Содержимое основной части]
-                
-                ## 4. КЛЮЧЕВЫЕ ВЫВОДЫ
-                    [Содержимое раздела Ключевые выводы]
-                
-                ## 5. ЧАСТЫЕ ВОПРОСЫ И ОТВЕТЫ
-                    [Содержимое раздела Частые вопросы и ответы]
-                
-                ## 6. ЗАКЛЮЧЕНИЕ
-                    [Содержимое раздела Заключение]
-                
-                ## 7. ДОПОЛНИТЕЛЬНЫЕ МАТЕРИАЛЫ
-                    [Содержимое раздела Дополнительные материалы]
-                
-                ## 8. РЕКОМЕНДАЦИИ ПО ПОДГОТОВКЕ
-                    [Содержимое раздела Рекомендации по подготовке]
-                
-                ВАЖНО: Ответ должен быть ТОЛЬКО в указанном формате, без каких-либо дополнительных слов или пояснений.
-                НЕ используйте никакие другие заголовки, кроме указанных выше.
-                Каждый раздел должен содержать конкретные рекомендации и примеры.
+                Используйте профессиональную терминологию и конкретные примеры там, где это уместно.
+                Каждый раздел должен содержать подробную информацию, подходящую для профессиональной презентации.
             """
-            response = client.chat_completion(
-                messages=[{"role": "user", "content": prompt}],
-                max_tokens=1500
+            response = client.chat.completions.create(
+                model="meituan/longcat-flash-chat:free",
+                messages=[
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": prompt}
+                ],
+                max_tokens=12000
             )
             return Response({
                 'presentation': response.choices[0].message.content,
@@ -1601,15 +1606,15 @@ class TravelPlannerView(APIView):
         travel_style = request.data.get('travel_style', 'активный отдых')
         group_type = request.data.get('group_type', 'один/одна')
         special_interests = request.data.get('special_interests', 'общие')
-        HF_API_KEY = os.getenv('HF_API_KEY_TURL')
-        if not HF_API_KEY:
-            logger.error("API ключ Hugging Face не настроен")
+        OPENROUTER_API_KEY = os.getenv('OPROUT_AQWE_TOURISM')
+        if not OPENROUTER_API_KEY:
+            logger.error("API ключ OpenRouter для планировщика путешествий не настроен")
             return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
             logger.info(f"Генерация маршрута для путешествия в {destination}")
-            client = InferenceClient(
-                model="Qwen/Qwen2.5-72B-Instruct",
-                token=HF_API_KEY
+            client = OpenAI(
+                api_key=OPENROUTER_API_KEY,
+                base_url="https://openrouter.ai/api/v1"
             )
             prompt = f"""
                 {SYSTEM_PROMPT}
@@ -1654,9 +1659,13 @@ class TravelPlannerView(APIView):
                         - Медицинские рекомендации
                 Ответ должен быть структурирован, информативен и содержать конкретные рекомендации.
             """
-            response = client.chat_completion(
-                messages=[{"role": "user", "content": prompt}],
-                max_tokens=1400
+            response = client.chat.completions.create(
+                model="deepseek/deepseek-chat-v3.1:free",
+                messages=[
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": prompt}
+                ],
+                max_tokens=20000
             )
             return Response({
                 'travel_plan': response.choices[0].message.content,
