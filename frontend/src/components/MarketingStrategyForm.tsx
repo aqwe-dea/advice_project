@@ -22,7 +22,7 @@ function MarketingStrategyForm() {
         setError('');
         try {
             const response = await axios.post(
-                'https://advice-project.onrender.com/marketing-strategy/',
+                '/marketing-strategy/',
                 { 
                     idea, 
                     target_audience: targetAudience,

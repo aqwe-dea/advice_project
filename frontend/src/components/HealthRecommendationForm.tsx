@@ -20,7 +20,7 @@ function HealthRecommendationForm() {
         setError('');
         try {
             const response = await axios.post(
-                'https://advice-project.onrender.com/health-recommendation/',
+                '/health-recommendation/',
                 { 
                     symptoms, 
                     age, 

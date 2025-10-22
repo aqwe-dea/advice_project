@@ -33,7 +33,7 @@ const CourseForm = () => {
     setError(null);
     setResult(null);
     try {
-      const response = await fetch('https://advice-project.onrender.com/generate-course/', {
+      const response = await fetch('/generate-course/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

@@ -552,18 +552,18 @@ class MedicalImageView(APIView):
         }
         file_path = default_storage.save(f'tmp/{image_file.name}', ContentFile(image_file.read()))
         try:
-            HF_API_KEY = os.getenv('HF_API_KEY_MEDIC')
-            if not HF_API_KEY:
-                logger.error("API ключ Hugging Face для медицинского анализа не настроен")
+            OPENROUTER_API_KEY = os.getenv('OPROUT_AQWE_MEDICINE')
+            if not OPENROUTER_API_KEY:
+                logger.error("API ключ OpenRouter для для медицинского анализа не настроен")
                 return Response(
-                    {'error': 'API ключ не настроен'},
+                    {'error': 'API ключ не настроен'}, 
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
-            image_description = self.analyze_image(file_path, HF_API_KEY)
+            image_description = self.analyze_image(file_path, OPENROUTER_API_KEY)
             medical_analysis = self.generate_medical_analysis(
                 image_description, 
                 patient_info,
-                HF_API_KEY
+                OPENROUTER_API_KEY
             )
             return Response({
                 'image_description': image_description,
@@ -580,67 +580,61 @@ class MedicalImageView(APIView):
         finally:
             if 'file_path' in locals() and default_storage.exists(file_path):
                 default_storage.delete(file_path)
-    def analyze_image(self, image_path, hf_api_key):
+    def analyze_image(self, image_path, openrouter_api_key):
         try:
-            client = InferenceClient(
-                model="Qwen/Qwen-VL-Chat",
-                token=hf_api_key
+            client = OpenAI(
+                api_key=openrouter_api_key,
+                base_url="https://openrouter.ai/api/v1"
             )
             prompt = """
-            Вы - Советница АКВИ, профессиональный медицинский консультант с экспертизой в интерпретации медицинских изображений.
-            Вы говорите на русском языке и используете профессиональную медицинскую терминологию с пояснениями для пациента.
-        
-            Пожалуйста, проведите детальный анализ следующего медицинского изображения:
-        
-            1. Определите тип изображения:
-                - Это рентген, УЗИ, МРТ, КТ или другой тип?
-                - Какая область тела изображена?
-        
-            2. Оцените качество изображения:
-                - Четкость и разрешение
-                - Наличие артефактов или помех
-                - Достаточность для диагностики
-        
-            3. Опишите нормальные анатомические структуры:
-                - Перечислите основные структуры, которые должны присутствовать
-                - Укажите их нормальное расположение и вид
-        
-            4. Выявите патологические изменения:
-                - Опишите любые аномалии, отклонения от нормы
-                - Укажите их локализацию, размеры и характер
-                - Сравните с типичными проявлениями заболеваний
-        
-            5. Предоставьте предварительную интерпретацию:
-                - Какие возможные диагнозы можно предположить?
-                - Какие из них наиболее вероятны и почему?
-                - Есть ли признаки острых или хронических процессов?
-        
-            6. Дайте рекомендации:
-                - Какие дополнительные исследования могут понадобиться?
-                - К какому специалисту следует обратиться?
-                - Какие симптомы требуют немедленного внимания?
-        
-            Пожалуйста, структурируйте ваш ответ четко по этим пунктам.
-            Если вы не уверены в каком-то аспекте, честно укажите это и объясните, почему требуется консультация специалиста.
-            Помните: это не замена профессиональной медицинской консультации.
+                Вы - Советница АКВИ, профессиональный медицинский консультант с экспертизой в интерпретации медицинских изображений.
+                Вы говорите на русском языке и используете профессиональную медицинскую терминологию с пояснениями для пациента.        
+                Пожалуйста, проведите детальный анализ следующего медицинского изображения:
+                {image_path} или {image_url} или {file_path}
+                1. Определите тип изображения:
+                    - Это рентген, УЗИ, МРТ, КТ или другой тип?
+                    - Какая область тела изображена?        
+                2. Оцените качество изображения:
+                    - Четкость и разрешение
+                    - Наличие артефактов или помех
+                    - Достаточность для диагностики
+                3. Опишите нормальные анатомические структуры:
+                    - Перечислите основные структуры, которые должны присутствовать
+                    - Укажите их нормальное расположение и вид
+                4. Выявите патологические изменения:
+                    - Опишите любые аномалии, отклонения от нормы
+                    - Укажите их локализацию, размеры и характер
+                    - Сравните с типичными проявлениями заболеваний
+                5. Предоставьте предварительную интерпретацию:
+                    - Какие возможные диагнозы можно предположить?
+                    - Какие из них наиболее вероятны и почему?
+                    - Есть ли признаки острых или хронических процессов?
+                6. Дайте рекомендации:
+                    - Какие дополнительные исследования могут понадобиться?
+                    - К какому специалисту следует обратиться?
+                    - Какие симптомы требуют немедленного внимания?
+                Пожалуйста, структурируйте ваш ответ четко по этим пунктам.
+                Если вы не уверены в каком-то аспекте, честно укажите это и объясните, почему требуется консультация специалиста.
+                Помните: это не замена профессиональной медицинской консультации.
             """
-            response = client.chat_completion(
+            response = client.chat.completions.create(
+                model="qwen/qwen2.5-vl-32b-instruct:free",
                 messages=[
                     {
                         "role": "user",
                         "content": [
-                            {"type": "text", "text": prompt},
+                            {"type": "text", "text": "prompt"},
                             {"type": "image_url", "image_url": {"url": f"file://{image_path}"}}
                         ]
                     }
-                ],
-                max_tokens=800,
+                ],  
+                max_tokens=2000
             )
             return response.choices[0].message.content
         except Exception as e:
             logger.error(f"Ошибка анализа изображения: {str(e)}")
             return "Не удалось проанализировать изображение"
-    def generate_medical_analysis(self, image_description, patient_info, hf_api_key):
+    def generate_medical_analysis(self, image_description, patient_info, openrouter_api_key):
         SYSTEM_PROMPT = """
         Вы - Советница АКВИ, профессиональный медицинский консультант с экспертными знаниями в диагностике и лечении заболеваний.
         Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
@@ -650,9 +644,9 @@ class MedicalImageView(APIView):
         Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
         """
         try:
-            client = InferenceClient(
-                model="Qwen/Qwen2.5-72B-Instruct",
-                token=hf_api_key
+            client = OpenAI(
+                api_key=openrouter_api_key,
+                base_url="https://openrouter.ai/api/v1"
             )
             prompt = f"""
                 {SYSTEM_PROMPT}
@@ -709,9 +703,14 @@ class MedicalImageView(APIView):
                 Важно: Это не заменяет профессиональную медицинскую консультацию.
                 Ответ должен быть структурирован, безопасен и профессионален.
             """
-            response = client.chat_completion(
-                messages=[{"role": "user", "content": prompt}],
-                max_tokens=1500
+            response = client.chat.completions.create(
+                model="qwen/qwen2.5-vl-32b-instruct:free",
+                messages=[
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": prompt}
+                ],
+                max_tokens=8000,
+                temperature=0.1
             )
             return response.choices[0].message.content
         except Exception as e:
@@ -1660,12 +1659,12 @@ class TravelPlannerView(APIView):
                 Ответ должен быть структурирован, информативен и содержать конкретные рекомендации.
             """
             response = client.chat.completions.create(
-                model="deepseek/deepseek-chat-v3.1:free",
+                model="qwen/qwen3-30b-a3b:free",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt}
                 ],
-                max_tokens=20000
+                max_tokens=10000
             )
             return Response({
                 'travel_plan': response.choices[0].message.content,
