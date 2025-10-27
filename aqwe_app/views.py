@@ -535,7 +535,9 @@ class MedicalImageView(APIView):
                 {'error': 'Изображение не предоставлено'},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        image_file = request.FILES['image']    
+        image_file = request.FILES['image']
+        image_data = image_file.read()
+        base64_image = base64.b64encode(image_data).decode('utf-8')    
         allowed_extensions = ['.jpg', '.jpeg', '.png', '.dcm']
         file_ext = os.path.splitext(image_file.name)[1].lower()
         if file_ext not in allowed_extensions:
@@ -552,8 +554,6 @@ class MedicalImageView(APIView):
         }
         file_path = default_storage.save(f'tmp/{image_file.name}', ContentFile(image_file.read()))
         try:
-            image_data = image_file.read()
-            base64_image = base64.b64encode(image_data).decode('utf-8')
             OPENROUTER_API_KEY = os.getenv('OPROUT_AQWE_MEDICINE')
             if not OPENROUTER_API_KEY:
                 logger.error("API ключ OpenRouter для для медицинского анализа не настроен")
@@ -561,7 +561,11 @@ class MedicalImageView(APIView):
                     {'error': 'API ключ не настроен'}, 
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
-            image_description = self.analyze_image(base64_image, file_ext, OPENROUTER_API_KEY)
+            image_description = self.analyze_image(
+                base64_image, 
+                file_ext, 
+                OPENROUTER_API_KEY
+            )
             medical_analysis = self.generate_medical_analysis(
                 image_description, 
                 patient_info,
@@ -592,36 +596,39 @@ class MedicalImageView(APIView):
                 Вы - Советница АКВИ, профессиональный медицинский консультант с экспертизой в интерпретации медицинских изображений.
                 Вы говорите на русском языке и используете профессиональную медицинскую терминологию с пояснениями для пациента.
 
-                Пожалуйста, опишите что вы видите на медицинском изображении:
-                {base64_image}
+                Пожалуйста проанализируйте изображение: 
+                    - {image}
+
+                И Опишите медицинское изображение: 
+                    - {base64_image}
                     
-                    1. Определите тип изображения:
-                        - Это рентген, УЗИ, МРТ, КТ или другой тип?
-                        - Какая область тела изображена?
+                1. Определите тип изображения:
+                    - Это рентген, УЗИ, МРТ, КТ или другой тип?
+                    - Какая область тела изображена?
                     
-                    2. Оцените качество изображения:
-                        - Четкость и разрешение
-                        - Наличие артефактов или помех
-                        - Достаточность для диагностики
+                2. Оцените качество изображения:
+                    - Четкость и разрешение
+                    - Наличие артефактов или помех
+                    - Достаточность для диагностики
                     
-                    3. Опишите нормальные анатомические структуры:
-                        - Перечислите основные структуры, которые должны присутствовать
-                        - Укажите их нормальное расположение и вид
+                3. Опишите нормальные анатомические структуры:
+                    - Перечислите основные структуры, которые должны присутствовать
+                    - Укажите их нормальное расположение и вид
                     
-                    4. Выявите патологические изменения:
-                        - Опишите любые аномалии, отклонения от нормы
-                        - Укажите их локализацию, размеры и характер
-                        - Сравните с типичными проявлениями заболеваний
+                4. Выявите патологические изменения:
+                    - Опишите любые аномалии, отклонения от нормы
+                    - Укажите их локализацию, размеры и характер
+                    - Сравните с типичными проявлениями заболеваний
                     
-                    5. Предоставьте предварительную интерпретацию:
-                        - Какие возможные диагнозы можно предположить?
-                        - Какие из них наиболее вероятны и почему?
-                        - Есть ли признаки острых или хронических процессов?
+                5. Предоставьте предварительную интерпретацию:
+                    - Какие возможные диагнозы можно предположить?
+                    - Какие из них наиболее вероятны и почему?
+                    - Есть ли признаки острых или хронических процессов?
                     
-                    6. Дайте рекомендации:
-                        - Какие дополнительные исследования могут понадобиться?
-                        - К какому специалисту следует обратиться?
-                        - Какие симптомы требуют немедленного внимания?
+                6. Дайте рекомендации:
+                    - Какие дополнительные исследования могут понадобиться?
+                    - К какому специалисту следует обратиться?
+                    - Какие симптомы требуют немедленного внимания?
 
                 Пожалуйста, структурируйте ваш ответ четко по этим пунктам.
                 Если вы не уверены в каком-то аспекте, честно укажите это и объясните, почему требуется консультация специалиста.
@@ -643,9 +650,8 @@ class MedicalImageView(APIView):
                         ]
                     }
                 ],
-                max_tokens=2500,
-                temperature=0.1,
-                extra_body={}
+                max_tokens=2000,
+                temperature=0.4
             )
             return response.choices[0].message.content
         except Exception as e:
@@ -669,8 +675,8 @@ class MedicalImageView(APIView):
                 {SYSTEM_PROMPT}
                 Проведите комплексный медицинский анализ на основе следующих данных:
 
-                Описание изображения:
-                {image_description}
+                Описание изображения: 
+                    - {image_description}
                 
                 Информация о пациенте:
                     - Возраст: {patient_info['age']}
@@ -725,9 +731,8 @@ class MedicalImageView(APIView):
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt}
                 ],
-                max_tokens=10000,
-                temperature=0.1,
-                extra_body={}
+                max_tokens=8000,
+                temperature=0.4
             )
             return response.choices[0].message.content
         except Exception as e:
