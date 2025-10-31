@@ -1,7 +1,13 @@
 import React, { useState } from 'react';
+import axios from 'axios';
 import '../App.css';
 
 const CourseForm = () => {
+  const [topic, setTopic] = useState<string>('');
+  const [level, setLevel] = useState<string>('начинающий');
+  const [courseBook, setCourseBook] = useState<string>('');
+  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string>('');
   const [formData, setFormData] = useState({
     course_topic: '',
     target_audience: 'начинающие',
@@ -12,42 +18,48 @@ const CourseForm = () => {
     practical_tasks: 'есть',
     certification: 'есть'
   });
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<any>(null);
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    const { name, value } = e.target;
-    setFormData(prev => ({ ...prev, [name]: value }));
-  };
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleGenerateCourse = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.course_topic.trim()) {
+    if (!topic.trim()) {
       setError('Пожалуйста, укажите тему курса');
       return;
     }
-    if (!formData.learning_objectives.trim()) {
-      setError('Пожалуйста, укажите цели обучения');
-      return;
-    }
     setIsLoading(true);
-    setError(null);
-    setResult(null);
+    setError('');
+    setCourseBook('');
     try {
-      const response = await fetch('/generate-course/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        body: JSON.stringify(formData)
-      });
-      if (!response.ok) {
-        const errorData = await response.json();
-        throw new Error(errorData.error || 'Ошибка при генерации курса');
+      const structureResponse = await axios.post(
+        '/generate-course/',
+        { topic, level },
+        { headers: { 'Content-Type': 'application/json' } }
+      );
+      if (structureResponse.data.course_structure) {
+        const bookResponse = await axios.post(
+          '/generate-course/build_course_book/',
+          { 
+            course_structure: structureResponse.data.course_structure,
+            course_topic: topic 
+          },
+          { headers: { 'Content-Type': 'application/json' } }
+        );
+        if (bookResponse.data.course_book) {
+          setCourseBook(bookResponse.data.course_book);
+        } else {
+          setError('Сервер вернул пустой ответ. Попробуйте другую тему.');
+        }
+      } else {
+        setError('Сервер вернул пустую структуру курса.');
       }
-      const data = await response.json();
-      setResult(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : 'Произошла ошибка при генерации курса');
+    } catch (err: any) {
+      console.error('Ошибка запроса:', err);
+      if (err.response) {
+        setError(`Ошибка ${err.response.status}: ${err.response.data.error || 'Не удалось сгенерировать курс'}`);
+      } else if (err.request) {
+        setError('Нет ответа от сервера. Проверьте подключение к интернету.');
+      } else {
+        setError('Произошла ошибка при отправке запроса.');
+      }
     } finally {
       setIsLoading(false);
     }
@@ -131,152 +143,45 @@ const CourseForm = () => {
     return text.substring(startIndex + startMarker.length, endIndex).trim();
   };
   return (
-    <div className="course-generation-container">
-      <h2>Генерация образовательного курса</h2>
-      <p>Заполните форму для создания структуры образовательного курса</p>
+    <div className="course-form">
+      <h2>Создать индивидуальный учебник</h2>
       {error && (
-        <div className="error-message">
-          {error}
+        <div className="error-message">{error}</div>
+      )}
+      <form onSubmit={handleGenerateCourse}>
+        <div className="form-group">
+          <label htmlFor="topic">Тема курса</label>
+          <input
+            type="text"
+            id="topic"
+            value={topic}
+            onChange={(e) => setTopic(e.target.value)}
+          />
+        </div>
+        <div className="form-group">
+          <label htmlFor="level">Уровень</label>
+          <select
+            id="level"
+            value={level}
+            onChange={(e) => setLevel(e.target.value)}
+          >
+            <option value="начинающий">Начинающий</option>
+            <option value="средний">Средний</option>
+            <option value="эксперт">Эксперт</option>
+          </select>
+        </div>
+        <button type="submit" disabled={isLoading}>
+          {isLoading ? 'Генерируем учебник...' : 'Сгенерировать учебник'}
+        </button>
+      </form>
+      {courseBook && (
+        <div className="course-book-result">
+          <h3>Ваш учебник:</h3>
+          <div className="course-content" dangerouslySetInnerHTML={{__html: courseBook}} />
         </div>
       )}
-      {!result ? (
-        <form onSubmit={handleSubmit} className="course-form">
-          <div className="form-group">
-            <label htmlFor="course_topic">Тема курса *</label>
-            <input
-              type="text"
-              id="course_topic"
-              name="course_topic"
-              value={formData.course_topic}
-              onChange={handleChange}
-              placeholder="Например: Основы программирования на Python"
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="target_audience">Целевая аудитория</label>
-            <select
-              id="target_audience"
-              name="target_audience"
-              value={formData.target_audience}
-              onChange={handleChange}
-            >
-              <option value="начинающие">Начинающие</option>
-              <option value="средний уровень">Средний уровень</option>
-              <option value="продвинутый уровень">Продвинутый уровень</option>
-              <option value="специалисты">Специалисты</option>
-            </select>
-          </div>
-          <div className="form-group">
-            <label htmlFor="course_duration">Продолжительность курса</label>
-            <input
-              type="text"
-              id="course_duration"
-              name="course_duration"
-              value={formData.course_duration}
-              onChange={handleChange}
-              placeholder="Например: 4 недели, 8 недель, 3 месяца"
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="knowledge_level">Уровень знаний</label>
-            <select
-              id="knowledge_level"
-              name="knowledge_level"
-              value={formData.knowledge_level}
-              onChange={handleChange}
-            >
-              <option value="базовый">Базовый</option>
-              <option value="средний">Средний</option>
-              <option value="углубленный">Углубленный</option>
-            </select>
-          </div>
-          <div className="form-group">
-            <label htmlFor="course_format">Формат курса</label>
-            <input
-              type="text"
-              id="course_format"
-              name="course_format"
-              value={formData.course_format}
-              onChange={handleChange}
-              placeholder="Например: онлайн с видеоуроками, очные занятия, гибридный формат"
-            />
-          </div>
-          <div className="form-group">
-            <label htmlFor="learning_objectives">Цели обучения *</label>
-            <textarea
-              id="learning_objectives"
-              name="learning_objectives"
-              value={formData.learning_objectives}
-              onChange={handleChange}
-              placeholder="Опишите, что студенты должны знать и уметь после прохождения курса"
-              rows={4}
-              required
-            />
-          </div>
-          <div className="form-group">
-            <label>Практические задания</label>
-            <div className="radio-group">
-              <label>
-                <input
-                  type="radio"
-                  name="practical_tasks"
-                  value="есть"
-                  checked={formData.practical_tasks === 'есть'}
-                  onChange={handleChange}
-                />
-                Есть
-              </label>
-              <label>
-                <input
-                  type="radio"
-                  name="practical_tasks"
-                  value="нет"
-                  checked={formData.practical_tasks === 'нет'}
-                  onChange={handleChange}
-                />
-                Нет
-              </label>
-            </div>
-          </div>
-          <div className="form-group">
-            <label>Сертификация</label>
-            <div className="radio-group">
-              <label>
-                <input
-                  type="radio"
-                  name="certification"
-                  value="есть"
-                  checked={formData.certification === 'есть'}
-                  onChange={handleChange}
-                />
-                Есть
-              </label>
-              <label>
-                <input
-                  type="radio"
-                  name="certification"
-                  value="нет"
-                  checked={formData.certification === 'нет'}
-                  onChange={handleChange}
-                />
-                Нет
-              </label>
-            </div>
-          </div>
-          <button 
-            type="submit" 
-            className="generate-button"
-            disabled={isLoading}
-          >
-            {isLoading ? 'Генерируем курс...' : 'Сгенерировать курс'}
-          </button>
-        </form>
-      ) : (
-        renderCourseStructure()
-      )}
       <div className="footer-note">
-        Советница АКВИ создает структуру образовательных курсов с использованием передовых моделей искусственного интеллекта. 
+        Советница АКВИ создает структурированные учебники с использованием передовых моделей искусственного интеллекта.
         Результаты носят рекомендательный характер и могут быть адаптированы под ваши потребности.
       </div>
     </div>

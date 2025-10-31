@@ -211,6 +211,12 @@ class GenerateCourseView(APIView):
                     - Возможные карьерные пути.
                     [Контент]
                 
+                ...
+                    Пожалуйста, замените все [Контент] на реальные подробные ответы. 
+                    Вместо шаблонов напишите полные тексты с примерами и пояснениями.
+                    Не оставляйте плейсхолдеры, заполните все разделы полностью.
+                ...
+
                 Пожалуйста, не добавляйте никаких дополнительных комментариев или пояснений.  
                 Ответ должен быть профессиональным, детализированным и содержать конкретные примеры.
                 Структура ответа должна четко соответствовать указанным разделам.
@@ -237,6 +243,101 @@ class GenerateCourseView(APIView):
             }) 
         except Exception as e:
             logger.error(f"Ошибка генерации курса: {str(e)}", exc_info=True)
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    def build_course_book(self, course_structure, course_topic, openrouter_api_key, system_prompt):
+        SYSTEM_PROMPT = """
+        Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
+        Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
+        Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
+        Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
+        Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
+        Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
+        """
+        try:
+            client = OpenAI(
+                api_key=openrouter_api_key,
+                base_url="https://openrouter.ai/api/v1"
+            )
+            min_length = 10000
+            max_length = 20000
+            prompt = f"""
+                Вы - Советница АКВИ, профессиональный консультант. Ваша задача - создать подробный учебник по теме: "{course_topic}".
+        
+                Используя следующую структуру курса, разработайте полный учебник:
+                    {course_structure}
+        
+                Учебник должен содержать:
+                    1. Подробные объяснения по каждой теме
+                    2. Примеры и кейсы для лучшего понимания
+                    3. Рекомендации по практическому применению знаний
+                    4. Контрольные вопросы в конце каждой главы
+                    5. Список дополнительных материалов для углубленного изучения
+        
+                Структура ответа:
+                    - Название курса
+                    - Содержание (с указанием страниц)
+                    - Главы и подглавы (как в структуре курса, но с подробным наполнением)
+                    - Примеры и кейсы
+                    - Контрольные вопросы
+                    - Рекомендации по дальнейшему изучению
+        
+                Требования к объему:
+                    - Минимальный объем: {min_length} символов
+                    - Максимальный объем: {max_length} символов
+                    - Не превышайте указанный объем
+                    - Содержание должно быть полным и логичным
+        
+                Важно: Ответ должен быть профессиональным, детализированным и содержать конкретные примеры.
+            """
+            response = client.chat.completions.create(
+                model="qwen/qwen-2.5-coder-32b-instruct:free",
+                messages=[
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": prompt}
+                ],
+                max_tokens=20000,
+                temperature=0.3
+            )
+            return response.choices[0].message.content
+        except Exception as e:
+            logger.error(f"Ошибка генерации учебника: {str(e)}")
+            return "Не удалось сгенерировать учебник"
+
+class BuildCourseBookView(APIView):
+    def post(self, request, *args, **kwargs):
+        logger.info("Получен запрос на генерацию учебника")
+        SYSTEM_PROMPT = """
+        Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
+        Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
+        Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
+        Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
+        Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
+        Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
+        """
+        course_structure = request.data.get('course_structure')
+        course_topic = request.data.get('course_topic')        
+        if not course_structure or not course_topic:
+            return Response({
+                'error': 'Необходимы структура курса и тема курса'
+            }, status=status.HTTP_400_BAD_REQUEST)            
+        OPENROUTER_API_KEY = os.getenv('OPROUT_AQWE_COURSE')
+        if not OPENROUTER_API_KEY:
+            logger.error("API ключ OpenRouter для генерации учебника не настроен")
+            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        try:
+            generate_course_view = GenerateCourseView()
+            course_book = generate_course_view.build_course_book(
+                course_structure, 
+                course_topic,
+                OPENROUTER_API_KEY,
+                SYSTEM_PROMPT
+            )
+            return Response({
+                'course_book': course_book,
+                'course_topic': course_topic
+            })
+        except Exception as e:
+            logger.error(f"Ошибка генерации учебника: {str(e)}")
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class LegalDocumentAnalysisView(APIView):

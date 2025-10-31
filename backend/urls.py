@@ -12,7 +12,7 @@ from drf_spectacular.views import SpectacularAPIView
 from drf_spectacular.views import SpectacularSwaggerView
 from djstripe.urls import path
 from aqwe_app.views import ChatView
-from aqwe_app.views import GenerateCourseView
+from aqwe_app.views import GenerateCourseView, BuildCourseBookView
 from aqwe_app.views import LegalDocumentAnalysisView
 from aqwe_app.views import FinancialAnalysisView
 from aqwe_app.views import PhotoRestorationView
@@ -51,6 +51,7 @@ urlpatterns = [
     path('api/', include('aqwe_app.urls')),
     path('chat/', ChatView.as_view(), name='chat'),
     path('generate-course/', GenerateCourseView.as_view(), name='generate-course'),
+    path('generate-course/build_course_book/', BuildCourseBookView.as_view(), name='build-course-book'),
     path('legal-document-analysis/', LegalDocumentAnalysisView.as_view(), name='legal-document-analysis'),
     path('financial-analysis/', FinancialAnalysisView.as_view(), name='finacial-analysis'),
     path('photo-restoration/', PhotoRestorationView.as_view(), name='photo-restoration'),
