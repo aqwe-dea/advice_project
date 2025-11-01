@@ -87,12 +87,12 @@ class GenerateCourseView(APIView):
         Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
         Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
         """
-        course_topic = request.data.get('course_topic', '')
+        course_topic = request.data.get('topic', '') or request.data.get('course_topic', '')
         target_audience = request.data.get('target_audience', 'начинающие')
-        course_duration = request.data.get('course_duration', '4 недели')
-        knowledge_level = request.data.get('knowledge_level', 'базовый')
-        course_format = request.data.get('course_format', 'онлайн с видеоуроками')
-        learning_objectives = request.data.get('learning_objectives', '')
+        course_duration = request.data.get('course_duration', '10 недель')
+        knowledge_level = request.data.get('knowledge_level', 'углубленный')
+        course_format = request.data.get('course_format', 'учебник')
+        learning_objectives = request.data.get('learning_objectives', 'Основные цели обучения')
         practical_tasks = request.data.get('practical_tasks', 'есть')
         certification = request.data.get('certification', 'есть')
         if not course_topic:
@@ -222,13 +222,13 @@ class GenerateCourseView(APIView):
                 Структура ответа должна четко соответствовать указанным разделам.
             """
             response = client.chat.completions.create(
-                model="qwen/qwen-2.5-coder-32b-instruct:free",
+                model="nousresearch/hermes-3-llama-3.1-405b:free",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt}
                 ],
-                max_tokens=25000,
-                temperature=0.4
+                max_tokens=23000,
+                temperature=0.3
             )
             return Response({
                 'course_structure': response.choices[0].message.content,
@@ -259,20 +259,28 @@ class GenerateCourseView(APIView):
                 base_url="https://openrouter.ai/api/v1"
             )
             min_length = 10000
-            max_length = 20000
+            max_length = 100000
             prompt = f"""
-                Вы - Советница АКВИ, профессиональный консультант. Ваша задача - создать подробный учебник по теме: "{course_topic}".
+                Вы - Советница АКВИ, профессиональный консультант. Создайте учебник по теме: "{course_topic}".
         
                 Используя следующую структуру курса, разработайте полный учебник:
                     {course_structure}
         
                 Учебник должен содержать:
-                    1. Подробные объяснения по каждой теме
-                    2. Примеры и кейсы для лучшего понимания
-                    3. Рекомендации по практическому применению знаний
-                    4. Контрольные вопросы в конце каждой главы
-                    5. Список дополнительных материалов для углубленного изучения
+                    1. Содержание (с указанием страниц)
+                    2. Введение (1-2 стр.)
+                    3. Основные теоретические разделы (3-10 стр.)
+                    4. Практические задания и кейсы (11-15 стр.)
+                    5. Контрольные вопросы (16-17 стр.)
+                    6. Рекомендации по дальнейшему изучению (18-20 стр.)
         
+                Требования к формату:
+                    - Все медицинские термины должны быть написаны полностью
+                    - Содержание должно быть профессиональным, без сокращений
+                    - Используйте академический стиль, как в учебниках
+                    - Не используйте замены для терминов (все слова должны быть полными)
+                    - Объем: 10000-100000 символов
+
                 Структура ответа:
                     - Название курса
                     - Содержание (с указанием страниц)
@@ -286,16 +294,16 @@ class GenerateCourseView(APIView):
                     - Максимальный объем: {max_length} символов
                     - Не превышайте указанный объем
                     - Содержание должно быть полным и логичным
-        
-                Важно: Ответ должен быть профессиональным, детализированным и содержать конкретные примеры.
+                
+                Важно: Ответ должен быть профессиональным, детализированным и содержать конкретные примеры.     
             """
             response = client.chat.completions.create(
-                model="qwen/qwen-2.5-coder-32b-instruct:free",
+                model="nousresearch/hermes-3-llama-3.1-405b:free",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt}
                 ],
-                max_tokens=20000,
+                max_tokens=23000,
                 temperature=0.3
             )
             return response.choices[0].message.content
