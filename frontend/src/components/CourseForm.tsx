@@ -8,16 +8,16 @@ const CourseForm = () => {
   const [courseBook, setCourseBook] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
-  const [formData, setFormData] = useState({
-    course_topic: '',
-    target_audience: 'начинающие',
-    course_duration: '4 недели',
-    knowledge_level: 'базовый',
-    course_format: 'онлайн с видеоуроками',
-    learning_objectives: '',
-    practical_tasks: 'есть',
-    certification: 'есть'
-  });
+  //const [formData, setFormData] = useState({
+    //course_topic: '',
+    //target_audience: 'начинающие',
+    //course_duration: '4 недели',
+    //knowledge_level: 'базовый',
+    //course_format: 'онлайн с видеоуроками',
+    //learning_objectives: '',
+    //practical_tasks: 'есть',
+    //certification: 'есть'
+  //});
   const [result, setResult] = useState<any>(null);
   const handleGenerateCourse = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -138,9 +138,26 @@ const CourseForm = () => {
       endIndex = text.indexOf(endMarker, startIndex + startMarker.length);
     }
     if (endIndex === -1) {
-      return text.substring(startIndex + startMarker.length).trim();
+      return text.substring(startIndex).trim();
     }
-    return text.substring(startIndex + startMarker.length, endIndex).trim();
+    return text.substring(startIndex, endIndex).trim();
+  };
+  const parseCourseBook = (text: string): string => {
+    let cleanText = text.trim();
+    cleanText = cleanText.replace(/### (.*?)(?=\n|$)/g, '<h4>$1</h4>');
+    cleanText = cleanText.replace(/## (.*?)(?=\n|$)/g, '<h3>$1</h3>');
+    cleanText = cleanText.replace(/# (.*?)(?=\n|$)/g, '<h2>$1</h2>');
+    cleanText = cleanText.replace(/^- (.*?)(?=\n|$)/gm, '<li>$1</li>');
+    cleanText = cleanText.replace(/(<li>.*?<\/li>+)/gs, '<ul>$1</ul>');
+    cleanText = cleanText.replace(/\n\n/g, '</p><p>');
+    cleanText = cleanText.replace(/\n/g, '<br/>');
+    if (!cleanText.startsWith('<p>')) {
+      cleanText = `<p>${cleanText}`;
+    }
+    if (!cleanText.endsWith('</p>')) {
+      cleanText = `${cleanText}</p>`;
+    }
+    return cleanText;
   };
   return (
     <div className="course-form">
@@ -176,8 +193,8 @@ const CourseForm = () => {
       </form>
       {courseBook && (
         <div className="course-book-result">
-          <h3>Ваш учебник:</h3>
-          <div className="course-content" dangerouslySetInnerHTML={{__html: courseBook}} />
+        <h3>Ваш учебник:</h3>
+        <div className="course-content" dangerouslySetInnerHTML={{__html: parseCourseBook(courseBook)}} />
         </div>
       )}
       <div className="footer-note">

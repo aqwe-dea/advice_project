@@ -3,7 +3,7 @@ import * as THREE from 'three';
 import { Canvas, useFrame } from '@react-three/fiber';
 import { OrbitControls } from '@react-three/drei';
 import { Line } from '@react-three/drei';
-import { buffer, geometry, three, vector3 } from 'maath';
+//import { buffer, geometry, three, vector3 } from 'maath';
 
 function ConnectionLine() {
   const points = [

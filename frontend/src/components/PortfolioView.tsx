@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { colors } from '../theme';
 //import IsometricPortfolio from './IsometricPortfolio';
 import SimplePortfolio from './SimplePortfolio';

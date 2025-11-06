@@ -4,28 +4,27 @@ import { motion } from 'framer-motion';
 import { styled } from 'styled-components';
 import { colors } from '../theme';
 
-
 const ChatContainer = styled.div`
-         max-width: 600px;
-         margin: 40px auto;
-         padding: 24px;
-         background: #F5F5DC;
-         border-radius: 16px;
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 24px;
+    background: #F5F5DC;
+    border-radius: 16px;
 `;
 
-interface HuggingFaceResponse {
-    choices: Array<{
-        message: {
-            content: string;
-        };
-    }>;
-    response: string;
-}
+//interface HuggingFaceResponse {
+    //choices: Array<{
+        //message: {
+            //content: string;
+        //};
+    //}>;
+    //response: string;
+//}
 
-interface Message {
-    user: string;
-    bot: string;
-}
+//interface Message {
+    //user: string;
+    //bot: string;
+//}
 
 function Chat() {
     useEffect(() => {
