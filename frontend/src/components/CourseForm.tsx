@@ -8,16 +8,16 @@ const CourseForm = () => {
   const [courseBook, setCourseBook] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
-  //const [formData, setFormData] = useState({
-    //course_topic: '',
-    //target_audience: 'начинающие',
-    //course_duration: '4 недели',
-    //knowledge_level: 'базовый',
-    //course_format: 'онлайн с видеоуроками',
-    //learning_objectives: '',
-    //practical_tasks: 'есть',
-    //certification: 'есть'
-  //});
+  const [formData, setFormData] = useState({
+    course_topic: '',
+    target_audience: 'начинающие',
+    course_duration: '10 недель',
+    knowledge_level: 'углубленный',
+    course_format: 'учебник',
+    learning_objectives: 'Основные цели обучения',
+    practical_tasks: 'есть',
+    certification: 'есть'
+  });
   const [result, setResult] = useState<any>(null);
   const handleGenerateCourse = async (e: React.FormEvent) => {
     e.preventDefault();
