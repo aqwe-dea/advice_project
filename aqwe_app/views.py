@@ -1568,8 +1568,23 @@ class PresentationGenerationView(APIView):
         if not OPENROUTER_API_KEY:
             logger.error("API ключ OpenRouter для презентаций не настроен")
             return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        SAMBANOVA_API_KEY = os.getenv('SAMBA_AQWE_SLIDES')
         try:
             logger.info(f"Генерация презентации на тему: {topic}")
+            if SAMBANOVA_API_KEY and SAMBANOVA_API_KEY.startswith('sk-'):
+                slide_image_prompts = self.extract_image_prompts(presentation)
+                for i, image_prompt in enumerate(slide_image_prompts[:5]):
+                    if image_prompt.strip():
+                        image_url = self.gen_image_for_slide(
+                            f"Professional presentation slide about {topic}, {image_prompt}",
+                            SAMBANOVA_API_KEY
+                        )
+                        if image_url:
+                            images.append({
+                                'slide_number': i+1,
+                                'prompt': image_prompt,
+                                'image_url': image_url
+                            })
             client = OpenAI(
                 api_key=OPENROUTER_API_KEY,
                 base_url="https://openrouter.ai/api/v1"
@@ -1597,7 +1612,7 @@ class PresentationGenerationView(APIView):
                     - Структурированное содержание
                     - Ключевые моменты
                     - Примеры и кейсы
-                    - Визуальные рекомендации
+                    - Визуальные рекомендации для каждого слайда
                 
                 ## 4. ЗАКЛЮЧЕНИЕ
                     - Основные выводы
@@ -1625,6 +1640,7 @@ class PresentationGenerationView(APIView):
                 
                 Используйте профессиональную терминологию и конкретные примеры там, где это уместно.
                 Каждый раздел должен содержать подробную информацию, подходящую для профессиональной презентации.
+                Особенно укажите, какие изображения нужны для каждого слайда в разделе "Визуальные рекомендации для каждого слайда".
             """
             response = client.chat.completions.create(
                 model="meituan/longcat-flash-chat:free",
@@ -1632,20 +1648,73 @@ class PresentationGenerationView(APIView):
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt}
                 ],
-                max_tokens=12000
+                max_tokens=10000
             )
+            presentation = response.choices[0].message.content
+            images = []
             return Response({
-                'presentation': response.choices[0].message.content,
+                'presentation': presentation,
                 'topic': topic,
                 'audience': audience,
                 'duration': duration,
                 'purpose': purpose,
                 'style': style,
-                'slides_count': slides_count
+                'slides_count': slides_count,
+                'images': images
             })
         except Exception as e:
             logger.error(f"Ошибка генерации презентации: {str(e)}")
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    def extract_image_prompts(self, presentation_text):
+        import re
+        visual_prompts = []
+        recommendations = re.findall(r'\*\s*Визуальные рекомендации\s*:\s*(.*?)\n', presentation_text, re.DOTALL)
+        for rec in recommendations:
+            clean_prompt = re.sub(r'[*\[\]]', '', rec).strip()
+            if clean_prompt and len(clean_prompt) > 10:
+                visual_prompts.append(clean_prompt)
+        if not visual_prompts:
+            slide_count = min(5, len(re.findall(r'## \d+\.', presentation_text)))
+            for i in range(slide_count):
+                visual_prompts.append(f"Professional slide for {presentation_text.split('.')[0]} topic, corporate style")        
+        return visual_prompts[:5]
+    def gen_image_for_slide(self, prompt, sambanova_api_key):
+        try:
+            logger.info(f"Генерация изображения для слайда с промптом: {prompt}")
+            headers = {
+                "Authorization": f"Bearer {sambanova_api_key}",
+                "Content-Type": "application/json"
+            }
+            data = {
+                "model": "dall-e-3",
+                "prompt": prompt,
+                "n": 1,
+                "size": "1024x1024",
+                "quality": "standard",
+                "style": "vivid"
+            }
+            response = requests.post(
+                "https://api.sambanova.ai/v1",
+                headers=headers,
+                json=data,
+                timeout=45
+            )
+            if response.status_code != 200:
+                logger.error(f"Ошибка генерации изображения: {response.status_code} - {response.text}")
+                logger.error(f"Запрос: {data}")
+                return None
+            response_data = response.json()
+            if "data" in response_data and len(response_data["data"]) > 0:
+                if "url" in response_data["data"][0]:
+                    return response_data["data"][0]["url"]
+                elif "b64_json" in response_data["data"][0]:
+                    image_data = response_data["data"][0]["b64_json"]
+                    return f"data:image/png;base64,{image_data}"
+            logger.error(f"Неправильный формат ответа от SambaNova: {response_data}")
+            return None            
+        except Exception as e:
+            logger.error(f"Ошибка генерации изображения: {str(e)}", exc_info=True)
+            return None
 
 class InvestmentAnalysisView(APIView):
     def post(self, request, *args, **kwargs):
