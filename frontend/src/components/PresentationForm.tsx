@@ -3,31 +3,27 @@ import '../App.css';
 
 const PresentationForm = () => {
   const [formData, setFormData] = useState({
-    topic: '',
-    audience: 'широкая аудитория',
-    duration: '15-20 минут',
-    purpose: 'информирование',
-    style: 'профессиональный',
-    slides_count: '15-20'
-  });
+    presentation_idea: '',
+    presentation_description: ''
+  });  
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<any>(null);
   const [progress, setProgress] = useState(0);
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
   };  
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.topic.trim()) {
-      setError('Пожалуйста, укажите тему презентации');
+    if (!formData.presentation_idea.trim() || !formData.presentation_description.trim()) {
+      setError('Пожалуйста, заполните все поля');
       return;
     }
     setIsLoading(true);
     setError(null);
     setResult(null);
-    setProgress(0);
+    setProgress(0);    
     try {
       const progressInterval = setInterval(() => {
         setProgress(prev => {
@@ -35,22 +31,22 @@ const PresentationForm = () => {
             clearInterval(progressInterval);
             return prev;
           }
-          return prev + 5;
+          return prev + 3;
         });
-      }, 300);
+      }, 200);      
       const response = await fetch('/generate-presentation/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
         },
         body: JSON.stringify(formData)
-      });
+      });      
       clearInterval(progressInterval);
-      setProgress(100);
+      setProgress(100);      
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Ошибка при генерации презентации');
-      }
+      }      
       const data = await response.json();
       setResult(data);
     } catch (err) {
@@ -60,57 +56,43 @@ const PresentationForm = () => {
     }
   };
   const renderPresentation = () => {
-    if (!result || !result.presentation) return null;
-    const sections = {
-      title: extractSection(result.presentation, "НАЗВАНИЕ ПРЕЗЕНТАЦИИ", "1. ТИТУЛЬНЫЙ СЛАЙД"),
-      title_slide: extractSection(result.presentation, "1. ТИТУЛЬНЫЙ СЛАЙД", "2. ВВЕДЕНИЕ"),
-      introduction: extractSection(result.presentation, "2. ВВЕДЕНИЕ", "3. ОСНОВНАЯ ЧАСТЬ"),
-      main: extractSection(result.presentation, "3. ОСНОВНАЯ ЧАСТЬ", "4. КЛЮЧЕВЫЕ ВЫВОДЫ"),
-      conclusions: extractSection(result.presentation, "4. КЛЮЧЕВЫЕ ВЫВОДЫ", "5. ЧАСТЫЕ ВОПРОСЫ И ОТВЕТЫ"),
-      faq: extractSection(result.presentation, "5. ЧАСТЫЕ ВОПРОСЫ И ОТВЕТЫ", "6. ЗАКЛЮЧЕНИЕ"),
-      conclusion: extractSection(result.presentation, "6. ЗАКЛЮЧЕНИЕ", "7. ДОПОЛНИТЕЛЬНЫЕ МАТЕРИАЛЫ"),
-      additional: extractSection(result.presentation, "7. ДОПОЛНИТЕЛЬНЫЕ МАТЕРИАЛЫ", "8. РЕКОМЕНДАЦИИ ПО ПОДГОТОВКЕ"),
-      recommendations: extractSection(result.presentation, "8. РЕКОМЕНДАЦИИ ПО ПОДГОТОВКЕ", null)
-    };
+    if (!result || !result.presentation) return null;        
+    const slides = result.presentation.split(/##\s+\d+\.\s+/).slice(1);    
     return (
-      <div className="presentation">
-        <h3>Презентация: {formData.topic}</h3>
-        <div className="section">
-          <h4>Название презентации</h4>
-          <div className="section-content">{sections.title || "Не найдено"}</div>
-        </div>
-        <div className="section">
-          <h4>1. Титульный слайд</h4>
-          <div className="section-content">{sections.title_slide || "Не найдено"}</div>
-        </div>
-        <div className="section">
-          <h4>2. Введение</h4>
-          <div className="section-content">{sections.introduction || "Не найдено"}</div>
-        </div>
-        <div className="section">
-          <h4>3. Основная часть</h4>
-          <div className="section-content">{sections.main || "Не найдено"}</div>
-        </div>
-        <div className="section">
-          <h4>4. Ключевые выводы</h4>
-          <div className="section-content">{sections.conclusions || "Не найдено"}</div>
-        </div>
-        <div className="section">
-          <h4>5. Частые вопросы и ответы</h4>
-          <div className="section-content">{sections.faq || "Не найдено"}</div>
-        </div>
-        <div className="section">
-          <h4>6. Заключение</h4>
-          <div className="section-content">{sections.conclusion || "Не найдено"}</div>
-        </div>
-        <div className="section">
-          <h4>7. Дополнительные материалы</h4>
-          <div className="section-content">{sections.additional || "Не найдено"}</div>
-        </div>
-        <div className="section">
-          <h4>8. Рекомендации по подготовке</h4>
-          <div className="section-content">{sections.recommendations || "Не найдено"}</div>
-        </div>
+      <div className="presentation-container">
+        <h3>Ваша презентация: {result.presentation_idea}</h3>        
+        {slides.map((slideContent: string, index: number) => {
+          const slideNumber = index + 1;
+          const slideTitleMatch = slideContent.match(/^(.+?)\n/);
+          const slideTitle = slideTitleMatch ? slideTitleMatch[1].trim() : `Слайд ${slideNumber}`;
+          const slideBody = slideContent.replace(/^(.+?)\n/, '').trim();          
+          const slideImage = result.images.find((img: any) => img.slide_number === slideNumber);          
+          return (
+            <div key={slideNumber} className="slide">
+              <div className="slide-header">
+                <h4>{slideNumber}. {slideTitle}</h4>
+              </div>
+              <div className="slide-content">
+                {slideImage && (
+                  <div className="slide-image">
+                    <img src={slideImage.image_url} alt={`Слайд ${slideNumber}`} />
+                  </div>
+                )}
+                <div className="slide-text" dangerouslySetInnerHTML={{__html: slideBody.replace(/\n/g, '<br/>')}} />
+              </div>
+            </div>
+          );
+        })}        
+        <div className="additional-materials">
+          <h4>Дополнительные материалы</h4>
+          <div className="materials-content">
+            <ul>
+              <li>Список рекомендуемой литературы</li>
+              <li>Полезные ссылки и ресурсы</li>
+              <li>Глоссарий терминов</li>
+            </ul>
+          </div>
+        </div>        
         <button 
           onClick={() => setResult(null)}
           className="reset-button"
@@ -120,125 +102,46 @@ const PresentationForm = () => {
       </div>
     );
   };
-  const extractSection = (text: string, startMarker: string, endMarker: string | null): string => {
-    const normalizeText = (str: string) => str.toLowerCase().replace(/\s+/g, ' ').trim();
-    let startIndex = -1;
-    //const normalizedText = normalizeText(text);
-    const normalizedStartMarker = normalizeText(startMarker);
-    for (let i = 0; i < text.length - normalizedStartMarker.length; i++) {
-      const segment = normalizeText(text.substring(i, i + normalizedStartMarker.length + 10));
-      if (segment.includes(normalizedStartMarker)) {
-        startIndex = i;
-        break;
-      }
-    }
-    if (startIndex === -1) return "";
-    let endIndex = -1;
-    if (endMarker) {
-      const normalizedEndMarker = normalizeText(endMarker);
-      for (let i = startIndex + startMarker.length; i < text.length - normalizedEndMarker.length; i++) {
-        const segment = normalizeText(text.substring(i, i + normalizedEndMarker.length + 10));
-        if (segment.includes(normalizedEndMarker)) {
-          endIndex = i;
-          break;
-        }
-      }
-    }
-    if (endIndex === -1) {
-      return text.substring(startIndex + startMarker.length).trim();
-    }
-    return text.substring(startIndex + startMarker.length, endIndex).trim();
-  };
   return (
-    <div className="presentation-container">
-      <h2>Генерация презентации</h2>
-      <p>Заполните форму для создания структурированной презентации</p>
+    <div className="presentation-generation-container">
+      <h2>Создание профессиональной презентации под идею</h2>      
       {error && (
         <div className="error-message">
           {error}
         </div>
-      )}
+      )}      
       {!result ? (
         <form onSubmit={handleSubmit} className="presentation-form">
           <div className="form-group">
-            <label htmlFor="topic">Тема презентации *</label>
-            <textarea
-              id="topic"
-              name="topic"
-              value={formData.topic}
+            <label htmlFor="presentation_idea">Название идеи *</label>
+            <input
+              type="text"
+              id="presentation_idea"
+              name="presentation_idea"
+              value={formData.presentation_idea}
               onChange={handleChange}
-              placeholder="Опишите тему вашей презентации"
-              rows={3}
+              placeholder="Название вашей идеи"
               required
             />
-          </div>  
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="audience">Целевая аудитория</label>
-              <input
-                type="text"
-                id="audience"
-                name="audience"
-                value={formData.audience}
-                onChange={handleChange}
-                placeholder="Например: руководители, студенты, инвесторы"
-              />
-            </div>
-            <div className="form-group">
-              <label htmlFor="duration">Продолжительность</label>
-              <input
-                type="text"
-                id="duration"
-                name="duration"
-                value={formData.duration}
-                onChange={handleChange}
-                placeholder="Например: 15-20 минут"
-              />
-            </div>
-          </div>
-          <div className="form-row">
-            <div className="form-group">
-              <label htmlFor="purpose">Цель презентации</label>
-              <select
-                id="purpose"
-                name="purpose"
-                value={formData.purpose}
-                onChange={handleChange}
-              >
-                <option value="информирование">Информирование</option>
-                <option value="убеждение">Убеждение</option>
-                <option value="обучение">Обучение</option>
-                <option value="мотивация">Мотивация</option>
-                <option value="продажа">Продажа</option>
-              </select>
-            </div>
-            <div className="form-group">
-              <label htmlFor="slides_count">Количество слайдов</label>
-              <input
-                type="text"
-                id="slides_count"
-                name="slides_count"
-                value={formData.slides_count}
-                onChange={handleChange}
-                placeholder="Например: 15-20"
-              />
-            </div>
-          </div>
+          </div>          
           <div className="form-group">
-            <label htmlFor="style">Стиль презентации</label>
-            <select
-              id="style"
-              name="style"
-              value={formData.style}
+            <label htmlFor="presentation_description">Описание идеи *</label>
+            <textarea
+              id="presentation_description"
+              name="presentation_description"
+              value={formData.presentation_description}
               onChange={handleChange}
-            >
-              <option value="профессиональный">Профессиональный</option>
-              <option value="креативный">Креативный</option>
-              <option value="минималистичный">Минималистичный</option>
-              <option value="информационный">Информационный</option>
-              <option value="сторителлинг">Сторителлинг</option>
-            </select>
-          </div>
+              placeholder="Подробно опишите вашу идею"
+              rows={5}
+              required
+            />
+          </div>          
+          {isLoading && (
+            <div className="progress-container">
+              <div className="progress-bar" style={{ width: `${progress}%` }}></div>
+              <p>Генерация презентации: {progress}%</p>
+            </div>
+          )}          
           <button 
             type="submit" 
             className="generate-button"
@@ -250,15 +153,16 @@ const PresentationForm = () => {
                 Генерируем презентацию...
               </>
             ) : (
-              'Сгенерировать презентацию'
+              'Создать презентацию'
             )}
           </button>
         </form>
       ) : (
         renderPresentation()
       )}
+      
       <div className="footer-note">
-        Советница АКВИ создает структурированные презентации с использованием передовых моделей искусственного интеллекта. 
+        Советница АКВИ создает профессиональные презентации с использованием передовых моделей искусственного интеллекта и генерации изображений.
         Результаты носят рекомендательный характер и могут быть адаптированы под ваши потребности.
       </div>
     </div>

@@ -1549,172 +1549,205 @@ class PresentationGenerationView(APIView):
     def post(self, request, *args, **kwargs):
         logger.info(f"Получен запрос на генерацию презентации: {request.data}")
         SYSTEM_PROMPT = """
-        Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
+        Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областей.
         Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
         Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
         Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
         Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
-        Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
+        Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами.
         """
-        topic = request.data.get('topic', '')
-        if not topic:
-            return Response({'error': 'Тема презентации не указана'}, status=status.HTTP_400_BAD_REQUEST)
-        audience = request.data.get('audience', 'широкая аудитория')
-        duration = request.data.get('duration', '15-20 минут')
-        purpose = request.data.get('purpose', 'информирование')
-        style = request.data.get('style', 'профессиональный')
-        slides_count = request.data.get('slides_count', '15-20')
+        presentation_idea = request.data.get('presentation_idea', '')
+        presentation_description = request.data.get('presentation_description', '')        
+        if not presentation_idea or not presentation_description:
+            return Response({
+                'error': 'Название идеи и описание идеи обязательны для заполнения'
+            }, status=status.HTTP_400_BAD_REQUEST)        
         OPENROUTER_API_KEY = os.getenv('OPROUT_AQWE_SLIDES')
         if not OPENROUTER_API_KEY:
             logger.error("API ключ OpenRouter для презентаций не настроен")
-            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-        SAMBANOVA_API_KEY = os.getenv('SAMBA_AQWE_SLIDES')
+            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)        
         try:
-            logger.info(f"Генерация презентации на тему: {topic}")
-            if SAMBANOVA_API_KEY and SAMBANOVA_API_KEY.startswith('sk-'):
-                slide_image_prompts = self.extract_image_prompts(presentation)
-                for i, image_prompt in enumerate(slide_image_prompts[:5]):
-                    if image_prompt.strip():
-                        image_url = self.gen_image_for_slide(
-                            f"Professional presentation slide about {topic}, {image_prompt}",
-                            SAMBANOVA_API_KEY
-                        )
-                        if image_url:
-                            images.append({
-                                'slide_number': i+1,
-                                'prompt': image_prompt,
-                                'image_url': image_url
-                            })
+            logger.info(f"Генерация презентации по идее: {presentation_idea}")
             client = OpenAI(
                 api_key=OPENROUTER_API_KEY,
                 base_url="https://openrouter.ai/api/v1"
-            )
+            )            
             prompt = f"""
-                {SYSTEM_PROMPT}
-                Создайте профессиональную презентацию на тему: "{topic}"
-                
-                ВАЖНО: Ответ должен быть строго структурирован как указано ниже, без дополнительных комментариев.
-                
-                # ПРОФЕССИОНАЛЬНАЯ ПРЕЗЕНТАЦИЯ
-                ## 1. ТИТУЛЬНЫЙ СЛАЙД
-                    - Название презентации
-                    - Имя докладчика
-                    - Дата
-                    - Логотип компании (при наличии)
-                
-                ## 2. ВВЕДЕНИЕ
-                    - Краткое описание темы
-                    - Цели и задачи презентации
-                    - Актуальность темы
-                    - Ожидаемые результаты
-                
-                ## 3. ОСНОВНАЯ ЧАСТЬ
-                    - Структурированное содержание
-                    - Ключевые моменты
-                    - Примеры и кейсы
-                    - Визуальные рекомендации для каждого слайда
-                
-                ## 4. ЗАКЛЮЧЕНИЕ
-                    - Основные выводы
-                    - Рекомендации
-                    - Последующие шаги
-                    - Контактная информация
-                
-                ## 5. ЧАСТЫЕ ВОПРОСЫ И ОТВЕТЫ
-                    - 3-5 вероятных вопросов
-                    - Подробные ответы
-                    - Дополнительные материалы
-                
-                ## 6. РЕКОМЕНДАЦИИ ПО ПОДГОТОВКЕ
-                    - Время на подготовку
-                    - Советы по выступлению
-                    - Технические требования
-                    - Дополнительные ресурсы
-                
-                ПАРАМЕТРЫ ПРЕЗЕНТАЦИИ:
-                    - Целевая аудитория: {audience}
-                    - Продолжительность: {duration}
-                    - Цель: {purpose}
-                    - Стиль: {style}
-                    - Количество слайдов: {slides_count}
-                
-                Используйте профессиональную терминологию и конкретные примеры там, где это уместно.
-                Каждый раздел должен содержать подробную информацию, подходящую для профессиональной презентации.
-                Особенно укажите, какие изображения нужны для каждого слайда в разделе "Визуальные рекомендации для каждого слайда".
-            """
+            {SYSTEM_PROMPT}
+            Создайте профессиональную презентацию из 12 слайдов на основе следующей идеи:
+            
+            НАЗВАНИЕ ИДЕИ: {presentation_idea}
+            ОПИСАНИЕ ИДЕИ: {presentation_description}
+            
+            ВАЖНО: Ответ должен быть строго структурирован как указано ниже, без дополнительных комментариев.
+            
+            # ПРОФЕССИОНАЛЬНАЯ ПРЕЗЕНТАЦИЯ
+            
+            ## 1. ТИТУЛЬНЫЙ СЛАЙД
+                - Название презентации
+                - Автор/Компания
+                - Дата
+            
+            ## 2. ВВЕДЕНИЕ
+                - Краткое описание идеи
+                - Цели и задачи
+                - Актуальность
+            
+            ## 3. ПРОБЛЕМА/ВЫЗОВ
+                - Описание текущей ситуации
+                - Выявленные проблемы
+                - Последствия бездействия
+            
+            ## 4. РЕШЕНИЕ
+                - Основная идея решения
+                - Ключевые аспекты реализации
+                - Преимущества перед аналогами
+            
+            ## 5. МЕТОДОЛОГИЯ
+                - Пошаговый план действий
+                - Используемые инструменты и подходы
+                - Сроки реализации
+            
+            ## 6. ПРЕИМУЩЕСТВА
+                - Конкретные выгоды для аудитории
+                - Качественные и количественные результаты
+                - Долгосрочные перспективы
+            
+            ## 7. ПРАКТИЧЕСКИЕ ПРИМЕРЫ
+                - Кейсы применения
+                - Результаты внедрения
+                - Визуальные иллюстрации концепции
+            
+            ## 8. ФИНАНСОВЫЙ АСПЕКТ
+                - Инвестиции и ресурсы
+                - Окупаемость
+                - Экономическая эффективность
+            
+            ## 9. РИСКИ И ИХ МИНИМИЗАЦИЯ
+                - Потенциальные риски
+                - Стратегии снижения рисков
+                - Планы на случай непредвиденных ситуаций
+            
+            ## 10. СЛЕДУЮЩИЕ ШАГИ
+                - Ближайшие действия
+                - Необходимые ресурсы
+                - Ответственные лица и сроки
+            
+            ## 11. КОНТАКТНАЯ ИНФОРМАЦИЯ
+                - Имя, должность
+                - Email, телефон
+                - Социальные сети
+            
+            ## 12. ДОПОЛНИТЕЛЬНЫЕ МАТЕРИАЛЫ
+                - Список рекомендуемой литературы
+                - Полезные ссылки и ресурсы
+                - Глоссарий терминов
+            
+            Дополнительные рекомендации:
+            - Для каждого слайда указаны конкретные изображения, которые необходимо сгенерировать
+            - Добавлены примеры и кейсы для иллюстрации концепции
+            - Включены ссылки на дополнительные материалы
+            - Указаны конкретные цифры и данные там, где это уместно
+            """            
             response = client.chat.completions.create(
                 model="meituan/longcat-flash-chat:free",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt}
                 ],
-                max_tokens=10000
-            )
-            presentation = response.choices[0].message.content
-            images = []
+                max_tokens=12000,
+                temperature=0.3
+            )            
+            presentation = response.choices[0].message.content            
+            slide_image_prompts = self.extract_image_prompts(presentation)            
+            images = self.generate_images_for_slides(slide_image_prompts, presentation_idea)            
             return Response({
                 'presentation': presentation,
-                'topic': topic,
-                'audience': audience,
-                'duration': duration,
-                'purpose': purpose,
-                'style': style,
-                'slides_count': slides_count,
+                'presentation_idea': presentation_idea,
+                'presentation_description': presentation_description,
                 'images': images
             })
         except Exception as e:
-            logger.error(f"Ошибка генерации презентации: {str(e)}")
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            logger.error(f"Ошибка генерации презентации: {str(e)}", exc_info=True)
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)    
     def extract_image_prompts(self, presentation_text):
-        import re
-        visual_prompts = []
-        recommendations = re.findall(r'\*\s*Визуальные рекомендации\s*:\s*(.*?)\n', presentation_text, re.DOTALL)
-        for rec in recommendations:
-            clean_prompt = re.sub(r'[*\[\]]', '', rec).strip()
-            if clean_prompt and len(clean_prompt) > 10:
-                visual_prompts.append(clean_prompt)
-        if not visual_prompts:
-            slide_count = min(5, len(re.findall(r'## \d+\.', presentation_text)))
-            for i in range(slide_count):
-                visual_prompts.append(f"Professional slide for {presentation_text.split('.')[0]} topic, corporate style")        
-        return visual_prompts[:5]
-    def gen_image_for_slide(self, prompt, sambanova_api_key):
+        """Извлекает промпты для изображений из текста презентации"""
+        image_prompts = []        
+        slides_content = {
+            "1": "Титульный слайд с названием презентации и профессиональным фоном, минималистичный стиль",
+            "2": "Введение с иллюстрацией основной идеи, профессиональный дизайн",
+            "3": "Проблема/вызов с визуализацией текущей ситуации, графики и схемы",
+            "4": "Решение с графическим представлением ключевых аспектов, инфографика",
+            "5": "Методология с инфографикой пошагового плана, четкие визуальные элементы",
+            "6": "Преимущества с графиками и сравнительными таблицами, профессиональная визуализация",
+            "7": "Практические примеры с иллюстрациями кейсов, реальные сценарии",
+            "8": "Финансовый аспект с графиками и диаграммами, визуализация данных",
+            "9": "Риски и их минимизация с иллюстрацией стратегий, аналитические материалы",
+            "10": "Следующие шаги с таймлайном и визуализацией плана, пошаговая инфографика",
+            "11": "Контактная информация с профессиональным фоном, корпоративный стиль",
+            "12": "Дополнительные материалы с иллюстрацией ресурсов, список литературы и ссылок"
+        }        
+        for slide_num, prompt in slides_content.items():
+            image_prompts.append({
+                "slide_number": int(slide_num),
+                "prompt": f"Professional presentation slide {slide_num}: {prompt}, clean corporate style, modern design, no text on image, 16:9 aspect ratio"
+            })        
+        return image_prompts    
+    def generate_images_for_slides(self, image_prompts, presentation_idea):
+        """Генерирует изображения для слайдов через KIE AI"""
+        images = []
+        KIE_API_KEY = os.getenv('KIE_AQWE_SLIDES')        
+        if not KIE_API_KEY:
+            logger.warning("KIE_API_KEY not set, skipping image generation")
+            return []        
         try:
-            logger.info(f"Генерация изображения для слайда с промптом: {prompt}")
-            headers = {
-                "Authorization": f"Bearer {sambanova_api_key}",
-                "Content-Type": "application/json"
-            }
-            data = {
-                "model": "dall-e-3",
-                "prompt": prompt,
-                "n": 1,
-                "size": "1024x1024",
-                "quality": "standard",
-                "style": "vivid"
-            }
-            response = requests.post(
-                "https://api.sambanova.ai/v1",
-                headers=headers,
-                json=data,
-                timeout=45
-            )
-            if response.status_code != 200:
-                logger.error(f"Ошибка генерации изображения: {response.status_code} - {response.text}")
-                logger.error(f"Запрос: {data}")
-                return None
-            response_data = response.json()
-            if "data" in response_data and len(response_data["data"]) > 0:
-                if "url" in response_data["data"][0]:
-                    return response_data["data"][0]["url"]
-                elif "b64_json" in response_data["data"][0]:
-                    image_data = response_data["data"][0]["b64_json"]
-                    return f"data:image/png;base64,{image_data}"
-            logger.error(f"Неправильный формат ответа от SambaNova: {response_data}")
-            return None            
+            for prompt_data in image_prompts:
+                slide_num = prompt_data['slide_number']
+                prompt = prompt_data['prompt']                
+                logger.info(f"Генерация изображения для слайда {slide_num} с промптом: {prompt}")                
+                payload = {
+                    "taskType": "mj_txt2img",
+                    "speed": "relaxed",
+                    "prompt": f"A professional presentation slide about '{presentation_idea}'. {prompt}",
+                    "aspectRatio": "16:9",
+                    "version": "7",
+                    "waterMark": "",
+                    "ow": 100
+                }                
+                headers = {
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {KIE_API_KEY}"
+                }                
+                response = requests.post(
+                    "https://api.kie.ai/api/v1/mj/generate",
+                    headers=headers,
+                    data=json.dumps(payload),
+                    timeout=60
+                )                
+                if response.status_code == 200:
+                    result = response.json()                    
+                    image_url = result.get('result_url') or result.get('image_url') or result.get('data', {}).get('url')                    
+                    if image_url:
+                        image_response = requests.get(image_url, timeout=30)
+                        if image_response.status_code == 200:
+                            image_data = image_response.content
+                            image_name = f"slide_{slide_num}_{hash(presentation_idea)}.png"
+                            file_path = default_storage.save(f'tmp/{image_name}', ContentFile(image_data))
+                            image_url = default_storage.url(file_path)                            
+                            images.append({
+                                'slide_number': slide_num,
+                                'image_url': image_url,
+                                'prompt': prompt
+                            })
+                        else:
+                            logger.error(f"Ошибка загрузки изображения для слайда {slide_num}: {image_response.status_code}")
+                    else:
+                        logger.error(f"Не удалось получить URL изображения для слайда {slide_num}: {result}")
+                else:
+                    logger.error(f"Ошибка генерации изображения для слайда {slide_num}: {response.status_code} - {response.text}")        
         except Exception as e:
-            logger.error(f"Ошибка генерации изображения: {str(e)}", exc_info=True)
-            return None
+            logger.error(f"Ошибка при генерации изображений: {str(e)}", exc_info=True)        
+        return images
 
 class InvestmentAnalysisView(APIView):
     def post(self, request, *args, **kwargs):
