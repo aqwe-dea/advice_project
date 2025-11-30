@@ -8,6 +8,8 @@ import uuid
 import base64
 import numpy as np
 import re
+import time
+import hashlib
 from PyPDF2 import PdfReader
 from typing import Dict, List
 from .models import Advice, UserHistory
@@ -1653,7 +1655,7 @@ class PresentationGenerationView(APIView):
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt}
                 ],
-                max_tokens=11000,
+                max_tokens=10000,
                 temperature=0.3
             )            
             presentation = response.choices[0].message.content            
@@ -1692,60 +1694,118 @@ class PresentationGenerationView(APIView):
             })        
         return image_prompts    
     def generate_images_for_slides(self, image_prompts, presentation_idea):
-        """Генерирует изображения для слайдов через KIE AI"""
+        """Генерирует изображения для слайдов через KIE AI с использованием Google Banana Nano"""
         images = []
-        KIE_API_KEY = os.getenv('KIE_AQWE_SLIDES')        
+        KIE_API_KEY = os.getenv('KIE_AQWE_SLIDES')
         if not KIE_API_KEY:
             logger.warning("KIE_API_KEY not set, skipping image generation")
-            return []        
+            return []    
         try:
             for prompt_data in image_prompts:
                 slide_num = prompt_data['slide_number']
-                prompt = prompt_data['prompt']                
-                logger.info(f"Генерация изображения для слайда {slide_num} с промптом: {prompt}")                
+                prompt = prompt_data['prompt']
+                logger.info(f"Генерация изображения для слайда {slide_num} с промптом: {prompt}")                            
                 payload = {
-                    "taskType": "mj_txt2img",
-                    "speed": "relaxed",
-                    "prompt": f"A professional presentation slide about '{presentation_idea}'. {prompt}",
-                    "aspectRatio": "16:9",
-                    "version": "7",
-                    "waterMark": "",
-                    "ow": 100
-                }                
+                    "model": "google/nano-banana",
+                    "input": {
+                        "prompt": f"Professional presentation slide about '{presentation_idea}'. {prompt}. Clean corporate style, modern design, no text on image, high quality, business visualization",
+                        "output_format": "png",
+                        "image_size": "16:9"
+                    }
+                }            
                 headers = {
                     "Content-Type": "application/json",
                     "Authorization": f"Bearer {KIE_API_KEY}"
-                }                
-                response = requests.post(
-                    "https://api.kie.ai/api/v1/mj/generate",
+                }                            
+                create_task_response = requests.post(
+                    "https://api.kie.ai/api/v1/jobs/createTask",
                     headers=headers,
                     data=json.dumps(payload),
                     timeout=60
-                )                
-                if response.status_code == 200:
-                    result = response.json()                    
-                    image_url = result.get('result_url') or result.get('image_url') or result.get('data', {}).get('url')                    
-                    if image_url:
-                        image_response = requests.get(image_url, timeout=45)
-                        if image_response.status_code == 200:
-                            image_data = image_response.content
-                            image_name = f"slide_{slide_num}_{hash(presentation_idea)}.png"
-                            file_path = default_storage.save(f'tmp/{image_name}', ContentFile(image_data))
-                            image_url = default_storage.url(file_path)                            
-                            images.append({
-                                'slide_number': slide_num,
-                                'image_url': image_url,
-                                'prompt': prompt
-                            })
+                )            
+                if create_task_response.status_code != 200:
+                    logger.error(f"Ошибка создания задачи для слайда {slide_num}: {create_task_response.status_code} - {create_task_response.text}")
+                    continue            
+                task_data = create_task_response.json()
+                task_id = task_data.get('taskId') or task_data.get('data', {}).get('taskId')            
+                if not task_id:
+                    logger.error(f"Не удалось получить taskId для слайда {slide_num}: {task_data}")
+                    continue            
+                logger.info(f"Задача создана для слайда {slide_num}, taskId: {task_id}")                            
+                max_attempts = 30
+                attempt = 0
+                image_url = None            
+                while attempt < max_attempts and not image_url:
+                    attempt += 1
+                    logger.info(f"Попытка {attempt}/{max_attempts} для получения результата задачи {task_id}")
+                    result_url = f"https://api.kie.ai/api/v1/jobs/recordInfo?taskId={task_id}"                                                        
+                    result_response = requests.get(
+                        result_url,
+                        headers=headers,
+                        timeout=60
+                    )                
+                    if result_response.status_code != 200:
+                        logger.error(f"Ошибка получения результата для taskId {task_id}: {result_response.status_code} - {result_response.text}")
+                        time.sleep(2)
+                        continue                
+                    result_data = result_response.json()
+                    logger.debug(f"Данные результата для задачи {task_id}: {json.dumps(result_data, indent=2)}")                                
+                    task_status = result_data.get('status') or result_data.get('data', {}).get('status')                
+                    if task_status == "success":                        
+                        image_info = result_data.get('result') or result_data.get('data', {}).get('result')
+                        if image_info:                            
+                            image_url = (
+                                image_info.get('imageUrl') or 
+                                image_info.get('image_url') or 
+                                image_info.get('url') or
+                                image_info.get('data', {}).get('url')                                                                                          
+                            )
+                            if image_url:
+                                logger.info(f"Изображение успешно сгенерировано для слайда {slide_num}: {image_url}")
+                            else:
+                                logger.error(f"Не удалось найти URL в ответе: {image_info}")
                         else:
-                            logger.error(f"Ошибка загрузки изображения для слайда {slide_num}: {image_response.status_code}")
+                            logger.error(f"Нет данных результата в ответе: {result_data}")
+                    elif task_status == "fail":
+                        error_msg = result_data.get('error') or result_data.get('message') or "Неизвестная ошибка"
+                        logger.error(f"Задача {task_id} завершилась с ошибкой: {error_msg}")
+                        break
                     else:
-                        logger.error(f"Не удалось получить URL изображения для слайда {slide_num}: {result}")
-                else:
-                    logger.error(f"Ошибка генерации изображения для слайда {slide_num}: {response.status_code} - {response.text}")        
+                        logger.info(f"Задача {task_id} в статусе {task_status}, ожидание...")
+                        time.sleep(3)                           
+                if image_url:
+                    try:                        
+                        if not image_url.startswith(('http://', 'https://')):
+                            logger.error(f"Невалидный URL изображения: {image_url}")
+                            continue                    
+                        image_response = requests.get(image_url, timeout=45)
+                        if image_response.status_code != 200:
+                            logger.error(f"Ошибка загрузки изображения {image_url}: {image_response.status_code} - {image_response.text}")
+                            continue                    
+                        image_data = image_response.content
+                        image_name = f"slide_{slide_num}_{abs(hash(presentation_idea)) % (10 ** 8)}.png"
+                        file_path = default_storage.save(f'tmp/{image_name}', ContentFile(image_data))                                        
+                        if settings.DEBUG:
+                            image_url = f"{settings.MEDIA_URL}{file_path}"
+                        else:
+                            image_url = default_storage.url(file_path)                    
+                        images.append({
+                            'slide_number': slide_num,
+                            'image_url': image_url,
+                            'prompt': prompt
+                        })
+                        logger.info(f"Изображение для слайда {slide_num} успешно сохранено: {image_url}")
+                    except Exception as e:
+                        logger.error(f"Ошибка при сохранении изображения для слайда {slide_num}: {str(e)}", exc_info=True)
+                else:                    
+                    if task_status == "success":
+                        logger.error(f"Задача {task_id} успешно завершена, но URL изображения не найден. Ответ: {json.dumps(result_data, indent=2)}")
+                    else:
+                        logger.error(f"Не удалось получить изображение для слайда {slide_num} после {max_attempts} попыток. Последний статус: {task_status}")        
+            return images        
         except Exception as e:
-            logger.error(f"Ошибка при генерации изображений: {str(e)}", exc_info=True)        
-        return images
+            logger.error(f"Критическая ошибка при генерации изображений: {str(e)}", exc_info=True)
+            return []
 
 class InvestmentAnalysisView(APIView):
     def post(self, request, *args, **kwargs):
