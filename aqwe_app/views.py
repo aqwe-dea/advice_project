@@ -233,12 +233,12 @@ class GenerateCourseView(APIView):
                 Структура ответа должна четко соответствовать указанным разделам.
             """
             response = client.chat.completions.create(
-                model="openai/gpt-oss-20b:free",
+                model="kwaipilot/kat-coder-pro:free",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt}
                 ],
-                max_tokens=8000,
+                max_tokens=16000,
                 temperature=0.3
             )
             return Response({
@@ -352,12 +352,12 @@ class GenerateCourseView(APIView):
                 Важно: Ответ должен быть профессиональным, детализированным и содержать конкретные примеры!     
             """
             response = client.chat.completions.create(
-                model="openai/gpt-oss-20b:free",
+                model="kwaipilot/kat-coder-pro:free",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt}
                 ],
-                max_tokens=8000,
+                max_tokens=16000,
                 temperature=0.3
             )
             return response.choices[0].message.content
@@ -845,7 +845,7 @@ class MedicalImageView(APIView):
                 Помните: это не замена профессиональной медицинской консультации.
             """
             response = client.chat.completions.create(
-                model="qwen/qwen2.5-vl-32b-instruct:free",
+                model="google/gemma-3-4b-it:free",
                 messages = [
                     {
                         "role": "user",
@@ -860,7 +860,7 @@ class MedicalImageView(APIView):
                         ]
                     }
                 ],
-                max_tokens=2000,
+                max_tokens=3000,
                 temperature=0.4
             )
             return response.choices[0].message.content
@@ -936,12 +936,12 @@ class MedicalImageView(APIView):
                 Ответ должен быть структурирован, безопасен и профессионален.
             """
             response = client.chat.completions.create(
-                model="qwen/qwen2.5-vl-32b-instruct:free",
+                model="google/gemini-2.0-flash-exp:free",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt}
                 ],
-                max_tokens=8000,
+                max_tokens=16000,
                 temperature=0.4
             )
             return response.choices[0].message.content
@@ -1235,12 +1235,12 @@ class BusinessPlanView(APIView):
                     - Меры по минимизации
             """
             response = client.chat.completions.create(
-                model="google/gemma-3-27b-it:free",
+                model="qwen/qwen3-coder:free",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt}
                 ],
-                max_tokens=4000
+                max_tokens=32000
             )
             return Response({
                 'business_plan': response.choices[0].message.content,
@@ -1323,12 +1323,12 @@ class BusinessPlanView(APIView):
                 Ответ должен быть строго структурирован как указано выше, без дополнительных комментариев.
             """            
             response = client.chat.completions.create(
-                model="google/gemma-3-27b-it:free",
+                model="qwen/qwen3-coder:free",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt}
                 ],
-                max_tokens=4000
+                max_tokens=32000
             )            
             return Response({
                 'financial_analysis': response.choices[0].message.content,
@@ -1418,12 +1418,12 @@ class BusinessPlanView(APIView):
                 Ответ должен быть строго структурирован как указано выше, без дополнительных комментариев.
             """            
             response = client.chat.completions.create(
-                model="google/gemma-3-27b-it:free",
+                model="qwen/qwen3-coder:free",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt}
                 ],
-                max_tokens=4000
+                max_tokens=32000
             )            
             return Response({
                 'marketing_strategy': response.choices[0].message.content,
@@ -1513,12 +1513,12 @@ class BusinessPlanView(APIView):
                 Ответ должен быть строго структурирован как указано выше, без дополнительных комментариев.
             """            
             response = client.chat.completions.create(
-                model="google/gemma-3-27b-it:free",
+                model="qwen/qwen3-coder:free",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt}
                 ],
-                max_tokens=4000
+                max_tokens=32000
             )            
             return Response({
                 'risk_analysis': response.choices[0].message.content,
@@ -1608,12 +1608,12 @@ class BusinessPlanView(APIView):
                 Ответ должен быть строго структурирован как указано выше, без дополнительных комментариев.
             """            
             response = client.chat.completions.create(
-                model="google/gemma-3-27b-it:free",
+                model="qwen/qwen3-coder:free",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt}
                 ],
-                max_tokens=4000
+                max_tokens=32000
             )            
             return Response({
                 'action_plan': response.choices[0].message.content,
@@ -1805,31 +1805,31 @@ class PresentationGenerationView(APIView):
                     logger.error(f"Ошибка создания задачи для слайда {slide_num}: {create_task_response.status_code} - {create_task_response.text}")
                     continue            
                 task_data = create_task_response.json()
-                task_id = task_data.get('taskId') or task_data.get('data', {}).get('taskId')            
-                if not task_id:
+                id = task_data.get('taskId') or task_data.get('data', {}).get('taskId')            
+                if not id:
                     logger.error(f"Не удалось получить taskId для слайда {slide_num}: {task_data}")
                     continue            
-                logger.info(f"Задача создана для слайда {slide_num}, taskId: {task_id}")                            
+                logger.info(f"Задача создана для слайда {slide_num}, taskId: {id}")                            
                 max_attempts = 30
                 attempt = 0
                 image_url = None            
                 while attempt < max_attempts and not image_url:
                     attempt += 1
-                    logger.info(f"Попытка {attempt}/{max_attempts} для получения результата задачи {task_id}")                                    
-                    result_url = f"https://api.kie.ai/api/v1/jobs/recordInfo?taskId={task_id}"
+                    logger.info(f"Попытка {attempt}/{max_attempts} для получения результата задачи {id}")                                    
+                    result_url = f"https://api.kie.ai/api/v1/jobs/recordInfo?taskId={id}"
                     result_response = requests.get(
                         result_url,
                         headers=headers,
                         timeout=30
                     )                
                     if result_response.status_code != 200:
-                        logger.error(f"Ошибка получения результата для taskId {task_id}: {result_response.status_code} - {result_response.text}")
+                        logger.error(f"Ошибка получения результата для taskId {id}: {result_response.status_code} - {result_response.text}")
                         time.sleep(2)
                         continue                
                     result_data = result_response.json()
-                    logger.debug(f"Данные результата для задачи {task_id}: {json.dumps(result_data, indent=2)}")                                    
-                    task_status = result_data.get('data', {}).get('status') or result_data.get('status')                
-                    if task_status == "SUCCESS":                        
+                    logger.debug(f"Данные результата для задачи {id}: {json.dumps(result_data, indent=2)}")                                    
+                    task_status = result_data.get('data', {}).get('state') or result_data.get('msg')                
+                    if task_status == "success":                        
                         result_json = result_data.get('data', {}).get('resultJson')
                         if result_json:
                             try:                                
@@ -1845,11 +1845,11 @@ class PresentationGenerationView(APIView):
                         else:
                             logger.error(f"resultJson не найден в ответе: {result_data}")
                     elif task_status in ["FAILED", "fail", "failure"]:
-                        error_msg = result_data.get('data', {}).get('failMsg') or result_data.get('message') or "Неизвестная ошибка"
+                        error_msg = result_data.get('data', {}).get('failMsg') or result_data.get('msg') or "Неизвестная ошибка"
                         logger.error(f"Задача {task_id} завершилась с ошибкой: {error_msg}")
                         break
                     else:
-                        logger.info(f"Задача {task_id} в статусе {task_status}, ожидание...")
+                        logger.info(f"Задача {id} в статусе {task_status}, ожидание...")
                         time.sleep(3)                            
                 if image_url:
                     try:                        
@@ -1877,8 +1877,8 @@ class PresentationGenerationView(APIView):
                         logger.error(f"Ошибка при сохранении изображения для слайда {slide_num}: {str(e)}", exc_info=True)
                 else:                   
                     logger.error(f"Не удалось получить изображение для слайда {slide_num} после {max_attempts} попыток")
-                    if task_status == "SUCCESS":
-                        logger.error(f"Задача {task_id} успешно завершена, но URL изображения не найден. Данные результата: {json.dumps(result_data, indent=2)}")        
+                    if task_status == "success":
+                        logger.error(f"Задача {id} успешно завершена, но URL изображения не найден. Данные результата: {json.dumps(result_data, indent=2)}")        
             return images        
         except Exception as e:
             logger.error(f"Критическая ошибка при генерации изображений: {str(e)}", exc_info=True)
@@ -2137,12 +2137,12 @@ class TravelPlannerView(APIView):
                 Ответ должен быть структурирован, информативен и содержать конкретные рекомендации.
             """
             response = client.chat.completions.create(
-                model="qwen/qwen3-30b-a3b:free",
+                model="openai/gpt-oss-20b:free",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt}
                 ],
-                max_tokens=10000
+                max_tokens=24000
             )
             return Response({
                 'travel_plan': response.choices[0].message.content,
