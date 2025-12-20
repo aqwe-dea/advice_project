@@ -15,6 +15,7 @@ const PhotoRestorationForm = () => {
   const [result, setResult] = useState<any>(null);
   const [progress, setProgress] = useState(0);
   const imageInputRef = useRef<HTMLInputElement>(null);
+  
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const selectedImage = e.target.files[0];
@@ -31,10 +32,12 @@ const PhotoRestorationForm = () => {
       setError(null);
     }
   };
+  
   const handleRestorationInfoChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setRestorationInfo(prev => ({ ...prev, [name]: value }));
   };
+  
   const handleRestore = async () => {
     if (!image) {
       setError('Пожалуйста, загрузите фотографию');
@@ -54,6 +57,7 @@ const PhotoRestorationForm = () => {
           return prev + 5;
         });
       }, 300);
+      
       const formData = new FormData();
       formData.append('image', image);
       formData.append('damage_type', restorationInfo.damage_type);
@@ -61,16 +65,20 @@ const PhotoRestorationForm = () => {
       formData.append('restoration_style', restorationInfo.restoration_style);
       formData.append('special_requests', restorationInfo.special_requests);
       formData.append('photo_age', restorationInfo.photo_age);
+      
       const response = await fetch('/photo-restoration/', {
         method: 'POST',
         body: formData
       });
+      
       clearInterval(progressInterval);
       setProgress(100);
+      
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Ошибка при реставрации фотографии');
       }
+      
       const data = await response.json();
       setResult(data);
     } catch (err) {
@@ -79,48 +87,45 @@ const PhotoRestorationForm = () => {
       setIsLoading(false);
     }
   };
+  
   const renderRestorationPlan = () => {
-    if (!result || !result.restoration_plan) return null;
-    const sections = {
-      analysis: extractSection(result.restoration_plan, "1.", "2."),
-      methods: extractSection(result.restoration_plan, "2.", "3."),
-      expected: extractSection(result.restoration_plan, "3.", "4."),
-      preservation: extractSection(result.restoration_plan, "4.", "5."),
-      additional: extractSection(result.restoration_plan, "5.", "6."),
-      timeline: extractSection(result.restoration_plan, "6.", "7."),
-      care: extractSection(result.restoration_plan, "7.", null)
-    };
+    if (!result || !result.restoration_report) return null;
+    
+    const report = result.restoration_report;
+    
     return (
       <div className="restoration-plan">
-        <h3>План реставрации фотографии: {result.image_type}</h3>
-        <div className="section">
-          <h4>1. Анализ состояния фотографии</h4>
-          <div className="section-content">{sections.analysis || "Не найдено"}</div>
+        <h3>Результаты реставрации фотографии: {result.image_type}</h3>
+        
+        <div className="comparison-container">
+          <div className="before">
+            <h4>До реставрации</h4>
+            <img src={report.before_after_comparison.original_url} alt="Оригинал" className="comparison-image" />
+          </div>
+          <div className="after">
+            <h4>После реставрации</h4>
+            <img src={report.before_after_comparison.restored_url} alt="Восстановленное" className="comparison-image" />
+          </div>
         </div>
+        
         <div className="section">
-          <h4>2. Методы реставрации</h4>
-          <div className="section-content">{sections.methods || "Не найдено"}</div>
+          <h4>Анализ повреждений</h4>
+          <div className="section-content">
+            <p>Тип повреждений: {report.restoration_summary.damage_type}</p>
+            <p>Степень повреждения: {report.restoration_summary.damage_level}</p>
+            <p>Возраст фотографии: {report.restoration_summary.photo_age}</p>
+          </div>
         </div>
+        
         <div className="section">
-          <h4>3. Ожидаемый результат</h4>
-          <div className="section-content">{sections.expected || "Не найдено"}</div>
+          <h4>Рекомендации по уходу</h4>
+          <div className="section-content">
+            <p>Хранение: {report.recommendations.storage}</p>
+            <p>Обращение: {report.recommendations.handling}</p>
+            <p>Долгосрочный уход: {report.recommendations.long_term_care}</p>
+          </div>
         </div>
-        <div className="section">
-          <h4>4. Рекомендации по сохранению</h4>
-          <div className="section-content">{sections.preservation || "Не найдено"}</div>
-        </div>
-        <div className="section">
-          <h4>5. Дополнительные услуги</h4>
-          <div className="section-content">{sections.additional || "Не найдено"}</div>
-        </div>
-        <div className="section">
-          <h4>6. Сроки и стоимость</h4>
-          <div className="section-content">{sections.timeline || "Не найдено"}</div>
-        </div>
-        <div className="section">
-          <h4>7. Советы по дальнейшему уходу</h4>
-          <div className="section-content">{sections.care || "Не найдено"}</div>
-        </div>
+        
         <button 
           onClick={() => setResult(null)}
           className="reset-button"
@@ -130,18 +135,7 @@ const PhotoRestorationForm = () => {
       </div>
     );
   };
-  const extractSection = (text: string, startMarker: string, endMarker: string | null): string => {
-    const startIndex = text.indexOf(startMarker);
-    if (startIndex === -1) return "";
-    let endIndex = -1;
-    if (endMarker) {
-      endIndex = text.indexOf(endMarker, startIndex + startMarker.length);
-    }
-    if (endIndex === -1) {
-      return text.substring(startIndex + startMarker.length).trim();
-    }
-    return text.substring(startIndex + startMarker.length, endIndex).trim();
-  };
+  
   return (
     <div className="restoration-container">
       <h2>Реставрация фотографий</h2>

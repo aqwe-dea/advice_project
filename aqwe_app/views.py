@@ -547,49 +547,57 @@ class PhotoRestorationView(APIView):
             Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
             Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
             Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
-            Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
-        """
+            Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами.
+        """        
         if 'image' not in request.FILES:
             return Response(
                 {'error': 'Изображение не предоставлено'},
                 status=status.HTTP_400_BAD_REQUEST
-            )
+            )        
         image_file = request.FILES['image']
         allowed_extensions = ['.jpg', '.jpeg', '.png', '.tiff', '.bmp']
-        file_ext = os.path.splitext(image_file.name)[1].lower()
+        file_ext = os.path.splitext(image_file.name)[1].lower()        
         if file_ext not in allowed_extensions:
             return Response(
                 {'error': f'Поддерживаются только форматы: {", ".join(allowed_extensions)}'},
                 status=status.HTTP_400_BAD_REQUEST
-            )
+            )        
         restoration_info = {
             'damage_type': request.data.get('damage_type', 'потертости и царапины'),
             'damage_level': request.data.get('damage_level', 'средняя'),
             'restoration_style': request.data.get('restoration_style', 'оригинальный стиль'),
             'special_requests': request.data.get('special_requests', ''),
             'photo_age': request.data.get('photo_age', 'неизвестно')
-        }
+        }                
         file_path = default_storage.save(f'tmp/{image_file.name}', ContentFile(image_file.read()))
         try:
-            HF_API_KEY = os.getenv('HF_API_KEY_PREST')
-            if not HF_API_KEY:
-                logger.error("API ключ Hugging Face для реставрации фотографий не настроен")
+            original_image_url = self.upload_image_to_server(file_path)
+            if not original_image_url:
                 return Response(
-                    {'error': 'API ключ не настроен'},
+                    {'error': 'Не удалось загрузить изображение на сервер'},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
-            image_description = self.analyze_photo_condition(file_path, HF_API_KEY)
-            restoration_plan = self.generate_restoration_plan(
-                image_description, 
-                restoration_info,
-                HF_API_KEY
+            restored_image_url = self.generate_restoration_plan(
+                original_image_url,
+                restoration_info
+            )
+            if not restored_image_url:
+                return Response(
+                    {'error': 'Не удалось восстановить изображение'},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+            restoration_report = self.create_restoration_report(
+                restored_image_url,
+                original_image_url,
+                restoration_info
             )
             return Response({
-                'image_description': image_description,
-                'restoration_plan': restoration_plan,
+                'restored_image_url': restored_image_url,
+                'original_image_url': original_image_url,
+                'restoration_report': restoration_report,
                 'restoration_info': restoration_info,
                 'image_type': file_ext[1:].upper()
-            })   
+            })
         except Exception as e:
             logger.error(f"Ошибка реставрации фотографии: {str(e)}", exc_info=True)
             return Response(
@@ -597,138 +605,134 @@ class PhotoRestorationView(APIView):
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
         finally:
-            if 'file_path' in locals() and default_storage.exists(file_path):
+            if default_storage.exists(file_path):
                 default_storage.delete(file_path)
-    def analyze_photo_condition(self, image_path, hf_api_key):
+    def upload_image_to_server(self, file_path):
+        """Загружает изображение на наш сервер и возвращает URL"""
         try:
-            client = InferenceClient(
-                model="Qwen/Qwen-VL-Chat",
-                token=hf_api_key
-            )
-            prompt = """
-                Вы - профессиональный реставратор фотографий с многолетним опытом работы.
-                Внимательно изучите предоставленное изображение и опишите его состояние:
-            
-                1. Общее состояние фотографии:
-                    - Тип повреждений (потертости, царапины, пятна, выцветание и т.д.)
-                    - Степень повреждения (незначительная, средняя, серьезная)
-                    - Области с наибольшими повреждениями
-            
-                2. Характеристики оригинальной фотографии:
-                    - Примерный возраст снимка
-                    - Технология съемки (черно-белая, цветная, пленка и т.д.)
-                    - Размер и формат оригинала
-            
-                3. Особенности, влияющие на реставрацию:
-                    - Чувствительность красителей
-                    - Тип бумаги или носителя
-                    - Наличие текста или подписи
-            
-                4. Предварительная оценка сложности реставрации:
-                    - Какие участки будут сложнее всего восстановить
-                    - Какие элементы могут быть утеряны навсегда
-                    - Какие техники реставрации будут наиболее подходящими
-            
-                Ваш ответ должен быть профессиональным, точным и структурированным.
-            """
-            response = client.chat_completion(
-                messages=[
-                    {
-                        "role": "user",
-                        "content": [
-                            {"type": "text", "text": prompt},
-                            {"type": "image_url", "image_url": {"url": f"file://{image_path}"}}
-                        ]
-                    }
-                ],
-                max_tokens=800
-            )
-            return response.choices[0].message.content
+            with default_storage.open(file_path, 'rb') as f:
+                image_data = f.read()
+            file_name = f"restored_{os.path.basename(file_path)}"
+            restored_path = default_storage.save(f'tmp/restored/{file_name}', ContentFile(image_data))
+            restored_url = default_storage.url(restored_path)
+            if not settings.DEBUG:
+                restored_url = f"{settings.BASE_URL}{restored_url}"
+            return restored_url
         except Exception as e:
-            logger.error(f"Ошибка анализа состояния фотографии: {str(e)}")
-            return "Не удалось проанализировать состояние фотографии"
-    def generate_restoration_plan(self, image_description, restoration_info, hf_api_key):
-        SYSTEM_PROMPT = """
-            Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
-            Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
-            Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
-            Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
-            Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
-            Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
-        """
+            logger.error(f"Ошибка загрузки изображения: {str(e)}")
+            return None
+    def generate_restoration_plan(self, image_url, restoration_info):
+        """Генерирует план реставрации через KIE.ai"""
+        KIE_API_KEY = os.getenv('KIE_AQWE_SLIDES')        
+        if not KIE_API_KEY:
+            logger.error("KIE_API_KEY not set, skipping image restoration")
+            return "API ключ для KIE не настроен. Пожалуйста, свяжитесь с поддержкой."        
         try:
-            client = InferenceClient(
-                model="Qwen/Qwen2.5-72B-Instruct",
-                token=hf_api_key
+            payload = {
+                "model": "topaz/image-upscale",
+                "input": {
+                    "image_url": image_url,
+                    "upscale_factor": "2"
+                }
+            }
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {KIE_API_KEY}"
+            }
+            create_task_response = requests.post(
+                "https://api.kie.ai/api/v1/jobs/createTask",
+                headers=headers,
+                data=json.dumps(payload),
+                timeout=30
             )
-            prompt = f"""
-                {SYSTEM_PROMPT}
-                Разработайте подробный план реставрации фотографии на основе следующих данных:
-                
-                Описание состояния фотографии:
-                 {image_description}
-                
-                Информация о реставрации:
-                - Тип повреждений:
-                 {restoration_info['damage_type']}
-                - Степень повреждения:
-                 {restoration_info['damage_level']}
-                - Стиль реставрации:
-                 {restoration_info['restoration_style']}
-                - Специальные пожелания:
-                 {restoration_info['special_requests']}
-                - Возраст фотографии:
-                 {restoration_info['photo_age']}
-                
-                Ваш план реставрации должен включать:
-                
-                1. Анализ состояния фотографии
-                    - Подробное описание выявленных повреждений
-                    - Оценка степени тяжести каждого типа повреждения
-                    - Области, требующие особого внимания
-                
-                2. Методы реставрации
-                    - Пошаговый процесс очистки и подготовки
-                    - Техники для устранения конкретных типов повреждений
-                    - Рекомендуемые материалы и инструменты
-                
-                3. Ожидаемый результат
-                    - Как будет выглядеть фотография после реставрации
-                    - Какие элементы будут полностью восстановлены
-                    - Какие элементы могут остаться с незначительными дефектами
-                
-                4. Рекомендации по сохранению
-                    - Условия хранения после реставрации
-                    - Материалы для архивации
-                    - Как часто требуется проверять состояние
-                
-                5. Дополнительные услуги
-                    - Возможность создания цифровой копии
-                    - Оформление в рамку с защитой от УФ
-                    - Сертификат реставрации
-                
-                6. Сроки и стоимость
-                    - Примерные сроки выполнения работ
-                    - Ориентировочная стоимость
-                    - Факторы, которые могут повлиять на сроки и стоимость
-                
-                7. Советы по дальнейшему уходу
-                    - Как обращаться с восстановленной фотографией
-                    - Как избежать повторного повреждения
-                    - Что делать в случае новых повреждений
-                
-                Важно: Это не заменяет консультацию профессионального реставратора.
-                Ответ должен быть структурирован, безопасен и профессионален.
-            """
-            response = client.chat_completion(
-                messages=[{"role": "user", "content": prompt}],
-                max_tokens=1500
-            )
-            return response.choices[0].message.content
+            if create_task_response.status_code != 200:
+                logger.error(f"Ошибка создания задачи: {create_task_response.status_code} - {create_task_response.text}")
+                return "Не удалось создать задачу на реставрацию."
+            task_data = create_task_response.json()
+            id = task_data.get('data', {}).get('taskId') or task_data.get('data', {}).get('recordId')
+            if not id:
+                logger.error(f"Не удалось получить taskId: {task_data}")
+                return "Ошибка при генерации задачи. Пожалуйста, повторите попытку."
+            logger.info(f"Задача создана для реставрации: {id}")
+            max_attempts = 30
+            attempt = 0
+            result_url = None
+            while attempt < max_attempts and not result_url:
+                attempt += 1
+                logger.info(f"Попытка {attempt}/{max_attempts} для получения результата задачи {id}")
+                result_url = f"https://api.kie.ai/api/v1/jobs/recordInfo?taskId={id}"
+                result_response = requests.get(
+                    result_url,
+                    headers=headers,
+                    timeout=30
+                )
+                if result_response.status_code != 200:
+                    logger.error(f"Ошибка получения статуса для taskId {id}: {result_response.status_code} - {result_response.text}")
+                    time.sleep(2)
+                    continue
+                result_data = result_response.json()
+                logger.debug(f"Данные результата для задачи {id}: {json.dumps(result_data, indent=2)}")
+                task_status = result_data.get('data', {}).get('state') or result_data.get('msg')
+                if task_status == "success":
+                    result_json = result_data.get('data', {}).get('resultJson')
+                    if result_json:
+                        try:
+                            result_parsed = json.loads(result_json)
+                            result_urls = result_parsed.get('resultUrls', [])
+                            if result_urls and isinstance(result_urls, list) and len(result_urls) > 0:
+                                result_url = result_urls[0].strip()
+                                logger.info(f"Изображение успешно восстановлено: {result_url}")
+                            else:
+                                logger.error(f"Не удалось найти URL в resultUrls: {result_parsed}")
+                        except json.JSONDecodeError as e:
+                            logger.error(f"Ошибка парсинга resultJson: {str(e)} - {result_json}")
+                    else:
+                        logger.error(f"resultJson не найден в ответе: {result_data}")
+                elif task_status in ["FAILED", "fail", "failure"]:
+                    error_msg = result_data.get('data', {}).get('failMsg') or result_data.get('message') or "Неизвестная ошибка"
+                    logger.error(f"Задача {id} завершилась с ошибкой: {error_msg}")
+                    break
+                else:
+                    logger.info(f"Задача {id} в статусе {task_status}, ожидание...")
+                    time.sleep(3)                       
+            if result_url:
+                try:
+                    image_response = requests.get(result_url, timeout=60)
+                    if image_response.status_code == 200:
+                        restored_name = f"restored_{int(time.time())}.png"
+                        restored_path = default_storage.save(f'tmp/restored/{restored_name}', ContentFile(image_response.content))
+                        restored_url = default_storage.url(restored_path)
+                        return restored_url
+                    else:
+                        logger.error(f"Ошибка загрузки восстановленного изображения: {image_response.status_code}")
+                except Exception as e:
+                    logger.error(f"Ошибка при сохранении восстановленного изображения: {str(e)}", exc_info=True)
+            if not result_url:
+                logger.error(f"Не удалось восстановить изображение после {max_attempts} попыток")
+                return "Не удалось восстановить изображение"
         except Exception as e:
-            logger.error(f"Ошибка генерации плана реставрации: {str(e)}")
-            return "Не удалось сгенерировать план реставрации"
-   
+            logger.error(f"Критическая ошибка при генерации плана реставрации: {str(e)}", exc_info=True)
+            return "Произошла ошибка при генерации плана реставрации"
+    def create_restoration_report(self, restored_image_url, original_image_url, restoration_info):
+        """Создает отчет о реставрации"""
+        return {
+            'before_after_comparison': {
+                'original_url': original_image_url,
+                'restored_url': restored_image_url
+            },
+            'restoration_summary': {
+                'damage_type': restoration_info['damage_type'],
+                'damage_level': restoration_info['damage_level'],
+                'restoration_style': restoration_info['restoration_style'],
+                'photo_age': restoration_info['photo_age']
+            },
+            'recommendations': {
+                'storage': 'Храните в темном месте при влажности 40-50%',
+                'handling': 'Всегда используйте перчатки при обращении',
+                'long_term_care': 'Рекомендуется создать цифровую копию для архивации'
+            }
+        }
+
 class MedicalImageView(APIView):
     def post(self, request, *args, **kwargs):
         logger.info(f"Получен запрос на медицинский анализ: {request.data}")
@@ -1846,7 +1850,7 @@ class PresentationGenerationView(APIView):
                             logger.error(f"resultJson не найден в ответе: {result_data}")
                     elif task_status in ["FAILED", "fail", "failure"]:
                         error_msg = result_data.get('data', {}).get('failMsg') or result_data.get('msg') or "Неизвестная ошибка"
-                        logger.error(f"Задача {task_id} завершилась с ошибкой: {error_msg}")
+                        logger.error(f"Задача {id} завершилась с ошибкой: {error_msg}")
                         break
                     else:
                         logger.info(f"Задача {id} в статусе {task_status}, ожидание...")
