@@ -76,7 +76,7 @@ urlpatterns = [
     path('stripe-webhook/', HandleStripeWebhookView.as_view(), name='stripe-webhook'),
     path('create-payment-intent/', CreatePaymentIntentView.as_view(), name='create-payment-intent'),
     re_path(r'^(?:.*)/?$', TemplateView.as_view(template_name='index.html')),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 """
 URL configuration for backend project.

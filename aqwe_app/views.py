@@ -571,7 +571,9 @@ class PhotoRestorationView(APIView):
         }                
         file_path = default_storage.save(f'tmp/{image_file.name}', ContentFile(image_file.read()))
         try:
-            original_image_url = self.upload_image_to_server(file_path)
+            original_image_url = default_storage.url(file_path)
+            if '?' in original_image_url:
+                original_image_url = original_image_url.split('?')[0]
             if not original_image_url:
                 return Response(
                     {'error': 'Не удалось загрузить изображение на сервер'},
@@ -607,20 +609,6 @@ class PhotoRestorationView(APIView):
         finally:
             if default_storage.exists(file_path):
                 default_storage.delete(file_path)
-    def upload_image_to_server(self, file_path):
-        """Загружает изображение на наш сервер и возвращает URL"""
-        try:
-            with default_storage.open(file_path, 'rb') as f:
-                image_data = f.read()
-            file_name = f"restored_{os.path.basename(file_path)}"
-            restored_path = default_storage.save(f'tmp/restored/{file_name}', ContentFile(image_data))
-            restored_url = default_storage.url(restored_path)
-            if not settings.DEBUG:
-                restored_url = f"{settings.BASE_URL}{restored_url}"
-            return restored_url
-        except Exception as e:
-            logger.error(f"Ошибка загрузки изображения: {str(e)}")
-            return None
     def generate_restoration_plan(self, image_url, restoration_info):
         """Генерирует план реставрации через KIE.ai"""
         KIE_API_KEY = os.getenv('KIE_AQWE_SLIDES')        
@@ -649,29 +637,29 @@ class PhotoRestorationView(APIView):
                 logger.error(f"Ошибка создания задачи: {create_task_response.status_code} - {create_task_response.text}")
                 return "Не удалось создать задачу на реставрацию."
             task_data = create_task_response.json()
-            id = task_data.get('data', {}).get('taskId') or task_data.get('data', {}).get('recordId')
-            if not id:
+            ID = task_data.get('taskId') or task_data.get('data', {}).get('taskId')
+            if not ID:
                 logger.error(f"Не удалось получить taskId: {task_data}")
                 return "Ошибка при генерации задачи. Пожалуйста, повторите попытку."
-            logger.info(f"Задача создана для реставрации: {id}")
+            logger.info(f"Задача создана для реставрации: {ID}")
             max_attempts = 30
             attempt = 0
             result_url = None
             while attempt < max_attempts and not result_url:
                 attempt += 1
-                logger.info(f"Попытка {attempt}/{max_attempts} для получения результата задачи {id}")
-                result_url = f"https://api.kie.ai/api/v1/jobs/recordInfo?taskId={id}"
+                logger.info(f"Попытка {attempt}/{max_attempts} для получения результата задачи {ID}")
+                result_url = f"https://api.kie.ai/api/v1/jobs/recordInfo?taskId={ID}"
                 result_response = requests.get(
                     result_url,
                     headers=headers,
                     timeout=30
                 )
                 if result_response.status_code != 200:
-                    logger.error(f"Ошибка получения статуса для taskId {id}: {result_response.status_code} - {result_response.text}")
+                    logger.error(f"Ошибка получения статуса для taskId {ID}: {result_response.status_code} - {result_response.text}")
                     time.sleep(2)
                     continue
                 result_data = result_response.json()
-                logger.debug(f"Данные результата для задачи {id}: {json.dumps(result_data, indent=2)}")
+                logger.debug(f"Данные результата для задачи {ID}: {json.dumps(result_data, indent=2)}")
                 task_status = result_data.get('data', {}).get('state') or result_data.get('msg')
                 if task_status == "success":
                     result_json = result_data.get('data', {}).get('resultJson')
@@ -690,26 +678,13 @@ class PhotoRestorationView(APIView):
                         logger.error(f"resultJson не найден в ответе: {result_data}")
                 elif task_status in ["FAILED", "fail", "failure"]:
                     error_msg = result_data.get('data', {}).get('failMsg') or result_data.get('message') or "Неизвестная ошибка"
-                    logger.error(f"Задача {id} завершилась с ошибкой: {error_msg}")
+                    logger.error(f"Задача {ID} завершилась с ошибкой: {error_msg}")
                     break
                 else:
-                    logger.info(f"Задача {id} в статусе {task_status}, ожидание...")
+                    logger.info(f"Задача {ID} в статусе {task_status}, ожидание...")
                     time.sleep(3)                       
-            if result_url:
-                try:
-                    image_response = requests.get(result_url, timeout=60)
-                    if image_response.status_code == 200:
-                        restored_name = f"restored_{int(time.time())}.png"
-                        restored_path = default_storage.save(f'tmp/restored/{restored_name}', ContentFile(image_response.content))
-                        restored_url = default_storage.url(restored_path)
-                        return restored_url
-                    else:
-                        logger.error(f"Ошибка загрузки восстановленного изображения: {image_response.status_code}")
-                except Exception as e:
-                    logger.error(f"Ошибка при сохранении восстановленного изображения: {str(e)}", exc_info=True)
-            if not result_url:
-                logger.error(f"Не удалось восстановить изображение после {max_attempts} попыток")
-                return "Не удалось восстановить изображение"
+            logger.error(f"Не удалось восстановить изображение после {max_attempts} попыток")
+            return None
         except Exception as e:
             logger.error(f"Критическая ошибка при генерации плана реставрации: {str(e)}", exc_info=True)
             return "Произошла ошибка при генерации плана реставрации"
