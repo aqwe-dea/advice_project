@@ -637,7 +637,7 @@ class PhotoRestorationView(APIView):
                 logger.error(f"Ошибка создания задачи: {create_task_response.status_code} - {create_task_response.text}")
                 return "Не удалось создать задачу на реставрацию."
             task_data = create_task_response.json()
-            ID = task_data.get('taskId') or task_data.get('data', {}).get('taskId')
+            ID = task_data.get('taskId')
             if not ID:
                 logger.error(f"Не удалось получить taskId: {task_data}")
                 return "Ошибка при генерации задачи. Пожалуйста, повторите попытку."
