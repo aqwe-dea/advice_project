@@ -665,7 +665,7 @@ class PhotoRestorationView(APIView):
                 logger.debug(f"Данные результата для задачи {taskId}: {json.dumps(result_data, indent=2)}")
                 task_status = result_data.get('msg')
                 if task_status == "success":
-                    result_json = result_data.get('resultJson', {}).get('resultUrls')
+                    result_json = result_data.get('resultJson', {}).get('resultUrls', [])
                     if result_json:
                         try:
                             result_parsed = json.loads(result_json)
