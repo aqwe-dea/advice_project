@@ -574,7 +574,6 @@ class PhotoRestorationView(APIView):
             original_image_url = default_storage.url(file_path)
             if '?' in original_image_url:
                 original_image_url = original_image_url.split('?')[0]
-
             restored_image_url = self.generate_restoration_plan(
                 original_image_url,
                 restoration_info
@@ -584,13 +583,11 @@ class PhotoRestorationView(APIView):
                     {'error': 'Не удалось восстановить изображение'},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
-
             restoration_report = self.create_restoration_report(
                 restored_image_url,
                 original_image_url,
                 restoration_info
             )
-
             return Response({
                 'restored_url': restored_image_url,
                 'original_url': original_image_url,
@@ -665,7 +662,7 @@ class PhotoRestorationView(APIView):
                 logger.debug(f"Данные результата для задачи {taskId}: {json.dumps(result_data, indent=2)}")
                 task_status = result_data.get('msg')
                 if task_status == "success":
-                    result_json = result_data.get('resultJson', {}).get('resultUrls', [])
+                    result_json = result_data.get('data', {}).get('resultJson')
                     if result_json:
                         try:
                             result_parsed = json.loads(result_json)
