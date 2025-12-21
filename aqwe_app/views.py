@@ -574,11 +574,7 @@ class PhotoRestorationView(APIView):
             original_image_url = default_storage.url(file_path)
             if '?' in original_image_url:
                 original_image_url = original_image_url.split('?')[0]
-            if not original_image_url:
-                return Response(
-                    {'error': 'Не удалось загрузить изображение на сервер'},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                )
+
             restored_image_url = self.generate_restoration_plan(
                 original_image_url,
                 restoration_info
@@ -588,14 +584,16 @@ class PhotoRestorationView(APIView):
                     {'error': 'Не удалось восстановить изображение'},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
+
             restoration_report = self.create_restoration_report(
                 restored_image_url,
                 original_image_url,
                 restoration_info
             )
+
             return Response({
-                'restored_image_url': restored_image_url,
-                'original_image_url': original_image_url,
+                'restored_url': restored_image_url,
+                'original_url': original_image_url,
                 'restoration_report': restoration_report,
                 'restoration_info': restoration_info,
                 'image_type': file_ext[1:].upper()
@@ -614,55 +612,60 @@ class PhotoRestorationView(APIView):
         KIE_API_KEY = os.getenv('KIE_AQWE_SLIDES')        
         if not KIE_API_KEY:
             logger.error("KIE_API_KEY not set, skipping image restoration")
-            return "API ключ для KIE не настроен. Пожалуйста, свяжитесь с поддержкой."        
+            return None 
+           
         try:
             payload = {
-                "model": "topaz/image-upscale",
+                "model": "recraft/crisp-upscale",
                 "input": {
-                    "image_url": image_url,
-                    "upscale_factor": "2"
+                    "image": image_url
                 }
-            }
+            }            
             headers = {
                 "Content-Type": "application/json",
                 "Authorization": f"Bearer {KIE_API_KEY}"
             }
+            url = "https://api.kie.ai/api/v1/jobs/createTask"            
             create_task_response = requests.post(
-                "https://api.kie.ai/api/v1/jobs/createTask",
+                url,
                 headers=headers,
                 data=json.dumps(payload),
                 timeout=30
-            )
+            )            
             if create_task_response.status_code != 200:
                 logger.error(f"Ошибка создания задачи: {create_task_response.status_code} - {create_task_response.text}")
-                return "Не удалось создать задачу на реставрацию."
+                return None
+                
             task_data = create_task_response.json()
-            ID = task_data.get('taskId')
-            if not ID:
+            taskId = task_data.get('data', {}).get('taskId')
+            if not taskId:
                 logger.error(f"Не удалось получить taskId: {task_data}")
-                return "Ошибка при генерации задачи. Пожалуйста, повторите попытку."
-            logger.info(f"Задача создана для реставрации: {ID}")
+                return None
+                
+            logger.info(f"Задача создана для реставрации: {taskId}")
             max_attempts = 30
             attempt = 0
-            result_url = None
+            result_url = None         
+            
             while attempt < max_attempts and not result_url:
                 attempt += 1
-                logger.info(f"Попытка {attempt}/{max_attempts} для получения результата задачи {ID}")
-                result_url = f"https://api.kie.ai/api/v1/jobs/recordInfo?taskId={ID}"
+                logger.info(f"Попытка {attempt}/{max_attempts} для получения результата задачи {taskId}")
+                url = "https://api.kie.ai/api/v1/jobs/recordInfo"
+                params = {"taskId": taskId}
                 result_response = requests.get(
-                    result_url,
-                    headers=headers,
-                    timeout=30
+                    url,
+                    headers=headers, 
+                    params=params
                 )
                 if result_response.status_code != 200:
-                    logger.error(f"Ошибка получения статуса для taskId {ID}: {result_response.status_code} - {result_response.text}")
+                    logger.error(f"Ошибка получения статуса для taskId {taskId}: {result_response.status_code} - {result_response.text}")
                     time.sleep(2)
-                    continue
+                    continue                
                 result_data = result_response.json()
-                logger.debug(f"Данные результата для задачи {ID}: {json.dumps(result_data, indent=2)}")
-                task_status = result_data.get('data', {}).get('state') or result_data.get('msg')
+                logger.debug(f"Данные результата для задачи {taskId}: {json.dumps(result_data, indent=2)}")
+                task_status = result_data.get('msg')
                 if task_status == "success":
-                    result_json = result_data.get('data', {}).get('resultJson')
+                    result_json = result_data.get('resultJson', {}).get('resultUrls')
                     if result_json:
                         try:
                             result_parsed = json.loads(result_json)
@@ -670,6 +673,7 @@ class PhotoRestorationView(APIView):
                             if result_urls and isinstance(result_urls, list) and len(result_urls) > 0:
                                 result_url = result_urls[0].strip()
                                 logger.info(f"Изображение успешно восстановлено: {result_url}")
+                                return result_url
                             else:
                                 logger.error(f"Не удалось найти URL в resultUrls: {result_parsed}")
                         except json.JSONDecodeError as e:
@@ -678,16 +682,18 @@ class PhotoRestorationView(APIView):
                         logger.error(f"resultJson не найден в ответе: {result_data}")
                 elif task_status in ["FAILED", "fail", "failure"]:
                     error_msg = result_data.get('data', {}).get('failMsg') or result_data.get('message') or "Неизвестная ошибка"
-                    logger.error(f"Задача {ID} завершилась с ошибкой: {error_msg}")
+                    logger.error(f"Задача {taskId} завершилась с ошибкой: {error_msg}")
                     break
                 else:
-                    logger.info(f"Задача {ID} в статусе {task_status}, ожидание...")
+                    logger.info(f"Задача {taskId} в статусе {task_status}, ожидание...")
                     time.sleep(3)                       
+            
             logger.error(f"Не удалось восстановить изображение после {max_attempts} попыток")
             return None
+                
         except Exception as e:
             logger.error(f"Критическая ошибка при генерации плана реставрации: {str(e)}", exc_info=True)
-            return "Произошла ошибка при генерации плана реставрации"
+            return None
     def create_restoration_report(self, restored_image_url, original_image_url, restoration_info):
         """Создает отчет о реставрации"""
         return {

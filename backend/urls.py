@@ -4,9 +4,9 @@ from django.urls import include
 from aqwe_app.urls import path
 from django.urls import re_path
 from django.conf import settings
+from django.conf.urls.static import static
 from aqwe_app import views
 from django.views.generic import TemplateView
-from django.conf.urls.static import static
 from aqwe_app.views import CreatePaymentIntentView
 from drf_spectacular.views import SpectacularAPIView
 from drf_spectacular.views import SpectacularSwaggerView
