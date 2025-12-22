@@ -642,7 +642,7 @@ class PhotoRestorationView(APIView):
                 return None
                 
             logger.info(f"Задача создана для реставрации: {taskId}")
-            max_attempts = 30
+            max_attempts = 40
             attempt = 0
             result_url = None         
             
@@ -662,13 +662,13 @@ class PhotoRestorationView(APIView):
                     continue                
                 result_data = result_response.json()
                 logger.debug(f"Данные результата для задачи {taskId}: {json.dumps(result_data, indent=2)}")
-                task_status = result_data.get('msg')
+                task_status = result_data.get('msg') or result_data.get('data', {}).get('state')
                 if task_status == "success":
                     result_json = result_data.get('data', {}).get('resultJson')
                     if result_json:
                         try:
                             result_parsed = json.loads(result_json)
-                            result_urls = result_parsed.get('resultUrls', [])
+                            result_urls = result_parsed.get('resultJson', {}).get('resultUrls', [])
                             if result_urls and isinstance(result_urls, list) and len(result_urls) > 0:
                                 result_url = result_urls[0].strip()
                                 logger.info(f"Изображение успешно восстановлено: {result_url}")
