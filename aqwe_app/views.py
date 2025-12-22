@@ -571,7 +571,8 @@ class PhotoRestorationView(APIView):
         }                
         file_path = default_storage.save(f'tmp/{image_file.name}', ContentFile(image_file.read()))
         try:
-            original_image_url = default_storage.url(file_path)
+            relative_image_url = default_storage.url(file_path)
+            original_image_url = f"{settings.BASE_URL}{relative_image_url}"
             if '?' in original_image_url:
                 original_image_url = original_image_url.split('?')[0]
             restored_image_url = self.generate_restoration_plan(
@@ -588,6 +589,7 @@ class PhotoRestorationView(APIView):
                 original_image_url,
                 restoration_info
             )
+            
             return Response({
                 'restored_url': restored_image_url,
                 'original_url': original_image_url,
