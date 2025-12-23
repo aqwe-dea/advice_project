@@ -664,11 +664,11 @@ class PhotoRestorationView(APIView):
                 logger.debug(f"Данные результата для задачи {taskId}: {json.dumps(result_data, indent=2)}")
                 task_status = result_data.get('msg') or result_data.get('data', {}).get('state')
                 if task_status == "success":
-                    result_json = result_data.get('data', {}).get('resultJson')
+                    result_json = result_data.get('data', {}).get('resultJson', {}) or result_data.get('resultJson', {}).get('resultUrls', [])
                     if result_json:
                         try:
                             result_parsed = json.loads(result_json)
-                            result_urls = result_parsed.get('resultJson', {}).get('resultUrls', [])
+                            result_urls = result_parsed.get('resultUrls', []) or result_parsed.get('resultJson', {}).get('resultUrls', [])
                             if result_urls and isinstance(result_urls, list) and len(result_urls) > 0:
                                 result_url = result_urls[0].strip()
                                 logger.info(f"Изображение успешно восстановлено: {result_url}")
