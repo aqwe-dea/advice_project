@@ -1,3 +1,5 @@
+import os
+import environ
 from pathlib import Path
 from environ import environ
 from environ.environ import Env
@@ -6,23 +8,21 @@ from whitenoise.middleware import WhiteNoiseMiddleware
 from django.template.backends.django import DjangoTemplates
 from django.template.backends import base
 from django import shortcuts
-from django.conf.urls import static
+from django.conf.urls.static import static
 from django.conf import global_settings
 from whitenoise import base
 from whitenoise import compress
 from whitenoise import responders
 from whitenoise import storage
 from django.core.mail.backends.smtp import EmailBackend
-import os
-import environ
 from rest_framework.decorators import permission_classes
 from rest_framework.permissions import AllowAny
 from dotenv import load_dotenv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
-BASE_URL = "https://advice-project.onrender.com"
-# BASE_URL = "http://localhost:8000"
+# BASE_URL = "https://advice-project.onrender.com"
+BASE_URL = "http://127.0.0.1:8000"
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -208,8 +208,11 @@ USE_TZ = True
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
 
+# MEDIA_URL = '/media/'
+# MEDIA_ROOT = BASE_DIR / 'media'
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
+
 
 STATICFILES_DIRS = [
     BASE_DIR / 'frontend/build/static',

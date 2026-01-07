@@ -25,6 +25,8 @@ from .views import CreateCheckoutSessionView
 from .views import SessionStatusView
 from .views import HandleStripeWebhookView
 from rest_framework import routers, viewsets
+from django.conf import settings
+from django.conf.urls.static import static
 
 router = DefaultRouter()
 router.register(r'advice', AdviceViewSet)
@@ -57,4 +59,7 @@ urlpatterns = [
     path('create-checkout-session/', CreateCheckoutSessionView.as_view(), name='create-checkout-session'),
     path('session-status/', SessionStatusView.as_view(), name='session-status'),
     path('stripe-webhook/', HandleStripeWebhookView.as_view(), name='stripe-webhook'),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

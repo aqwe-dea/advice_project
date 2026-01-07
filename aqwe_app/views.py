@@ -548,33 +548,35 @@ class PhotoRestorationView(APIView):
             Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
             Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
             Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами.
-        """        
+        """
+        image_file = request.FILES['image']
         if 'image' not in request.FILES:
             return Response(
                 {'error': 'Изображение не предоставлено'},
                 status=status.HTTP_400_BAD_REQUEST
-            )        
-        image_file = request.FILES['image']
+            )
         allowed_extensions = ['.jpg', '.jpeg', '.png', '.tiff', '.bmp']
-        file_ext = os.path.splitext(image_file.name)[1].lower()        
+        file_ext = os.path.splitext(image_file.name)[1].lower()
         if file_ext not in allowed_extensions:
             return Response(
                 {'error': f'Поддерживаются только форматы: {", ".join(allowed_extensions)}'},
                 status=status.HTTP_400_BAD_REQUEST
-            )        
+            )
         restoration_info = {
             'damage_type': request.data.get('damage_type', 'потертости и царапины'),
             'damage_level': request.data.get('damage_level', 'средняя'),
             'restoration_style': request.data.get('restoration_style', 'оригинальный стиль'),
             'special_requests': request.data.get('special_requests', ''),
             'photo_age': request.data.get('photo_age', 'неизвестно')
-        }                
+        }
         file_path = default_storage.save(f'tmp/{image_file.name}', ContentFile(image_file.read()))
         try:
-            relative_image_url = default_storage.url(file_path)
-            original_image_url = f"{settings.BASE_URL}{relative_image_url}"
-            if '?' in original_image_url:
-                original_image_url = original_image_url.split('?')[0]
+            image_url = default_storage.url(file_path)
+            if '?' in image_url:
+                image_url = image_url.split('?')[0]
+            original_image_url = f"{settings.BASE_URL}{image_url}"
+            if not original_image_url.startswith(('http://', 'https://')):
+                original_image_url = f"https://{original_image_url.lstrip('/')}"
             restored_image_url = self.generate_restoration_plan(
                 original_image_url,
                 restoration_info
@@ -615,18 +617,19 @@ class PhotoRestorationView(APIView):
            
         try:
             payload = {
-                "model": "recraft/crisp-upscale",
+                "model": "topaz/image-upscale",
                 "input": {
-                    "image": image_url
+                    "image_url": "https://i.pinimg.com/736x/c8/0a/0b/c80a0bb44e283cfd1d8083c5e3b1f8e8.jpg",
+                    "upscale_factor": "2"
                 }
             }            
             headers = {
                 "Content-Type": "application/json",
                 "Authorization": f"Bearer {KIE_API_KEY}"
             }
-            url = "https://api.kie.ai/api/v1/jobs/createTask"            
+            create_task_url = "https://api.kie.ai/api/v1/jobs/createTask"
             create_task_response = requests.post(
-                url,
+                create_task_url,
                 headers=headers,
                 data=json.dumps(payload),
                 timeout=30
@@ -649,10 +652,10 @@ class PhotoRestorationView(APIView):
             while attempt < max_attempts and not result_url:
                 attempt += 1
                 logger.info(f"Попытка {attempt}/{max_attempts} для получения результата задачи {taskId}")
-                url = "https://api.kie.ai/api/v1/jobs/recordInfo"
+                status_url = "https://api.kie.ai/api/v1/jobs/recordInfo"
                 params = {"taskId": taskId}
                 result_response = requests.get(
-                    url,
+                    status_url,
                     headers=headers, 
                     params=params
                 )
@@ -2121,12 +2124,12 @@ class TravelPlannerView(APIView):
                 Ответ должен быть структурирован, информативен и содержать конкретные рекомендации.
             """
             response = client.chat.completions.create(
-                model="openai/gpt-oss-20b:free",
+                model="nvidia/nemotron-3-nano-30b-a3b:free",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt}
                 ],
-                max_tokens=24000
+                max_tokens=8000
             )
             return Response({
                 'travel_plan': response.choices[0].message.content,
