@@ -19,7 +19,7 @@ function AdviceList() {
         const fetchAdvices = async () => {
             try {
                 const response = await axios.get<Advice[]>(
-                    'http://127.0.0.1:8000/api/advice/'
+                    'https://advice-project.onrender.com/api/advice/'
                 );
                 setAdvices(response.data);
             } catch (error) {

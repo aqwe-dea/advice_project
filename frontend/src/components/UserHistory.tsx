@@ -19,7 +19,7 @@ function UserHistory({ userId}: { userId: string}) {
         const fetchHistory = async () => {
             try {
                 const response = await axios.get<HistoryItem[]>(
-                    `http://127.0.0.1"8000/api/user-history/?user_id=${userId}`
+                    `https://advice-project.onrender.com/api/user-history/?user_id=${userId}`
                 );
                 setHistory(response.data);
                 setLoading(false);

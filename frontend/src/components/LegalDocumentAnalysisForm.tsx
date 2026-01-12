@@ -50,7 +50,7 @@ const LegalDocumentAnalysisForm = () => {
       }, 300);
       const formData = new FormData();
       formData.append('file', file);
-      const response = await fetch('/legal-document-analysis/', {
+      const response = await fetch('https://advice-project.onrender.com/legal-document-analysis/', {
         method: 'POST',
         body: formData
       });

@@ -29,7 +29,7 @@ const ChatContainer = styled.div`
 function Chat() {
     useEffect(() => {
         const fetchHistory = async () => {
-            const history = await axios.get('/api/user-history/?email=...');
+            const history = await axios.get('https://advice-project.onrender.com/api/user-history/?email=...');
             setMessages(history.data.map((msg: any) => ({
                 user: msg.question,
                 bot: msg.answer
@@ -66,7 +66,7 @@ function Chat() {
     setInput('');
     setIsLoading(true);
     try {
-      const response = await axios.post('/chat/', { message: input });
+      const response = await axios.post('https://advice-project.onrender.com/chat/', { message: input });
       setMessages(prev => [...prev, { sender: 'aqua', text: response.data.response }]);
     } catch (error) {
       setMessages(prev => [...prev, { 

@@ -10,30 +10,44 @@ import numpy as np
 import re
 import time
 import hashlib
-from PyPDF2 import PdfReader
-from typing import Dict, List
-from .models import Advice, UserHistory
-from .serializers import AdviceSerializer, UserHistorySerializer
-from .utils import send_advice_email
-from huggingface_hub import InferenceClient
-from huggingface_hub import InferenceApi
-from openai import OpenAI
-from rest_framework.views import APIView
-from rest_framework.response import Response
-from rest_framework.decorators import permission_classes
-from rest_framework.permissions import AllowAny
-from rest_framework.decorators import api_view
-from rest_framework import status
-from rest_framework import viewsets
-from rest_framework import response
 from django.conf import settings
 from django.http import JsonResponse
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.utils import timezone
-from PIL import Image
+from datetime import timedelta, datetime
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from typing import Dict, List
+from .models import Advice, UserHistory
+from .serializers import AdviceSerializer, UserHistorySerializer
+from .utils import send_advice_email
+from rest_framework import views
+from rest_framework.views import APIView
+from rest_framework import response
+from rest_framework.response import Response
+from rest_framework import decorators
+from rest_framework.decorators import permission_classes
+from rest_framework.decorators import api_view
+from rest_framework import permissions
+from rest_framework.permissions import AllowAny
+from rest_framework import status
+from rest_framework import viewsets
+from PyPDF2 import _reader
+from PyPDF2._reader import PdfReader
+from PyPDF2 import PdfReader
+from PIL import Image
+from PIL.Image import Image
+from huggingface_hub import InferenceClient
+from huggingface_hub import InferenceApi
+from huggingface_hub import HfApi
+from huggingface_hub import hf_api
+from huggingface_hub.hf_api import HfApi
+from huggingface_hub import inference_api
+from huggingface_hub.inference_api import InferenceApi
+from openai import _client
+from openai._client import OpenAI
+from openai import OpenAI
 
 logger = logging.getLogger(__name__)
 @method_decorator(csrf_exempt, name='dispatch')
@@ -70,7 +84,10 @@ class ChatView(APIView):
                 token=HF_API_KEY
             )
             response = client.chat_completion(
-                messages=[{"role": "user", "content": user_message}],
+                messages=[
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": user_message}
+                ],
                 max_tokens=1800
             )
             ai_response = response.choices[0].message.content
@@ -233,12 +250,12 @@ class GenerateCourseView(APIView):
                 Структура ответа должна четко соответствовать указанным разделам.
             """
             response = client.chat.completions.create(
-                model="kwaipilot/kat-coder-pro:free",
+                model="mistralai/mistral-7b-instruct:free",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt}
                 ],
-                max_tokens=16000,
+                max_tokens=8000,
                 temperature=0.3
             )
             return Response({
@@ -352,12 +369,12 @@ class GenerateCourseView(APIView):
                 Важно: Ответ должен быть профессиональным, детализированным и содержать конкретные примеры!     
             """
             response = client.chat.completions.create(
-                model="kwaipilot/kat-coder-pro:free",
+                model="mistralai/mistral-7b-instruct:free",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt}
                 ],
-                max_tokens=16000,
+                max_tokens=8000,
                 temperature=0.3
             )
             return response.choices[0].message.content
@@ -458,7 +475,10 @@ class LegalDocumentAnalysisView(APIView):
                 token=HF_API_KEY
             )
             response = client.chat_completion(
-                messages=[{"role": "user", "content": prompt}],
+                messages=[
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": prompt}
+                ],
                 max_tokens=1500
             )
             return Response({
@@ -515,14 +535,17 @@ class FinancialAnalysisView(APIView):
                 Ваши рекомендации соответствуют международным стандартам финансовой отчетности (МСФО).
                 Проанализируйте финансовую отчетность: "{financial_data}"
                 Ваш анализ должен включать:
-                    - Расчет ключевых финансовых коэффициентов
-                    - Оценку ликвидности, рентабельности и финансовой устойчивости
-                    - Выявление аномалий и потенциальных мошеннических схем
-                    - Прогнозирование финансовых показателей на следующий период
-                    - Конкретные рекомендации по оптимизации финансовой деятельности
+                - Расчет ключевых финансовых коэффициентов
+                - Оценку ликвидности, рентабельности и финансовой устойчивости
+                - Выявление аномалий и потенциальных мошеннических схем
+                - Прогнозирование финансовых показателей на следующий период
+                - Конкретные рекомендации по оптимизации финансовой деятельности
             """
             response = client.chat_completion(
-                messages=[{"role": "user", "content": prompt}],
+                messages=[
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": prompt}
+                ],
                 max_tokens=1000
             )
             return Response({
@@ -570,13 +593,13 @@ class PhotoRestorationView(APIView):
             'photo_age': request.data.get('photo_age', 'неизвестно')
         }
         file_path = default_storage.save(f'tmp/{image_file.name}', ContentFile(image_file.read()))
+        image_url = default_storage.url(file_path)
+        if '?' in image_url:
+            image_url = image_url.split('?')[0]
         try:
-            image_url = default_storage.url(file_path)
-            if '?' in image_url:
-                image_url = image_url.split('?')[0]
             original_image_url = f"{settings.BASE_URL}{image_url}"
             if not original_image_url.startswith(('http://', 'https://')):
-                original_image_url = f"https://{original_image_url.lstrip('/')}"
+                original_image_url = f"https://{original_image_url.lstrip('/')}" 
             restored_image_url = self.generate_restoration_plan(
                 original_image_url,
                 restoration_info
@@ -591,7 +614,6 @@ class PhotoRestorationView(APIView):
                 original_image_url,
                 restoration_info
             )
-            
             return Response({
                 'restored_url': restored_image_url,
                 'original_url': original_image_url,
@@ -1033,7 +1055,10 @@ class ThreeDToProjectView(APIView):
                 Ответ должен быть структурирован, профессионален и содержать конкретные рекомендации с примерами.
             """
             response = client.chat_completion(
-                messages=[{"role": "user", "content": prompt}],
+                messages=[
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": prompt}
+                ],
                 max_tokens=1400
             )
             return Response({
@@ -1106,8 +1131,11 @@ class HealthRecommendationView(APIView):
                 Ответ должен быть структурирован, безопасен и профессионален.   
             """
             response = client.chat_completion(
-                messages=[{"role": "user", "content": prompt}],
-                max_tokens=1200
+                messages=[
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": prompt}
+                ],
+                max_tokens=800
             )
             return Response({
                 'recommendation': response.choices[0].message.content,
@@ -1930,8 +1958,11 @@ class InvestmentAnalysisView(APIView):
                 Ответ должен быть профессиональным, содержать конкретные цифры и рекомендации.
             """
             response = client.chat_completion(
-                messages=[{"role": "user", "content": prompt}],
-                max_tokens=1800
+                messages=[
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": prompt}
+                ],
+                max_tokens=500
             )
             return Response({
                 'analysis': response.choices[0].message.content,
@@ -2022,8 +2053,11 @@ class MarketingStrategyView(APIView):
                 Ответ должен быть профессиональным, структурированным и содержать конкретные рекомендации с примерами.
             """
             response = client.chat_completion(
-                messages=[{"role": "user", "content": prompt}],
-                max_tokens=1800
+                messages=[
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": prompt}
+                ],
+                max_tokens=600
             )
             return Response({
                 'marketing_strategy': response.choices[0].message.content,
@@ -2124,7 +2158,7 @@ class TravelPlannerView(APIView):
                 Ответ должен быть структурирован, информативен и содержать конкретные рекомендации.
             """
             response = client.chat.completions.create(
-                model="nvidia/nemotron-3-nano-30b-a3b:free",
+                model="tngtech/tng-r1t-chimera:free",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt}
@@ -2222,8 +2256,11 @@ class CompetitorAnalysisView(APIView):
                 Ответ должен быть профессиональным, содержать конкретные цифры и рекомендации.
             """
             response = client.chat_completion(
-                messages=[{"role": "user", "content": prompt}],
-                max_tokens=1000
+                messages=[
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": prompt}
+                ],
+                max_tokens=800
             )
             return Response({
                 'analysis': response.choices[0].message.content,
@@ -2324,7 +2361,10 @@ class CommunicationOptimizationView(APIView):
                 Ответ должен быть профессиональным, содержать конкретные рекомендации и примеры из реальных компаний.
             """
             response = client.chat_completion(
-                messages=[{"role": "user", "content": prompt}],
+                messages=[
+                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "user", "content": prompt}
+                ],
                 max_tokens=900
             )
             return Response({
@@ -2357,44 +2397,38 @@ class AdviceViewSet(viewsets.ModelViewSet):
                 status=status.HTTP_400_BAD_REQUEST
             )
         user_email = request.data.get('email')
+        answer = answers.get(category.lower(), answers['default'])
         advice = response.data.get('answer')
-        if user_email and advice:
-            send_advice_email(user_email, advice)
-            return response
-        return Response(serializer.data, status=status.HTTP_201_CREATED)
-        advice = Advice.objects.create(category=category, question=question, answer=answer)
-        try:
-            advice = Advice.objects.create(
-                category=category,
-                question=question,
-                answer=answer
-            )
-            serializer = self.get_serializer(advice)
-            answer = answers.get(category.lower(), answers['default'])     
-            answers = {
+        answers = {
             'финансы': 'Рекомендую создать бюджет и отслеживать расходы.',
             'здоровье': 'Попробуйте больше двигаться и соблюдать режим сна.',
             'образование': 'Определите свои цели и выберете подходящие курсы.',
             'default': 'Для этого случая у меня есть универсальный совет: Будьте терпеливы!'
-            }
-        except Exception as e:
-            return Response(
-                {'error': f'Произошла ошибка: {str(e)}'},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+        }
+        if user_email and advice:
+            send_advice_email(user_email, advice)
+            return response
+        advice = Advice.objects.create(
+            category=category,
+            question=question,
+            answer=answer
+        )
+        serializer = self.get_serializer(advice)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 class UserHistoryViewSet(viewsets.ModelViewSet):
     queryset = UserHistory.objects.all()
     serializer_class = UserHistorySerializer
     def get_queryset(self):
-        email = self.request.query_params.get('email', None)
-        if email:
-             return UserHistory.objects.filter(email=email)
-        return super().get_queryset()
         user_id = self.request.query_params.get('user_id', None)
         if user_id:
-             return UserHistory.objects.filter(user_id=user_id)
-             return UserHistory.objects.all()
+            return UserHistory.objects.filter(user_id=user_id)
+            return UserHistory.objects.all()
+        email = self.request.query_params.get('email', None)
+        if email:
+            return UserHistory.objects.filter(email=email)
+        return super().get_queryset()
+            
 
 class CreateDetailedAdviceView(APIView):
     def post(self, request, *args, **kwargs):
@@ -2419,13 +2453,10 @@ class CreateDetailedAdviceView(APIView):
 
 class CreateSessionView(APIView):
     def post(self, request, *args, **kwargs):
-        duration = request.data.get('duration', 1)  # по умолчанию 1 час
-        # Проверяем допустимость продолжительности
-        if duration < 1 or duration > 168:  # от 1 часа до 168 часов (неделя)
+        duration = request.data.get('duration', 1)
+        if duration < 1 or duration > 168:
             return Response({'error': 'Недопустимая продолжительность сессии'}, status=status.HTTP_400_BAD_REQUEST)
-        # Создаем токен сессии
         session_token = str(uuid.uuid4())
-        # Создаем новую сессию
         expires_at = timezone.now() + timedelta(hours=duration)
         session = Session.objects.create(
             id=uuid.uuid4(),
@@ -2433,7 +2464,6 @@ class CreateSessionView(APIView):
             duration_hours=duration,
             session_token=session_token
         )
-        # Возвращаем данные сессии
         return Response({
             'session_id': str(session.id),
             'session_token': session_token,
@@ -2445,16 +2475,13 @@ class CreateSessionView(APIView):
 class CreateCheckoutSessionView(APIView):
     def post(self, request, *args, **kwargs):
         duration = request.data.get('duration', 1)
-        # Проверяем допустимость продолжительности
         if duration < 1 or duration > 168:
             return Response({'error': 'Недопустимая продолжительность сессии'}, status=status.HTTP_400_BAD_REQUEST)
-        # Рассчитываем цену (например, 10 рублей за час)
         price = duration * 10
         try:
             stripe.api_key = os.getenv('STRIPE_SECRET_KEY')
             success_url = request.build_absolute_uri('/payment-success?session_id={CHECKOUT_SESSION_ID}')
             cancel_url = request.build_absolute_uri('/payment-cancelled')
-            # Создаем сессию Stripe
             session = stripe.checkout.Session.create(
                 payment_method_types=['card'],
                 line_items=[{
@@ -2463,7 +2490,7 @@ class CreateCheckoutSessionView(APIView):
                         'product_data': {
                             'name': f'Сессия доступа ({duration} часов)',
                         },
-                        'unit_amount': price * 100,  # в копейках
+                        'unit_amount': price * 100,
                     },
                     'quantity': 1,
                 }],
@@ -2515,11 +2542,9 @@ class HandleStripeWebhookView(APIView):
         except stripe.error.SignatureVerificationError as e:
             logger.error(f"Ошибка верификации подписи: {str(e)}")
             return Response(status=status.HTTP_400_BAD_REQUEST)
-        # Обрабатываем событие оплаты
         if event['type'] == 'checkout.session.completed':
             session = event['data']['object']
             duration = int(session['metadata'].get('duration', 1))
-            # Создаем сессию доступа
             expires_at = timezone.now() + timedelta(hours=duration)
             session_token = str(uuid.uuid4())
             Session.objects.create(
@@ -2528,7 +2553,6 @@ class HandleStripeWebhookView(APIView):
                 duration_hours=duration,
                 session_token=session_token
             )
-            # Возвращаем данные для фронтенда
             return Response({
                 'session_token': session_token,
                 'expires_at': expires_at,

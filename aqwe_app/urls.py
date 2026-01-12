@@ -1,6 +1,9 @@
 from rest_framework.routers import DefaultRouter
+from rest_framework import routers, viewsets
 from backend.urls import path
 from backend.urls import include
+from django.conf import settings
+from django.conf.urls.static import static
 from .views import AdviceViewSet
 from .views import UserHistoryViewSet
 from .views import CreatePaymentIntentView
@@ -24,9 +27,6 @@ from .views import CreateSessionView
 from .views import CreateCheckoutSessionView
 from .views import SessionStatusView
 from .views import HandleStripeWebhookView
-from rest_framework import routers, viewsets
-from django.conf import settings
-from django.conf.urls.static import static
 
 router = DefaultRouter()
 router.register(r'advice', AdviceViewSet)

@@ -1,7 +1,7 @@
+import logging
 from django.utils import timezone
 from django.http import JsonResponse
 from .models import Session
-import logging
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +24,6 @@ class SessionMiddleware:
                         'remaining_time': session.remaining_time()
                     }
                 else:
-                    # Сессия истекла, но оставляем информацию для уведомления
                     request.session_data = {
                         'id': str(session.id),
                         'expires_at': session.expires_at,
@@ -34,7 +33,6 @@ class SessionMiddleware:
             except Session.DoesNotExist:
                 logger.warning(f"Сессия не найдена: {session_token}")
         response = self.get_response(request)
-        # Добавляем заголовок для фронтенда
         if hasattr(request, 'session_valid'):
             response['X-Session-Valid'] = str(request.session_valid).lower()
         return response

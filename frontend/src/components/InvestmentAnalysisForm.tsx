@@ -21,7 +21,7 @@ function InvestmentAnalysisForm() {
         setError('');
         try {
             const response = await axios.post(
-                '/investment-analysis/',
+                'https://advice-project.onrender.com/investment-analysis/',
                 { 
                     initial_investment: initialInvestment,
                     expected_return: expectedReturn,
