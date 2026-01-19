@@ -35,7 +35,7 @@ const BusinessPlanForm = () => {
     setIsLoading(true);
     setError(null);    
     try {
-      const response = await fetch('/business-plan/calculate-financial-plan/', {
+      const response = await fetch('https://advice-project.onrender.com/business-plan/calculate-financial-plan/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -66,7 +66,7 @@ const BusinessPlanForm = () => {
     setIsLoading(true);
     setError(null);    
     try {
-      const response = await fetch('/business-plan/generate-marketing-strategy/', {
+      const response = await fetch('https://advice-project.onrender.com/business-plan/generate-marketing-strategy/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -97,7 +97,7 @@ const BusinessPlanForm = () => {
     setIsLoading(true);
     setError(null);    
     try {
-      const response = await fetch('/business-plan/generate-risk-analysis/', {
+      const response = await fetch('https://advice-project.onrender.com/business-plan/generate-risk-analysis/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -128,7 +128,7 @@ const BusinessPlanForm = () => {
     setIsLoading(true);
     setError(null);    
     try {
-      const response = await fetch('/business-plan/generate-action-plan/', {
+      const response = await fetch('https://advice-project.onrender.com/business-plan/generate-action-plan/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -182,7 +182,7 @@ const BusinessPlanForm = () => {
         return;
       }        
       
-      const response = await fetch('/business-plan/', {
+      const response = await fetch('https://advice-project.onrender.com/business-plan/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

@@ -30,13 +30,13 @@ const CourseForm = () => {
     setCourseBook('');
     try {
       const structureResponse = await axios.post(
-        '/generate-course/',
+        'https://advice-project.onrender.com/generate-course/',
         { topic, level },
         { headers: { 'Content-Type': 'application/json' } }
       );
       if (structureResponse.data.course_structure) {
         const bookResponse = await axios.post(
-          '/generate-course/build_course_book/',
+          'https://advice-project.onrender.com/generate-course/build_course_book/',
           { 
             course_structure: structureResponse.data.course_structure,
             course_topic: topic 

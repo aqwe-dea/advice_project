@@ -119,15 +119,15 @@ class GenerateCourseView(APIView):
             return Response({'error': 'Тема курса обязательна для заполнения'}, status=status.HTTP_400_BAD_REQUEST)
         if not learning_objectives:
             return Response({'error': 'Цели обучения обязательны для заполнения'}, status=status.HTTP_400_BAD_REQUEST)
-        OPENROUTER_API_KEY = os.getenv('OPROUT_AQWE_COURSE')
-        if not OPENROUTER_API_KEY:
-            logger.error("API ключ OpenRouter для генерации курсов не настроен")
+        HF_API_KEY = os.getenv('HF_API_KEY')
+        if not HF_API_KEY:
+            logger.error("API ключ Hugging Face не настроен")
             return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
             logger.info(f"Генерация курса по теме: {course_topic} для аудитории: {target_audience}")
-            client = OpenAI(
-                api_key=OPENROUTER_API_KEY,
-                base_url="https://openrouter.ai/api/v1"
+            client = InferenceClient(
+                model="Qwen/Qwen2.5-72B-Instruct",
+                token=HF_API_KEY
             )
             prompt = f"""
                 {SYSTEM_PROMPT}
@@ -249,14 +249,12 @@ class GenerateCourseView(APIView):
                 Ответ должен быть профессиональным, детализированным и содержать конкретные примеры.
                 Структура ответа должна четко соответствовать указанным разделам.
             """
-            response = client.chat.completions.create(
-                model="mistralai/mistral-7b-instruct:free",
+            response = client.chat_completion(
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt}
                 ],
-                max_tokens=8000,
-                temperature=0.3
+                max_tokens=1000
             )
             return Response({
                 'course_structure': response.choices[0].message.content,
@@ -272,7 +270,7 @@ class GenerateCourseView(APIView):
         except Exception as e:
             logger.error(f"Ошибка генерации курса: {str(e)}", exc_info=True)
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    def build_course_book(self, course_structure, course_topic, openrouter_api_key, system_prompt):
+    def build_course_book(self, course_structure, course_topic, HF_API_KEY, system_prompt):
         SYSTEM_PROMPT = """
             Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
             Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
@@ -282,9 +280,9 @@ class GenerateCourseView(APIView):
             Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
         """
         try:
-            client = OpenAI(
-                api_key=openrouter_api_key,
-                base_url="https://openrouter.ai/api/v1"
+            client = InferenceClient(
+                model="Qwen/Qwen2.5-72B-Instruct",
+                token=HF_API_KEY
             )
             min_length = 10000
             max_length = 100000
@@ -368,14 +366,12 @@ class GenerateCourseView(APIView):
                 
                 Важно: Ответ должен быть профессиональным, детализированным и содержать конкретные примеры!     
             """
-            response = client.chat.completions.create(
-                model="mistralai/mistral-7b-instruct:free",
+            response = client.chat_completion(
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt}
                 ],
-                max_tokens=8000,
-                temperature=0.3
+                max_tokens=1000
             )
             return response.choices[0].message.content
         except Exception as e:
@@ -399,16 +395,16 @@ class BuildCourseBookView(APIView):
             return Response({
                 'error': 'Необходимы структура курса и тема курса'
             }, status=status.HTTP_400_BAD_REQUEST)            
-        OPENROUTER_API_KEY = os.getenv('OPROUT_AQWE_COURSE')
-        if not OPENROUTER_API_KEY:
-            logger.error("API ключ OpenRouter для генерации учебника не настроен")
+        HF_API_KEY = os.getenv('HF_API_KEY')
+        if not HF_API_KEY:
+            logger.error("API ключ Hugging Face не настроен")
             return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
             generate_course_view = GenerateCourseView()
             course_book = generate_course_view.build_course_book(
                 course_structure, 
                 course_topic,
-                OPENROUTER_API_KEY,
+                HF_API_KEY,
                 SYSTEM_PROMPT
             )
             return Response({
@@ -596,10 +592,10 @@ class PhotoRestorationView(APIView):
         image_url = default_storage.url(file_path)
         if '?' in image_url:
             image_url = image_url.split('?')[0]
-        try:
-            original_image_url = f"{settings.BASE_URL}{image_url}"
-            if not original_image_url.startswith(('http://', 'https://')):
-                original_image_url = f"https://{original_image_url.lstrip('/')}" 
+        original_image_url = f"{settings.BASE_URL}{image_url}"
+        if not original_image_url.startswith(('http://', 'https://')):
+            original_image_url = f"https://{original_image_url.lstrip('/')}"  
+        try:           
             restored_image_url = self.generate_restoration_plan(
                 original_image_url,
                 restoration_info
@@ -1168,15 +1164,15 @@ class BusinessPlanView(APIView):
         target_market = request.data.get('target_market', 'локальный рынок')
         investment_amount = request.data.get('investment_amount', 'средние инвестиции')
         timeframe = request.data.get('timeframe', '3 года')
-        OPENROUTER_API_KEY = os.getenv('OPROUT_AQWE_BUSINESS')
-        if not OPENROUTER_API_KEY:
-            logger.error("API ключ OpenRouter для бизнес-планов не настроен")
+        HF_API_KEY = os.getenv('HF_API_KEY_BPLN')
+        if not HF_API_KEY:
+            logger.error("API ключ Hugging Face не настроен")
             return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
             logger.info(f"Генерация бизнес-плана для идеи: {business_idea}")
-            client = OpenAI(
-                api_key=OPENROUTER_API_KEY,
-                base_url="https://openrouter.ai/api/v1"
+            client = InferenceClient(
+                model="Qwen/Qwen2.5-72B-Instruct",
+                token=HF_API_KEY
             )
             prompt = f"""
                 {SYSTEM_PROMPT}
@@ -1249,13 +1245,12 @@ class BusinessPlanView(APIView):
                     - Последствия
                     - Меры по минимизации
             """
-            response = client.chat.completions.create(
-                model="qwen/qwen3-coder:free",
+            response = client.chat_completion(
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt}
                 ],
-                max_tokens=32000
+                max_tokens=1000
             )
             return Response({
                 'business_plan': response.choices[0].message.content,
@@ -1743,7 +1738,7 @@ class PresentationGenerationView(APIView):
                     - Указаны конкретные цифры и данные там, где это уместно
             """            
             response = client.chat.completions.create(
-                model="meituan/longcat-flash-chat:free",
+                model="nousresearch/hermes-3-llama-3.1-405b:free",
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt}
@@ -2091,79 +2086,68 @@ class TravelPlannerView(APIView):
         travel_style = request.data.get('travel_style', 'активный отдых')
         group_type = request.data.get('group_type', 'один/одна')
         special_interests = request.data.get('special_interests', 'общие')
-        OPENROUTER_API_KEY = os.getenv('OPROUT_AQWE_TOURISM')
-        if not OPENROUTER_API_KEY:
-            logger.error("API ключ OpenRouter для планировщика путешествий не настроен")
+        HF_API_KEY = os.getenv('HF_API_KEY_TURL')
+        if not HF_API_KEY:
+            logger.error("API ключ Hugging Face не настроен")
             return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
             logger.info(f"Генерация маршрута для путешествия в {destination}")
-            client = OpenAI(
-                api_key=OPENROUTER_API_KEY,
-                base_url="https://openrouter.ai/api/v1"
+            client = InferenceClient(
+                model="Qwen/Qwen2.5-72B-Instruct",
+                token=HF_API_KEY
             )
             prompt = f"""
                 {SYSTEM_PROMPT}
-                Создай подробный план путешествия в {destination} с учетом следующих параметров:
-                    - Бюджет:
-                     {budget}
-                    - Даты путешествия:
-                     {travel_dates}
-                    - Стиль путешествия:
-                     {travel_style}
-                    - Тип группы:
-                     {group_type}
-                    - Специальные интересы:
-                     {special_interests}
+                Создай подробный план путешествия в {destination} 
+                С учетом следующих параметров:
+                    - Бюджет: {budget}
+                    - Даты путешествия: {travel_dates}
+                    - Стиль путешествия: {travel_style}
+                    - Тип группы: {group_type}
+                    - Специальные интересы: {special_interests}
                 План должен включать:
-                    1. Обзор назначения
-                        - Краткое описание места
-                        - Лучшее время для посещения
-                        - Особенности климата в выбранный период
                     
-                    2. Детальный маршрут на каждый день
-                        - Утренние, дневные и вечерние активности
-                        - Время на дорогу между локациями
-                        - Рекомендуемый транспорт
-                    
-                    3. Бюджетный план
-                        - Примерная стоимость проживания
-                        - Стоимость еды и развлечений
-                        - Советы по экономии
-                    
-                    4. Рекомендации по питанию
-                        - Местная кухня, которую стоит попробовать
-                        - Рестораны на разные бюджеты
-                        - Особенности этикета
-                    
-                    5. Культурные особенности
-                        - Что делать и чего не делать
-                        - Полезные фразы на местном языке
-                        - Традиции и праздники в период посещения
-                    
-                    6. Советы по безопасности
-                        - Области для избегания
-                        - Экстренные контакты
-                        - Советы по сохранности личных вещей
-                    
-                    7. Необычные рекомендации
-                        - Места, которые знают только местные
-                        - Уникальные мероприятия
-                        - Скрытые жемчужины
-                    
-                    8. Подготовка к поездке
-                        - Что взять с собой
-                        - Документы и визы
-                        - Медицинские рекомендации
-                
+                1. Обзор назначения
+                    - Краткое описание места
+                    - Лучшее время для посещения
+                    - Особенности климата в выбранный период
+                2. Детальный маршрут на каждый день
+                    - Утренние, дневные и вечерние активности
+                    - Время на дорогу между локациями
+                    - Рекомендуемый транспорт                    
+                3. Бюджетный план
+                    - Примерная стоимость проживания
+                    - Стоимость еды и развлечений
+                    - Советы по экономии                    
+                4. Рекомендации по питанию
+                    - Местная кухня, которую стоит попробовать
+                    - Рестораны на разные бюджеты
+                    - Особенности этикета                    
+                5. Культурные особенности
+                    - Что делать и чего не делать
+                    - Полезные фразы на местном языке
+                    - Традиции и праздники в период посещения                
+                6. Советы по безопасности
+                    - Области для избегания
+                    - Экстренные контакты
+                    - Советы по сохранности личных вещей                    
+                7. Необычные рекомендации
+                    - Места, которые знают только местные
+                    - Уникальные мероприятия
+                    - Скрытые жемчужины                    
+                8. Подготовка к поездке
+                    - Что взять с собой
+                    - Документы и визы
+                    - Медицинские рекомендации
+
                 Ответ должен быть структурирован, информативен и содержать конкретные рекомендации.
             """
-            response = client.chat.completions.create(
-                model="tngtech/tng-r1t-chimera:free",
+            response = client.chat_completion(
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt}
                 ],
-                max_tokens=8000
+                max_tokens=1000
             )
             return Response({
                 'travel_plan': response.choices[0].message.content,
