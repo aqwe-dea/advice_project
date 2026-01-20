@@ -1650,16 +1650,12 @@ class PresentationGenerationView(APIView):
             return Response({
                 'error': 'Название идеи и описание идеи обязательны для заполнения'
             }, status=status.HTTP_400_BAD_REQUEST)        
-        OPENROUTER_API_KEY = os.getenv('OPROUT_AQWE_SLIDES')
-        if not OPENROUTER_API_KEY:
-            logger.error("API ключ OpenRouter для презентаций не настроен")
-            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)        
+        KIE_API_KEY = os.getenv('KIE_AQWE_SLIDES')    
+        if not KIE_API_KEY:
+            logger.warning("KIE_API_KEY не настроен попробуйте позже")
+            return []          
         try:
             logger.info(f"Генерация презентации по идее: {presentation_idea}")
-            client = OpenAI(
-                api_key=OPENROUTER_API_KEY,
-                base_url="https://openrouter.ai/api/v1"
-            )            
             prompt = f"""
                 {SYSTEM_PROMPT}
                 Создайте профессиональную презентацию из 12 слайдов на основе следующей идеи:
@@ -1736,17 +1732,29 @@ class PresentationGenerationView(APIView):
                     - Добавлены примеры и кейсы для иллюстрации концепции
                     - Включены ссылки на дополнительные материалы
                     - Указаны конкретные цифры и данные там, где это уместно
-            """            
-            response = client.chat.completions.create(
-                model="nousresearch/hermes-3-llama-3.1-405b:free",
-                messages=[
-                    {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": prompt}
+            """
+            url = "https://api.kie.ai/gemini-3-flash/v1/chat/completions"
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {KIE_API_KEY}"
+            }
+            payload = {
+                "messages": [
+                    {
+                        "role": "system", "content": SYSTEM_PROMPT,
+                        "role": "user", "content": prompt
+                    }
                 ],
-                max_tokens=8000,
-                temperature=0.3
-            )            
-            presentation = response.choices[0].message.content            
+                "stream": True
+            }
+            response = requests.post(url, headers=headers, data=json.dumps(payload), stream=True)
+            for line in response.iter_lines():
+                if line:
+                    decoded_line = line.decode('utf-8')
+                    if decoded_line.startswith('data: '):
+                        data = json.loads(decoded_line[6:])
+                        return data
+            presentation = data            
             slide_image_prompts = self.extract_image_prompts(presentation)            
             images = self.generate_images_for_slides(slide_image_prompts, presentation_idea)            
             return Response({
