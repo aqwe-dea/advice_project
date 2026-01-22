@@ -637,7 +637,7 @@ class PhotoRestorationView(APIView):
             payload = {
                 "model": "topaz/image-upscale",
                 "input": {
-                    "image_url": "https://i.pinimg.com/736x/c8/0a/0b/c80a0bb44e283cfd1d8083c5e3b1f8e8.jpg",
+                    "image_url": "{image_url}",
                     "upscale_factor": "2"
                 }
             }            
@@ -1741,8 +1741,8 @@ class PresentationGenerationView(APIView):
             payload = {
                 "messages": [
                     {
-                        "role": "system", "content": SYSTEM_PROMPT,
-                        "role": "user", "content": prompt
+                        "role": "system", "content": "{SYSTEM_PROMPT}",
+                        "role": "user", "content": "{prompt}"
                     }
                 ],
                 "stream": True
@@ -1753,8 +1753,9 @@ class PresentationGenerationView(APIView):
                     decoded_line = line.decode('utf-8')
                     if decoded_line.startswith('data: '):
                         data = json.loads(decoded_line[6:])
-                        return data
-            presentation = data            
+                        return Response({'data': choices.delta[6].content})
+            presentation = response.json()
+            data = presentation.get('data', {}).get('choices', []).get('delta', {})
             slide_image_prompts = self.extract_image_prompts(presentation)            
             images = self.generate_images_for_slides(slide_image_prompts, presentation_idea)            
             return Response({
