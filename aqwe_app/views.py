@@ -53,6 +53,108 @@ logger = logging.getLogger(__name__)
 @method_decorator(csrf_exempt, name='dispatch')
 @permission_classes([AllowAny])
 
+def call_gemini_flash_api(api_key, system_prompt, user_prompt, base64_image, file_ext, stream=True, include_thoughts=True, reasoning_effort="high"):
+    """Вызывает API Gemini 3 Flash с правильной структурой запроса"""
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": f"Bearer {api_key}"
+    }
+    
+    # Правильная структура сообщений
+    payload = {
+        "messages": [
+            {
+                "role": "system",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": system_prompt
+                    }
+                ]
+            },
+            {
+                "role": "user",
+                "content": [
+                    {
+                        "type": "text",
+                        "text": user_prompt
+                    },
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": f"data:image/{file_ext[1:]};base64,{base64_image}"
+                        }
+                    }
+                ]
+            }
+        ],
+        "stream": stream,
+        "include_thoughts": include_thoughts,
+        "reasoning_effort": reasoning_effort
+    }
+    
+    url = "https://api.kie.ai/gemini-3-pro/v1/chat/completions"
+    
+    try:
+        response = requests.post(
+            url,
+            headers=headers,
+            data=json.dumps(payload),
+            stream=stream,
+            timeout=60
+        )
+        
+        if not stream:
+            # Обработка непотокового ответа
+            if response.status_code == 200:
+                return response.json()
+            else:
+                logger.error(f"Ошибка API: {response.status_code} - {response.text}")
+                return None
+                
+        # Обработка потокового ответа
+        full_response = ""
+        reasoning_content = ""
+        credits_consumed = 0
+        
+        for line in response.iter_lines():
+            if line:
+                decoded_line = line.decode('utf-8')
+                if decoded_line.startswith('data: '):
+                    data = json.loads(decoded_line[6:])
+                    
+                    # Проверяем, есть ли choices
+                    if data.get('choices') and len(data['choices']) > 0:
+                        delta = data['choices'][0].get('delta', {})
+                        
+                        # Собираем текстовый контент
+                        content = delta.get('content', '')
+                        if content:
+                            full_response += content
+                        
+                        # Собираем контент рассуждений
+                        reasoning = delta.get('reasoning_content', '')
+                        if reasoning:
+                            reasoning_content += reasoning
+                    
+                    # Проверяем, есть ли credits_consumed в последнем чанке
+                    if data.get('credits_consumed') is not None:
+                        credits_consumed = data['credits_consumed']
+                    
+                    # Проверяем, является ли последний чанк
+                    if decoded_line.strip() == 'data: [DONE]':
+                        break
+        
+        return {
+            'text': full_response,
+            'reasoning': reasoning_content,
+            'credits_consumed': credits_consumed
+        }
+            
+    except Exception as e:
+        logger.error(f"Ошибка вызова Gemini API: {str(e)}", exc_info=True)
+        return None
+        
 class ChatView(APIView):
     def post(self, request, *args, **kwargs):
         SYSTEM_PROMPT = """
@@ -569,6 +671,8 @@ class PhotoRestorationView(APIView):
             Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами.
         """
         image_file = request.FILES['image']
+        image_data = image_file.read()
+        base64_image = base64.b64encode(image_data).decode('utf-8')
         if 'image' not in request.FILES:
             return Response(
                 {'error': 'Изображение не предоставлено'},
@@ -626,7 +730,7 @@ class PhotoRestorationView(APIView):
         finally:
             if default_storage.exists(file_path):
                 default_storage.delete(file_path)
-    def generate_restoration_plan(self, image_url, restoration_info):
+    def generate_restoration_plan(self, image_url, base64_image, file_ext, restoration_info):
         """Генерирует план реставрации через KIE.ai"""
         KIE_API_KEY = os.getenv('KIE_AQWE_SLIDES')        
         if not KIE_API_KEY:
@@ -637,7 +741,9 @@ class PhotoRestorationView(APIView):
             payload = {
                 "model": "topaz/image-upscale",
                 "input": {
-                    "image_url": "{image_url}",
+                    "image_url": {
+                        "url": f"data:image/{file_ext[1:]};base64,{base64_image}"
+                    },
                     "upscale_factor": "2"
                 }
             }            
@@ -769,9 +875,9 @@ class MedicalImageView(APIView):
         }
         file_path = default_storage.save(f'tmp/{image_file.name}', ContentFile(image_file.read()))
         try:
-            OPENROUTER_API_KEY = os.getenv('OPROUT_AQWE_MEDICINE')
-            if not OPENROUTER_API_KEY:
-                logger.error("API ключ OpenRouter для для медицинского анализа не настроен")
+            KIE_API_KEY = os.getenv('KIE_AQWE_SLIDES')
+            if not KIE_API_KEY:
+                logger.error("API ключ KIE для медицинского анализа не настроен")
                 return Response(
                     {'error': 'API ключ не настроен'}, 
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR
@@ -779,12 +885,16 @@ class MedicalImageView(APIView):
             image_description = self.analyze_image(
                 base64_image, 
                 file_ext, 
-                OPENROUTER_API_KEY
+                KIE_API_KEY,
+                SYSTEM_PROMPT
             )
             medical_analysis = self.generate_medical_analysis(
                 image_description, 
                 patient_info,
-                OPENROUTER_API_KEY
+                base64_image, 
+                file_ext,
+                KIE_API_KEY,
+                SYSTEM_PROMPT
             )
             return Response({
                 'image_description': image_description,
@@ -801,21 +911,14 @@ class MedicalImageView(APIView):
         finally:
             if 'file_path' in locals() and default_storage.exists(file_path):
                 default_storage.delete(file_path)
-    def analyze_image(self, base64_image, file_ext, openrouter_api_key):
+    def analyze_image(self, base64_image, file_ext, kie_api_key, system_prompt):
         try:
-            client = OpenAI(
-                api_key=openrouter_api_key,
-                base_url="https://openrouter.ai/api/v1"
-            )
             prompt = """
                 Вы - Советница АКВИ, профессиональный медицинский консультант с экспертизой в интерпретации медицинских изображений.
                 Вы говорите на русском языке и используете профессиональную медицинскую терминологию с пояснениями для пациента.
 
                 Пожалуйста проанализируйте изображение: 
-                    - {image}
-
-                И Опишите медицинское изображение: 
-                    - {base64_image}
+                    - Изображение в формате base64: {base64_image}
                     
                 1. Определите тип изображения:
                     - Это рентген, УЗИ, МРТ, КТ или другой тип?
@@ -849,13 +952,30 @@ class MedicalImageView(APIView):
                 Если вы не уверены в каком-то аспекте, честно укажите это и объясните, почему требуется консультация специалиста.
                 Помните: это не замена профессиональной медицинской консультации.
             """
-            response = client.chat.completions.create(
-                model="google/gemma-3-4b-it:free",
-                messages = [
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {kie_api_key}"
+            }
+    
+            # Правильная структура сообщений
+            payload = {
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": system_prompt
+                            }
+                        ]
+                    },
                     {
                         "role": "user",
                         "content": [
-                            {"type": "text", "text": prompt},
+                            {
+                                "type": "text",
+                                "text": prompt
+                            },
                             {
                                 "type": "image_url",
                                 "image_url": {
@@ -865,14 +985,67 @@ class MedicalImageView(APIView):
                         ]
                     }
                 ],
-                max_tokens=3000,
-                temperature=0.4
-            )
-            return response.choices[0].message.content
+                "stream": True,
+                "include_thoughts": True,
+                "reasoning_effort": "high"
+            }
+    
+            url = "https://api.kie.ai/gemini-3-pro/v1/chat/completions"
+    
+            try:
+                response = requests.post(
+                    url,
+                    headers=headers,
+                    data=json.dumps(payload),
+                    stream=True,
+                    timeout=60
+                )
+                # Обработка потокового ответа
+                full_response = ""
+                reasoning_content = ""
+                credits_consumed = 0
+        
+                for line in response.iter_lines():
+                    if line:
+                        decoded_line = line.decode('utf-8')
+                        if decoded_line.startswith('data: '):
+                            data = json.loads(decoded_line[6:])
+                    
+                            # Проверяем, есть ли choices
+                            if data.get('choices') and len(data['choices']) > 0:
+                                delta = data['choices'][0].get('delta', {})
+                        
+                                # Собираем текстовый контент
+                                content = delta.get('content', '')
+                                if content:
+                                    full_response += content
+                        
+                                # Собираем контент рассуждений
+                                reasoning = delta.get('reasoning_content', '')
+                                if reasoning:
+                                    reasoning_content += reasoning
+                    
+                            # Проверяем, есть ли credits_consumed в последнем чанке
+                            if data.get('credits_consumed') is not None:
+                                credits_consumed = data['credits_consumed']
+                    
+                            # Проверяем, является ли последний чанк
+                            if decoded_line.strip() == 'data: [DONE]':
+                                break
+        
+                return {
+                    'text': full_response,
+                    'reasoning': reasoning_content,
+                    'credits_consumed': credits_consumed
+                }
+            
+            except Exception as e:
+                logger.error(f"Ошибка вызова Gemini API: {str(e)}", exc_info=True)
+                return None
         except Exception as e:
             logger.error(f"Ошибка анализа изображения: {str(e)}")
             return "Не удалось проанализировать изображение"
-    def generate_medical_analysis(self, image_description, patient_info, openrouter_api_key):
+    def generate_medical_analysis(self, image_description, patient_info, base64_image, file_ext, kie_api_key, system_prompt):
         SYSTEM_PROMPT = """
             Вы - Советница АКВИ, профессиональный медицинский консультант с экспертными знаниями в диагностике и лечении заболеваний.
             Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
@@ -882,10 +1055,6 @@ class MedicalImageView(APIView):
             Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
         """
         try:
-            client = OpenAI(
-                api_key=openrouter_api_key,
-                base_url="https://openrouter.ai/api/v1"
-            )
             prompt = f"""
                 {SYSTEM_PROMPT}
                 Проведите комплексный медицинский анализ на основе следующих данных:
@@ -940,16 +1109,96 @@ class MedicalImageView(APIView):
                 Важно: Это не заменяет профессиональную медицинскую консультацию.
                 Ответ должен быть структурирован, безопасен и профессионален.
             """
-            response = client.chat.completions.create(
-                model="google/gemini-2.0-flash-exp:free",
-                messages=[
-                    {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": prompt}
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {kie_api_key}"
+            }
+    
+            # Правильная структура сообщений
+            payload = {
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": system_prompt
+                            }
+                        ]
+                    },
+                    {
+                        "role": "user",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": prompt
+                            },
+                            {
+                                "type": "image_url",
+                                "image_url": {
+                                    "url": f"data:image/{file_ext[1:]};base64,{base64_image}"
+                                }
+                            }
+                        ]
+                    }
                 ],
-                max_tokens=16000,
-                temperature=0.4
-            )
-            return response.choices[0].message.content
+                "stream": True,
+                "include_thoughts": True,
+                "reasoning_effort": "high"
+            }
+    
+            url = "https://api.kie.ai/gemini-3-pro/v1/chat/completions"
+    
+            try:
+                response = requests.post(
+                    url,
+                    headers=headers,
+                    data=json.dumps(payload),
+                    stream=True,
+                    timeout=60
+                )
+                # Обработка потокового ответа
+                full_response = ""
+                reasoning_content = ""
+                credits_consumed = 0
+        
+                for line in response.iter_lines():
+                    if line:
+                        decoded_line = line.decode('utf-8')
+                        if decoded_line.startswith('data: '):
+                            data = json.loads(decoded_line[6:])
+                    
+                            # Проверяем, есть ли choices
+                            if data.get('choices') and len(data['choices']) > 0:
+                                delta = data['choices'][0].get('delta', {})
+                        
+                                # Собираем текстовый контент
+                                content = delta.get('content', '')
+                                if content:
+                                    full_response += content
+                        
+                                # Собираем контент рассуждений
+                                reasoning = delta.get('reasoning_content', '')
+                                if reasoning:
+                                    reasoning_content += reasoning
+                    
+                            # Проверяем, есть ли credits_consumed в последнем чанке
+                            if data.get('credits_consumed') is not None:
+                                credits_consumed = data['credits_consumed']
+                    
+                            # Проверяем, является ли последний чанк
+                            if decoded_line.strip() == 'data: [DONE]':
+                                break
+        
+                return {
+                    'text': full_response,
+                    'reasoning': reasoning_content,
+                    'credits_consumed': credits_consumed
+                }
+            
+            except Exception as e:
+                logger.error(f"Ошибка вызова Gemini API: {str(e)}", exc_info=True)
+                return None
         except Exception as e:
             logger.error(f"Ошибка генерации медицинского анализа: {str(e)}")
             return "Не удалось сгенерировать медицинский анализ"
@@ -1733,33 +1982,95 @@ class PresentationGenerationView(APIView):
                     - Включены ссылки на дополнительные материалы
                     - Указаны конкретные цифры и данные там, где это уместно
             """
-            url = "https://api.kie.ai/gemini-3-flash/v1/chat/completions"
             headers = {
                 "Content-Type": "application/json",
                 "Authorization": f"Bearer {KIE_API_KEY}"
             }
+    
+            # Правильная структура сообщений
             payload = {
                 "messages": [
                     {
-                        "role": "system", "content": "{SYSTEM_PROMPT}",
-                        "role": "user", "content": "{prompt}"
+                        "role": "system",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": SYSTEM_PROMPT
+                            }
+                        ]
+                    },
+                    {
+                        "role": "user",
+                        "content": [
+                            {
+                                "type": "text",
+                                "text": prompt
+                            }
+                        ]
                     }
                 ],
-                "stream": True
+                "stream": True,
+                "include_thoughts": True,
+                "reasoning_effort": "high"
             }
-            response = requests.post(url, headers=headers, data=json.dumps(payload), stream=True)
-            for line in response.iter_lines():
-                if line:
-                    decoded_line = line.decode('utf-8')
-                    if decoded_line.startswith('data: '):
-                        data = json.loads(decoded_line[6:])
-                        return Response({'data': choices.delta[6].content})
-            presentation = response.json()
-            data = presentation.get('data', {}).get('choices', []).get('delta', {})
+    
+            url = "https://api.kie.ai/gemini-3-pro/v1/chat/completions"
+    
+            try:
+                response = requests.post(
+                    url,
+                    headers=headers,
+                    data=json.dumps(payload),
+                    stream=True,
+                    timeout=60
+                )
+                # Обработка потокового ответа
+                full_response = ""
+                reasoning_content = ""
+                credits_consumed = 0
+        
+                for line in response.iter_lines():
+                    if line:
+                        decoded_line = line.decode('utf-8')
+                        if decoded_line.startswith('data: '):
+                            data = json.loads(decoded_line[6:])
+                    
+                            # Проверяем, есть ли choices
+                            if data.get('choices') and len(data['choices']) > 0:
+                                delta = data['choices'][0].get('delta', {})
+                        
+                                # Собираем текстовый контент
+                                content = delta.get('content', '')
+                                if content:
+                                    full_response += content
+                        
+                                # Собираем контент рассуждений
+                                reasoning = delta.get('reasoning_content', '')
+                                if reasoning:
+                                    reasoning_content += reasoning
+                    
+                            # Проверяем, есть ли credits_consumed в последнем чанке
+                            if data.get('credits_consumed') is not None:
+                                credits_consumed = data['credits_consumed']
+                    
+                            # Проверяем, является ли последний чанк
+                            if decoded_line.strip() == 'data: [DONE]':
+                                break
+        
+                return {
+                    'text': full_response,
+                    'reasoning': reasoning_content,
+                    'credits_consumed': credits_consumed
+                }
+            
+            except Exception as e:
+                logger.error(f"Ошибка вызова Gemini API: {str(e)}", exc_info=True)
+                return None
+            presentation_text = response.get('text')
             slide_image_prompts = self.extract_image_prompts(presentation)            
             images = self.generate_images_for_slides(slide_image_prompts, presentation_idea)            
             return Response({
-                'presentation': presentation,
+                'presentation': presentation_text,
                 'presentation_idea': presentation_idea,
                 'presentation_description': presentation_description,
                 'images': images
@@ -2154,9 +2465,9 @@ class TravelPlannerView(APIView):
             response = client.chat_completion(
                 messages=[
                     {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": prompt}
-                ],
-                max_tokens=1000
+                    {"role": "user", "content": prompt},
+                    {"max_new_tokens": "3000"}
+                ]
             )
             return Response({
                 'travel_plan': response.choices[0].message.content,

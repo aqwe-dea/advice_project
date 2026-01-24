@@ -65,7 +65,7 @@ const MedicalImageAnalysisForm = () => {
       formData.append('symptoms', patientInfo.symptoms);
       formData.append('medical_history', patientInfo.medical_history);
       formData.append('imaging_type', patientInfo.imaging_type);
-      const response = await fetch('/medical-image-analysis/', {
+      const response = await fetch('https://advice-project.onrender.com/medical-image-analysis/', {
         method: 'POST',
         body: formData
       });
