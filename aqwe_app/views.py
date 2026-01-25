@@ -53,41 +53,15 @@ logger = logging.getLogger(__name__)
 @method_decorator(csrf_exempt, name='dispatch')
 @permission_classes([AllowAny])
 
-def call_gemini_flash_api(api_key, system_prompt, user_prompt, base64_image, file_ext, stream=True, include_thoughts=True, reasoning_effort="high"):
-    """Вызывает API Gemini 3 Flash с правильной структурой запроса"""
+def call_gemini_flash_api(api_key, messages, stream=True, include_thoughts=True, reasoning_effort="high"):
+    """Вызывает API Gemini 3 Flash с правильной обработкой потока"""
     headers = {
         "Content-Type": "application/json",
         "Authorization": f"Bearer {api_key}"
     }
     
-    # Правильная структура сообщений
     payload = {
-        "messages": [
-            {
-                "role": "system",
-                "content": [
-                    {
-                        "type": "text",
-                        "text": system_prompt
-                    }
-                ]
-            },
-            {
-                "role": "user",
-                "content": [
-                    {
-                        "type": "text",
-                        "text": user_prompt
-                    },
-                    {
-                        "type": "image_url",
-                        "image_url": {
-                            "url": f"data:image/{file_ext[1:]};base64,{base64_image}"
-                        }
-                    }
-                ]
-            }
-        ],
+        "messages": messages,
         "stream": stream,
         "include_thoughts": include_thoughts,
         "reasoning_effort": reasoning_effort
@@ -105,50 +79,60 @@ def call_gemini_flash_api(api_key, system_prompt, user_prompt, base64_image, fil
         )
         
         if not stream:
-            # Обработка непотокового ответа
             if response.status_code == 200:
                 return response.json()
             else:
                 logger.error(f"Ошибка API: {response.status_code} - {response.text}")
                 return None
-                
+        
         # Обработка потокового ответа
         full_response = ""
         reasoning_content = ""
-        credits_consumed = 0
         
         for line in response.iter_lines():
-            if line:
-                decoded_line = line.decode('utf-8')
-                if decoded_line.startswith('data: '):
-                    data = json.loads(decoded_line[6:])
+            if not line:
+                continue
+                
+            decoded_line = line.decode('utf-8').strip()
+            
+            # Проверяем формат строки
+            if decoded_line.startswith('data:'):
+                # Убираем префикс "data:"
+                json_str = decoded_line[6:].strip()
+                
+                # Пропускаем [DONE]
+                if json_str == "[DONE]":
+                    continue
                     
-                    # Проверяем, есть ли choices
-                    if data.get('choices') and len(data['choices']) > 0:
+                try:
+                    data = json.loads(json_str)
+                    
+                    # Обрабатываем данные
+                    if 'choices' in data and len(data['choices']) > 0:
                         delta = data['choices'][0].get('delta', {})
                         
-                        # Собираем текстовый контент
-                        content = delta.get('content', '')
-                        if content:
-                            full_response += content
-                        
-                        # Собираем контент рассуждений
-                        reasoning = delta.get('reasoning_content', '')
-                        if reasoning:
-                            reasoning_content += reasoning
-                    
-                    # Проверяем, есть ли credits_consumed в последнем чанке
-                    if data.get('credits_consumed') is not None:
-                        credits_consumed = data['credits_consumed']
-                    
-                    # Проверяем, является ли последний чанк
-                    if decoded_line.strip() == 'data: [DONE]':
-                        break
+                        # Собираем основной контент
+                        if 'content' in delta and delta['content']:
+                            full_response += delta['content']
+                            
+                        # Собираем рассуждения
+                        if 'reasoning_content' in delta and delta['reasoning_content']:
+                            reasoning_content += delta['reasoning_content']
+                            
+                        # Проверяем на окончание
+                        if 'finish_reason' in data['choices'][0] and data['choices'][0]['finish_reason'] == "stop":
+                            break
+                            
+                except json.JSONDecodeError as e:
+                    logger.error(f"Ошибка парсинга JSON: {e} | Строка: {json_str}")
+                    continue
+                except Exception as e:
+                    logger.error(f"Ошибка обработки чанка: {str(e)} | Данные: {decoded_line}")
+                    continue
         
         return {
             'text': full_response,
-            'reasoning': reasoning_content,
-            'credits_consumed': credits_consumed
+            'reasoning': reasoning_content
         }
             
     except Exception as e:
@@ -884,9 +868,7 @@ class MedicalImageView(APIView):
                 )
             image_description = self.analyze_image(
                 base64_image, 
-                file_ext, 
-                KIE_API_KEY,
-                SYSTEM_PROMPT
+                file_ext
             )
             medical_analysis = self.generate_medical_analysis(
                 image_description, 
@@ -911,8 +893,15 @@ class MedicalImageView(APIView):
         finally:
             if 'file_path' in locals() and default_storage.exists(file_path):
                 default_storage.delete(file_path)
-    def analyze_image(self, base64_image, file_ext, kie_api_key, system_prompt):
+    def analyze_image(self, base64_image, file_ext):
         try:
+            KIE_API_KEY = os.getenv('KIE_AQWE_SLIDES')
+            if not KIE_API_KEY:
+                logger.error("API ключ KIE для медицинского анализа не настроен")
+                return Response(
+                    {'error': 'API ключ не настроен'}, 
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
             prompt = """
                 Вы - Советница АКВИ, профессиональный медицинский консультант с экспертизой в интерпретации медицинских изображений.
                 Вы говорите на русском языке и используете профессиональную медицинскую терминологию с пояснениями для пациента.
@@ -954,7 +943,7 @@ class MedicalImageView(APIView):
             """
             headers = {
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {kie_api_key}"
+                "Authorization": f"Bearer {KIE_API_KEY}"
             }
     
             # Правильная структура сообщений
@@ -965,7 +954,14 @@ class MedicalImageView(APIView):
                         "content": [
                             {
                                 "type": "text",
-                                "text": system_prompt
+                                "text": """
+                                    Вы - Советница АКВИ, профессиональный медицинский консультант с экспертными знаниями в диагностике и лечении заболеваний.
+                                    Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
+                                    Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
+                                    Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
+                                    Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
+                                    Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами.
+                                """
                             }
                         ]
                     },
@@ -974,12 +970,64 @@ class MedicalImageView(APIView):
                         "content": [
                             {
                                 "type": "text",
-                                "text": prompt
+                                "text": f"""
+                                    Проведите комплексный медицинский анализ на основе следующих данных:
+                                
+                                    Пожалуйста проанализируйте изображение: 
+                                        - Изображение в формате base64: {base64_image}
+                                    
+                                    Информация о пациенте:
+                                        - Возраст: {patient_info['age']}
+                                        - Пол: {patient_info['gender']}
+                                        - Симптомы: {patient_info['symptoms']}
+                                        - Медицинская история: {patient_info['medical_history']}
+                                        - Тип изображения: {patient_info['imaging_type']}
+                                
+                                    Ваш анализ должен включать:
+                                        1. Интерпретация результатов
+                                            - Подробное описание выявленных аномалий
+                                            - Сравнение с нормой
+                                            - Оценка степени тяжести выявленных изменений
+                                    
+                                        2. Диагностические рекомендации
+                                            - Какие дополнительные исследования могут понадобиться
+                                            - Какие специалисты должны быть привлечены
+                                            - Какие лабораторные анализы рекомендованы
+                                    
+                                        3. Возможные диагнозы
+                                            - Основные предполагаемые диагнозы (в порядке вероятности)
+                                            - Дифференциальная диагностика
+                                            - Критерии, подтверждающие или исключающие каждый диагноз
+                                        
+                                        4. Рекомендации по лечению
+                                            - Неотложные меры, если они необходимы
+                                            - Консервативные методы лечения
+                                            - Хирургические варианты, если применимо
+                                            - Рекомендации по медикаментозной терапии
+                                        
+                                        5. Рекомендации по наблюдению
+                                            - Как часто следует проводить контрольные исследования
+                                            - Какие показатели необходимо отслеживать
+                                            - При каких условиях требуется срочное обращение к врачу
+                                        
+                                        6. Прогноз
+                                            - Краткосрочный прогноз
+                                            - Долгосрочный прогноз
+                                            - Факторы, которые могут повлиять на прогноз
+                                        
+                                        7. Рекомендации по образу жизни
+                                            - Диетические рекомендации
+                                            - Физическая активность
+                                            - Психологические аспекты и рекомендации
+                                
+                                    Важно: Это не заменяет профессиональную медицинскую консультацию.
+                                    Ответ должен быть структурирован, безопасен и профессионален.
+                                """
                             },
                             {
                                 "type": "image_url",
                                 "image_url": {
-                                    "url": f"data:image/{file_ext[1:]};base64,{base64_image}"
+                                    "url": f"""data:image/{file_ext[1:]};base64,{base64_image}"""
                                 }
                             }
                         ]
@@ -1000,45 +1048,36 @@ class MedicalImageView(APIView):
                     stream=True,
                     timeout=60
                 )
-                # Обработка потокового ответа
                 full_response = ""
-                reasoning_content = ""
-                credits_consumed = 0
-        
+                reasoning_content = ""        
                 for line in response.iter_lines():
-                    if line:
-                        decoded_line = line.decode('utf-8')
-                        if decoded_line.startswith('data: '):
-                            data = json.loads(decoded_line[6:])
-                    
-                            # Проверяем, есть ли choices
-                            if data.get('choices') and len(data['choices']) > 0:
-                                delta = data['choices'][0].get('delta', {})
-                        
-                                # Собираем текстовый контент
-                                content = delta.get('content', '')
-                                if content:
-                                    full_response += content
-                        
-                                # Собираем контент рассуждений
-                                reasoning = delta.get('reasoning_content', '')
-                                if reasoning:
-                                    reasoning_content += reasoning
-                    
-                            # Проверяем, есть ли credits_consumed в последнем чанке
-                            if data.get('credits_consumed') is not None:
-                                credits_consumed = data['credits_consumed']
-                    
-                            # Проверяем, является ли последний чанк
-                            if decoded_line.strip() == 'data: [DONE]':
-                                break
-        
+                    if not line:
+                        continue                
+                    decoded_line = line.decode('utf-8').strip()                    
+                    if decoded_line.startswith('data:'):
+                        json_str = decoded_line[6:].strip()
+                        if json_str == "[DONE]":
+                            continue
+                        try:
+                            data = json.loads(json_str)
+                            if 'choices' in data and len(data['choices']) > 0:
+                                delta = data['choices'][0].get('delta', {})                            
+                                if 'content' in delta and delta['content']:
+                                    full_response += delta['content']
+                                if 'reasoning_content' in delta and delta['reasoning_content']:
+                                    reasoning_content += delta['reasoning_content']
+                                if 'finish_reason' in data['choices'][0] and data['choices'][0]['finish_reason'] == "stop":
+                                    break
+                        except json.JSONDecodeError as e:
+                            logger.error(f"Ошибка парсинга JSON: {e} | Строка: {json_str}")
+                            continue
+                        except Exception as e:
+                            logger.error(f"Ошибка обработки чанка: {str(e)} | Данные: {decoded_line}")
+                            continue        
                 return {
                     'text': full_response,
-                    'reasoning': reasoning_content,
-                    'credits_consumed': credits_consumed
-                }
-            
+                    'reasoning': reasoning_content
+                }     
             except Exception as e:
                 logger.error(f"Ошибка вызова Gemini API: {str(e)}", exc_info=True)
                 return None
@@ -1122,7 +1161,7 @@ class MedicalImageView(APIView):
                         "content": [
                             {
                                 "type": "text",
-                                "text": system_prompt
+                                "text": f"{system_prompt}"
                             }
                         ]
                     },
@@ -1131,7 +1170,7 @@ class MedicalImageView(APIView):
                         "content": [
                             {
                                 "type": "text",
-                                "text": prompt
+                                "text": f"{prompt}"
                             },
                             {
                                 "type": "image_url",
@@ -1886,7 +1925,7 @@ class PresentationGenerationView(APIView):
     def post(self, request, *args, **kwargs):
         logger.info(f"Получен запрос на генерацию презентации: {request.data}")
         SYSTEM_PROMPT = """
-            Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областей.
+            Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
             Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
             Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
             Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
@@ -1902,172 +1941,111 @@ class PresentationGenerationView(APIView):
         KIE_API_KEY = os.getenv('KIE_AQWE_SLIDES')    
         if not KIE_API_KEY:
             logger.warning("KIE_API_KEY не настроен попробуйте позже")
-            return []          
+            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+          
         try:
             logger.info(f"Генерация презентации по идее: {presentation_idea}")
-            prompt = f"""
-                {SYSTEM_PROMPT}
-                Создайте профессиональную презентацию из 12 слайдов на основе следующей идеи:
-                    НАЗВАНИЕ ИДЕИ:
-                     {presentation_idea}
-                    ОПИСАНИЕ ИДЕИ:
-                     {presentation_description}
-                ВАЖНО: Ответ должен быть строго структурирован как указано ниже, без дополнительных комментариев.
-                
-                # ПРОФЕССИОНАЛЬНАЯ ПРЕЗЕНТАЦИЯ
             
-                ## 1. ТИТУЛЬНЫЙ СЛАЙД
-                    - Название презентации
-                    - Автор/Компания
-                    - Дата
-
-                ## 2. ВВЕДЕНИЕ
-                    - Краткое описание идеи
-                    - Цели и задачи
-                    - Актуальность
-            
-                ## 3. ПРОБЛЕМА/ВЫЗОВ
-                    - Описание текущей ситуации
-                    - Выявленные проблемы
-                    - Последствия бездействия
-            
-                ## 4. РЕШЕНИЕ
-                    - Основная идея решения
-                    - Ключевые аспекты реализации
-                    - Преимущества перед аналогами
-            
-                ## 5. МЕТОДОЛОГИЯ
-                    - Пошаговый план действий
-                    - Используемые инструменты и подходы
-                    - Сроки реализации
-            
-                ## 6. ПРЕИМУЩЕСТВА
-                    - Конкретные выгоды для аудитории
-                    - Качественные и количественные результаты
-                    - Долгосрочные перспективы
-            
-                ## 7. ПРАКТИЧЕСКИЕ ПРИМЕРЫ
-                    - Кейсы применения
-                    - Результаты внедрения
-                    - Визуальные иллюстрации концепции
-            
-                ## 8. ФИНАНСОВЫЙ АСПЕКТ
-                    - Инвестиции и ресурсы
-                    - Окупаемость
-                    - Экономическая эффективность
-            
-                ## 9. РИСКИ И ИХ МИНИМИЗАЦИЯ
-                    - Потенциальные риски
-                    - Стратегии снижения рисков
-                    - Планы на случай непредвиденных ситуаций
-            
-                ## 10. СЛЕДУЮЩИЕ ШАГИ
-                    - Ближайшие действия
-                    - Необходимые ресурсы
-                    - Ответственные лица и сроки
-            
-                ## 11. КОНТАКТНАЯ ИНФОРМАЦИЯ
-                    - Имя, должность
-                    - Email, телефон
-                    - Социальные сети
-            
-                ## 12. ДОПОЛНИТЕЛЬНЫЕ МАТЕРИАЛЫ
-                    - Список рекомендуемой литературы
-                    - Полезные ссылки и ресурсы
-                    - Глоссарий терминов
-            
-                Дополнительные рекомендации:
-                    - Для каждого слайда указаны конкретные изображения, которые необходимо сгенерировать
-                    - Добавлены примеры и кейсы для иллюстрации концепции
-                    - Включены ссылки на дополнительные материалы
-                    - Указаны конкретные цифры и данные там, где это уместно
-            """
-            headers = {
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {KIE_API_KEY}"
-            }
-    
             # Правильная структура сообщений
-            payload = {
-                "messages": [
-                    {
-                        "role": "system",
-                        "content": [
-                            {
-                                "type": "text",
-                                "text": SYSTEM_PROMPT
-                            }
-                        ]
-                    },
-                    {
-                        "role": "user",
-                        "content": [
-                            {
-                                "type": "text",
-                                "text": prompt
-                            }
-                        ]
-                    }
-                ],
-                "stream": True,
-                "include_thoughts": True,
-                "reasoning_effort": "high"
-            }
-    
-            url = "https://api.kie.ai/gemini-3-pro/v1/chat/completions"
-    
-            try:
-                response = requests.post(
-                    url,
-                    headers=headers,
-                    data=json.dumps(payload),
-                    stream=True,
-                    timeout=60
-                )
-                # Обработка потокового ответа
-                full_response = ""
-                reasoning_content = ""
-                credits_consumed = 0
-        
-                for line in response.iter_lines():
-                    if line:
-                        decoded_line = line.decode('utf-8')
-                        if decoded_line.startswith('data: '):
-                            data = json.loads(decoded_line[6:])
-                    
-                            # Проверяем, есть ли choices
-                            if data.get('choices') and len(data['choices']) > 0:
-                                delta = data['choices'][0].get('delta', {})
+            messages = [
+                {
+                    "role": "system",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": SYSTEM_PROMPT
+                        }
+                    ]
+                },
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": f"""
+                            Создайте профессиональную презентацию из 12 слайдов на основе следующей идеи:
+                                НАЗВАНИЕ ИДЕИ: {presentation_idea}
+                                ОПИСАНИЕ ИДЕИ: {presentation_description}
+                            ВАЖНО: Ответ должен быть строго структурирован как указано ниже, без дополнительных комментариев.
+                            
+                            # ПРОФЕССИОНАЛЬНАЯ ПРЕЗЕНТАЦИЯ
                         
-                                # Собираем текстовый контент
-                                content = delta.get('content', '')
-                                if content:
-                                    full_response += content
-                        
-                                # Собираем контент рассуждений
-                                reasoning = delta.get('reasoning_content', '')
-                                if reasoning:
-                                    reasoning_content += reasoning
-                    
-                            # Проверяем, есть ли credits_consumed в последнем чанке
-                            if data.get('credits_consumed') is not None:
-                                credits_consumed = data['credits_consumed']
-                    
-                            # Проверяем, является ли последний чанк
-                            if decoded_line.strip() == 'data: [DONE]':
-                                break
-        
-                return {
-                    'text': full_response,
-                    'reasoning': reasoning_content,
-                    'credits_consumed': credits_consumed
+                            ## 1. ТИТУЛЬНЫЙ СЛАЙД
+                                - Название презентации
+                                - Автор/Компания
+                                - Дата
+                            ## 2. ВВЕДЕНИЕ
+                                - Краткое описание идеи
+                                - Цели и задачи
+                                - Актуальность
+                            ## 3. ПРОБЛЕМА/ВЫЗОВ
+                                - Описание текущей ситуации
+                                - Выявленные проблемы
+                                - Последствия бездействия
+                            ## 4. РЕШЕНИЕ
+                                - Основная идея решения
+                                - Ключевые аспекты реализации
+                                - Преимущества перед аналогами
+                            ## 5. МЕТОДОЛОГИЯ
+                                - Пошаговый план действий
+                                - Используемые инструменты и подходы
+                                - Сроки реализации
+                            ## 6. ПРЕИМУЩЕСТВА
+                                - Конкретные выгоды для аудитории
+                                - Качественные и количественные результаты
+                                - Долгосрочные перспективы
+                            ## 7. ПРАКТИЧЕСКИЕ ПРИМЕРЫ
+                                - Кейсы применения
+                                - Результаты внедрения
+                                - Визуальные иллюстрации концепции
+                            ## 8. ФИНАНСОВЫЙ АСПЕКТ
+                                - Инвестиции и ресурсы
+                                - Окупаемость
+                                - Экономическая эффективность
+                            ## 9. РИСКИ И ИХ МИНИМИЗАЦИЯ
+                                - Потенциальные риски
+                                - Стратегии снижения рисков
+                                - Планы на случай непредвиденных ситуаций
+                            ## 10. СЛЕДУЮЩИЕ ШАГИ
+                                - Ближайшие действия
+                                - Необходимые ресурсы
+                                - Ответственные лица и сроки
+                            ## 11. КОНТАКТНАЯ ИНФОРМАЦИЯ
+                                - Имя, должность
+                                - Email, телефон
+                                - Социальные сети
+                            ## 12. ДОПОЛНИТЕЛЬНЫЕ МАТЕРИАЛЫ
+                                - Список рекомендуемой литературы
+                                - Полезные ссылки и ресурсы
+                                - Глоссарий терминов
+                            Дополнительные рекомендации:
+                                - Для каждого слайда указаны конкретные изображения, которые необходимо сгенерировать
+                                - Добавлены примеры и кейсы для иллюстрации концепции
+                                - Включены ссылки на дополнительные материалы
+                                - Указаны конкретные цифры и данные там, где это уместно
+                            """
+                        }
+                    ]
                 }
+            ]
             
-            except Exception as e:
-                logger.error(f"Ошибка вызова Gemini API: {str(e)}", exc_info=True)
-                return None
-            presentation_text = response.get('text')
-            slide_image_prompts = self.extract_image_prompts(presentation)            
+            # Вызываем API с правильной обработкой потока
+            api_response = call_gemini_flash_api(
+                api_key=KIE_API_KEY,
+                messages=messages,
+                stream=True,
+                include_thoughts=True,
+                reasoning_effort="high"
+            )
+            
+            if not api_response or not api_response.get('text'):
+                logger.error("Не удалось получить ответ от API")
+                return Response({
+                    'error': 'Не удалось сгенерировать презентацию. Попробуйте позже.'
+                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+                
+            presentation_text = api_response['text']
+            slide_image_prompts = self.extract_image_prompts(presentation_text)            
             images = self.generate_images_for_slides(slide_image_prompts, presentation_idea)            
             return Response({
                 'presentation': presentation_text,
@@ -2077,10 +2055,12 @@ class PresentationGenerationView(APIView):
             })
         except Exception as e:
             logger.error(f"Ошибка генерации презентации: {str(e)}", exc_info=True)
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)    
+            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
     def extract_image_prompts(self, presentation_text):
         """Извлекает промпты для изображений из текста презентации"""
-        image_prompts = []        
+        image_prompts = []
+        
         slides_content = {
             "1": "Титульный слайд с названием презентации и профессиональным фоном, минималистичный стиль",
             "2": "Введение с иллюстрацией основной идеи, профессиональный дизайн",
@@ -2094,76 +2074,98 @@ class PresentationGenerationView(APIView):
             "10": "Следующие шаги с таймлайном и визуализацией плана, пошаговая инфографика",
             "11": "Контактная информация с профессиональным фоном, корпоративный стиль",
             "12": "Дополнительные материалы с иллюстрацией ресурсов, список литературы и ссылок"
-        }        
+        }
+        
         for slide_num, prompt in slides_content.items():
             image_prompts.append({
                 "slide_number": int(slide_num),
                 "prompt": f"Professional presentation slide {slide_num}: {prompt}, clean corporate style, modern design, no text on image, 16:9 aspect ratio"
-            })        
-        return image_prompts    
+            })
+        
+        return image_prompts
+    
     def generate_images_for_slides(self, image_prompts, presentation_idea):
-        """Генерирует изображения для слайдов через KIE AI с использованием Google Banana Nano"""
+        """Генерирует изображения для слайдов через KIE AI"""
         images = []
         KIE_API_KEY = os.getenv('KIE_AQWE_SLIDES')    
+        
         if not KIE_API_KEY:
             logger.warning("KIE_API_KEY not set, skipping image generation")
-            return []    
+            return []
+        
         try:
             for prompt_data in image_prompts:
                 slide_num = prompt_data['slide_number']
                 prompt = prompt_data['prompt']
+                
                 logger.info(f"Генерация изображения для слайда {slide_num} с промптом: {prompt}")
-                payload = {
-                    "model": "google/nano-banana",
-                    "input": {
-                        "prompt": f"Professional presentation slide about '{presentation_idea}'. {prompt}. Clean corporate style, modern design, no text on image, high quality, business visualization",
-                        "output_format": "png",
-                        "image_size": "16:9"
-                    }
-                }            
+                
+                # Создаем задачу на генерацию изображения
                 headers = {
                     "Content-Type": "application/json",
                     "Authorization": f"Bearer {KIE_API_KEY}"
-                }                            
+                }
+                
+                payload = {
+                    "model": "google/nano-banana",
+                    "input": {
+                        "prompt": f"Professional presentation slide about '{presentation_idea}'. {prompt}. Clean corporate style, modern design, no text on image, high quality, business visualization"
+                    }
+                }
+                
                 create_task_response = requests.post(
                     "https://api.kie.ai/api/v1/jobs/createTask",
                     headers=headers,
                     data=json.dumps(payload),
-                    timeout=30
-                )            
+                    timeout=60
+                )
+                
                 if create_task_response.status_code != 200:
                     logger.error(f"Ошибка создания задачи для слайда {slide_num}: {create_task_response.status_code} - {create_task_response.text}")
-                    continue            
+                    continue
+                
                 task_data = create_task_response.json()
-                id = task_data.get('taskId') or task_data.get('data', {}).get('taskId')            
-                if not id:
+                task_id = task_data.get('taskId') or task_data.get('data', {}).get('taskId')
+                
+                if not task_id:
                     logger.error(f"Не удалось получить taskId для слайда {slide_num}: {task_data}")
-                    continue            
-                logger.info(f"Задача создана для слайда {slide_num}, taskId: {id}")                            
+                    continue
+                
+                logger.info(f"Задача создана для слайда {slide_num}, taskId: {task_id}")
+                
+                # Проверяем статус задачи
                 max_attempts = 30
                 attempt = 0
-                image_url = None            
+                image_url = None
+                
                 while attempt < max_attempts and not image_url:
                     attempt += 1
-                    logger.info(f"Попытка {attempt}/{max_attempts} для получения результата задачи {id}")                                    
-                    result_url = f"https://api.kie.ai/api/v1/jobs/recordInfo?taskId={id}"
-                    result_response = requests.get(
-                        result_url,
+                    logger.info(f"Попытка {attempt}/{max_attempts} для получения результата задачи {task_id}")
+                    
+                    status_url = f"https://api.kie.ai/api/v1/jobs/recordInfo?taskId={task_id}"
+                    status_response = requests.get(
+                        status_url,
                         headers=headers,
                         timeout=30
-                    )                
-                    if result_response.status_code != 200:
-                        logger.error(f"Ошибка получения результата для taskId {id}: {result_response.status_code} - {result_response.text}")
+                    )
+                    
+                    if status_response.status_code != 200:
+                        logger.error(f"Ошибка получения статуса для taskId {task_id}: {status_response.status_code} - {status_response.text}")
                         time.sleep(2)
-                        continue                
-                    result_data = result_response.json()
-                    logger.debug(f"Данные результата для задачи {id}: {json.dumps(result_data, indent=2)}")                                    
-                    task_status = result_data.get('data', {}).get('state') or result_data.get('msg')                
-                    if task_status == "success":                        
-                        result_json = result_data.get('data', {}).get('resultJson')
+                        continue
+                    
+                    status_data = status_response.json()
+                    logger.debug(f"Данные результата для задачи {task_id}: {json.dumps(status_data, indent=2)}")
+                    
+                    task_status = status_data.get('msg') or status_data.get('data', {}).get('state')
+                    
+                    if task_status == "success":
+                        result_json = status_data.get('data', {}).get('resultJson')
                         if result_json:
-                            try:                                
-                                result_parsed = json.loads(result_json)                                
+                            try:
+                                # Парсим JSON из строки
+                                result_parsed = json.loads(result_json)
+                                # Извлекаем URL из поля resultUrls
                                 result_urls = result_parsed.get('resultUrls', [])
                                 if result_urls and isinstance(result_urls, list) and len(result_urls) > 0:
                                     image_url = result_urls[0].strip()
@@ -2173,30 +2175,33 @@ class PresentationGenerationView(APIView):
                             except json.JSONDecodeError as e:
                                 logger.error(f"Ошибка парсинга resultJson: {str(e)} - {result_json}")
                         else:
-                            logger.error(f"resultJson не найден в ответе: {result_data}")
+                            logger.error(f"resultJson не найден в ответе: {status_data}")
                     elif task_status in ["FAILED", "fail", "failure"]:
-                        error_msg = result_data.get('data', {}).get('failMsg') or result_data.get('msg') or "Неизвестная ошибка"
-                        logger.error(f"Задача {id} завершилась с ошибкой: {error_msg}")
+                        error_msg = status_data.get('data', {}).get('failMsg') or status_data.get('message') or "Неизвестная ошибка"
+                        logger.error(f"Задача {task_id} завершилась с ошибкой: {error_msg}")
                         break
                     else:
-                        logger.info(f"Задача {id} в статусе {task_status}, ожидание...")
-                        time.sleep(3)                            
+                        logger.info(f"Задача {task_id} в статусе {task_status}, ожидание...")
+                        time.sleep(3)
+                
+                # Сохраняем изображение, если оно было получено
                 if image_url:
-                    try:                        
-                        if not image_url.startswith(('http://', 'https://')):
-                            logger.error(f"Невалидный URL изображения: {image_url}")
-                            continue                    
+                    try:
                         image_response = requests.get(image_url, timeout=60)
                         if image_response.status_code != 200:
                             logger.error(f"Ошибка загрузки изображения {image_url}: {image_response.status_code} - {image_response.text}")
-                            continue                    
+                            continue
+                        
                         image_data = image_response.content
                         image_name = f"slide_{slide_num}_{abs(hash(presentation_idea)) % (10 ** 8)}.png"
-                        file_path = default_storage.save(f'tmp/{image_name}', ContentFile(image_data))                                        
+                        file_path = default_storage.save(f'tmp/{image_name}', ContentFile(image_data))
+                        
+                        # Формируем правильный URL для отображения
                         if settings.DEBUG:
-                            image_url = default_storage.url(file_path)
+                            image_url = f"{settings.MEDIA_URL}{file_path}"
                         else:
-                            image_url = f"{settings.MEDIA_URL}{file_path}"                    
+                            image_url = default_storage.url(file_path)
+                        
                         images.append({
                             'slide_number': slide_num,
                             'image_url': image_url,
@@ -2205,14 +2210,13 @@ class PresentationGenerationView(APIView):
                         logger.info(f"Изображение для слайда {slide_num} успешно сохранено: {image_url}")
                     except Exception as e:
                         logger.error(f"Ошибка при сохранении изображения для слайда {slide_num}: {str(e)}", exc_info=True)
-                else:                   
+                else:
                     logger.error(f"Не удалось получить изображение для слайда {slide_num} после {max_attempts} попыток")
-                    if task_status == "success":
-                        logger.error(f"Задача {id} успешно завершена, но URL изображения не найден. Данные результата: {json.dumps(result_data, indent=2)}")        
-            return images        
+        
         except Exception as e:
             logger.error(f"Критическая ошибка при генерации изображений: {str(e)}", exc_info=True)
-            return []
+        
+        return images
 
 class InvestmentAnalysisView(APIView):
     def post(self, request, *args, **kwargs):
