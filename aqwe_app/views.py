@@ -2387,7 +2387,6 @@ class MarketingStrategyView(APIView):
                         - Стратегии преодоления
                 Ответ должен быть профессиональным, структурированным и содержать конкретные рекомендации с примерами.
             """
-            url = "https://models.github.ai/inference/chat/completions"
 
             headers = {
                 "Content-Type": "application/json",
@@ -2408,7 +2407,7 @@ class MarketingStrategyView(APIView):
             }
             
             response = requests.post(
-                url,
+                "https://models.github.ai/inference/chat/completions",
                 headers=headers,
                 data=json.dumps(payload)
             )
@@ -2529,7 +2528,6 @@ class TravelPlannerView(APIView):
 
                 Ответ должен быть структурирован, информативен и содержать конкретные рекомендации.
             """
-            url = "https://api.mistral.ai/v1/chat/completions"
 
             headers = {
                 "Content-Type": "application/json",
@@ -2547,7 +2545,7 @@ class TravelPlannerView(APIView):
             }
             
             response = requests.post(
-                url,
+                "https://api.mistral.ai/v1/chat/completions",
                 headers=headers,
                 data=json.dumps(payload)
             )
