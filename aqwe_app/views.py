@@ -67,15 +67,12 @@ def call_gemini_flash_api(api_key, messages, stream=True, include_thoughts=True,
         "reasoning_effort": reasoning_effort
     }
     
-    url = "https://api.kie.ai/gemini-3-pro/v1/chat/completions"
-    
     try:
         response = requests.post(
-            url,
+            "https://api.kie.ai/gemini-3-pro/v1/chat/completions",
             headers=headers,
             data=json.dumps(payload),
-            stream=stream,
-            timeout=60
+            stream=stream
         )
         
         if not stream:
@@ -722,25 +719,20 @@ class PhotoRestorationView(APIView):
             return None 
            
         try:
-            payload = {
-                "model": "topaz/image-upscale",
-                "input": {
-                    "image_url": {
-                        "url": f"data:image/{file_ext[1:]};base64,{base64_image}"
-                    },
-                    "upscale_factor": "2"
-                }
-            }            
             headers = {
                 "Content-Type": "application/json",
                 "Authorization": f"Bearer {KIE_API_KEY}"
             }
-            create_task_url = "https://api.kie.ai/api/v1/jobs/createTask"
+            payload = {
+                "model": "recraft/crisp-upscale",
+                "input": [
+                    {"image": f"data:image/{file_ext[1:]};base64,{base64_image}"}
+                ]
+            }
             create_task_response = requests.post(
-                create_task_url,
+                "https://api.kie.ai/api/v1/jobs/createTask",
                 headers=headers,
-                data=json.dumps(payload),
-                timeout=30
+                data=json.dumps(payload)
             )            
             if create_task_response.status_code != 200:
                 logger.error(f"Ошибка создания задачи: {create_task_response.status_code} - {create_task_response.text}")
@@ -760,12 +752,15 @@ class PhotoRestorationView(APIView):
             while attempt < max_attempts and not result_url:
                 attempt += 1
                 logger.info(f"Попытка {attempt}/{max_attempts} для получения результата задачи {taskId}")
-                status_url = "https://api.kie.ai/api/v1/jobs/recordInfo"
                 params = {"taskId": taskId}
+                headers = {
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {KIE_API_KEY}"
+                }
                 result_response = requests.get(
-                    status_url,
-                    headers=headers, 
-                    params=params
+                    "https://api.kie.ai/api/v1/jobs/recordInfo",
+                    params=params,
+                    headers=headers
                 )
                 if result_response.status_code != 200:
                     logger.error(f"Ошибка получения статуса для taskId {taskId}: {result_response.status_code} - {result_response.text}")
@@ -773,13 +768,13 @@ class PhotoRestorationView(APIView):
                     continue                
                 result_data = result_response.json()
                 logger.debug(f"Данные результата для задачи {taskId}: {json.dumps(result_data, indent=2)}")
-                task_status = result_data.get('msg') or result_data.get('data', {}).get('state')
+                task_status = result_data.get('data', {}).get('state')
                 if task_status == "success":
-                    result_json = result_data.get('data', {}).get('resultJson', {}) or result_data.get('resultJson', {}).get('resultUrls', [])
+                    result_json = result_data.get('data', {}).get('resultJson', {})
                     if result_json:
                         try:
                             result_parsed = json.loads(result_json)
-                            result_urls = result_parsed.get('resultUrls', []) or result_parsed.get('resultJson', {}).get('resultUrls', [])
+                            result_urls = result_parsed.get('resultJson', {}).get('resultUrls', [])
                             if result_urls and isinstance(result_urls, list) and len(result_urls) > 0:
                                 result_url = result_urls[0].strip()
                                 logger.info(f"Изображение успешно восстановлено: {result_url}")
@@ -950,22 +945,6 @@ class MedicalImageView(APIView):
             payload = {
                 "messages": [
                     {
-                        "role": "system",
-                        "content": [
-                            {
-                                "type": "text",
-                                "text": """
-                                    Вы - Советница АКВИ, профессиональный медицинский консультант с экспертными знаниями в диагностике и лечении заболеваний.
-                                    Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
-                                    Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
-                                    Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
-                                    Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
-                                    Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами.
-                                """
-                            }
-                        ]
-                    },
-                    {
                         "role": "user",
                         "content": [
                             {
@@ -974,7 +953,7 @@ class MedicalImageView(APIView):
                                     Проведите комплексный медицинский анализ на основе следующих данных:
                                 
                                     Пожалуйста проанализируйте изображение: 
-                                        - Изображение в формате base64: {base64_image}
+                                        - Изображение в формате base64
                                     
                                     Информация о пациенте:
                                         - Возраст: {patient_info['age']}
@@ -1026,9 +1005,9 @@ class MedicalImageView(APIView):
                             },
                             {
                                 "type": "image_url",
-                                "image_url": {
-                                    "url": f"""data:image/{file_ext[1:]};base64,{base64_image}"""
-                                }
+                                "image_url": [
+                                    {"url": f"""data:image/{file_ext[1:]};base64,{base64_image}"""}
+                                ]
                             }
                         ]
                     }
@@ -1038,15 +1017,12 @@ class MedicalImageView(APIView):
                 "reasoning_effort": "high"
             }
     
-            url = "https://api.kie.ai/gemini-3-pro/v1/chat/completions"
-    
             try:
                 response = requests.post(
-                    url,
+                    "https://api.kie.ai/gemini-3-pro/v1/chat/completions",
                     headers=headers,
                     data=json.dumps(payload),
-                    stream=True,
-                    timeout=60
+                    stream=True
                 )
                 full_response = ""
                 reasoning_content = ""        
@@ -1161,7 +1137,7 @@ class MedicalImageView(APIView):
                         "content": [
                             {
                                 "type": "text",
-                                "text": f"{system_prompt}"
+                                "text": "Вы - Советница АКВИ, профессиональный медицинский консультант с экспертными знаниями в диагностике и лечении заболеваний. Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации. Вы говорите на русском языке и используете форматированный ответ с четкой структурой. Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ. Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных медицинских источниках. Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации."
                             }
                         ]
                     },
@@ -1170,13 +1146,60 @@ class MedicalImageView(APIView):
                         "content": [
                             {
                                 "type": "text",
-                                "text": f"{prompt}"
+                                "text": f"""Проведите комплексный медицинский анализ на основе следующих данных:
+                                    {
+                                        "Описание изображения": [
+                                            {"base64_image": {image_description}}
+                                        ]
+                                    },
+                                    {
+                                        "Информация о пациенте": [
+                                            {"Возраст": patient_info['age']},
+                                            {"Пол": patient_info['gender']},
+                                            {"Симптомы": patient_info['symptoms']},
+                                            {"Медицинская история": patient_info['medical_history']},
+                                            {"Тип изображения": patient_info['imaging_type']}
+                                        ]
+                                    }
+                                    Ваш анализ должен включать:
+                                    1. Интерпретация результатов
+                                    - Подробное описание выявленных аномалий
+                                    - Сравнение с нормой
+                                    - Оценка степени тяжести выявленных изменений
+                                    2. Диагностические рекомендации
+                                    - Какие дополнительные исследования могут понадобиться
+                                    - Какие специалисты должны быть привлечены
+                                    - Какие лабораторные анализы рекомендованы
+                                    3. Возможные диагнозы
+                                    - Основные предполагаемые диагнозы (в порядке вероятности)
+                                    - Дифференциальная диагностика
+                                    - Критерии, подтверждающие или исключающие каждый диагноз                    
+                                    4. Рекомендации по лечению
+                                    - Неотложные меры, если они необходимы
+                                    - Консервативные методы лечения
+                                    - Хирургические варианты, если применимо
+                                    - Рекомендации по медикаментозной терапии
+                                    5. Рекомендации по наблюдению
+                                    - Как часто следует проводить контрольные исследования
+                                    - Какие показатели необходимо отслеживать
+                                    - При каких условиях требуется срочное обращение к врачу
+                                    6. Прогноз
+                                    - Краткосрочный прогноз
+                                    - Долгосрочный прогноз
+                                    - Факторы, которые могут повлиять на прогноз
+                                    7. Рекомендации по образу жизни
+                                    - Диетические рекомендации
+                                    - Физическая активность
+                                    - Психологические аспекты и рекомендации
+                                    Важно: Это не заменяет профессиональную медицинскую консультацию.
+                                    Ответ должен быть структурирован, безопасен и профессионален.
+                                    """
                             },
                             {
                                 "type": "image_url",
-                                "image_url": {
-                                    "url": f"data:image/{file_ext[1:]};base64,{base64_image}"
-                                }
+                                "image_url": [
+                                    {"url": f"data:image/{file_ext[1:]};base64,{base64_image}"}
+                                ]
                             }
                         ]
                     }
@@ -1186,15 +1209,12 @@ class MedicalImageView(APIView):
                 "reasoning_effort": "high"
             }
     
-            url = "https://api.kie.ai/gemini-3-pro/v1/chat/completions"
-    
             try:
                 response = requests.post(
-                    url,
+                    "https://api.kie.ai/gemini-3-pro/v1/chat/completions",
                     headers=headers,
                     data=json.dumps(payload),
-                    stream=True,
-                    timeout=60
+                    stream=True
                 )
                 # Обработка потокового ответа
                 full_response = ""
@@ -1953,7 +1973,7 @@ class PresentationGenerationView(APIView):
                     "content": [
                         {
                             "type": "text",
-                            "text": SYSTEM_PROMPT
+                            "text": "Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях. Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации. Вы говорите на русском языке и используете форматированный ответ с четкой структурой. Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ. Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках. Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами."
                         }
                     ]
                 },
@@ -1962,63 +1982,64 @@ class PresentationGenerationView(APIView):
                     "content": [
                         {
                             "type": "text",
-                            "text": f"""
-                            Создайте профессиональную презентацию из 12 слайдов на основе следующей идеи:
-                                НАЗВАНИЕ ИДЕИ: {presentation_idea}
-                                ОПИСАНИЕ ИДЕИ: {presentation_description}
-                            ВАЖНО: Ответ должен быть строго структурирован как указано ниже, без дополнительных комментариев.
-                            
-                            # ПРОФЕССИОНАЛЬНАЯ ПРЕЗЕНТАЦИЯ
-                        
-                            ## 1. ТИТУЛЬНЫЙ СЛАЙД
+                            "text": f"""Создайте профессиональную презентацию из 12 слайдов на основе следующей идеи: 
+                                {
+                                    "параметры идеи": [
+                                        {"НАЗВАНИЕ ИДЕИ": {presentation_idea}},
+                                        {"ОПИСАНИЕ ИДЕИ": {presentation_description}}
+                                    ]
+                                }
+                                ВАЖНО: Ответ должен быть строго структурирован как указано ниже, без дополнительных комментариев.
+                                # ПРОФЕССИОНАЛЬНАЯ ПРЕЗЕНТАЦИЯ
+                                ## 1. ТИТУЛЬНЫЙ СЛАЙД
                                 - Название презентации
                                 - Автор/Компания
                                 - Дата
-                            ## 2. ВВЕДЕНИЕ
+                                ## 2. ВВЕДЕНИЕ
                                 - Краткое описание идеи
                                 - Цели и задачи
                                 - Актуальность
-                            ## 3. ПРОБЛЕМА/ВЫЗОВ
+                                ## 3. ПРОБЛЕМА/ВЫЗОВ
                                 - Описание текущей ситуации
                                 - Выявленные проблемы
                                 - Последствия бездействия
-                            ## 4. РЕШЕНИЕ
+                                ## 4. РЕШЕНИЕ
                                 - Основная идея решения
                                 - Ключевые аспекты реализации
                                 - Преимущества перед аналогами
-                            ## 5. МЕТОДОЛОГИЯ
+                                ## 5. МЕТОДОЛОГИЯ
                                 - Пошаговый план действий
                                 - Используемые инструменты и подходы
                                 - Сроки реализации
-                            ## 6. ПРЕИМУЩЕСТВА
+                                ## 6. ПРЕИМУЩЕСТВА
                                 - Конкретные выгоды для аудитории
                                 - Качественные и количественные результаты
                                 - Долгосрочные перспективы
-                            ## 7. ПРАКТИЧЕСКИЕ ПРИМЕРЫ
+                                ## 7. ПРАКТИЧЕСКИЕ ПРИМЕРЫ
                                 - Кейсы применения
                                 - Результаты внедрения
                                 - Визуальные иллюстрации концепции
-                            ## 8. ФИНАНСОВЫЙ АСПЕКТ
+                                ## 8. ФИНАНСОВЫЙ АСПЕКТ
                                 - Инвестиции и ресурсы
                                 - Окупаемость
                                 - Экономическая эффективность
-                            ## 9. РИСКИ И ИХ МИНИМИЗАЦИЯ
+                                ## 9. РИСКИ И ИХ МИНИМИЗАЦИЯ
                                 - Потенциальные риски
                                 - Стратегии снижения рисков
                                 - Планы на случай непредвиденных ситуаций
-                            ## 10. СЛЕДУЮЩИЕ ШАГИ
+                                ## 10. СЛЕДУЮЩИЕ ШАГИ
                                 - Ближайшие действия
                                 - Необходимые ресурсы
                                 - Ответственные лица и сроки
-                            ## 11. КОНТАКТНАЯ ИНФОРМАЦИЯ
+                                ## 11. КОНТАКТНАЯ ИНФОРМАЦИЯ
                                 - Имя, должность
                                 - Email, телефон
                                 - Социальные сети
-                            ## 12. ДОПОЛНИТЕЛЬНЫЕ МАТЕРИАЛЫ
+                                ## 12. ДОПОЛНИТЕЛЬНЫЕ МАТЕРИАЛЫ
                                 - Список рекомендуемой литературы
                                 - Полезные ссылки и ресурсы
                                 - Глоссарий терминов
-                            Дополнительные рекомендации:
+                                Дополнительные рекомендации:
                                 - Для каждого слайда указаны конкретные изображения, которые необходимо сгенерировать
                                 - Добавлены примеры и кейсы для иллюстрации концепции
                                 - Включены ссылки на дополнительные материалы
@@ -2116,8 +2137,7 @@ class PresentationGenerationView(APIView):
                 create_task_response = requests.post(
                     "https://api.kie.ai/api/v1/jobs/createTask",
                     headers=headers,
-                    data=json.dumps(payload),
-                    timeout=60
+                    data=json.dumps(payload)
                 )
                 
                 if create_task_response.status_code != 200:
@@ -2125,13 +2145,13 @@ class PresentationGenerationView(APIView):
                     continue
                 
                 task_data = create_task_response.json()
-                task_id = task_data.get('taskId') or task_data.get('data', {}).get('taskId')
+                taskId = task_data.get('data', {}).get('taskId')
                 
-                if not task_id:
+                if not taskId:
                     logger.error(f"Не удалось получить taskId для слайда {slide_num}: {task_data}")
                     continue
                 
-                logger.info(f"Задача создана для слайда {slide_num}, taskId: {task_id}")
+                logger.info(f"Задача создана для слайда {slide_num}, taskId: {taskId}")
                 
                 # Проверяем статус задачи
                 max_attempts = 30
@@ -2140,24 +2160,27 @@ class PresentationGenerationView(APIView):
                 
                 while attempt < max_attempts and not image_url:
                     attempt += 1
-                    logger.info(f"Попытка {attempt}/{max_attempts} для получения результата задачи {task_id}")
-                    
-                    status_url = f"https://api.kie.ai/api/v1/jobs/recordInfo?taskId={task_id}"
+                    logger.info(f"Попытка {attempt}/{max_attempts} для получения результата задачи {taskId}")
+                    params = {"taskId": taskId}
+                    headers = {
+                        "Content-Type": "application/json",
+                        "Authorization": f"Bearer {KIE_API_KEY}"
+                    }
                     status_response = requests.get(
-                        status_url,
-                        headers=headers,
-                        timeout=30
+                        "https://api.kie.ai/api/v1/jobs/recordInfo",
+                        params=params,
+                        headers=headers
                     )
                     
                     if status_response.status_code != 200:
-                        logger.error(f"Ошибка получения статуса для taskId {task_id}: {status_response.status_code} - {status_response.text}")
+                        logger.error(f"Ошибка получения статуса для taskId {taskId}: {status_response.status_code} - {status_response.text}")
                         time.sleep(2)
                         continue
                     
                     status_data = status_response.json()
-                    logger.debug(f"Данные результата для задачи {task_id}: {json.dumps(status_data, indent=2)}")
+                    logger.debug(f"Данные результата для задачи {taskId}: {json.dumps(status_data, indent=2)}")
                     
-                    task_status = status_data.get('msg') or status_data.get('data', {}).get('state')
+                    task_status = status_data.get('data', {}).get('state')
                     
                     if task_status == "success":
                         result_json = status_data.get('data', {}).get('resultJson')
@@ -2166,7 +2189,7 @@ class PresentationGenerationView(APIView):
                                 # Парсим JSON из строки
                                 result_parsed = json.loads(result_json)
                                 # Извлекаем URL из поля resultUrls
-                                result_urls = result_parsed.get('resultUrls', [])
+                                result_urls = result_parsed.get('resultJson', {}).get('resulUrls', [])
                                 if result_urls and isinstance(result_urls, list) and len(result_urls) > 0:
                                     image_url = result_urls[0].strip()
                                     logger.info(f"Изображение успешно сгенерировано для слайда {slide_num}: {image_url}")
@@ -2178,10 +2201,10 @@ class PresentationGenerationView(APIView):
                             logger.error(f"resultJson не найден в ответе: {status_data}")
                     elif task_status in ["FAILED", "fail", "failure"]:
                         error_msg = status_data.get('data', {}).get('failMsg') or status_data.get('message') or "Неизвестная ошибка"
-                        logger.error(f"Задача {task_id} завершилась с ошибкой: {error_msg}")
+                        logger.error(f"Задача {taskId} завершилась с ошибкой: {error_msg}")
                         break
                     else:
-                        logger.info(f"Задача {task_id} в статусе {task_status}, ожидание...")
+                        logger.info(f"Задача {taskId} в статусе {task_status}, ожидание...")
                         time.sleep(3)
                 
                 # Сохраняем изображение, если оно было получено
@@ -2303,43 +2326,45 @@ class MarketingStrategyView(APIView):
             Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
             Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
             Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
-            Вы не говорите, что вы ИИ или Qwen - вы всегда представляетесь как Советница АКВИ.
+            Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
             Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
-            Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
+            Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами.
         """
+        
         idea = request.data.get('idea', '')
         if not idea:
-            return Response({'error': 'Идея не указана'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {'error': 'Идея не указана'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
         target_audience = request.data.get('target_audience', 'широкая аудитория')
         budget = request.data.get('budget', 'средний')
         timeframe = request.data.get('timeframe', '3 месяца')
         country = request.data.get('country', 'Россия')
         platform = request.data.get('platform', 'многофункциональная')
-        HF_API_KEY = os.getenv('HF_API_KEY_MAR')
-        if not HF_API_KEY:
-            logger.error("API ключ Hugging Face не настроен")
-            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        GITHUB_API_KEY = os.getenv('GITHUB_API_KEY')
+        if not GITHUB_API_KEY:
+            logger.error("API ключ GitHub не настроен")
+            return Response(
+                {'error': 'API ключ GitHub не настроен'}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        
         try:
             logger.info(f"Генерация маркетинговой стратегии для идеи: {idea}")
-            client = InferenceClient(
-                model="Qwen/Qwen2.5-72B-Instruct",
-                token=HF_API_KEY
-            )
+            
             prompt = f"""
                 {SYSTEM_PROMPT}
-                Создай подробную стратегию продвижения для идеи:
-                 "{idea}"
+                Создай подробную стратегию продвижения для идеи: "{idea}"
                 Параметры:
-                    - Целевая аудитория:
-                     {target_audience}
-                    - Бюджет:
-                     {budget}
-                    - Временные рамки:
-                     {timeframe}
-                    - Страна:
-                     {country}
-                    - Платформа:
-                     {platform}
+                    - Целевая аудитория: {target_audience}
+                    - Бюджет: {budget}
+                    - Временные рамки: {timeframe}
+                    - Страна: {country}
+                    - Платформа: {platform}
+                
                 Стратегия должна включать:
                     1. Анализ целевой аудитории
                         - Демографические характеристики
@@ -2371,15 +2396,51 @@ class MarketingStrategyView(APIView):
                         - Стратегии преодоления
                 Ответ должен быть профессиональным, структурированным и содержать конкретные рекомендации с примерами.
             """
-            response = client.chat_completion(
-                messages=[
+            
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {GITHUB_API_KEY}",
+                "X-GitHub-Api-Version": "2022-11-28",
+                "Accept": "application/vnd.github+json"
+            }
+            
+            payload = {
+                "model": "xai/grok-3-mini",
+                "messages": [
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt}
                 ],
-                max_tokens=600
+                "max_tokens": 8000,
+                "temperature": 0.3,
+                "stream": False
+            }
+            
+            response = requests.post(
+                "https://models.github.ai/inference/chat/completions",
+                headers=headers,
+                data=json.dumps(payload)
             )
+            
+            if response.status_code != 200:
+                logger.error(f"Ошибка GitHub API: {response.status_code} - {response.text}")
+                return Response(
+                    {'error': f'Ошибка при генерации маркетинговой стратегии: {response.status_code}'},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+            
+            response_data = response.json()
+            
+            if 'choices' in response_data and len(response_data['choices']) > 0:
+                marketing_strategy = response_data['choices'][0]['message']['content']
+            else:
+                logger.error(f"Некорректный формат ответа: {response_data}")
+                return Response(
+                    {'error': 'Некорректный формат ответа от API'},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+            
             return Response({
-                'marketing_strategy': response.choices[0].message.content,
+                'marketing_strategy': marketing_strategy,
                 'idea': idea,
                 'target_audience': target_audience,
                 'budget': budget,
@@ -2387,9 +2448,13 @@ class MarketingStrategyView(APIView):
                 'country': country,
                 'platform': platform
             })
+            
         except Exception as e:
-            logger.error(f"Ошибка генерации маркетинговой стратегии: {str(e)}")
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            logger.error(f"Ошибка генерации маркетинговой стратегии: {str(e)}", exc_info=True)
+            return Response(
+                {'error': f'Произошла ошибка при генерации маркетинговой стратегии: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 class TravelPlannerView(APIView):
     def post(self, request, *args, **kwargs):
@@ -2398,28 +2463,34 @@ class TravelPlannerView(APIView):
             Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
             Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
             Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
-            Вы не говорите, что вы ИИ или Qwen - вы всегда представляетесь как Советница АКВИ.
+            Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
             Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
-            Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
+            Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами.
         """
         destination = request.data.get('destination', '')
         if not destination:
-            return Response({'error': 'Назначение путешествия не указано'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {'error': 'Назначение путешествия не указано'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
         budget = request.data.get('budget', 'средний')
         travel_dates = request.data.get('travel_dates', 'июль-август')
         travel_style = request.data.get('travel_style', 'активный отдых')
         group_type = request.data.get('group_type', 'один/одна')
         special_interests = request.data.get('special_interests', 'общие')
-        HF_API_KEY = os.getenv('HF_API_KEY_TURL')
-        if not HF_API_KEY:
-            logger.error("API ключ Hugging Face не настроен")
-            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        MISTRAL_API_KEY = os.getenv('MISTRAL_AQWE_SLIDES')
+        if not MISTRAL_API_KEY:
+            logger.error("API ключ Mistral не настроен")
+            return Response(
+                {'error': 'API ключ Mistral не настроен'}, 
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        
         try:
             logger.info(f"Генерация маршрута для путешествия в {destination}")
-            client = InferenceClient(
-                model="Qwen/Qwen2.5-72B-Instruct",
-                token=HF_API_KEY
-            )
+            
             prompt = f"""
                 {SYSTEM_PROMPT}
                 Создай подробный план путешествия в {destination} 
@@ -2466,15 +2537,48 @@ class TravelPlannerView(APIView):
 
                 Ответ должен быть структурирован, информативен и содержать конкретные рекомендации.
             """
-            response = client.chat_completion(
-                messages=[
+            
+            headers = {
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {MISTRAL_API_KEY}"
+            }
+            
+            payload = {
+                "model": "mistral-medium-latest",
+                "messages": [
                     {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": prompt},
-                    {"max_new_tokens": "3000"}
-                ]
+                    {"role": "user", "content": prompt}
+                ],
+                "max_tokens": 5000,
+                "temperature": 0.3
+            }
+            
+            response = requests.post(
+                "https://api.mistral.ai/v1/chat/completions",
+                headers=headers,
+                data=json.dumps(payload)
             )
+            
+            if response.status_code != 200:
+                logger.error(f"Ошибка Mistral API: {response.status_code} - {response.text}")
+                return Response(
+                    {'error': f"Ошибка Mistral API: {response.status_code}"},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+            
+            response_data = response.json()
+            
+            if 'choices' in response_data and len(response_data['choices']) > 0:
+                travel_plan = response_data['choices'][0]['message']['content']
+            else:
+                logger.error(f"Некорректный формат ответа: {response_data}")
+                return Response(
+                    {'error': 'Некорректный формат ответа от API'},
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+            
             return Response({
-                'travel_plan': response.choices[0].message.content,
+                'travel_plan': travel_plan,
                 'destination': destination,
                 'budget': budget,
                 'travel_dates': travel_dates,
@@ -2482,9 +2586,13 @@ class TravelPlannerView(APIView):
                 'group_type': group_type,
                 'special_interests': special_interests
             })
+            
         except Exception as e:
-            logger.error(f"Ошибка генерации плана путешествия: {str(e)}")
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            logger.error(f"Ошибка генерации плана путешествия: {str(e)}", exc_info=True)
+            return Response(
+                {'error': f'Произошла ошибка при генерации плана путешествия: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 class CompetitorAnalysisView(APIView):
     def post(self, request, *args, **kwargs):
