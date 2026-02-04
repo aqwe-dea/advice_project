@@ -22,7 +22,7 @@ function TravelPlannerForm() {
         setError('');
         try {
             const response = await axios.post(
-                '/travel-planner/',
+                'https://advice-project.onrender.com/travel-planner/',
                 { 
                     destination,
                     budget,
@@ -32,8 +32,7 @@ function TravelPlannerForm() {
                     special_interests: specialInterests
                 },
                 { 
-                    headers: { 'Content-Type': 'application/json' },
-                    timeout: 45000
+                    headers: { "Content-Type": "application/json" }
                 }
             );
             setPlan(response.data);

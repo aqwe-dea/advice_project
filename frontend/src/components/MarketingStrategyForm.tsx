@@ -22,7 +22,7 @@ function MarketingStrategyForm() {
         setError('');
         try {
             const response = await axios.post(
-                '/marketing-strategy/',
+                'http://advice-project.onrender.com/marketing-strategy/',
                 { 
                     idea, 
                     target_audience: targetAudience,
@@ -32,8 +32,11 @@ function MarketingStrategyForm() {
                     platform
                 },
                 { 
-                    headers: { 'Content-Type': 'application/json' },
-                    timeout: 45000
+                    headers: {
+                        "Content-Type": "application/json",
+                        "X-GitHub-Api-Version": "2022-11-28",
+                        "Accept": "application/vnd.github+json" 
+                    }
                 }
             );
             setStrategy(response.data);
