@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import '../App.css';
 import { motion } from 'framer-motion';
 import { styled } from 'styled-components';
 import { colors } from '../theme';

@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import { styled } from 'styled-components';
+import { colors } from '../theme';
+import '../App.css';
 import 'jspdf';
 import 'jspdf-autotable';
 

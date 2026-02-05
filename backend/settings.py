@@ -45,6 +45,14 @@ HUGGINGFACE_API_KEY = os.getenv('HUGGINGFACE_API_KEY')
 HF_API_KEY = os.getenv('HF_API_KEY')
 HF_API_KEY_FIN = os.getenv('HF_API_KEY_FIN')
 HF_API_KEY_UR = os.getenv('HF_API_KEY_UR')
+HF_API_KEY = os.getenv('HF_API_KEY_INVS')
+HF_API_KEY = os.getenv('HF_API_KEY_KONK')
+GITHUB_API_KEY = os.getenv('GITHUB_API_KEY')
+MISTRAL_API_KEY = os.getenv('MISTRAL_AQWE_SLIDES')
+APIYI_API_KEY = os.getenv('APIYITEST')
+AICC_API_KEY = os.getenv('AICCTEST')
+OLLAMA_API_KEY = os.getenv('OLLAMATEST')
+ARLIAI_API_KEY = os.getenv('ARLITEST')
 #security for production 
 #SECURE_HSTS_SECONDS = 1209600
 #SECURE_SSL_REDIRECT = False

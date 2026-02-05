@@ -1,4 +1,7 @@
 import React, { useState } from 'react';
+import { styled } from 'styled-components';
+import { colors } from '../theme';
+import '../App.css';
 import axios from 'axios';
 
 function InvestmentAnalysisForm() {
@@ -31,8 +34,7 @@ function InvestmentAnalysisForm() {
                     country: country
                 },
                 { 
-                    headers: { 'Content-Type': 'application/json' },
-                    timeout: 30000
+                    headers: { 'Content-Type': 'application/json' }
                 }
             );
             setAnalysis(response.data);
@@ -196,7 +198,7 @@ function InvestmentAnalysisForm() {
                             whiteSpace: 'pre-wrap',
                             lineHeight: '1.6',
                             fontFamily: 'Arial, sans-serif',
-                            backgroundColor: '#f8f9fa',
+                            backgroundColor: 'rgb(40 13 61)',
                             padding: '1rem',
                             borderRadius: '4px',
                             marginTop: '1.5rem'

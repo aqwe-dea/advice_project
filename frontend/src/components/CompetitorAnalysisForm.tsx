@@ -30,8 +30,7 @@ function CompetitorAnalysisForm() {
                     country
                 },
                 { 
-                    headers: { 'Content-Type': 'application/json' },
-                    timeout: 45000
+                    headers: { 'Content-Type': 'application/json' }
                 }
             );
             setAnalysis(response.data);

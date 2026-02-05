@@ -676,11 +676,11 @@ class PhotoRestorationView(APIView):
         file_path = default_storage.save(f'tmp/{image_file.name}', ContentFile(image_file.read()))
         image_url = default_storage.url(file_path)
         if '?' in image_url:
-            image_url = image_url.split('?')[0]
-        original_image_url = f"{settings.BASE_URL}{image_url}"
-        if not original_image_url.startswith(('http://', 'https://')):
-            original_image_url = f"https://{original_image_url.lstrip('/')}"  
-        try:           
+            image_url = image_url.split('?')[0] 
+        try:
+            original_image_url = f"{settings.MEDIA_URL}{image_url}"
+            if not original_image_url.startswith(('http://', 'https://')):
+                original_image_url = f"https://{original_image_url.lstrip('/')}"            
             restored_image_url = self.generate_restoration_plan(
                 original_image_url,
                 restoration_info
@@ -696,8 +696,8 @@ class PhotoRestorationView(APIView):
                 restoration_info
             )
             return Response({
-                'restored_url': restored_image_url,
                 'original_url': original_image_url,
+                'restored_url': restored_image_url,
                 'restoration_report': restoration_report,
                 'restoration_info': restoration_info,
                 'image_type': file_ext[1:].upper()
@@ -1466,15 +1466,10 @@ class BusinessPlanView(APIView):
         target_market = request.data.get('target_market', 'локальный рынок')
         investment_amount = request.data.get('investment_amount', 'средние инвестиции')
         timeframe = request.data.get('timeframe', '3 года')
-        HF_API_KEY = os.getenv('HF_API_KEY_BPLN')
-        if not HF_API_KEY:
-            logger.error("API ключ Hugging Face не настроен")
-            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
             logger.info(f"Генерация бизнес-плана для идеи: {business_idea}")
             client = InferenceClient(
-                model="Qwen/Qwen2.5-72B-Instruct",
-                token=HF_API_KEY
+                api_key=os.environ["HF_API_KEY_BPLN"],
             )
             prompt = f"""
                 {SYSTEM_PROMPT}
@@ -1547,15 +1542,24 @@ class BusinessPlanView(APIView):
                     - Последствия
                     - Меры по минимизации
             """
-            response = client.chat_completion(
+            completion = client.chat.completions.create(
+                model="meta-llama/Llama-3.1-8B-Instruct",
                 messages=[
-                    {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": prompt}
+                    {
+                        "role": "system", 
+                        "content": SYSTEM_PROMPT
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
                 ],
-                max_tokens=1000
+                temperature=0.3,
+                max_tokens=8192,
             )
+            
             return Response({
-                'business_plan': response.choices[0].message.content,
+                'business_plan': completion.choices[0].message.content,
                 'business_idea': business_idea,
                 'business_type': business_type,
                 'country': country,
@@ -1959,85 +1963,75 @@ class PresentationGenerationView(APIView):
           
         try:
             logger.info(f"Генерация презентации по идее: {presentation_idea}")
-            
+            prompt = f"""
+                Создайте профессиональную презентацию из 12 слайдов на основе следующей идеи:   
+                    НАЗВАНИЕ ИДЕИ: {presentation_idea},
+                    ОПИСАНИЕ ИДЕИ: {presentation_description}
+                ВАЖНО: Ответ должен быть строго структурирован как указано ниже, без дополнительных комментариев.
+                # ПРОФЕССИОНАЛЬНАЯ ПРЕЗЕНТАЦИЯ
+                    ## 1. ТИТУЛЬНЫЙ СЛАЙД
+                        - Название презентации
+                        - Автор/Компания
+                        - Дата
+                    ## 2. ВВЕДЕНИЕ
+                        - Краткое описание идеи
+                        - Цели и задачи
+                        - Актуальность
+                    ## 3. ПРОБЛЕМА/ВЫЗОВ
+                        - Описание текущей ситуации
+                        - Выявленные проблемы
+                        - Последствия бездействия
+                    ## 4. РЕШЕНИЕ
+                        - Основная идея решения
+                        - Ключевые аспекты реализации
+                        - Преимущества перед аналогами
+                    ## 5. МЕТОДОЛОГИЯ
+                        - Пошаговый план действий
+                        - Используемые инструменты и подходы
+                        - Сроки реализации
+                    ## 6. ПРЕИМУЩЕСТВА
+                        - Конкретные выгоды для аудитории
+                        - Качественные и количественные результаты
+                        - Долгосрочные перспективы
+                    ## 7. ПРАКТИЧЕСКИЕ ПРИМЕРЫ
+                        - Кейсы применения
+                        - Результаты внедрения
+                        - Визуальные иллюстрации концепции
+                    ## 8. ФИНАНСОВЫЙ АСПЕКТ
+                        - Инвестиции и ресурсы
+                        - Окупаемость
+                        - Экономическая эффективность
+                    ## 9. РИСКИ И ИХ МИНИМИЗАЦИЯ
+                        - Потенциальные риски
+                        - Стратегии снижения рисков
+                        - Планы на случай непредвиденных ситуаций
+                    ## 10. СЛЕДУЮЩИЕ ШАГИ
+                        - Ближайшие действия
+                        - Необходимые ресурсы
+                        - Ответственные лица и сроки
+                    ## 11. КОНТАКТНАЯ ИНФОРМАЦИЯ
+                        - Имя, должность
+                        - Email, телефон
+                        - Социальные сети
+                    ## 12. ДОПОЛНИТЕЛЬНЫЕ МАТЕРИАЛЫ
+                        - Список рекомендуемой литературы
+                        - Полезные ссылки и ресурсы
+                        - Глоссарий терминов
+                Дополнительные рекомендации:
+                    - Для каждого слайда указаны конкретные изображения, которые необходимо сгенерировать
+                    - Добавлены примеры и кейсы для иллюстрации концепции
+                    - Включены ссылки на дополнительные материалы
+                    - Указаны конкретные цифры и данные там, где это уместно
+            """
             # Правильная структура сообщений
             messages = [
                 {
                     "role": "system",
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": "Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях. Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации. Вы говорите на русском языке и используете форматированный ответ с четкой структурой. Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ. Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках. Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами."
-                        }
-                    ]
+                    "content": SYSTEM_PROMPT
                 },
                 {
                     "role": "user",
-                    "content": [
-                        {
-                            "type": "text",
-                            "text": f"""Создайте профессиональную презентацию из 12 слайдов на основе следующей идеи: 
-                                параметры идеи: 
-                                    НАЗВАНИЕ ИДЕИ: {presentation_idea},
-                                    ОПИСАНИЕ ИДЕИ: {presentation_description}
-                                ВАЖНО: Ответ должен быть строго структурирован как указано ниже, без дополнительных комментариев.
-                                # ПРОФЕССИОНАЛЬНАЯ ПРЕЗЕНТАЦИЯ
-                                ## 1. ТИТУЛЬНЫЙ СЛАЙД
-                                - Название презентации
-                                - Автор/Компания
-                                - Дата
-                                ## 2. ВВЕДЕНИЕ
-                                - Краткое описание идеи
-                                - Цели и задачи
-                                - Актуальность
-                                ## 3. ПРОБЛЕМА/ВЫЗОВ
-                                - Описание текущей ситуации
-                                - Выявленные проблемы
-                                - Последствия бездействия
-                                ## 4. РЕШЕНИЕ
-                                - Основная идея решения
-                                - Ключевые аспекты реализации
-                                - Преимущества перед аналогами
-                                ## 5. МЕТОДОЛОГИЯ
-                                - Пошаговый план действий
-                                - Используемые инструменты и подходы
-                                - Сроки реализации
-                                ## 6. ПРЕИМУЩЕСТВА
-                                - Конкретные выгоды для аудитории
-                                - Качественные и количественные результаты
-                                - Долгосрочные перспективы
-                                ## 7. ПРАКТИЧЕСКИЕ ПРИМЕРЫ
-                                - Кейсы применения
-                                - Результаты внедрения
-                                - Визуальные иллюстрации концепции
-                                ## 8. ФИНАНСОВЫЙ АСПЕКТ
-                                - Инвестиции и ресурсы
-                                - Окупаемость
-                                - Экономическая эффективность
-                                ## 9. РИСКИ И ИХ МИНИМИЗАЦИЯ
-                                - Потенциальные риски
-                                - Стратегии снижения рисков
-                                - Планы на случай непредвиденных ситуаций
-                                ## 10. СЛЕДУЮЩИЕ ШАГИ
-                                - Ближайшие действия
-                                - Необходимые ресурсы
-                                - Ответственные лица и сроки
-                                ## 11. КОНТАКТНАЯ ИНФОРМАЦИЯ
-                                - Имя, должность
-                                - Email, телефон
-                                - Социальные сети
-                                ## 12. ДОПОЛНИТЕЛЬНЫЕ МАТЕРИАЛЫ
-                                - Список рекомендуемой литературы
-                                - Полезные ссылки и ресурсы
-                                - Глоссарий терминов
-                                Дополнительные рекомендации:
-                                - Для каждого слайда указаны конкретные изображения, которые необходимо сгенерировать
-                                - Добавлены примеры и кейсы для иллюстрации концепции
-                                - Включены ссылки на дополнительные материалы
-                                - Указаны конкретные цифры и данные там, где это уместно
-                            """
-                        }
-                    ]
+                    "content": prompt
                 }
             ]
             
@@ -2251,16 +2245,9 @@ class InvestmentAnalysisView(APIView):
         risk_level = request.data.get('risk_level', 'средний')
         investment_type = request.data.get('investment_type', 'акции')
         country = request.data.get('country', 'Россия')
-        HF_API_KEY = os.getenv('HF_API_KEY_INVS')
-        if not HF_API_KEY:
-            logger.error("API ключ Hugging Face не настроен")
-            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
         try:
             logger.info(f"Анализ инвестиций: {initial_investment} на {investment_period} с ожидаемой доходностью {expected_return}")
-            client = InferenceClient(
-                model="Qwen/Qwen2.5-72B-Instruct",
-                token=HF_API_KEY
-            )
             prompt = f"""
                 {SYSTEM_PROMPT}
                 Проанализируй инвестиционную возможность с следующими параметрами:
@@ -2290,15 +2277,31 @@ class InvestmentAnalysisView(APIView):
                     - Общую рекомендацию (стоит инвестировать или нет)
                 Ответ должен быть профессиональным, содержать конкретные цифры и рекомендации.
             """
-            response = client.chat_completion(
-                messages=[
-                    {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": prompt}
+            API_URL = "https://router.huggingface.co/v1/chat/completions"
+            headers = {
+                "Authorization": f"Bearer {os.environ['HF_API_KEY_INVS']}",
+                "Content-Type": "application/json",
+            }
+            payload = {
+                "messages": [
+                    {
+                        "role": "system", 
+                        "content": SYSTEM_PROMPT
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
                 ],
-                max_tokens=500
-            )
+                "temperature": 0.3,
+                "max_tokens": 8192,
+                "model": "Qwen/Qwen3-32B"
+            }
+            response = requests.post(API_URL, headers=headers, data=json.dumps(payload))
+            response_data = response.json()
+            
             return Response({
-                'analysis': response.choices[0].message.content,
+                'analysis': response_data['choices'][0]['message']['content'],
                 'initial_investment': initial_investment,
                 'expected_return': expected_return,
                 'investment_period': investment_period,
@@ -2390,7 +2393,7 @@ class MarketingStrategyView(APIView):
 
             headers = {
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {GITHUB_API_KEY}",
+                "Authorization": f"Bearer {os.environ['GITHUB_API_KEY']}",
                 "X-GitHub-Api-Version": "2022-11-28",
                 "Accept": "application/vnd.github+json"
             }
@@ -2421,17 +2424,8 @@ class MarketingStrategyView(APIView):
             
             response_data = response.json()
             
-            if 'choices' in response_data and len(response_data['choices']) > 0:
-                marketing_strategy = response_data['choices'][0]['message']['content']
-            else:
-                logger.error(f"Некорректный формат ответа: {response_data}")
-                return Response(
-                    {'error': 'Некорректный формат ответа от API'},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                )
-            
             return Response({
-                'marketing_strategy': marketing_strategy,
+                'marketing_strategy': response_data['choices'][0]['message']['content'],
                 'idea': idea,
                 'target_audience': target_audience,
                 'budget': budget,
@@ -2531,7 +2525,7 @@ class TravelPlannerView(APIView):
 
             headers = {
                 "Content-Type": "application/json",
-                "Authorization": f"Bearer {MISTRAL_API_KEY}"
+                "Authorization": f"Bearer {os.environ['MISTRAL_AQWE_SLIDES']}"
             }
             
             payload = {
@@ -2559,17 +2553,9 @@ class TravelPlannerView(APIView):
             
             response_data = response.json()
             
-            if 'choices' in response_data and len(response_data['choices']) > 0:
-                travel_plan = response_data['choices'][0]['message']['content']
-            else:
-                logger.error(f"Некорректный формат ответа: {response_data}")
-                return Response(
-                    {'error': 'Некорректный формат ответа от API'},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                )
             
             return Response({
-                'travel_plan': travel_plan,
+                'travel_plan': response_data['choices'][0]['message']['content'],
                 'destination': destination,
                 'budget': budget,
                 'travel_dates': travel_dates,
@@ -2603,16 +2589,9 @@ class CompetitorAnalysisView(APIView):
         competitors = request.data.get('competitors', '')
         market_segment = request.data.get('market_segment', 'общий рынок')
         country = request.data.get('country', 'Россия')
-        HF_API_KEY = os.getenv('HF_API_KEY_KONK')
-        if not HF_API_KEY:
-            logger.error("API ключ Hugging Face не настроен")
-            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
         try:
             logger.info(f"Анализ конкурентов для бизнеса: {business_name}")
-            client = InferenceClient(
-                model="Qwen/Qwen2.5-72B-Instruct",
-                token=HF_API_KEY
-            )
             prompt = f"""
                 {SYSTEM_PROMPT}
                 Проведи глубокий анализ конкурентов для бизнеса "{business_name}" в сегменте "{market_segment}"
@@ -2662,15 +2641,32 @@ class CompetitorAnalysisView(APIView):
                 
                 Ответ должен быть профессиональным, содержать конкретные цифры и рекомендации.
             """
-            response = client.chat_completion(
-                messages=[
-                    {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": prompt}
+            
+            API_URL = "https://router.huggingface.co/v1/chat/completions"
+            headers = {
+                "Authorization": f"Bearer {os.environ['HF_API_KEY_KONK']}",
+            }
+            payload = {
+                "messages": [
+                    {
+                        "role": "system", 
+                        "content": SYSTEM_PROMPT
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
                 ],
-                max_tokens=800
-            )
+                "temperature": 0.3,
+                "max_tokens": 8192,
+                "model": "Qwen/Qwen3-32B"
+            }
+
+            response = requests.post(API_URL, headers=headers, data=json.dumps(payload))
+            response_data = response.json()
+
             return Response({
-                'analysis': response.choices[0].message.content,
+                'analysis': response_data['choices'][0]['message']['content'],
                 'business_name': business_name,
                 'market_segment': market_segment,
                 'country': country,
