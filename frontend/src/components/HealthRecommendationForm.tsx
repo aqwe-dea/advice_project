@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 import '../App.css';
-import { styled } from 'styled-components';
-import { colors } from '../theme';
 import axios from 'axios';
 
 function HealthRecommendationForm() {
@@ -23,7 +21,7 @@ function HealthRecommendationForm() {
         setError('');
         try {
             const response = await axios.post(
-                'https://advice-project.onrender.com/health-recommendation/',
+                '/health-recommendation/',
                 { 
                     symptoms, 
                     age, 
@@ -32,8 +30,7 @@ function HealthRecommendationForm() {
                     type: recommendationType
                 },
                 { 
-                    headers: { 'Content-Type': 'application/json' },
-                    timeout: 30000
+                    headers: { 'Content-Type': 'application/json' }
                 }
             );
             setRecommendation(response.data);

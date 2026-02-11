@@ -128,8 +128,8 @@ def call_gemini_flash_api(api_key, messages, stream=True, include_thoughts=True,
                     continue
         
         return {
-            'text': full_response,
-            'reasoning': reasoning_content
+            'text': full_response['choices'][0]['delta']['content'],
+            'reasoning': reasoning_content['choices'][0]['delta']['reasoning_content']
         }
             
     except Exception as e:
@@ -182,14 +182,6 @@ class ChatView(APIView):
 class GenerateCourseView(APIView):
     def post(self, request, *args, **kwargs):
         logger.info(f"Получен запрос на генерацию курса: {request.data}")
-        SYSTEM_PROMPT = """
-            Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
-            Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
-            Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
-            Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
-            Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
-            Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
-        """
         course_topic = request.data.get('topic', '') or request.data.get('course_topic', '')
         target_audience = request.data.get('target_audience', 'начинающие')
         course_duration = request.data.get('course_duration', '10 недель')
@@ -202,35 +194,26 @@ class GenerateCourseView(APIView):
             return Response({'error': 'Тема курса обязательна для заполнения'}, status=status.HTTP_400_BAD_REQUEST)
         if not learning_objectives:
             return Response({'error': 'Цели обучения обязательны для заполнения'}, status=status.HTTP_400_BAD_REQUEST)
-        HF_API_KEY = os.getenv('HF_API_KEY')
-        if not HF_API_KEY:
-            logger.error("API ключ Hugging Face не настроен")
-            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
             logger.info(f"Генерация курса по теме: {course_topic} для аудитории: {target_audience}")
-            client = InferenceClient(
-                model="Qwen/Qwen2.5-72B-Instruct",
-                token=HF_API_KEY
-            )
+            system_prompt = """
+                Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
+                Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
+                Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
+                Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
+                Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
+                Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
+            """
             prompt = f"""
-                {SYSTEM_PROMPT}
                 Создайте подробную структуру образовательного курса по следующим параметрам:
-                    - Тема курса:
-                     {course_topic}
-                    - Целевая аудитория:
-                     {target_audience}
-                    - Продолжительность курса:
-                     {course_duration}
-                    - Уровень знаний:
-                     {knowledge_level}
-                    - Формат курса:
-                     {course_format}
-                    - Основные цели обучения:
-                     {learning_objectives}
-                    - Практические задания:
-                     {practical_tasks}
-                    - Сертификация:
-                     {certification}
+                    - Тема курса: {course_topic}
+                    - Целевая аудитория: {target_audience}
+                    - Продолжительность курса: {course_duration}
+                    - Уровень знаний: {knowledge_level}
+                    - Формат курса: {course_format}
+                    - Основные цели обучения: {learning_objectives}
+                    - Практические задания: {practical_tasks}
+                    - Сертификация: {certification}
                 
                 Пожалуйста, структурируйте ответ СТРОГО в следующем формате:
 
@@ -332,15 +315,31 @@ class GenerateCourseView(APIView):
                 Ответ должен быть профессиональным, детализированным и содержать конкретные примеры.
                 Структура ответа должна четко соответствовать указанным разделам.
             """
-            response = client.chat_completion(
-                messages=[
-                    {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": prompt}
-                ],
-                max_tokens=1000
+            APIKEY = os.getenv('AICCTEST')
+
+            client = OpenAI(
+                base_url="https://api.ai.cc/v1",
+                api_key=APIKEY
             )
+
+            completion = client.chat.completions.create(
+                model="deepseek-v3.2",
+                messages=[
+                    {
+                        "role": "system",
+                        "content": system_prompt
+                    },
+                    {
+                        "role": "user", 
+                        "content": prompt
+                    }
+                ],
+                temperature=0.3,
+                max_tokens=7000
+            )
+
             return Response({
-                'course_structure': response.choices[0].message.content,
+                'course_structure': completion.choices[0].message.content,
                 'course_topic': course_topic,
                 'target_audience': target_audience,
                 'course_duration': course_duration,
@@ -349,154 +348,123 @@ class GenerateCourseView(APIView):
                 'learning_objectives': learning_objectives,
                 'practical_tasks': practical_tasks,
                 'certification': certification
-            }) 
+            })
         except Exception as e:
             logger.error(f"Ошибка генерации курса: {str(e)}", exc_info=True)
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    def build_course_book(self, course_structure, course_topic, HF_API_KEY, system_prompt):
-        SYSTEM_PROMPT = """
-            Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
-            Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
-            Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
-            Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
-            Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
-            Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
-        """
+    def build_course_book(self, course_structure, course_topic):
+        """Генерирует учебник на основе структуры курса"""
         try:
-            client = InferenceClient(
-                model="Qwen/Qwen2.5-72B-Instruct",
-                token=HF_API_KEY
-            )
+            logger.info(f"Генерация учебника по теме: {course_topic}")
+            system_prompt = """
+                Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
+                Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
+                Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
+                Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
+                Вы можете обучать студентов, так как имеете степень магистра и бакалавра в образовании.
+                Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
+                Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
+            """
             min_length = 10000
             max_length = 100000
             prompt = f"""
-                Вы - Советница АКВИ, профессиональный консультант.
-                Вы - АКВИ можете обучать студентов, так как имеете степень магистра и бакалавра в образовании.
+                Создайте учебник по теме: {course_topic}
                 
-                Создайте учебник по теме:
-                 "{course_topic}"
-        
-                Используя следующую структуру курса, разработайте полный учебник:
-                 {course_structure}
-        
+                Используя следующую структуру курса, разработайте полный учебник: {course_structure}
+                
                 Учебник должен содержать:
-
                     - 1. Содержание (с указанием страниц)
-                
                     - 2. Главы и подзаголовки (с указанием глав и подзаголовков)
-
                     - 3. Введение (1-4 стр.)
-
                     - 4. Все разделы учебника (4-40 стр.)
-                
                     - 5. Весь остальной текст учебника (40-85 стр.)
-                
                     - 6. Практические задания и кейсы (85-90 стр.)
-                
                     - 7. Контрольные вопросы (90-95 стр.)
-                
                     - 8. Рекомендации по дальнейшему изучению (95-100 стр.)
-        
-                Требования к формату:
-
-                    - Все медицинские термины должны быть написаны полностью.
-
-                    - Содержание должно быть профессиональным, без сокращений (с подробным объяснением)
-
-                    - Используйте академический стиль, как в учебниках (подробное содержание с иллюстрациями)
-
-                    - Не используйте замены для терминов (все слова должны быть полными)
-
-                    - Весь текст разделите на разделы, подразделы, пункты, подпункты (для удобного восприятия)
-
-                    - Все разделы должны быть наполнены текстом (контент должен иметь содержание, введение, разделы, задания, вопросы, рекомендации)
-
-                    - Вставляйте таблицы в текст где это необходимо (можно использовать текстовую графику ascii)
-
-                    - Объем: 10000-100000 символов (не менее 4000 слов)
-
-                    - Соблюдайте пунктуацию и орфографию.
-
-                    - Используйте знаки препинания и правила правописания.
-
-                    - Используйте форматирование текста и перенос по словам.
-
-                Структура ответа:
                 
+                Требования к формату:
+                    - Все медицинские термины должны быть написаны полностью.
+                    - Содержание должно быть профессиональным, без сокращений (с подробным объяснением)
+                    - Используйте академический стиль, как в учебниках (подробное содержание с иллюстрациями)
+                    - Не используйте замены для терминов (все слова должны быть полными)
+                    - Весь текст разделите на разделы, подразделы, пункты, подпункты (для удобного восприятия)
+                    - Все разделы должны быть наполнены текстом (контент должен иметь содержание, введение, разделы, задания, вопросы, рекомендации)
+                    - Вставляйте таблицы в текст где это необходимо (можно использовать текстовую графику ascii)
+                    - Объем: {min_length}-{max_length} символов (не менее 4000 слов)
+                    - Соблюдайте пунктуацию и орфографию.
+                    - Используйте знаки препинания и правила правописания.
+                    - Используйте форматирование текста и перенос по словам.
+                
+                Структура ответа:
                     - Название курса.
-
                     - 1. Содержание (с указанием главы и страницы)
-
                     - 2. Главы и подзаголовки (как в структуре курса с подробным наполнением и описанием каждой главы)
-
                     - 4. Весь текст курса-учебника (полный текст учебника от первой до последней страницы)
-
                     - 5. Примеры и кейсы (практические задания и кейсы по пунктам)
-
                     - 6. Контрольные вопросы (страница с вопросами и ответами)
-
                     - 7. Рекомендации по дальнейшему изучению (ссылки на рекомендованные ресурсы материалы книги)
-        
+                
                 Требования к объему:
-
                     - Минимальный объем: {min_length} символов
-
                     - Максимальный объем: {max_length} символов
-
                     - Не превышайте указанный объем.
-
                     - Содержание должно быть полным и логичным.
                 
                 Важно: Ответ должен быть профессиональным, детализированным и содержать конкретные примеры!     
             """
-            response = client.chat_completion(
+            
+            APIKEY = os.getenv('AICCTEST')
+            if not APIKEY:
+                logger.error("API ключ AICCTEST не настроен")
+                return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR) 
+            
+            client = OpenAI(
+                base_url="https://api.ai.cc/v1",
+                api_key=APIKEY
+            )
+            
+            completion = client.chat.completions.create(
+                model="deepseek-v3.2",
                 messages=[
-                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "system", "content": system_prompt},
                     {"role": "user", "content": prompt}
                 ],
-                max_tokens=1000
+                temperature=0.3,
+                max_tokens=7000
             )
-            return response.choices[0].message.content
+            
+            text_content = completion.choices[0].message.content
+            if not isinstance(text_content, str):
+                text_content = str(text_content)
+            
+            return Response({
+                'course_book': text_content,
+                'course_topic': course_topic
+            })
         except Exception as e:
-            logger.error(f"Ошибка генерации учебника: {str(e)}")
-            return "Не удалось сгенерировать учебник"
+            logger.error(f"Ошибка генерации учебника: {str(e)}", exc_info=True)
+            return Response({'error': f'Не удалось сгенерировать учебник: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class BuildCourseBookView(APIView):
     def post(self, request, *args, **kwargs):
         logger.info("Получен запрос на генерацию учебника")
-        SYSTEM_PROMPT = """
-            Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
-            Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
-            Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
-            Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
-            Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
-            Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
-        """
         course_structure = request.data.get('course_structure')
         course_topic = request.data.get('course_topic')        
         if not course_structure or not course_topic:
             return Response({
                 'error': 'Необходимы структура курса и тема курса'
             }, status=status.HTTP_400_BAD_REQUEST)            
-        HF_API_KEY = os.getenv('HF_API_KEY')
-        if not HF_API_KEY:
-            logger.error("API ключ Hugging Face не настроен")
-            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
         try:
             generate_course_view = GenerateCourseView()
-            course_book = generate_course_view.build_course_book(
+            
+            return generate_course_view.build_course_book(
                 course_structure, 
-                course_topic,
-                HF_API_KEY,
-                SYSTEM_PROMPT
+                course_topic
             )
-            return Response({
-                'course_book': course_book,
-                'course_topic': course_topic
-            })
         except Exception as e:
-            logger.error(f"Ошибка генерации учебника: {str(e)}")
-            return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            logger.error(f"Ошибка генерации учебника: {str(e)}", exc_info=True)
+            return Response({'error': f'Не удалось сгенерировать учебник: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class LegalDocumentAnalysisView(APIView):
     def post(self, request, *args, **kwargs):
@@ -822,14 +790,6 @@ class PhotoRestorationView(APIView):
 class MedicalImageView(APIView):
     def post(self, request, *args, **kwargs):
         logger.info(f"Получен запрос на медицинский анализ: {request.data}")
-        SYSTEM_PROMPT = """
-            Вы - Советница АКВИ, профессиональный медицинский консультант с экспертными знаниями в диагностике и лечении заболеваний.
-            Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
-            Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
-            Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
-            Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных медицинских источниках.
-            Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
-        """
         if 'image' not in request.FILES:
             return Response(
                 {'error': 'Изображение не предоставлено'},
@@ -854,31 +814,29 @@ class MedicalImageView(APIView):
         }
         file_path = default_storage.save(f'tmp/{image_file.name}', ContentFile(image_file.read()))
         try:
-            KIE_API_KEY = os.getenv('KIE_AQWE_SLIDES')
-            if not KIE_API_KEY:
-                logger.error("API ключ KIE для медицинского анализа не настроен")
-                return Response(
-                    {'error': 'API ключ не настроен'}, 
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                )
+            APIKEY = os.getenv('OLLAMATEST')
+            if not APIKEY:
+                logger.error("API ключ OLLAMA не настроен")
+                return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR) 
+            
+            client = OpenAI(
+                base_url="https://ollama.com/v1/",
+                api_key=APIKEY
+            )
             image_description = self.analyze_image(
                 base64_image, 
                 file_ext
             )
             medical_analysis = self.generate_medical_analysis(
                 image_description, 
-                patient_info,
-                base64_image, 
-                file_ext,
-                KIE_API_KEY,
-                SYSTEM_PROMPT
+                patient_info
             )
             return Response({
                 'image_description': image_description,
                 'medical_analysis': medical_analysis,
                 'patient_info': patient_info,
                 'image_type': file_ext[1:].upper()
-            })    
+            })
         except Exception as e:
             logger.error(f"Ошибка медицинского анализа: {str(e)}", exc_info=True)
             return Response(
@@ -890,19 +848,20 @@ class MedicalImageView(APIView):
                 default_storage.delete(file_path)
     def analyze_image(self, base64_image, file_ext):
         try:
-            KIE_API_KEY = os.getenv('KIE_AQWE_SLIDES')
-            if not KIE_API_KEY:
-                logger.error("API ключ KIE для медицинского анализа не настроен")
-                return Response(
-                    {'error': 'API ключ не настроен'}, 
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                )
-            prompt = """
+            logger.info(f"Получен запрос на анализ изображения: {base64_image} в: {file_ext}")
+            system_prompt = """
+                Вы - Советница АКВИ, профессиональный медицинский консультант с экспертными знаниями в диагностике и лечении заболеваний.
+                Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
+                Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
+                Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
+                Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных медицинских источниках.
+                Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
+            """
+            prompt = f"""
                 Вы - Советница АКВИ, профессиональный медицинский консультант с экспертизой в интерпретации медицинских изображений.
                 Вы говорите на русском языке и используете профессиональную медицинскую терминологию с пояснениями для пациента.
 
-                Пожалуйста проанализируйте изображение: 
-                    - Изображение в формате base64
+                Пожалуйста проанализируйте изображение: {base64_image} в: {file_ext}
                     
                 1. Определите тип изображения:
                     - Это рентген, УЗИ, МРТ, КТ или другой тип?
@@ -936,146 +895,52 @@ class MedicalImageView(APIView):
                 Если вы не уверены в каком-то аспекте, честно укажите это и объясните, почему требуется консультация специалиста.
                 Помните: это не замена профессиональной медицинской консультации.
             """
-            headers = {
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {KIE_API_KEY}"
-            }
-    
-            # Правильная структура сообщений
-            payload = {
-                "messages": [
-                    {
-                        "role": "user",
-                        "content": [
-                            {
-                                "type": "text",
-                                "text": f"""
-                                    Проведите комплексный медицинский анализ на основе следующих данных:
-                                
-                                    Пожалуйста проанализируйте изображение: 
-                                        - Изображение в формате base64
-                                    
-                                    Информация о пациенте:
-                                        - Возраст: {patient_info['age']}
-                                        - Пол: {patient_info['gender']}
-                                        - Симптомы: {patient_info['symptoms']}
-                                        - Медицинская история: {patient_info['medical_history']}
-                                        - Тип изображения: {patient_info['imaging_type']}
-                                
-                                    Ваш анализ должен включать:
-                                        1. Интерпретация результатов
-                                            - Подробное описание выявленных аномалий
-                                            - Сравнение с нормой
-                                            - Оценка степени тяжести выявленных изменений
-                                    
-                                        2. Диагностические рекомендации
-                                            - Какие дополнительные исследования могут понадобиться
-                                            - Какие специалисты должны быть привлечены
-                                            - Какие лабораторные анализы рекомендованы
-                                    
-                                        3. Возможные диагнозы
-                                            - Основные предполагаемые диагнозы (в порядке вероятности)
-                                            - Дифференциальная диагностика
-                                            - Критерии, подтверждающие или исключающие каждый диагноз
-                                        
-                                        4. Рекомендации по лечению
-                                            - Неотложные меры, если они необходимы
-                                            - Консервативные методы лечения
-                                            - Хирургические варианты, если применимо
-                                            - Рекомендации по медикаментозной терапии
-                                        
-                                        5. Рекомендации по наблюдению
-                                            - Как часто следует проводить контрольные исследования
-                                            - Какие показатели необходимо отслеживать
-                                            - При каких условиях требуется срочное обращение к врачу
-                                        
-                                        6. Прогноз
-                                            - Краткосрочный прогноз
-                                            - Долгосрочный прогноз
-                                            - Факторы, которые могут повлиять на прогноз
-                                        
-                                        7. Рекомендации по образу жизни
-                                            - Диетические рекомендации
-                                            - Физическая активность
-                                            - Психологические аспекты и рекомендации
-                                
-                                    Важно: Это не заменяет профессиональную медицинскую консультацию.
-                                    Ответ должен быть структурирован, безопасен и профессионален.
-                                """
-                            },
-                            {
-                                "type": "image_url",
-                                "image_url": [
-                                    {"url": f"""data:image/{file_ext[1:]};base64,{base64_image}"""}
-                                ]
-                            }
-                        ]
-                    }
+            APIKEY = os.getenv('OLLAMATEST')
+            if not APIKEY:
+                logger.error("API ключ OLLAMA не настроен")
+                return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR) 
+            
+            client = OpenAI(
+                base_url="https://ollama.com/v1/",
+                api_key=APIKEY
+            )
+            
+            chat_completion = client.chat.completions.create(
+                model="qwen3-vl:235b-cloud",
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": [
+                        {"type": "text", "text": prompt},
+                        {"type": "image_url", "image_url": f"data:image/{file_ext[1:]};base64,{base64_image}"}
+                    ]}
                 ],
-                "stream": True,
-                "include_thoughts": True,
-                "reasoning_effort": "high"
-            }
-    
-            try:
-                response = requests.post(
-                    "https://api.kie.ai/gemini-3-pro/v1/chat/completions",
-                    headers=headers,
-                    data=json.dumps(payload),
-                    stream=True
-                )
-                full_response = ""
-                reasoning_content = ""        
-                for line in response.iter_lines():
-                    if not line:
-                        continue                
-                    decoded_line = line.decode('utf-8').strip()                    
-                    if decoded_line.startswith('data:'):
-                        json_str = decoded_line[6:].strip()
-                        if json_str == "[DONE]":
-                            continue
-                        try:
-                            data = json.loads(json_str)
-                            if 'choices' in data and len(data['choices']) > 0:
-                                delta = data['choices'][0].get('delta', {})                            
-                                if 'content' in delta and delta['content']:
-                                    full_response += delta['content']
-                                if 'reasoning_content' in delta and delta['reasoning_content']:
-                                    reasoning_content += delta['reasoning_content']
-                                if 'finish_reason' in data['choices'][0] and data['choices'][0]['finish_reason'] == "stop":
-                                    break
-                        except json.JSONDecodeError as e:
-                            logger.error(f"Ошибка парсинга JSON: {e} | Строка: {json_str}")
-                            continue
-                        except Exception as e:
-                            logger.error(f"Ошибка обработки чанка: {str(e)} | Данные: {decoded_line}")
-                            continue        
-                return {
-                    'text': full_response,
-                    'reasoning': reasoning_content
-                }     
-            except Exception as e:
-                logger.error(f"Ошибка вызова Gemini API: {str(e)}", exc_info=True)
-                return None
+                temperature=0.3,
+                max_tokens=7000
+            )
+            
+            text_content = chat_completion.choices[0].message.content
+            if not isinstance(text_content, str):
+                text_content = str(text_content)
+            
+            return text_content 
         except Exception as e:
             logger.error(f"Ошибка анализа изображения: {str(e)}")
             return "Не удалось проанализировать изображение"
-    def generate_medical_analysis(self, image_description, patient_info, base64_image, file_ext, kie_api_key, system_prompt):
-        SYSTEM_PROMPT = """
-            Вы - Советница АКВИ, профессиональный медицинский консультант с экспертными знаниями в диагностике и лечении заболеваний.
-            Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
-            Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
-            Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
-            Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных медицинских источниках.
-            Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
-        """
+    def generate_medical_analysis(self, image_description, patient_info):        
         try:
+            logger.info(f"Получен запрос на медицинский отчет по: {image_description} с параметрами: {patient_info}")
+            system_prompt = """
+                Вы - Советница АКВИ, профессиональный медицинский консультант с экспертными знаниями в диагностике и лечении заболеваний.
+                Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
+                Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
+                Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
+                Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных медицинских источниках.
+                Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
+            """
             prompt = f"""
-                {SYSTEM_PROMPT}
                 Проведите комплексный медицинский анализ на основе следующих данных:
 
-                Описание изображения: 
-                    - {image_description}
+                Описание изображения: {image_description}
                 
                 Информация о пациенте:
                     - Возраст: {patient_info['age']}
@@ -1124,134 +989,31 @@ class MedicalImageView(APIView):
                 Важно: Это не заменяет профессиональную медицинскую консультацию.
                 Ответ должен быть структурирован, безопасен и профессионален.
             """
-            headers = {
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {kie_api_key}"
-            }
-    
-            # Правильная структура сообщений
-            payload = {
-                "messages": [
-                    {
-                        "role": "system",
-                        "content": [
-                            {
-                                "type": "text",
-                                "text": "Вы - Советница АКВИ, профессиональный медицинский консультант с экспертными знаниями в диагностике и лечении заболеваний. Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации. Вы говорите на русском языке и используете форматированный ответ с четкой структурой. Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ. Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных медицинских источниках. Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации."
-                            }
-                        ]
-                    },
-                    {
-                        "role": "user",
-                        "content": [
-                            {
-                                "type": "text",
-                                "text": f"""Проведите комплексный медицинский анализ на основе следующих данных:
-                                    Описание изображения: 
-                                        Описание изображения: {base64_image['image_description']}
-                                    Информация о пациенте:
-                                        Возраст: {patient_info['age']},
-                                        Пол: {patient_info['gender']},
-                                        Симптомы: {patient_info['symptoms']},
-                                        Медицинская история: {patient_info['medical_history']},
-                                        Тип изображения: {patient_info['imaging_type']}
-                                    Ваш анализ должен включать:
-                                    1. Интерпретация результатов
-                                    - Подробное описание выявленных аномалий
-                                    - Сравнение с нормой
-                                    - Оценка степени тяжести выявленных изменений
-                                    2. Диагностические рекомендации
-                                    - Какие дополнительные исследования могут понадобиться
-                                    - Какие специалисты должны быть привлечены
-                                    - Какие лабораторные анализы рекомендованы
-                                    3. Возможные диагнозы
-                                    - Основные предполагаемые диагнозы (в порядке вероятности)
-                                    - Дифференциальная диагностика
-                                    - Критерии, подтверждающие или исключающие каждый диагноз                    
-                                    4. Рекомендации по лечению
-                                    - Неотложные меры, если они необходимы
-                                    - Консервативные методы лечения
-                                    - Хирургические варианты, если применимо
-                                    - Рекомендации по медикаментозной терапии
-                                    5. Рекомендации по наблюдению
-                                    - Как часто следует проводить контрольные исследования
-                                    - Какие показатели необходимо отслеживать
-                                    - При каких условиях требуется срочное обращение к врачу
-                                    6. Прогноз
-                                    - Краткосрочный прогноз
-                                    - Долгосрочный прогноз
-                                    - Факторы, которые могут повлиять на прогноз
-                                    7. Рекомендации по образу жизни
-                                    - Диетические рекомендации
-                                    - Физическая активность
-                                    - Психологические аспекты и рекомендации
-                                    Важно: Это не заменяет профессиональную медицинскую консультацию.
-                                    Ответ должен быть структурирован, безопасен и профессионален.
-                                    """
-                            },
-                            {
-                                "type": "image_url",
-                                "image_url": [
-                                    {"url": f"data:image/{file_ext[1:]};base64,{base64_image}"}
-                                ]
-                            }
-                        ]
-                    }
-                ],
-                "stream": True,
-                "include_thoughts": True,
-                "reasoning_effort": "high"
-            }
-    
-            try:
-                response = requests.post(
-                    "https://api.kie.ai/gemini-3-pro/v1/chat/completions",
-                    headers=headers,
-                    data=json.dumps(payload),
-                    stream=True
-                )
-                # Обработка потокового ответа
-                full_response = ""
-                reasoning_content = ""
-                credits_consumed = 0
-        
-                for line in response.iter_lines():
-                    if line:
-                        decoded_line = line.decode('utf-8')
-                        if decoded_line.startswith('data: '):
-                            data = json.loads(decoded_line[6:])
-                    
-                            # Проверяем, есть ли choices
-                            if data.get('choices') and len(data['choices']) > 0:
-                                delta = data['choices'][0].get('delta', {})
-                        
-                                # Собираем текстовый контент
-                                content = delta.get('content', '')
-                                if content:
-                                    full_response += content
-                        
-                                # Собираем контент рассуждений
-                                reasoning = delta.get('reasoning_content', '')
-                                if reasoning:
-                                    reasoning_content += reasoning
-                    
-                            # Проверяем, есть ли credits_consumed в последнем чанке
-                            if data.get('credits_consumed') is not None:
-                                credits_consumed = data['credits_consumed']
-                    
-                            # Проверяем, является ли последний чанк
-                            if decoded_line.strip() == 'data: [DONE]':
-                                break
-        
-                return {
-                    'text': full_response,
-                    'reasoning': reasoning_content,
-                    'credits_consumed': credits_consumed
-                }
+            APIKEY = os.getenv('OLLAMATEST')
+            if not APIKEY:
+                logger.error("API ключ OLLAMA не настроен")
+                return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR) 
             
-            except Exception as e:
-                logger.error(f"Ошибка вызова Gemini API: {str(e)}", exc_info=True)
-                return None
+            client = OpenAI(
+                base_url="https://ollama.com/v1/",
+                api_key=APIKEY
+            )
+            
+            chat_completion = client.chat.completions.create(
+                model="qwen3-vl:235b-cloud",
+                messages=[
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": prompt}
+                ],
+                temperature=0.3,
+                max_tokens=7000
+            )
+            
+            text_content = chat_completion.choices[0].message.content
+            if not isinstance(text_content, str):
+                text_content = str(text_content)
+            
+            return text_content
         except Exception as e:
             logger.error(f"Ошибка генерации медицинского анализа: {str(e)}")
             return "Не удалось сгенерировать медицинский анализ"
@@ -1375,14 +1137,6 @@ class ThreeDToProjectView(APIView):
 class HealthRecommendationView(APIView):
     def post(self, request, *args, **kwargs):
         logger.info(f"Получен запрос на рекомендации по здоровью: {request.data}")
-        SYSTEM_PROMPT = """
-            Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
-            Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
-            Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
-            Вы не говорите, что вы ИИ или Qwen - вы всегда представляетесь как Советница АКВИ.
-            Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
-            Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
-        """
         symptoms = request.data.get('symptoms', '')
         if not symptoms:
             return Response({'error': 'Симптомы не указаны'}, status=status.HTTP_400_BAD_REQUEST)
@@ -1390,18 +1144,17 @@ class HealthRecommendationView(APIView):
         gender = request.data.get('gender', 'не указан')
         country = request.data.get('country', 'Россия')
         recommendation_type = request.data.get('type', 'общие')
-        HF_API_KEY = os.getenv('HF_API_KEY_REK')
-        if not HF_API_KEY:
-            logger.error("API ключ Hugging Face не настроен")
-            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
             logger.info(f"Генерация рекомендаций по здоровью для симптомов: {symptoms}")
-            client = InferenceClient(
-                model="Qwen/Qwen2.5-72B-Instruct",
-                token=HF_API_KEY
-            )
+            SYSTEM_PROMPT="""
+                Вы - Советница АКВИ, профессиональный медицинский консультант с экспертными знаниями в диагностике и лечении заболеваний.
+                Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
+                Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
+                Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
+                Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных медицинских источниках.
+                Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
+            """
             prompt = f"""
-                {SYSTEM_PROMPT}
                 Проанализируй следующие симптомы и дай рекомендации по улучшению здоровья:
                 Симптомы:
                  {symptoms}
@@ -1428,15 +1181,34 @@ class HealthRecommendationView(APIView):
                     - Когда обращаться к врачу
                 Ответ должен быть структурирован, безопасен и профессионален.   
             """
-            response = client.chat_completion(
-                messages=[
+            ARLIAI_API_KEY = os.getenv('ARLITEST')
+
+            url = "https://api.arliai.com/v1/chat/completions"
+
+            payload = json.dumps({
+                "model": "Gemma-3-27B-it",
+                "messages": [
                     {"role": "system", "content": SYSTEM_PROMPT},
                     {"role": "user", "content": prompt}
                 ],
-                max_tokens=800
-            )
+                "repetition_penalty": 1.1,
+                "temperature": 0.3,
+                "top_p": 0.9,
+                "top_k": 40,
+                "max_completion_tokens": 4000,
+                "stream": False
+            })
+            headers = {
+                'Content-Type': 'application/json',
+                'Authorization': f"Bearer {ARLIAI_API_KEY}"
+            }
+
+            response = requests.request("POST", url, headers=headers, data=payload)
+
+            recommendation = response.json()
+
             return Response({
-                'recommendation': response.choices[0].message.content,
+                'recommendation': recommendation['choices'][0]['message']['content'],
                 'symptoms': symptoms,
                 'age': age,
                 'gender': gender,
@@ -1557,7 +1329,7 @@ class BusinessPlanView(APIView):
                 temperature=0.3,
                 max_tokens=8192,
             )
-            
+
             return Response({
                 'business_plan': completion.choices[0].message.content,
                 'business_idea': business_idea,
@@ -2298,10 +2070,10 @@ class InvestmentAnalysisView(APIView):
                 "model": "Qwen/Qwen3-32B"
             }
             response = requests.post(API_URL, headers=headers, data=json.dumps(payload))
-            response_data = response.json()
+            analysis = response.json()
             
             return Response({
-                'analysis': response_data['choices'][0]['message']['content'],
+                'analysis': analysis['choices'][0]['message']['content'],
                 'initial_investment': initial_investment,
                 'expected_return': expected_return,
                 'investment_period': investment_period,
@@ -2422,10 +2194,10 @@ class MarketingStrategyView(APIView):
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
             
-            response_data = response.json()
+            marketing_strategy = response.json()
             
             return Response({
-                'marketing_strategy': response_data['choices'][0]['message']['content'],
+                'marketing_strategy': marketing_strategy['choices'][0]['message']['content'],
                 'idea': idea,
                 'target_audience': target_audience,
                 'budget': budget,
@@ -2551,11 +2323,11 @@ class TravelPlannerView(APIView):
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
             
-            response_data = response.json()
+            travel_plan = response.json()
             
             
             return Response({
-                'travel_plan': response_data['choices'][0]['message']['content'],
+                'travel_plan': travel_plan['choices'][0]['message']['content'],
                 'destination': destination,
                 'budget': budget,
                 'travel_dates': travel_dates,
@@ -2663,10 +2435,10 @@ class CompetitorAnalysisView(APIView):
             }
 
             response = requests.post(API_URL, headers=headers, data=json.dumps(payload))
-            response_data = response.json()
+            analysis = response.json()
 
             return Response({
-                'analysis': response_data['choices'][0]['message']['content'],
+                'analysis': analysis['choices'][0]['message']['content'],
                 'business_name': business_name,
                 'market_segment': market_segment,
                 'country': country,
@@ -2679,14 +2451,6 @@ class CompetitorAnalysisView(APIView):
 class CommunicationOptimizationView(APIView):
     def post(self, request, *args, **kwargs):
         logger.info(f"Получен запрос на оптимизацию коммуникации: {request.data}")
-        SYSTEM_PROMPT = """
-            Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
-            Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
-            Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
-            Вы не говорите, что вы ИИ или Qwen - вы всегда представляетесь как Советница АКВИ.
-            Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
-            Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
-        """
         company_size = request.data.get('company_size', '500+ сотрудников')
         industry = request.data.get('industry', 'общая отрасль')
         communication_problems = request.data.get('communication_problems', '')
@@ -2695,18 +2459,17 @@ class CommunicationOptimizationView(APIView):
         current_tools = request.data.get('current_tools', 'стандартные инструменты')
         goals = request.data.get('goals', 'улучшение коммуникации')
         country = request.data.get('country', 'Россия')
-        HF_API_KEY = os.getenv('HF_API_KEY_OPMS')
-        if not HF_API_KEY:
-            logger.error("API ключ Hugging Face не настроен")
-            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
             logger.info(f"Оптимизация коммуникации для компании размером {company_size} в отрасли {industry}")
-            client = InferenceClient(
-                model="Qwen/Qwen2.5-72B-Instruct",
-                token=HF_API_KEY
-            )
+            system_prompt = """
+                Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
+                Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
+                Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
+                Вы не говорите, что вы ИИ или Qwen - вы всегда представляетесь как Советница АКВИ.
+                Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
+                Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
+            """
             prompt = f"""
-                {SYSTEM_PROMPT}
                 Проведи анализ и оптимизацию коммуникации для крупной организации с учетом следующих параметров:
                     - Размер компании:
                      {company_size}
@@ -2763,24 +2526,54 @@ class CommunicationOptimizationView(APIView):
                 
                 Ответ должен быть профессиональным, содержать конкретные рекомендации и примеры из реальных компаний.
             """
-            response = client.chat_completion(
-                messages=[
-                    {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": prompt}
-                ],
-                max_tokens=900
-            )
-            return Response({
-                'optimization_plan': response.choices[0].message.content,
-                'company_size': company_size,
-                'industry': industry,
-                'communication_problems': communication_problems,
-                'current_tools': current_tools,
-                'goals': goals,
-                'country': country
+            APIKEY = os.getenv('ARLITEST')
+            if not APIKEY:
+                logger.error("API ключ ARLI не настроен")
+                return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+            url = "https://api.arliai.com/v1/completions"
+            
+            payload = json.dumps({
+                "model": "Gemma-3-27B-it",
+                "prompt": f"<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\n{system_prompt}<|eot_id|><|start_header_id|>user<|end_header_id|>\n\n{prompt}<|eot_id|>",
+                "repetition_penalty": 1.1,
+                "temperature": 0.3,
+                "top_p": 0.9,
+                "top_k": 40,
+                "max_completion_tokens": 4000,
+                "stream": False
             })
+            headers = {
+                'Content-Type': 'application/json',
+                'Authorization': f"Bearer {APIKEY}"
+            }
+
+            response = requests.request("POST", url, headers=headers, data=payload)
+            
+            if response.status_code != 200:
+                logger.error(f"Ошибка API: {response.status_code} - {response.text}")
+                return Response({'error': f'Ошибка API: {response.status_code}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            
+            response_data = response.json()
+            
+            if 'choices' in response_data and len(response_data['choices']) > 0:
+                text_content = response_data['choices'][0].get('text', '')
+                cleaned_text = re.sub(r'<\|[^|]+\|>', '', text_content)
+                cleaned_text = cleaned_text.strip()
+                return Response({
+                    'optimization_plan': cleaned_text,
+                    'company_size': company_size,
+                    'industry': industry,
+                    'communication_problems': communication_problems,
+                    'current_tools': current_tools,
+                    'goals': goals,
+                    'country': country
+                })
+            else:
+                logger.error("Некорректный формат ответа: choices не найдены")
+                return Response({'error': 'Некорректный формат ответа от API'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as e:
-            logger.error(f"Ошибка оптимизации коммуникации: {str(e)}")
+            logger.error(f"Ошибка оптимизации коммуникации: {str(e)}", exc_info=True)
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class AdviceViewSet(viewsets.ModelViewSet):
