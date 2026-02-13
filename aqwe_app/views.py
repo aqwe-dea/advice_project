@@ -138,43 +138,51 @@ def call_gemini_flash_api(api_key, messages, stream=True, include_thoughts=True,
         
 class ChatView(APIView):
     def post(self, request, *args, **kwargs):
-        SYSTEM_PROMPT = """
-            Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
-            Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
-            Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
-            Вы не говорите, что вы ИИ или Qwen - вы всегда представляетесь как Советница АКВИ.
-            Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
-            Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
-        """
         user_message = request.data.get('message', '')
         if not user_message:
             return Response({'error': 'Сообщение не может быть пустым'}, status=status.HTTP_400_BAD_REQUEST)
-        HF_API_KEY = os.getenv('HUGGINGFACE_API_KEY')
-        if not HF_API_KEY:
-            logger.error("Hugging Face API ключ не настроен")
-            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
+            system_prompt = """
+                Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
+                Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
+                Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
+                Вы не говорите, что вы ИИ или Qwen - вы всегда представляетесь как Советница АКВИ.
+                Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
+                Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
+            """
             prompt = f"""
-                {SYSTEM_PROMPT}
-                Пользователь написал:
-                 "{user_message}"
+                Пользователь написал: {user_message}
                 Как Советница АКВИ, предоставь профессиональный и дружелюбный ответ.
                 Твой ответ должен быть структурирован, информативен и соответствовать твоей роли эксперта.
                 Не упоминай, что ты ИИ или Qwen - ты всегда Советница АКВИ.
             """ 
-            client = InferenceClient(
-                model="Qwen/Qwen2.5-72B-Instruct",
-                token=HF_API_KEY
+            APIKEY = os.getenv('SAMBA_AQWE_SLIDES')
+            if not APIKEY:
+                logger.error("API ключ SAMBA не настроен")
+                return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR) 
+            
+            client = OpenAI(
+                base_url="https://api.sambanova.ai/v1",
+                api_key=APIKEY
             )
-            response = client.chat_completion(
+            
+            completion = client.chat.completions.create(
+                model="Llama-4-Maverick-17B-128E-Instruct",
                 messages=[
-                    {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": user_message}
+                    {"role": "system", "content": system_prompt},
+                    {"role": "user", "content": prompt}
                 ],
-                max_tokens=1800
+                temperature=0.3,
+                max_tokens=7000
             )
-            ai_response = response.choices[0].message.content
-            return Response({'response': ai_response})
+            
+            text_content = completion.choices[0].message.content
+            if not isinstance(text_content, str):
+                text_content = str(text_content)
+            
+            return Response({
+                'response': text_content
+            })
         except Exception as e:
             logger.error(f"Ошибка чата: {str(e)}")
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
@@ -468,14 +476,6 @@ class BuildCourseBookView(APIView):
 
 class LegalDocumentAnalysisView(APIView):
     def post(self, request, *args, **kwargs):
-        SYSTEM_PROMPT = """
-            Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
-            Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
-            Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
-            Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
-            Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
-            Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
-        """
         if 'file' not in request.FILES:
             return Response(
                 {'error': 'Файл не предоставлен'},
@@ -489,19 +489,20 @@ class LegalDocumentAnalysisView(APIView):
             )
         file_path = default_storage.save(f'tmp/{uploaded_file.name}', ContentFile(uploaded_file.read()))
         try:
+            system_prompt = """
+                Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
+                Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
+                Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
+                Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
+                Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
+                Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
+            """
             with open(default_storage.path(file_path), 'rb') as f:
                 pdf_reader = PdfReader(f)
                 text = ""
                 for page in pdf_reader.pages:
                     text += page.extract_text() or ""
-            HF_API_KEY = os.getenv('HF_API_KEY_UR')
-            if not HF_API_KEY:
-                return Response(
-                    {'error': 'API ключ для юридического анализа не настроен'},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                )
             prompt = f"""
-                {SYSTEM_PROMPT}
                 Вы - сертифицированный юрист с опытом работы в юридической фирме.
                 Ваши рекомендации соответствуют законодательству Российской Федерации.
                 
@@ -517,24 +518,37 @@ class LegalDocumentAnalysisView(APIView):
                 
                 Ответ должен быть профессиональным, структурированным и содержать ссылки на конкретные статьи ГК РФ.
             """
-            client = InferenceClient(
-                model="Qwen/Qwen2.5-72B-Instruct",
-                token=HF_API_KEY
+            APIKEY = os.getenv('CLARIFAITEST')
+            if not APIKEY:
+                logger.error("API ключ CLARIFAITEST не настроен")
+                return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR) 
+            
+            client = OpenAI(
+                base_url="https://api.clarifai.com/v2/ext/openai/v1",
+                api_key=APIKEY
             )
-            response = client.chat_completion(
+            
+            completion = client.chat.completions.create(
+                model="https://clarifai.com/openai/chat-completion/models/gpt-oss-120b/versions/f1d2ad8c01c74705868f5c8ae4a1ff7c",
                 messages=[
-                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "system", "content": system_prompt},
                     {"role": "user", "content": prompt}
                 ],
-                max_tokens=1500
+                temperature=0.3,
+                max_tokens=7000
             )
+            
+            text_content = completion.choices[0].message.content
+            if not isinstance(text_content, str):
+                text_content = str(text_content)
+            
             return Response({
                 'document_summary': {
                     'file_name': uploaded_file.name,
                     'page_count': len(pdf_reader.pages),
                     'text_length': len(text)
                 },
-                'analysis': response.choices[0].message.content
+                'analysis': text_content
             })
         except Exception as e:
             logger.error(f"Ошибка при обработке юридического документа: {str(e)}")
@@ -548,14 +562,6 @@ class LegalDocumentAnalysisView(APIView):
     
 class FinancialAnalysisView(APIView):
     def post(self, request, *args, **kwargs):
-        SYSTEM_PROMPT = """
-            Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
-            Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
-            Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
-            Вы не говорите, что вы ИИ или Qwen - вы всегда представляетесь как Советница АКВИ.
-            Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
-            Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
-        """
         if 'report' in request.FILES:
             file = request.FILES['report']
             financial_data = [{"revenue": 100000, "expenses": 70000}, {"revenue": 120000, "expenses": 85000}]
@@ -564,20 +570,20 @@ class FinancialAnalysisView(APIView):
         if not financial_data or not isinstance(financial_data, list):
             return Response({'error': 'Финансовые данные не предоставлены'}, status=status.HTTP_400_BAD_REQUEST)
         country = request.data.get('country', 'Россия')
-        HF_API_KEY = os.getenv('HF_API_KEY_FIN')
-        if not HF_API_KEY:
-            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         try:
+            system_prompt = """
+                Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
+                Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
+                Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
+                Вы не говорите, что вы ИИ или Qwen - вы всегда представляетесь как Советница АКВИ.
+                Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
+                Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
+            """
             total_revenue = sum(float(item['revenue']) for item in financial_data)
             total_expenses = sum(float(item['expenses']) for item in financial_data)
             profit = total_revenue - total_expenses
             profit_margin = profit / total_revenue if total_revenue else 0
-            client = InferenceClient(
-                model="Qwen/Qwen2.5-72B-Instruct",
-                token=HF_API_KEY
-            )
             prompt = f"""
-                {SYSTEM_PROMPT}
                 Вы - сертифицированный финансовый аналитик с опытом работы в Big4.
                 Ваши рекомендации соответствуют международным стандартам финансовой отчетности (МСФО).
                 Проанализируйте финансовую отчетность: "{financial_data}"
@@ -588,13 +594,30 @@ class FinancialAnalysisView(APIView):
                 - Прогнозирование финансовых показателей на следующий период
                 - Конкретные рекомендации по оптимизации финансовой деятельности
             """
-            response = client.chat_completion(
+            APIKEY = os.getenv('CLARIFAITEST')
+            if not APIKEY:
+                logger.error("API ключ CLARIFAITEST не настроен")
+                return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR) 
+            
+            client = OpenAI(
+                base_url="https://api.clarifai.com/v2/ext/openai/v1",
+                api_key=APIKEY
+            )
+            
+            completion = client.chat.completions.create(
+                model="https://clarifai.com/openai/chat-completion/models/gpt-oss-120b/versions/f1d2ad8c01c74705868f5c8ae4a1ff7c",
                 messages=[
-                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "system", "content": system_prompt},
                     {"role": "user", "content": prompt}
                 ],
-                max_tokens=1000
+                temperature=0.3,
+                max_tokens=7000
             )
+            
+            text_content = completion.choices[0].message.content
+            if not isinstance(text_content, str):
+                text_content = str(text_content)
+            
             return Response({
                 'summary': {
                     'total_revenue': total_revenue,
@@ -602,7 +625,7 @@ class FinancialAnalysisView(APIView):
                     'profit': profit,
                     'profit_margin': profit_margin
                 },
-                'analysis': response.choices[0].message.content
+                'analysis': text_content
             })
         except Exception as e:
             logger.error(f"Ошибка финансового анализа: {str(e)}")

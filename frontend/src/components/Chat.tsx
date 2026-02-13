@@ -5,14 +5,6 @@ import { motion } from 'framer-motion';
 import { styled } from 'styled-components';
 import { colors } from '../theme';
 
-const ChatContainer = styled.div`
-    max-width: 600px;
-    margin: 40px auto;
-    padding: 24px;
-    background: #F5F5DC;
-    border-radius: 16px;
-`;
-
 //interface HuggingFaceResponse {
     //choices: Array<{
         //message: {
@@ -30,7 +22,7 @@ const ChatContainer = styled.div`
 function Chat() {
     useEffect(() => {
         const fetchHistory = async () => {
-            const history = await axios.get('https://advice-project.onrender.com/api/user-history/?email=...');
+            const history = await axios.get('/api/user-history/?email=...');
             setMessages(history.data.map((msg: any) => ({
                 user: msg.question,
                 bot: msg.answer
@@ -51,7 +43,7 @@ function Chat() {
         maxWidth: '80%',
         marginBottom: '1rem'
     };
-    const aquaMessageStyle = {
+    const aqweMessageStyle = {
         backgroundColor: colors.primary, // Цвет из вашей темы
         color: 'white', // Это тоже решает проблему с белым текстом
         marginRight: 'auto',
@@ -67,12 +59,12 @@ function Chat() {
     setInput('');
     setIsLoading(true);
     try {
-      const response = await axios.post('https://advice-project.onrender.com/chat/', { message: input });
-      setMessages(prev => [...prev, { sender: 'aqua', text: response.data.response }]);
+      const response = await axios.post('/chat/', { message: input });
+      setMessages(prev => [...prev, { sender: 'aqwe', text: response.data.response }]);
     } catch (error) {
       setMessages(prev => [...prev, { 
-        sender: 'aqua', 
-        text: 'Извините, произошла ошибка. Пожалуйста, попробуйте позже.' 
+        sender: 'aqwe',
+        text: 'Извините, произошла ошибка. Пожалуйста, попробуйте позже.'
     }]);
     } finally {
       setIsLoading(false);
@@ -105,14 +97,14 @@ function Chat() {
             // Здесь применяются стили к каждому сообщению
             <div 
                 key={index} 
-                style={message.sender === 'user' ? userMessageStyle : aquaMessageStyle}
+                style={message.sender === 'user' ? userMessageStyle : aqweMessageStyle}
             >
             {message.text}
             </div>
             ))}      
             {isLoading && (
                 <div style={{
-                    ...aquaMessageStyle,
+                    ...aqweMessageStyle,
                     display: 'flex',
                     alignItems: 'center',
                     justifyContent: 'center'
@@ -165,5 +157,13 @@ function Chat() {
         </ChatContainer>
     );
 }
+
+const ChatContainer = styled.div`
+    max-width: 600px;
+    margin: 40px auto;
+    padding: 24px;
+    background: #F5F5DC;
+    border-radius: 16px;
+`;
 
 export default Chat;
