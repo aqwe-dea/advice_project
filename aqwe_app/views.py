@@ -38,6 +38,7 @@ from PyPDF2._reader import PdfReader
 from PyPDF2 import PdfReader
 from PIL import Image
 from PIL.Image import Image
+from io import BytesIO
 from huggingface_hub import InferenceClient
 from huggingface_hub import InferenceApi
 from huggingface_hub import HfApi
@@ -53,21 +54,21 @@ logger = logging.getLogger(__name__)
 @method_decorator(csrf_exempt, name='dispatch')
 @permission_classes([AllowAny])
 
-def call_gemini_flash_api(api_key, messages, stream=True, include_thoughts=True, reasoning_effort="high"):
-    """Вызывает API Gemini 3 Flash с правильной обработкой потока"""
-    headers = {
-        "Content-Type": "application/json",
-        "Authorization": f"Bearer {api_key}"
-    }
-    
-    payload = {
-        "messages": messages,
-        "stream": stream,
-        "include_thoughts": include_thoughts,
-        "reasoning_effort": reasoning_effort
-    }
-    
+def call_stream_chat_api(api_key, messages, stream=True, include_thoughts=True, reasoning_effort="high"):
+    """Вызывает потоковый чат"""
     try:
+        headers = {
+            "Content-Type": "application/json",
+            "Authorization": f"Bearer {api_key}"
+        }
+        
+        payload = {
+            "messages": messages,
+            "stream": stream,
+            "include_thoughts": include_thoughts,
+            "reasoning_effort": reasoning_effort
+        }
+        
         response = requests.post(
             "https://api.kie.ai/gemini-3-pro/v1/chat/completions",
             headers=headers,
@@ -75,51 +76,25 @@ def call_gemini_flash_api(api_key, messages, stream=True, include_thoughts=True,
             stream=stream
         )
         
-        if not stream:
-            if response.status_code == 200:
-                return response.json()
-            else:
-                logger.error(f"Ошибка API: {response.status_code} - {response.text}")
-                return None
-        
-        # Обработка потокового ответа
         full_response = ""
         reasoning_content = ""
         
         for line in response.iter_lines():
-            if not line:
-                continue
-                
             decoded_line = line.decode('utf-8').strip()
-            
-            # Проверяем формат строки
             if decoded_line.startswith('data:'):
-                # Убираем префикс "data:"
                 json_str = decoded_line[6:].strip()
-                
-                # Пропускаем [DONE]
                 if json_str == "[DONE]":
-                    continue
-                    
+                    continue                    
                 try:
                     data = json.loads(json_str)
-                    
-                    # Обрабатываем данные
                     if 'choices' in data and len(data['choices']) > 0:
                         delta = data['choices'][0].get('delta', {})
-                        
-                        # Собираем основной контент
                         if 'content' in delta and delta['content']:
                             full_response += delta['content']
-                            
-                        # Собираем рассуждения
                         if 'reasoning_content' in delta and delta['reasoning_content']:
                             reasoning_content += delta['reasoning_content']
-                            
-                        # Проверяем на окончание
                         if 'finish_reason' in data['choices'][0] and data['choices'][0]['finish_reason'] == "stop":
-                            break
-                            
+                            break                            
                 except json.JSONDecodeError as e:
                     logger.error(f"Ошибка парсинга JSON: {e} | Строка: {json_str}")
                     continue
@@ -128,8 +103,8 @@ def call_gemini_flash_api(api_key, messages, stream=True, include_thoughts=True,
                     continue
         
         return {
-            'text': full_response['choices'][0]['delta']['content'],
-            'reasoning': reasoning_content['choices'][0]['delta']['reasoning_content']
+            'text': full_response,
+            'reasoning': reasoning_content
         }
             
     except Exception as e:
@@ -634,22 +609,11 @@ class FinancialAnalysisView(APIView):
 class PhotoRestorationView(APIView):
     def post(self, request, *args, **kwargs):
         logger.info(f"Получен запрос на реставрацию фотографии: {request.data}")
-        SYSTEM_PROMPT = """
-            Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
-            Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
-            Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
-            Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
-            Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
-            Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами.
-        """
+        if 'image' not in request.FILES:
+            return Response({'error': 'Изображение не предоставлено'}, status=status.HTTP_400_BAD_REQUEST)
+        
         image_file = request.FILES['image']
         image_data = image_file.read()
-        base64_image = base64.b64encode(image_data).decode('utf-8')
-        if 'image' not in request.FILES:
-            return Response(
-                {'error': 'Изображение не предоставлено'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
         allowed_extensions = ['.jpg', '.jpeg', '.png', '.tiff', '.bmp']
         file_ext = os.path.splitext(image_file.name)[1].lower()
         if file_ext not in allowed_extensions:
@@ -664,138 +628,54 @@ class PhotoRestorationView(APIView):
             'special_requests': request.data.get('special_requests', ''),
             'photo_age': request.data.get('photo_age', 'неизвестно')
         }
-        file_path = default_storage.save(f'tmp/{image_file.name}', ContentFile(image_file.read()))
-        image_url = default_storage.url(file_path)
-        if '?' in image_url:
-            image_url = image_url.split('?')[0] 
-        try:
-            original_image_url = f"{settings.MEDIA_URL}{image_url}"
-            if not original_image_url.startswith(('http://', 'https://')):
-                original_image_url = f"https://{original_image_url.lstrip('/')}"            
-            restored_image_url = self.generate_restoration_plan(
-                original_image_url,
-                restoration_info
-            )
-            if not restored_image_url:
-                return Response(
-                    {'error': 'Не удалось восстановить изображение'},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                )
-            restoration_report = self.create_restoration_report(
-                restored_image_url,
-                original_image_url,
-                restoration_info
-            )
-            return Response({
-                'original_url': original_image_url,
-                'restored_url': restored_image_url,
-                'restoration_report': restoration_report,
-                'restoration_info': restoration_info,
-                'image_type': file_ext[1:].upper()
-            })
-        except Exception as e:
-            logger.error(f"Ошибка реставрации фотографии: {str(e)}", exc_info=True)
-            return Response(
-                {'error': 'Произошла ошибка при анализе фотографии'},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
-        finally:
-            if default_storage.exists(file_path):
-                default_storage.delete(file_path)
-    def generate_restoration_plan(self, image_url, base64_image, file_ext, restoration_info):
-        """Генерирует план реставрации через KIE.ai"""
-        KIE_API_KEY = os.getenv('KIE_AQWE_SLIDES')        
-        if not KIE_API_KEY:
-            logger.error("KIE_API_KEY not set, skipping image restoration")
-            return None 
-           
-        try:
-            headers = {
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {KIE_API_KEY}"
-            }
-            payload = {
-                "model": "recraft/crisp-upscale",
-                "input": [
-                    {"image": f"data:image/{file_ext[1:]};base64,{base64_image}"}
-                ]
-            }
-            create_task_response = requests.post(
-                "https://api.kie.ai/api/v1/jobs/createTask",
-                headers=headers,
-                data=json.dumps(payload)
-            )            
-            if create_task_response.status_code != 200:
-                logger.error(f"Ошибка создания задачи: {create_task_response.status_code} - {create_task_response.text}")
-                return None
-                
-            task_data = create_task_response.json()
-            taskId = task_data.get('data', {}).get('taskId')
-            if not taskId:
-                logger.error(f"Не удалось получить taskId: {task_data}")
-                return None
-                
-            logger.info(f"Задача создана для реставрации: {taskId}")
-            max_attempts = 40
-            attempt = 0
-            result_url = None         
+        system_prompt = """
+            Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
+            Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
+            Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
+            Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
+            Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
+            Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами.
+        """
+
+        client = InferenceClient(
+            provider="fal-ai",
+            api_key=os.environ["FALTEST"],
+        )
+
+        restored_image = client.image_to_image(
+            image_data,
+            prompt="Restore this photo, remove scratches and noise, enhance details, natural colors, high quality",
+            model="valiantcat/Qwen-Image-Edit-2511-Upscale2K",
+        )
+        
+        buffer = BytesIO()
+        restored_image.save(buffer, format='PNG')
+        buffer.seek(0)
+        
+        image_name = f"restored_{image_file.name}"
+        file_path = default_storage.save(f'tmp/{image_name}', ContentFile(buffer.getvalue()))
+        restored_url = default_storage.url(file_path)
+        
+        restoration_report = self.create_restoration_report(
+            restored_url,
+            original_url,
+            restoration_info
+        )
             
-            while attempt < max_attempts and not result_url:
-                attempt += 1
-                logger.info(f"Попытка {attempt}/{max_attempts} для получения результата задачи {taskId}")
-                params = {"taskId": taskId}
-                headers = {
-                    "Content-Type": "application/json",
-                    "Authorization": f"Bearer {KIE_API_KEY}"
-                }
-                result_response = requests.get(
-                    "https://api.kie.ai/api/v1/jobs/recordInfo",
-                    params=params,
-                    headers=headers
-                )
-                if result_response.status_code != 200:
-                    logger.error(f"Ошибка получения статуса для taskId {taskId}: {result_response.status_code} - {result_response.text}")
-                    time.sleep(2)
-                    continue                
-                result_data = result_response.json()
-                logger.debug(f"Данные результата для задачи {taskId}: {json.dumps(result_data, indent=2)}")
-                task_status = result_data.get('data', {}).get('state')
-                if task_status == "success":
-                    result_json = result_data.get('data', {}).get('resultJson', {})
-                    if result_json:
-                        try:
-                            result_parsed = json.loads(result_json)
-                            result_urls = result_parsed.get('resultJson', {}).get('resultUrls', [])
-                            if result_urls and isinstance(result_urls, list) and len(result_urls) > 0:
-                                result_url = result_urls[0].strip()
-                                logger.info(f"Изображение успешно восстановлено: {result_url}")
-                                return result_url
-                            else:
-                                logger.error(f"Не удалось найти URL в resultUrls: {result_parsed}")
-                        except json.JSONDecodeError as e:
-                            logger.error(f"Ошибка парсинга resultJson: {str(e)} - {result_json}")
-                    else:
-                        logger.error(f"resultJson не найден в ответе: {result_data}")
-                elif task_status in ["FAILED", "fail", "failure"]:
-                    error_msg = result_data.get('data', {}).get('failMsg') or result_data.get('message') or "Неизвестная ошибка"
-                    logger.error(f"Задача {taskId} завершилась с ошибкой: {error_msg}")
-                    break
-                else:
-                    logger.info(f"Задача {taskId} в статусе {task_status}, ожидание...")
-                    time.sleep(3)                       
-            
-            logger.error(f"Не удалось восстановить изображение после {max_attempts} попыток")
-            return None
-                
-        except Exception as e:
-            logger.error(f"Критическая ошибка при генерации плана реставрации: {str(e)}", exc_info=True)
-            return None
-    def create_restoration_report(self, restored_image_url, original_image_url, restoration_info):
+        return Response({
+            'restored_url': restored_url,
+            'original_url': default_storage.url(f'tmp/{image_file.name}'),
+            'restoration_report': restoration_report,
+            'restoration_info': restoration_info,
+            'image_type': file_ext[1:].upper()
+        })
+
+    def create_restoration_report(self, restored_url, original_url, restoration_info):
         """Создает отчет о реставрации"""
         return {
             'before_after_comparison': {
-                'original_url': original_image_url,
-                'restored_url': restored_image_url
+                'original_url': original_url,
+                'restored_url': restored_url
             },
             'restoration_summary': {
                 'damage_type': restoration_info['damage_type'],
@@ -1737,27 +1617,22 @@ class BusinessPlanView(APIView):
 class PresentationGenerationView(APIView):
     def post(self, request, *args, **kwargs):
         logger.info(f"Получен запрос на генерацию презентации: {request.data}")
-        SYSTEM_PROMPT = """
-            Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
-            Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
-            Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
-            Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
-            Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
-            Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами.
-        """
         presentation_idea = request.data.get('presentation_idea', '')
         presentation_description = request.data.get('presentation_description', '')        
         if not presentation_idea or not presentation_description:
             return Response({
                 'error': 'Название идеи и описание идеи обязательны для заполнения'
-            }, status=status.HTTP_400_BAD_REQUEST)        
-        KIE_API_KEY = os.getenv('KIE_AQWE_SLIDES')    
-        if not KIE_API_KEY:
-            logger.warning("KIE_API_KEY не настроен попробуйте позже")
-            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-          
+            }, status=status.HTTP_400_BAD_REQUEST)  
         try:
             logger.info(f"Генерация презентации по идее: {presentation_idea}")
+            system_prompt = """
+                Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
+                Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
+                Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
+                Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
+                Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
+                Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами.
+            """
             prompt = f"""
                 Создайте профессиональную презентацию из 12 слайдов на основе следующей идеи:   
                     НАЗВАНИЕ ИДЕИ: {presentation_idea},
@@ -1817,39 +1692,37 @@ class PresentationGenerationView(APIView):
                     - Добавлены примеры и кейсы для иллюстрации концепции
                     - Включены ссылки на дополнительные материалы
                     - Указаны конкретные цифры и данные там, где это уместно
-            """
-            # Правильная структура сообщений
-            messages = [
-                {
-                    "role": "system",
-                    "content": SYSTEM_PROMPT
-                },
-                {
-                    "role": "user",
-                    "content": prompt
-                }
-            ]
-            
-            # Вызываем API с правильной обработкой потока
-            api_response = call_gemini_flash_api(
-                api_key=KIE_API_KEY,
-                messages=messages,
-                stream=True,
-                include_thoughts=True,
-                reasoning_effort="high"
+            """ 
+
+            client = InferenceClient(
+                provider="novita",
+                api_key=os.environ["NOVITA_AQWE_SLIDES"],
             )
+
+            completion = client.chat.completions.create(
+                model="openai/gpt-oss-120b",
+                messages=[
+	                {
+                        "role": "system", 
+                        "content": system_prompt
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ],
+                temperature=0.3,
+                max_tokens=6400,
+            )
+            text_content = completion.choices[0].message.content
+            if not isinstance(text_content, str):
+                text_content = str(text_content)
             
-            if not api_response or not api_response.get('text'):
-                logger.error("Не удалось получить ответ от API")
-                return Response({
-                    'error': 'Не удалось сгенерировать презентацию. Попробуйте позже.'
-                }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-                
-            presentation_text = api_response['text']
-            slide_image_prompts = self.extract_image_prompts(presentation_text)            
-            images = self.generate_images_for_slides(slide_image_prompts, presentation_idea)            
+            slide_image_prompts = self.extract_image_prompts(text_content)            
+            images = self.generate_images_for_slides(slide_image_prompts, presentation_idea)
+
             return Response({
-                'presentation': presentation_text,
+                'presentation': text_content,
                 'presentation_idea': presentation_idea,
                 'presentation_description': presentation_description,
                 'images': images
@@ -1858,7 +1731,7 @@ class PresentationGenerationView(APIView):
             logger.error(f"Ошибка генерации презентации: {str(e)}", exc_info=True)
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
-    def extract_image_prompts(self, presentation_text):
+    def extract_image_prompts(self, text_content):
         """Извлекает промпты для изображений из текста презентации"""
         image_prompts = []
         
@@ -1886,108 +1759,32 @@ class PresentationGenerationView(APIView):
         return image_prompts
     
     def generate_images_for_slides(self, image_prompts, presentation_idea):
-        """Генерирует изображения для слайдов через KIE AI"""
         images = []
-        KIE_API_KEY = os.getenv('KIE_AQWE_SLIDES')    
-        
-        if not KIE_API_KEY:
-            logger.warning("KIE_API_KEY not set, skipping image generation")
-            return []
-        
         try:
             for prompt_data in image_prompts:
                 slide_num = prompt_data['slide_number']
                 prompt = prompt_data['prompt']
                 
                 logger.info(f"Генерация изображения для слайда {slide_num} с промптом: {prompt}")
-                
-                # Создаем задачу на генерацию изображения
-                headers = {
-                    "Content-Type": "application/json",
-                    "Authorization": f"Bearer {KIE_API_KEY}"
-                }
-                
-                payload = {
-                    "model": "google/nano-banana",
-                    "input": {
-                        "prompt": f"Professional presentation slide about '{presentation_idea}'. {prompt}. Clean corporate style, modern design, no text on image, high quality, business visualization"
-                    }
-                }
-                
-                create_task_response = requests.post(
-                    "https://api.kie.ai/api/v1/jobs/createTask",
-                    headers=headers,
-                    data=json.dumps(payload)
+                client = InferenceClient(
+                    provider="replicate",
+                    api_key=os.environ["REPLICATE_AQWE_SLIDES"],
                 )
-                
-                if create_task_response.status_code != 200:
-                    logger.error(f"Ошибка создания задачи для слайда {slide_num}: {create_task_response.status_code} - {create_task_response.text}")
-                    continue
-                
-                task_data = create_task_response.json()
-                taskId = task_data.get('data', {}).get('taskId')
-                
-                if not taskId:
-                    logger.error(f"Не удалось получить taskId для слайда {slide_num}: {task_data}")
-                    continue
-                
-                logger.info(f"Задача создана для слайда {slide_num}, taskId: {taskId}")
-                
-                # Проверяем статус задачи
-                max_attempts = 30
-                attempt = 0
-                image_url = None
-                
-                while attempt < max_attempts and not image_url:
-                    attempt += 1
-                    logger.info(f"Попытка {attempt}/{max_attempts} для получения результата задачи {taskId}")
-                    params = {"taskId": taskId}
-                    headers = {
-                        "Content-Type": "application/json",
-                        "Authorization": f"Bearer {KIE_API_KEY}"
-                    }
-                    status_response = requests.get(
-                        "https://api.kie.ai/api/v1/jobs/recordInfo",
-                        params=params,
-                        headers=headers
-                    )
-                    
-                    if status_response.status_code != 200:
-                        logger.error(f"Ошибка получения статуса для taskId {taskId}: {status_response.status_code} - {status_response.text}")
-                        time.sleep(2)
-                        continue
-                    
-                    status_data = status_response.json()
-                    logger.debug(f"Данные результата для задачи {taskId}: {json.dumps(status_data, indent=2)}")
-                    
-                    task_status = status_data.get('data', {}).get('state')
-                    
-                    if task_status == "success":
-                        result_json = status_data.get('data', {}).get('resultJson')
-                        if result_json:
-                            try:
-                                # Парсим JSON из строки
-                                result_parsed = json.loads(result_json)
-                                # Извлекаем URL из поля resultUrls
-                                result_urls = result_parsed.get('resultJson', {}).get('resulUrls', [])
-                                if result_urls and isinstance(result_urls, list) and len(result_urls) > 0:
-                                    image_url = result_urls[0].strip()
-                                    logger.info(f"Изображение успешно сгенерировано для слайда {slide_num}: {image_url}")
-                                else:
-                                    logger.error(f"Не удалось найти URL в resultUrls: {result_parsed}")
-                            except json.JSONDecodeError as e:
-                                logger.error(f"Ошибка парсинга resultJson: {str(e)} - {result_json}")
-                        else:
-                            logger.error(f"resultJson не найден в ответе: {status_data}")
-                    elif task_status in ["FAILED", "fail", "failure"]:
-                        error_msg = status_data.get('data', {}).get('failMsg') or status_data.get('message') or "Неизвестная ошибка"
-                        logger.error(f"Задача {taskId} завершилась с ошибкой: {error_msg}")
-                        break
-                    else:
-                        logger.info(f"Задача {taskId} в статусе {task_status}, ожидание...")
-                        time.sleep(3)
-                
-                # Сохраняем изображение, если оно было получено
+
+                image = client.text_to_image(
+                    f"Professional presentation slide about '{presentation_idea}'. {prompt}. Clean corporate style, modern design, no text on image, high quality, business visualization",
+                    model="black-forest-labs/FLUX.1-schnell",
+                )
+        
+                buffer = BytesIO()
+                image.save(buffer, format='PNG')
+                buffer.seek(0)
+        
+                image_name = f"generated_{hash(prompt)}.png"
+                file_path = default_storage.save(f'tmp/{image_name}', ContentFile(buffer.getvalue()))
+                image_url = default_storage.url(file_path)
+        
+                return Response({'image_url': image_url, 'prompt': prompt})
                 if image_url:
                     try:
                         image_response = requests.get(image_url, timeout=60)
@@ -1998,16 +1795,9 @@ class PresentationGenerationView(APIView):
                         image_data = image_response.content
                         image_name = f"slide_{slide_num}_{abs(hash(presentation_idea)) % (10 ** 8)}.png"
                         file_path = default_storage.save(f'tmp/{image_name}', ContentFile(image_data))
-                        
-                        # Формируем правильный URL для отображения
-                        if settings.DEBUG:
-                            image_url = f"{settings.MEDIA_URL}{file_path}"
-                        else:
-                            image_url = default_storage.url(file_path)
-                        
                         images.append({
                             'slide_number': slide_num,
-                            'image_url': image_url,
+                            'image_url': image_data,
                             'prompt': prompt
                         })
                         logger.info(f"Изображение для слайда {slide_num} успешно сохранено: {image_url}")

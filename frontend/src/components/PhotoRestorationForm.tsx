@@ -66,7 +66,7 @@ const PhotoRestorationForm = () => {
       formData.append('special_requests', restorationInfo.special_requests);
       formData.append('photo_age', restorationInfo.photo_age);
       
-      const response = await fetch('https://advice-project.onrender.com/photo-restoration/', {
+      const response = await fetch('/photo-restoration/', {
         method: 'POST',
         body: formData
       });

@@ -38,7 +38,7 @@ const ThreeDModelConverterForm = () => {
           return prev + 5;
         });
       }, 300);
-      const response = await fetch('https://advice-project.onrender.com/3d-to-project/', {
+      const response = await fetch('/3d-to-project/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
