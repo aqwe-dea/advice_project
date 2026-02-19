@@ -609,9 +609,16 @@ class FinancialAnalysisView(APIView):
 class PhotoRestorationView(APIView):
     def post(self, request, *args, **kwargs):
         logger.info(f"Получен запрос на реставрацию фотографии: {request.data}")
+        system_prompt = """
+            Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
+            Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
+            Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
+            Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
+            Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
+            Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами.
+        """
         if 'image' not in request.FILES:
             return Response({'error': 'Изображение не предоставлено'}, status=status.HTTP_400_BAD_REQUEST)
-        
         image_file = request.FILES['image']
         image_data = image_file.read()
         allowed_extensions = ['.jpg', '.jpeg', '.png', '.tiff', '.bmp']
@@ -628,46 +635,35 @@ class PhotoRestorationView(APIView):
             'special_requests': request.data.get('special_requests', ''),
             'photo_age': request.data.get('photo_age', 'неизвестно')
         }
-        system_prompt = """
-            Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
-            Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
-            Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
-            Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
-            Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
-            Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами.
-        """
-
         client = InferenceClient(
             provider="fal-ai",
             api_key=os.environ["FALTEST"],
         )
-
-        restored_image = client.image_to_image(
+        image = client.image_to_image(
             image_data,
             prompt="Restore this photo, remove scratches and noise, enhance details, natural colors, high quality",
             model="valiantcat/Qwen-Image-Edit-2511-Upscale2K",
         )
-        
         buffer = BytesIO()
-        restored_image.save(buffer, format='PNG')
+        image.save(buffer, format='PNG')
         buffer.seek(0)
-        
         image_name = f"restored_{image_file.name}"
         file_path = default_storage.save(f'tmp/{image_name}', ContentFile(buffer.getvalue()))
         restored_url = default_storage.url(file_path)
-        
+        original_url = default_storage.url(f'tmp/{image_file.name}')
+
         restoration_report = self.create_restoration_report(
             restored_url,
-            original_url,
-            restoration_info
+            restoration_info,
+            original_url
         )
-            
+
         return Response({
-            'restored_url': restored_url,
-            'original_url': default_storage.url(f'tmp/{image_file.name}'),
-            'restoration_report': restoration_report,
+            'image_type': file_ext[1:].upper(),
             'restoration_info': restoration_info,
-            'image_type': file_ext[1:].upper()
+            'restored_url': restored_url,
+            'original_url': original_url,
+            'restoration_report': restoration_report
         })
 
     def create_restoration_report(self, restored_url, original_url, restoration_info):
@@ -1692,15 +1688,13 @@ class PresentationGenerationView(APIView):
                     - Добавлены примеры и кейсы для иллюстрации концепции
                     - Включены ссылки на дополнительные материалы
                     - Указаны конкретные цифры и данные там, где это уместно
-            """ 
-
+            """
             client = InferenceClient(
                 provider="novita",
                 api_key=os.environ["NOVITA_AQWE_SLIDES"],
             )
-
             completion = client.chat.completions.create(
-                model="openai/gpt-oss-120b",
+                model="zai-org/GLM-4.7-Flash",
                 messages=[
 	                {
                         "role": "system", 
@@ -1712,13 +1706,14 @@ class PresentationGenerationView(APIView):
                     }
                 ],
                 temperature=0.3,
-                max_tokens=6400,
+                max_tokens=8000,
             )
             text_content = completion.choices[0].message.content
             if not isinstance(text_content, str):
                 text_content = str(text_content)
             
-            slide_image_prompts = self.extract_image_prompts(text_content)            
+            slide_image_prompts = self.extract_image_prompts(text_content)
+            
             images = self.generate_images_for_slides(slide_image_prompts, presentation_idea)
 
             return Response({
@@ -1730,11 +1725,10 @@ class PresentationGenerationView(APIView):
         except Exception as e:
             logger.error(f"Ошибка генерации презентации: {str(e)}", exc_info=True)
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
     def extract_image_prompts(self, text_content):
         """Извлекает промпты для изображений из текста презентации"""
         image_prompts = []
-        
+
         slides_content = {
             "1": "Титульный слайд с названием презентации и профессиональным фоном, минималистичный стиль",
             "2": "Введение с иллюстрацией основной идеи, профессиональный дизайн",
@@ -1749,67 +1743,41 @@ class PresentationGenerationView(APIView):
             "11": "Контактная информация с профессиональным фоном, корпоративный стиль",
             "12": "Дополнительные материалы с иллюстрацией ресурсов, список литературы и ссылок"
         }
-        
         for slide_num, prompt in slides_content.items():
             image_prompts.append({
                 "slide_number": int(slide_num),
                 "prompt": f"Professional presentation slide {slide_num}: {prompt}, clean corporate style, modern design, no text on image, 16:9 aspect ratio"
             })
-        
-        return image_prompts
-    
+        return image_prompts    
     def generate_images_for_slides(self, image_prompts, presentation_idea):
         images = []
         try:
             for prompt_data in image_prompts:
                 slide_num = prompt_data['slide_number']
                 prompt = prompt_data['prompt']
-                
                 logger.info(f"Генерация изображения для слайда {slide_num} с промптом: {prompt}")
                 client = InferenceClient(
-                    provider="replicate",
-                    api_key=os.environ["REPLICATE_AQWE_SLIDES"],
+                    provider="fal-ai",
+                    api_key=os.environ["FALTEST"],
                 )
-
                 image = client.text_to_image(
                     f"Professional presentation slide about '{presentation_idea}'. {prompt}. Clean corporate style, modern design, no text on image, high quality, business visualization",
-                    model="black-forest-labs/FLUX.1-schnell",
+                    model="stabilityai/stable-diffusion-xl-base-1.0",
                 )
-        
                 buffer = BytesIO()
                 image.save(buffer, format='PNG')
                 buffer.seek(0)
-        
-                image_name = f"generated_{hash(prompt)}.png"
+                image_name = f"slide_{slide_num}_{hash(prompt)}.png"
                 file_path = default_storage.save(f'tmp/{image_name}', ContentFile(buffer.getvalue()))
                 image_url = default_storage.url(file_path)
-        
-                return Response({'image_url': image_url, 'prompt': prompt})
-                if image_url:
-                    try:
-                        image_response = requests.get(image_url, timeout=60)
-                        if image_response.status_code != 200:
-                            logger.error(f"Ошибка загрузки изображения {image_url}: {image_response.status_code} - {image_response.text}")
-                            continue
-                        
-                        image_data = image_response.content
-                        image_name = f"slide_{slide_num}_{abs(hash(presentation_idea)) % (10 ** 8)}.png"
-                        file_path = default_storage.save(f'tmp/{image_name}', ContentFile(image_data))
-                        images.append({
-                            'slide_number': slide_num,
-                            'image_url': image_data,
-                            'prompt': prompt
-                        })
-                        logger.info(f"Изображение для слайда {slide_num} успешно сохранено: {image_url}")
-                    except Exception as e:
-                        logger.error(f"Ошибка при сохранении изображения для слайда {slide_num}: {str(e)}", exc_info=True)
-                else:
-                    logger.error(f"Не удалось получить изображение для слайда {slide_num} после {max_attempts} попыток")
-        
+                images.append({
+                    'slide_number': slide_num,
+                    'image_url': image_url,
+                    'prompt': prompt
+                })            
+            return images
         except Exception as e:
-            logger.error(f"Критическая ошибка при генерации изображений: {str(e)}", exc_info=True)
-        
-        return images
+                logger.error(f"Критическая ошибка при генерации изображений: {str(e)}", exc_info=True)
 
 class InvestmentAnalysisView(APIView):
     def post(self, request, *args, **kwargs):
