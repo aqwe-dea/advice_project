@@ -609,16 +609,11 @@ class FinancialAnalysisView(APIView):
 class PhotoRestorationView(APIView):
     def post(self, request, *args, **kwargs):
         logger.info(f"Получен запрос на реставрацию фотографии: {request.data}")
-        system_prompt = """
-            Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
-            Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
-            Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
-            Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
-            Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
-            Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами.
-        """
         if 'image' not in request.FILES:
-            return Response({'error': 'Изображение не предоставлено'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response(
+                {'error': 'Изображение не предоставлено'}, 
+                status=status.HTTP_400_BAD_REQUEST
+            )
         image_file = request.FILES['image']
         image_data = image_file.read()
         allowed_extensions = ['.jpg', '.jpeg', '.png', '.tiff', '.bmp']
@@ -628,6 +623,17 @@ class PhotoRestorationView(APIView):
                 {'error': f'Поддерживаются только форматы: {", ".join(allowed_extensions)}'},
                 status=status.HTTP_400_BAD_REQUEST
             )
+        original_file_path = default_storage.save(f'tmp/original_{image_file.name}', ContentFile(image_data))
+        original_url = default_storage.url(original_file_path)
+        full_original_url = request.build_absolute_uri(original_url)
+        system_prompt = """
+            Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
+            Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
+            Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
+            Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
+            Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
+            Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами.
+        """
         restoration_info = {
             'damage_type': request.data.get('damage_type', 'потертости и царапины'),
             'damage_level': request.data.get('damage_level', 'средняя'),
@@ -635,36 +641,85 @@ class PhotoRestorationView(APIView):
             'special_requests': request.data.get('special_requests', ''),
             'photo_age': request.data.get('photo_age', 'неизвестно')
         }
-        client = InferenceClient(
-            provider="fal-ai",
-            api_key=os.environ["FALTEST"],
-        )
-        image = client.image_to_image(
-            image_data,
-            prompt="Restore this photo, remove scratches and noise, enhance details, natural colors, high quality",
-            model="valiantcat/Qwen-Image-Edit-2511-Upscale2K",
-        )
-        buffer = BytesIO()
-        image.save(buffer, format='PNG')
-        buffer.seek(0)
-        image_name = f"restored_{image_file.name}"
-        file_path = default_storage.save(f'tmp/{image_name}', ContentFile(buffer.getvalue()))
-        restored_url = default_storage.url(file_path)
-        original_url = default_storage.url(f'tmp/{image_file.name}')
-
-        restoration_report = self.create_restoration_report(
-            restored_url,
-            restoration_info,
-            original_url
-        )
-
-        return Response({
-            'image_type': file_ext[1:].upper(),
-            'restoration_info': restoration_info,
-            'restored_url': restored_url,
-            'original_url': original_url,
-            'restoration_report': restoration_report
-        })
+        
+        try:
+            url = "https://api.replicate.com/v1/models/topazlabs/image-upscale/predictions"
+            headers = {
+                'Content-Type': 'application/json',
+                'Authorization': f"Bearer {os.environ['REPLICATE_AQWE_SLIDES']}",
+                "Prefer": "wait"
+            }
+            payload = {
+	            "input": {
+                    "image": full_original_url,
+                    "enhance_model": "Low Resolution V2",
+                    "upscale_factor": "4x",
+                    "face_enhancement": True,
+                    "subject_detection": "Foreground",
+                    "face_enhancement_creativity": 0.5
+	            }
+            }
+            logger.info(f"Отправка запроса на реставрацию: {full_original_url}")
+            startwork = requests.request("POST", url, headers=headers, json=payload, timeout=120)
+            if startwork.status_code != 200:
+                logger.error(f"Ошибка создания предсказания: {startwork.status_code} - {startwork.text}")
+                return Response(
+                    {'error': f'Ошибка Replicate API: {startwork.status_code}'}, 
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+            result = startwork.json()
+            logger.info(f"Ответ от Replicate: {result}")
+            statuswork = result.get('status', '')
+            logger.info(f"Статус предсказания: {statuswork}")
+            if statuswork == 'succeeded':
+                    return result.get('output', '')
+            elif statuswork in ['failed', 'canceled']:
+                logger.error(f"Предсказание завершилось с ошибкой: {result.get('error', 'Unknown')}")
+                return None
+            prediction_id = result.get('id', '')
+            logger.info(f"ID предсказания: {prediction_id}, Статус: {statuswork}")
+            checkurl = f"https://api.replicate.com/v1/predictions/{prediction_id}"
+            checkwork = requests.request("GET", checkurl, headers=headers, timeout=30)
+            if checkwork.status_code != 200:
+                logger.error(f"Ошибка проверки статуса: {checkwork.status_code}")
+            image_url = checkwork.json()
+            outcome = result.get('output', '')
+            logger.info(f"Скачивание восстановленного изображения: {outcome}")
+            image_response = requests.get(outcome, timeout=60)
+            if image_response.status_code != 200:
+                logger.error(f"Ошибка скачивания изображения: {image_response.status_code}")
+                return Response(
+                    {'error': 'Не удалось скачать восстановленное изображение'}, 
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+            image_name = f"restored_{image_file.name}"
+            file_path = default_storage.save(f'tmp/{image_name}', ContentFile(image_response.content))
+            restored_url = default_storage.url(file_path)
+            restoration_report = self.create_restoration_report(
+                restored_url,
+                original_url,
+                restoration_info
+            )
+            return Response({
+                'restoration_report': restoration_report,
+                'restored_url': restored_url,
+                'image_type': file_ext[1:].upper(),
+                'startwork': result,
+                'check': checkwork,
+                'check_prediction': prediction_id,
+                'checkwork': image_url,
+                'receive_outcome': image_response,
+                'restoration_info': restoration_info,
+                'original_url': original_url
+            })
+        except Exception as e:
+            logger.error(f"Ошибка реставрации фотографии: {str(e)}", exc_info=True)
+            return Response(
+                {'error': f'Произошла ошибка при реставрации: {str(e)}'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        finally:
+            pass
 
     def create_restoration_report(self, restored_url, original_url, restoration_info):
         """Создает отчет о реставрации"""
@@ -920,14 +975,6 @@ class MedicalImageView(APIView):
 class ThreeDToProjectView(APIView):
     def post(self, request, *args, **kwargs):
         logger.info(f"Получен запрос на план 3D-моделирования: {request.data}")
-        SYSTEM_PROMPT = """
-            Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
-            Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
-            Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
-            Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
-            Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
-            Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
-        """
         model_idea = request.data.get('idea', '')
         if not model_idea:
             return Response({'error': 'Идея 3D-модели не указана'}, status=status.HTTP_400_BAD_REQUEST)
@@ -936,103 +983,130 @@ class ThreeDToProjectView(APIView):
         complexity = request.data.get('complexity', 'средняя')
         purpose = request.data.get('purpose', 'визуализация, анимация')
         timeframe = request.data.get('timeframe', '2-4 недели')
-        HF_API_KEY = os.getenv('HF_API_KEY_3D')
-        if not HF_API_KEY:
-            logger.error("API ключ Hugging Face для 3D-моделирования не настроен")
-            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        create_image = self.create_image_model(
+            model_idea, 
+            model_type
+        )
         try:
             logger.info(f"Генерация плана 3D-моделирования для идеи: {model_idea}")
-            client = InferenceClient(
-                model="Qwen/Qwen2.5-72B-Instruct",
-                token=HF_API_KEY
-            )
+            system_prompt = """
+                Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
+                Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
+                Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
+                Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
+                Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
+                Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
+            """
             prompt = f"""
-                {SYSTEM_PROMPT}
                 Создайте подробный план создания 3D-модели на основе следующих параметров:
-                    - Идея модели:
-                     {model_idea}
-                    - Тип модели:
-                     {model_type}
-                    - Программное обеспечение:
-                     {software}
-                    - Сложность:
-                     {complexity}
-                    - Цель:
-                     {purpose}
-                    - Временные рамки:
-                     {timeframe}
+                    - Идея модели: {model_idea}
+                    - Тип модели: {model_type}
+                    - Программное обеспечение: {software}
+                    - Сложность: {complexity}
+                    - Цель: {purpose}
+                    - Временные рамки: {timeframe}
                 
                 План должен включать:
-                
-                1. Подготовительный этап
-                    - Сбор референсов и исследование
-                    - Создание концепт-артов и скетчей
-                    - Определение технических требований
-                    - Планирование этапов работы
-                
-                2. Этап моделирования
-                    - Создание базовой формы (blocking)
-                    - Детализация формы (sculpting или polygon modeling)
-                    - Топология для анимации (если требуется)
-                    - Создание дополнительных элементов и аксессуаров
-                
-                3. Текстурирование и материалы
-                    - Создание UV-развертки
-                    - Генерация текстур (ручная или с помощью процедурных методов)
-                    - Настройка материалов и шейдеров
-                    - Добавление деталей (рельеф, нормали, roughness и т.д.)
-                
-                4. Риггинг и анимация (если применимо)
-                    - Создание скелета и системы деформации
-                    - Настройка контроллеров и ограничений
-                    - Тестирование анимации базовых поз
-                    - Создание базовых анимаций (если требуется)
-                
-                5. Освещение и рендеринг
-                    - Настройка освещения сцены
-                    - Выбор подходящего движка рендеринга
-                    - Тестовые рендеры для проверки качества
-                    - Финальная настройка и рендеринг
-                
-                6. Пост-обработка
-                    - Коррекция цвета и контраста
-                    - Добавление эффектов (глубина резкости, блики)
-                    - Композитинг и финальная доработка
-                    - Подготовка к экспортации в требуемые форматы
-                
-                7. Экспорт и интеграция
-                    - Выбор подходящего формата экспорта
-                    - Проверка совместимости с целевой платформой
-                    - Оптимизация для веб или игр (если требуется)
-                    - Интеграция в конечный проект
-                
-                8. Рекомендации по улучшению
-                    - Какие аспекты можно улучшить
-                    - Альтернативные подходы к созданию модели
-                    - Советы по оптимизации процесса
+                    1. Подготовительный этап
+                        - Сбор референсов и исследование
+                        - Создание концепт-артов и скетчей
+                        - Определение технических требований
+                        - Планирование этапов работы
+                    2. Этап моделирования
+                        - Создание базовой формы (blocking)
+                        - Детализация формы (sculpting или polygon modeling)
+                        - Топология для анимации (если требуется)
+                        - Создание дополнительных элементов и аксессуаров
+                    3. Текстурирование и материалы
+                        - Создание UV-развертки
+                        - Генерация текстур (ручная или с помощью процедурных методов)
+                        - Настройка материалов и шейдеров
+                        - Добавление деталей (рельеф, нормали, roughness и т.д.)
+                    4. Риггинг и анимация (если применимо)
+                        - Создание скелета и системы деформации
+                        - Настройка контроллеров и ограничений
+                        - Тестирование анимации базовых поз
+                        - Создание базовых анимаций (если требуется)
+                    5. Освещение и рендеринг
+                        - Настройка освещения сцены
+                        - Выбор подходящего движка рендеринга
+                        - Тестовые рендеры для проверки качества
+                        - Финальная настройка и рендеринг
+                    6. Пост-обработка
+                        - Коррекция цвета и контраста
+                        - Добавление эффектов (глубина резкости, блики)
+                        - Композитинг и финальная доработка
+                        - Подготовка к экспортации в требуемые форматы
+                    7. Экспорт и интеграция
+                        - Выбор подходящего формата экспорта
+                        - Проверка совместимости с целевой платформой
+                        - Оптимизация для веб или игр (если требуется)
+                        - Интеграция в конечный проект
+                    8. Рекомендации по улучшению
+                        - Какие аспекты можно улучшить
+                        - Альтернативные подходы к созданию модели
+                        - Советы по оптимизации процесса
                 
                 Ответ должен быть структурирован, профессионален и содержать конкретные рекомендации с примерами.
             """
-            response = client.chat_completion(
-                messages=[
-                    {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": prompt}
+            url = "https://api.fireworks.ai/inference/v1/completions"
+            APIKEY = os.getenv('FIREWORKSTESTSA')
+            headers = {
+                'Content-Type': 'application/json',
+                'Authorization': f"Bearer {APIKEY}"
+            }
+            payload = {
+                "model": "accounts/fireworks/models/glm-4p7",
+                "messages": [
+                    {
+                        "role": "system",
+                        "content": system_prompt
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
                 ],
-                max_tokens=1400
-            )
+                "temperature": 0.3,
+                "max_completion_tokens": 4000
+            }
+            response = requests.request("POST", url, headers=headers, json=payload)
+            modeling_plan = response.json()
             return Response({
-                'modeling_plan': response.choices[0].message.content,
+                'modeling_plan': modeling_plan,
+                'create_plan': response,
                 'model_idea': model_idea,
                 'model_type': model_type,
                 'software': software,
                 'complexity': complexity,
                 'purpose': purpose,
-                'timeframe': timeframe
+                'timeframe': timeframe,
+                'image3dmodel': create_image
             })
         except Exception as e:
             logger.error(f"Ошибка генерации плана 3D-моделирования: {str(e)}")
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
+    def create_image_model(self, model_idea, model_type):
+        logger.info(f"Генерация изображение 3D-модели для идеи: {model_idea}")
+        try:
+            url = "https://api.fireworks.ai/inference/v1/workflows/accounts/fireworks/models/flux-1-schnell-fp8/text_to_image"
+            APIKEY = os.getenv('FIREWORKSTESTSA')
+            headers = {
+                "Content-Type": "application/json",
+                'Authorization': f"Bearer {APIKEY}"
+            }
+            payload = {
+                "prompt": f"Создайте изображеие 3D-модели:  Идея модели: {model_idea} Тип модели: {model_type}"
+            }
+            create_image = requests.request("POST", url, headers=headers, json=payload) 
+            with open("model.jpg", "wb") as f:
+                f.write(create_image.content)
+                return "Image saved as model.jpg"
+                
+        except Exception as e:
+            logger.error(f"Ошибка создания изображения 3д модели: {str(e)}")
+            return "Не удалось создать изображение 3д модели"
+
 class HealthRecommendationView(APIView):
     def post(self, request, *args, **kwargs):
         logger.info(f"Получен запрос на рекомендации по здоровью: {request.data}")
@@ -1143,9 +1217,7 @@ class BusinessPlanView(APIView):
                 api_key=os.environ["HF_API_KEY_BPLN"],
             )
             prompt = f"""
-                {SYSTEM_PROMPT}
-                Подготовьте профессиональный бизнес-план для:
-                 "{business_idea}"    
+                Подготовьте профессиональный бизнес-план для: {business_idea}
                 ВАЖНО: Ответ должен быть строго структурирован как указано ниже, без дополнительных комментариев.
                 Используйте профессиональную терминологию и конкретные цифры там, где это уместно.
                 Каждый раздел должен содержать подробную информацию, подходящую для реального бизнеса.
@@ -1712,15 +1784,16 @@ class PresentationGenerationView(APIView):
             if not isinstance(text_content, str):
                 text_content = str(text_content)
             
-            slide_image_prompts = self.extract_image_prompts(text_content)
+            image_prompts = self.extract_image_prompts(text_content)
             
-            images = self.generate_images_for_slides(slide_image_prompts, presentation_idea)
+            images = self.generate_images_for_slides(image_prompts, presentation_idea)
 
             return Response({
-                'presentation': text_content,
                 'presentation_idea': presentation_idea,
                 'presentation_description': presentation_description,
-                'images': images
+                'presentation': text_content,
+                'text_prompt': image_prompts,
+                'outcome': images
             })
         except Exception as e:
             logger.error(f"Ошибка генерации презентации: {str(e)}", exc_info=True)
@@ -1757,12 +1830,12 @@ class PresentationGenerationView(APIView):
                 prompt = prompt_data['prompt']
                 logger.info(f"Генерация изображения для слайда {slide_num} с промптом: {prompt}")
                 client = InferenceClient(
-                    provider="fal-ai",
-                    api_key=os.environ["FALTEST"],
+                    provider="hf-inference",
+                    api_key=os.environ["HF_API_KEY"],
                 )
                 image = client.text_to_image(
                     f"Professional presentation slide about '{presentation_idea}'. {prompt}. Clean corporate style, modern design, no text on image, high quality, business visualization",
-                    model="stabilityai/stable-diffusion-xl-base-1.0",
+                    model="black-forest-labs/FLUX.1-schnell",
                 )
                 buffer = BytesIO()
                 image.save(buffer, format='PNG')
@@ -1782,14 +1855,6 @@ class PresentationGenerationView(APIView):
 class InvestmentAnalysisView(APIView):
     def post(self, request, *args, **kwargs):
         logger.info(f"Получен запрос на анализ инвестиций: {request.data}")
-        SYSTEM_PROMPT = """
-            Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
-            Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
-            Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
-            Вы не говорите, что вы ИИ или Qwen - вы всегда представляетесь как Советница АКВИ.
-            Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
-            Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
-        """
         initial_investment = request.data.get('initial_investment', '')
         expected_return = request.data.get('expected_return', '')
         investment_period = request.data.get('investment_period', '')
@@ -1801,21 +1866,22 @@ class InvestmentAnalysisView(APIView):
         
         try:
             logger.info(f"Анализ инвестиций: {initial_investment} на {investment_period} с ожидаемой доходностью {expected_return}")
+            SYSTEM_PROMPT = """
+                Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
+                Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
+                Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
+                Вы не говорите, что вы ИИ или Qwen - вы всегда представляетесь как Советница АКВИ.
+                Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
+                Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
+            """
             prompt = f"""
-                {SYSTEM_PROMPT}
                 Проанализируй инвестиционную возможность с следующими параметрами:
-                    - Начальные инвестиции:
-                     {initial_investment}
-                    - Ожидаемая годовая доходность:
-                     {expected_return}
-                    - Период инвестирования:
-                     {investment_period}
-                    - Уровень риска:
-                     {risk_level}
-                    - Тип инвестиций:
-                     {investment_type}
-                    - Страна:
-                     {country}
+                    - Начальные инвестиции: {initial_investment}
+                    - Ожидаемая годовая доходность: {expected_return}
+                    - Период инвестирования: {investment_period}
+                    - Уровень риска: {risk_level}
+                    - Тип инвестиций: {investment_type}
+                    - Страна: {country}
                 Задачи:
                     1. Рассчитай потенциальную доходность и конечную сумму
                     2. Оцени уровень риска и вероятность достижения целевой доходности
@@ -1869,22 +1935,12 @@ class InvestmentAnalysisView(APIView):
 class MarketingStrategyView(APIView):
     def post(self, request, *args, **kwargs):
         logger.info(f"Получен запрос на маркетинговую стратегию: {request.data}")
-        SYSTEM_PROMPT = """
-            Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
-            Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
-            Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
-            Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
-            Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
-            Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами.
-        """
-        
         idea = request.data.get('idea', '')
         if not idea:
             return Response(
                 {'error': 'Идея не указана'}, 
                 status=status.HTTP_400_BAD_REQUEST
             )
-        
         target_audience = request.data.get('target_audience', 'широкая аудитория')
         budget = request.data.get('budget', 'средний')
         timeframe = request.data.get('timeframe', '3 месяца')
@@ -1901,10 +1957,16 @@ class MarketingStrategyView(APIView):
         
         try:
             logger.info(f"Генерация маркетинговой стратегии для идеи: {idea}")
-            
+            SYSTEM_PROMPT = """
+                Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
+                Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
+                Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
+                Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
+                Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
+                Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами.
+            """
             prompt = f"""
-                {SYSTEM_PROMPT}
-                Создай подробную стратегию продвижения для идеи: "{idea}"
+                Создай подробную стратегию продвижения для идеи: {idea}
                 Параметры:
                     - Целевая аудитория: {target_audience}
                     - Бюджет: {budget}
@@ -2127,14 +2189,6 @@ class TravelPlannerView(APIView):
 class CompetitorAnalysisView(APIView):
     def post(self, request, *args, **kwargs):
         logger.info(f"Получен запрос на анализ конкурентов: {request.data}")
-        SYSTEM_PROMPT = """
-            Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
-            Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
-            Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
-            Вы не говорите, что вы ИИ или Qwen - вы всегда представляетесь как Советница АКВИ.
-            Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
-            Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
-        """
         business_name = request.data.get('business_name', '')
         business_description = request.data.get('business_description', '')
         if not business_name or not business_description:
@@ -2145,15 +2199,19 @@ class CompetitorAnalysisView(APIView):
         
         try:
             logger.info(f"Анализ конкурентов для бизнеса: {business_name}")
+            SYSTEM_PROMPT = """
+                Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
+                Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
+                Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
+                Вы не говорите, что вы ИИ или Qwen - вы всегда представляетесь как Советница АКВИ.
+                Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
+                Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
+            """
             prompt = f"""
-                {SYSTEM_PROMPT}
-                Проведи глубокий анализ конкурентов для бизнеса "{business_name}" в сегменте "{market_segment}"
-                Описание бизнеса:
-                 {business_description}
-                Конкуренты:
-                 {competitors}
-                Страна:
-                 {country}
+                Проведи глубокий анализ конкурентов для бизнеса {business_name} в сегменте {market_segment}
+                Описание бизнеса: {business_description}
+                Конкуренты: {competitors}
+                Страна: {country}
                 Анализ должен включать:
                     1. Обзор рынка
                         - Размер рынка и темпы роста
