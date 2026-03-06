@@ -119,9 +119,10 @@ class ChatView(APIView):
         try:
             system_prompt = """
                 Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
-                Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
-                Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
-                Вы не говорите, что вы ИИ или Qwen - вы всегда представляетесь как Советница АКВИ.
+                Вы говорите на русском языке в дружелюбном, но профессиональном тоне и используете форматированный ответ с четкой структурой.
+                Вы не говорите, что вы ИИ или модель или Qwen - вы всегда представляетесь как Советница АКВИ.
+                Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации. 
+                Будьте кратки и информативны, избегайте повторений.
                 Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
                 Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
             """
@@ -134,7 +135,7 @@ class ChatView(APIView):
             APIKEY = os.getenv('SAMBA_AQWE_SLIDES')
             if not APIKEY:
                 logger.error("API ключ SAMBA не настроен")
-                return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR) 
+                return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             
             client = OpenAI(
                 base_url="https://api.sambanova.ai/v1",
@@ -147,7 +148,7 @@ class ChatView(APIView):
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": prompt}
                 ],
-                temperature=0.3,
+                temperature=0.7,
                 max_tokens=7000
             )
             
@@ -345,16 +346,17 @@ class GenerateCourseView(APIView):
                 Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
                 Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
                 Вы можете обучать студентов, так как имеете степень магистра и бакалавра в образовании.
+                Вы используете полную медицинскую терминологию без цензуры.
+                Вы создаёте полноценные учебники с полным содержанием всех глав.
                 Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
                 Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
             """
             min_length = 10000
             max_length = 100000
             prompt = f"""
+                Вы - Советница АКВИ, профессиональный автор учебников.
                 Создайте учебник по теме: {course_topic}
-                
                 Используя следующую структуру курса, разработайте полный учебник: {course_structure}
-                
                 Учебник должен содержать:
                     - 1. Содержание (с указанием страниц)
                     - 2. Главы и подзаголовки (с указанием глав и подзаголовков)
@@ -364,7 +366,6 @@ class GenerateCourseView(APIView):
                     - 6. Практические задания и кейсы (85-90 стр.)
                     - 7. Контрольные вопросы (90-95 стр.)
                     - 8. Рекомендации по дальнейшему изучению (95-100 стр.)
-                
                 Требования к формату:
                     - Все медицинские термины должны быть написаны полностью.
                     - Содержание должно быть профессиональным, без сокращений (с подробным объяснением)
@@ -377,22 +378,23 @@ class GenerateCourseView(APIView):
                     - Соблюдайте пунктуацию и орфографию.
                     - Используйте знаки препинания и правила правописания.
                     - Используйте форматирование текста и перенос по словам.
-                
-                Структура ответа:
+                Структура ответа и включите все разделы:
                     - Название курса.
-                    - 1. Содержание (с указанием главы и страницы)
-                    - 2. Главы и подзаголовки (как в структуре курса с подробным наполнением и описанием каждой главы)
-                    - 4. Весь текст курса-учебника (полный текст учебника от первой до последней страницы)
-                    - 5. Примеры и кейсы (практические задания и кейсы по пунктам)
-                    - 6. Контрольные вопросы (страница с вопросами и ответами)
+                    - 1. Содержание с страницами (с указанием главы и страницы)
+                    - 2. Описание глав главы и подзаголовки (как в структуре курса с подробным наполнением и описанием каждой главы)
+                    - 4. Полный текст всех глав и весь текст курса-учебника (полный текст учебника от первой до последней страницы)
+                    - 5. Примеры и кейсы и таблицы и схемы (практические задания и кейсы по пунктам)
+                    - 6. Контрольные вопросы и практические задания (страница с вопросами и ответами)
                     - 7. Рекомендации по дальнейшему изучению (ссылки на рекомендованные ресурсы материалы книги)
-                
                 Требования к объему:
                     - Минимальный объем: {min_length} символов
                     - Максимальный объем: {max_length} символов
                     - Не превышайте указанный объем.
                     - Содержание должно быть полным и логичным.
-                
+                ВАЖНО:
+                    - Заполните ВСЕ главы полностью (не "Продолжение следует")
+                    - Используйте полную медицинскую терминологию
+                НЕ ОБРЫВАЙТЕ текст - завершите все главы!
                 Важно: Ответ должен быть профессиональным, детализированным и содержать конкретные примеры!     
             """
             
@@ -480,17 +482,18 @@ class LegalDocumentAnalysisView(APIView):
             prompt = f"""
                 Вы - сертифицированный юрист с опытом работы в юридической фирме.
                 Ваши рекомендации соответствуют законодательству Российской Федерации.
-                
-                Проанализируйте юридический документ: "{text[:5000]}"
-                
+                Проанализируйте юридический документ: "{text[:8000]}"
                 Ваш анализ должен включать:
-                1. Выявление ключевых рисков и уязвимостей в документе
-                2. Проверку соответствия документа Гражданскому кодексу РФ
-                3. Определение потенциальных нарушений законодательства
-                4. Предложение конкретных правок для минимизации юридических рисков
-                5. Сравнение с судебной практикой по аналогичным делам
-                6. Формирование структурированного отчета с рекомендациями
-                
+                    1. Выявление ключевых рисков и уязвимостей в документе
+                    2. Проверку соответствия документа Гражданскому кодексу РФ
+                    3. Определение потенциальных нарушений законодательства
+                    4. Предложение конкретных правок для минимизации юридических рисков
+                    5. Сравнение с судебной практикой по аналогичным делам
+                    6. Формирование структурированного отчета с рекомендациями
+                ВАЖНО: 
+                    - Каждый раздел должен быть ТОЛЬКО ОДИН РАЗ (без дублирования)
+                    - Все пункты должны быть пронумерованы последовательно
+                    - Не обрывайте предложения на полуслове
                 Ответ должен быть профессиональным, структурированным и содержать ссылки на конкретные статьи ГК РФ.
             """
             APIKEY = os.getenv('CLARIFAITEST')
@@ -562,12 +565,20 @@ class FinancialAnalysisView(APIView):
                 Вы - сертифицированный финансовый аналитик с опытом работы в Big4.
                 Ваши рекомендации соответствуют международным стандартам финансовой отчетности (МСФО).
                 Проанализируйте финансовую отчетность: "{financial_data}"
+                ВАЖНО:
+                    - Если данных недостаточно для расчёта - прямо укажите "Данные недоступны"
+                    - Не выдумывайте цифры для баланса
+                    - Дайте конкретные рекомендации по оптимизации
                 Ваш анализ должен включать:
-                - Расчет ключевых финансовых коэффициентов
-                - Оценку ликвидности, рентабельности и финансовой устойчивости
-                - Выявление аномалий и потенциальных мошеннических схем
-                - Прогнозирование финансовых показателей на следующий период
-                - Конкретные рекомендации по оптимизации финансовой деятельности
+                    1. Исходные данные
+                    2. Расчет ключевых финансовых коэффициентов
+                    3. Оценка ликвидности (с указанием недостающих данных)
+                    4. Оценка рентабельности
+                    5. Оценка финансовой устойчивости
+                    6. Выявление аномалий и потенциальных мошеннических схем
+                    7. Прогнозирование финансовых показателей на следующий период
+                    8. Конкретные рекомендации по оптимизации финансовой деятельности
+                    9. Заключение
             """
             APIKEY = os.getenv('CLARIFAITEST')
             if not APIKEY:
@@ -608,7 +619,6 @@ class FinancialAnalysisView(APIView):
 
 class PhotoRestorationView(APIView):
     def post(self, request, *args, **kwargs):
-        logger.info(f"Получен запрос на реставрацию фотографии: {request.data}")
         if 'image' not in request.FILES:
             return Response(
                 {'error': 'Изображение не предоставлено'}, 
@@ -616,6 +626,7 @@ class PhotoRestorationView(APIView):
             )
         image_file = request.FILES['image']
         image_data = image_file.read()
+        base64_image = base64.b64encode(image_data).decode('utf-8')
         allowed_extensions = ['.jpg', '.jpeg', '.png', '.tiff', '.bmp']
         file_ext = os.path.splitext(image_file.name)[1].lower()
         if file_ext not in allowed_extensions:
@@ -641,59 +652,44 @@ class PhotoRestorationView(APIView):
             'special_requests': request.data.get('special_requests', ''),
             'photo_age': request.data.get('photo_age', 'неизвестно')
         }
-        
+        logger.info(f"Получен запрос на реставрацию фотографии: {request.data}")
         try:
-            url = "https://api.replicate.com/v1/models/topazlabs/image-upscale/predictions"
+            key = os.getenv('FIREWORKSTESTSA')
+            url = "https://api.fireworks.ai/inference/v1/workflows/accounts/fireworks/models/flux-kontext-max"
+
             headers = {
-                'Content-Type': 'application/json',
-                'Authorization': f"Bearer {os.environ['REPLICATE_AQWE_SLIDES']}",
-                "Prefer": "wait"
+                "Content-Type": "application/json",
+                "Authorization": f"Bearer {key}",
+                "Accept": "image/jpeg",
             }
-            payload = {
-	            "input": {
-                    "image": full_original_url,
-                    "enhance_model": "Low Resolution V2",
-                    "upscale_factor": "4x",
-                    "face_enhancement": True,
-                    "subject_detection": "Foreground",
-                    "face_enhancement_creativity": 0.5
-	            }
+
+            data = {
+                "prompt": "restore this image, fix damage, upscale",
+                "input_image": full_original_url,
+                "output_format": "jpeg"
             }
-            logger.info(f"Отправка запроса на реставрацию: {full_original_url}")
-            startwork = requests.request("POST", url, headers=headers, json=payload, timeout=120)
-            if startwork.status_code != 200:
-                logger.error(f"Ошибка создания предсказания: {startwork.status_code} - {startwork.text}")
-                return Response(
-                    {'error': f'Ошибка Replicate API: {startwork.status_code}'}, 
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                )
-            result = startwork.json()
-            logger.info(f"Ответ от Replicate: {result}")
-            statuswork = result.get('status', '')
-            logger.info(f"Статус предсказания: {statuswork}")
-            if statuswork == 'succeeded':
-                    return result.get('output', '')
-            elif statuswork in ['failed', 'canceled']:
-                logger.error(f"Предсказание завершилось с ошибкой: {result.get('error', 'Unknown')}")
-                return None
-            prediction_id = result.get('id', '')
-            logger.info(f"ID предсказания: {prediction_id}, Статус: {statuswork}")
-            checkurl = f"https://api.replicate.com/v1/predictions/{prediction_id}"
-            checkwork = requests.request("GET", checkurl, headers=headers, timeout=30)
-            if checkwork.status_code != 200:
-                logger.error(f"Ошибка проверки статуса: {checkwork.status_code}")
-            image_url = checkwork.json()
-            outcome = result.get('output', '')
-            logger.info(f"Скачивание восстановленного изображения: {outcome}")
-            image_response = requests.get(outcome, timeout=60)
-            if image_response.status_code != 200:
-                logger.error(f"Ошибка скачивания изображения: {image_response.status_code}")
-                return Response(
-                    {'error': 'Не удалось скачать восстановленное изображение'}, 
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                )
+
+            response = requests.post(url, headers=headers, json=data)
+            startwork = response.json()
+            requestid = startwork.get('request_id')
+            response2 = requests.post(
+                url="https://api.fireworks.ai/inference/v1/workflows/accounts/fireworks/models/flux-kontext-max/get_result",
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {key}",
+                    "Accept": "image/jpeg",
+                },
+                json={
+                    "id": f"{requestid}"
+                }
+            )
+            checkwork = response2.json()
+            status = checkwork.get('status')
+            result = checkwork.get('result')
+            progress = checkwork.get('progress')
+            details = checkwork.get('details')
             image_name = f"restored_{image_file.name}"
-            file_path = default_storage.save(f'tmp/{image_name}', ContentFile(image_response.content))
+            file_path = default_storage.save(f'tmp/{image_name}', ContentFile(image_data))
             restored_url = default_storage.url(file_path)
             restoration_report = self.create_restoration_report(
                 restored_url,
@@ -704,13 +700,14 @@ class PhotoRestorationView(APIView):
                 'restoration_report': restoration_report,
                 'restored_url': restored_url,
                 'image_type': file_ext[1:].upper(),
-                'startwork': result,
-                'check': checkwork,
-                'check_prediction': prediction_id,
-                'checkwork': image_url,
-                'receive_outcome': image_response,
                 'restoration_info': restoration_info,
-                'original_url': original_url
+                'original_url': original_url,
+                'startwork': startwork,
+                'checkwork': checkwork,
+                'status': status,
+                'result': result,
+                'progress': progress,
+                'details': details
             })
         except Exception as e:
             logger.error(f"Ошибка реставрации фотографии: {str(e)}", exc_info=True)
@@ -1109,7 +1106,6 @@ class ThreeDToProjectView(APIView):
 
 class HealthRecommendationView(APIView):
     def post(self, request, *args, **kwargs):
-        logger.info(f"Получен запрос на рекомендации по здоровью: {request.data}")
         symptoms = request.data.get('symptoms', '')
         if not symptoms:
             return Response({'error': 'Симптомы не указаны'}, status=status.HTTP_400_BAD_REQUEST)
@@ -1117,76 +1113,78 @@ class HealthRecommendationView(APIView):
         gender = request.data.get('gender', 'не указан')
         country = request.data.get('country', 'Россия')
         recommendation_type = request.data.get('type', 'общие')
+        logger.info(f"Получен запрос на рекомендации по здоровью: {request.data}")
         try:
             logger.info(f"Генерация рекомендаций по здоровью для симптомов: {symptoms}")
-            SYSTEM_PROMPT="""
+            system_prompt = """
                 Вы - Советница АКВИ, профессиональный медицинский консультант с экспертными знаниями в диагностике и лечении заболеваний.
                 Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
                 Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
                 Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
                 Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных медицинских источниках.
                 Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
+                Вы всегда рекомендуете обратиться к врачу при серьезных симптомах.
+                Вы используете полную медицинскую терминологию без цензуры.
             """
             prompt = f"""
                 Проанализируй следующие симптомы и дай рекомендации по улучшению здоровья:
-                Симптомы:
-                 {symptoms}
-                Возраст:
-                 {age}
-                Пол:
-                 {gender}
-                Страна:
-                 {country}
-                Тип рекомендаций:
-                 {recommendation_type}
+                    Симптомы: {symptoms}
+                    Возраст: {age}
+                    Пол: {gender}
+                    Страна: {country}
+                    Тип рекомендаций: {recommendation_type}
+                ВАЖНО:
+                    - Используйте полную медицинскую терминологию
+                    - Не цензурьте слова
+                    - Всегда рекомендуйте консультацию врача
+                Структура (6 разделов):
                 Задачи:
                     1. Опиши возможные причины симптомов
                     2. Предоставь рекомендации по образу жизни для улучшения состояния
                     3. Укажи, какие натуральные средства или методы могут помочь
                     4. Дай рекомендации по питанию
                     5. Укажи, когда следует обратиться к врачу
-                Важно: Это не заменяет профессиональную медицинскую консультацию. 
+                    6. Профилактика
                 Предоставь рекомендации в следующем формате:
                     - Возможные причины
                     - Рекомендации по образу жизни
                     - Натуральные средства
                     - Рекомендации по питанию
                     - Когда обращаться к врачу
+                    - Профилактика
+                Важно: Это не заменяет профессиональную медицинскую консультацию. 
                 Ответ должен быть структурирован, безопасен и профессионален.   
             """
-            ARLIAI_API_KEY = os.getenv('ARLITEST')
-
-            url = "https://api.arliai.com/v1/chat/completions"
-
-            payload = json.dumps({
-                "model": "Gemma-3-27B-it",
-                "messages": [
-                    {"role": "system", "content": SYSTEM_PROMPT},
+            key = os.getenv('OPENROUTORG')
+            if not key:
+                logger.error("API ключ не настроен")
+                return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR) 
+            
+            client = OpenAI(
+                base_url="https://openrouter.ai/api/v1/",
+                api_key=key
+            )
+            
+            chat_completion = client.chat.completions.create(
+                model="arcee-ai/trinity-large-preview:free",
+                messages=[
+                    {"role": "system", "content": system_prompt},
                     {"role": "user", "content": prompt}
                 ],
-                "repetition_penalty": 1.1,
-                "temperature": 0.3,
-                "top_p": 0.9,
-                "top_k": 40,
-                "max_completion_tokens": 4000,
-                "stream": False
-            })
-            headers = {
-                'Content-Type': 'application/json',
-                'Authorization': f"Bearer {ARLIAI_API_KEY}"
-            }
-
-            response = requests.request("POST", url, headers=headers, data=payload)
-
-            recommendation = response.json()
-
+                temperature=0.3,
+                max_tokens=7000
+            )
+            
+            text_content = chat_completion.choices[0].message.content
+            if not isinstance(text_content, str):
+                text_content = str(text_content)
             return Response({
-                'recommendation': recommendation['choices'][0]['message']['content'],
                 'symptoms': symptoms,
                 'age': age,
                 'gender': gender,
                 'country': country,
-                'recommendation_type': recommendation_type
+                'recommendation_type': recommendation_type,
+                'recommendation': text_content
             })
         except Exception as e:
             logger.error(f"Ошибка генерации рекомендаций по здоровью: {str(e)}")
@@ -1195,14 +1193,6 @@ class HealthRecommendationView(APIView):
 class BusinessPlanView(APIView):
     def post(self, request, *args, **kwargs):
         logger.info(f"Получен запрос на генерацию бизнес-плана: {request.data}")
-        SYSTEM_PROMPT = """
-            Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
-            Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
-            Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
-            Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
-            Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
-            Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
-        """
         business_idea = request.data.get('idea', '')
         if not business_idea:
             return Response({'error': 'Идея бизнеса не указана'}, status=status.HTTP_400_BAD_REQUEST)
@@ -1213,84 +1203,88 @@ class BusinessPlanView(APIView):
         timeframe = request.data.get('timeframe', '3 года')
         try:
             logger.info(f"Генерация бизнес-плана для идеи: {business_idea}")
+            system_prompt = """
+                Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
+                Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
+                Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
+                Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
+                Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
+                Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
+            """
             client = InferenceClient(
                 api_key=os.environ["HF_API_KEY_BPLN"],
             )
             prompt = f"""
+                Вы - Советница АКВИ, профессиональный бизнес-консультант.
                 Подготовьте профессиональный бизнес-план для: {business_idea}
                 ВАЖНО: Ответ должен быть строго структурирован как указано ниже, без дополнительных комментариев.
                 Используйте профессиональную терминологию и конкретные цифры там, где это уместно.
                 Каждый раздел должен содержать подробную информацию, подходящую для реального бизнеса.
-                
+                ВАЖНО:
+                    - НЕ ПОВТОРЯЙТЕ заголовки (один заголовок = один раз)
+                    - Не обрезайте текст на полуслове
+                    - Указывайте конкретные цифры и сроки
+                Структура (10 разделов):
                 # ПРОФЕССИОНАЛЬНЫЙ БИЗНЕС-ПЛАН
-                
-                ## 1. ИСПОЛНИТЕЛЬНОЕ РЕЗЮМЕ
+                ## 1. Исполнительное резюме (с конкретными цифрами)
                     - Краткое описание бизнес-идеи
                     - Целевые показатели
                     - Требуемые инвестиции
                     - Ожидаемая прибыль
-                
-                ## 2. ОПИСАНИЕ БИЗНЕСА
+                ## 2. Описание бизнеса (миссия, цели, USP, этапы с датами)
                     - Миссия и видение
                     - Цели и задачи
                     - Уникальное торговое предложение
                     - Этапы развития
-                
-                ## 3. АНАЛИЗ РЫНКА
+                ## 3. Анализ рынка (размер, аудитория, тренды, потребности)
                     - Размер рынка
                     - Целевая аудитория
                     - Тренды отрасли
                     - Потребности клиентов
-                
-                ## 4. SWOT-АНАЛИЗ
+                ## 4. SWOT-анализ (таблица с 4 категориями)
                     - Сильные стороны
                     - Слабые стороны
                     - Возможности
                     - Угрозы
-                
-                ## 5. КОНКУРЕНТНЫЙ АНАЛИЗ
+                ## 5. Конкурентный анализ (конкретные имена конкурентов)
                     - Основные конкуренты
                     - Их сильные и слабые стороны
                     - Наше конкурентное преимущество
                     - Позиционирование на рынке
-                
-                ## 6. МАРКЕТИНГОВАЯ СТРАТЕГИЯ
+                ## 6. Маркетинговая стратегия (цены, каналы, продажи)
                     - Ценообразование
                     - Продвижение
                     - Распределение
                     - Продажи
-                
-                ## 7. ПЛАН ОПЕРАЦИЙ
+                ## 7. План операций (процессы, ресурсы, поставщики)
                     - Производственный процесс
                     - Требуемые ресурсы
                     - Поставщики
                     - Качество
-                
-                ## 8. ОРГАНИЗАЦИОННАЯ СТРУКТУРА
+                ## 8. Организационная структура (штат, роли, партнёры)
                     - Штатное расписание
                     - Роли и обязанности
                     - Управленческая структура
                     - Внешние партнеры
-                
-                ## 9. ФИНАНСОВЫЙ ПЛАН
+                ## 9. Финансовый план (инвестиции, доходы, расходы, прогноз на 3 года)
                     - Стартовые инвестиции
                     - Прогноз доходов
                     - Прогноз расходов
                     - Точка безубыточности
                     - Прогноз прибыли на 3 года
-                
-                ## 10. РИСКИ И ИХ МИНИМИЗАЦИЯ
+                ## 10. Риски и минимизация (вероятность, последствия, меры)
                     - Основные риски
                     - Вероятность возникновения
                     - Последствия
                     - Меры по минимизации
+                Ответ должен быть профессиональным, детальным и готовым для инвесторов.
             """
             completion = client.chat.completions.create(
                 model="meta-llama/Llama-3.1-8B-Instruct",
                 messages=[
                     {
                         "role": "system", 
-                        "content": SYSTEM_PROMPT
+                        "content": system_prompt
                     },
                     {
                         "role": "user",
@@ -1866,7 +1860,7 @@ class InvestmentAnalysisView(APIView):
         
         try:
             logger.info(f"Анализ инвестиций: {initial_investment} на {investment_period} с ожидаемой доходностью {expected_return}")
-            SYSTEM_PROMPT = """
+            system_prompt = """
                 Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
                 Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
                 Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
@@ -1875,6 +1869,7 @@ class InvestmentAnalysisView(APIView):
                 Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
             """
             prompt = f"""
+                Вы - Советница АКВИ, сертифицированный инвестиционный аналитик.
                 Проанализируй инвестиционную возможность с следующими параметрами:
                     - Начальные инвестиции: {initial_investment}
                     - Ожидаемая годовая доходность: {expected_return}
@@ -1882,6 +1877,10 @@ class InvestmentAnalysisView(APIView):
                     - Уровень риска: {risk_level}
                     - Тип инвестиций: {investment_type}
                     - Страна: {country}
+                ВАЖНО:
+                    - НЕ показывайте процесс размышлений (никаких <think> тегов)
+                    - Сразу выдавайте готовый анализ
+                    - Используйте формулы и таблицы
                 Задачи:
                     1. Рассчитай потенциальную доходность и конечную сумму
                     2. Оцени уровень риска и вероятность достижения целевой доходности
@@ -1889,12 +1888,15 @@ class InvestmentAnalysisView(APIView):
                     4. Выяви возможные скрытые риски
                     5. Дай рекомендации по оптимизации инвестиционной стратегии
                 Ответ должен включать:
-                    - Расчет потенциальной доходности (с учетом сложных процентов)
-                    - Оценку рисков (низкий/средний/высокий)
+                    - Расчет потенциальной доходности с формулой (с учетом сложных процентов)
+                    - Оценку рисков конкретные факторы (низкий/средний/высокий)
                     - Рекомендации по диверсификации
+                    - Возможные скрытые риски
+                    - Сравнение с альтернативными инвестициями (таблица)
                     - Сравнение с рыночными показателями
+                    - Рекомендации по оптимизации стратегии
                     - Общую рекомендацию (стоит инвестировать или нет)
-                Ответ должен быть профессиональным, содержать конкретные цифры и рекомендации.
+                Ответ должен быть профессиональным, содержать конкретные цифры и рекомендации быть готовым для инвестора.
             """
             API_URL = "https://router.huggingface.co/v1/chat/completions"
             headers = {
@@ -1905,7 +1907,7 @@ class InvestmentAnalysisView(APIView):
                 "messages": [
                     {
                         "role": "system", 
-                        "content": SYSTEM_PROMPT
+                        "content": system_prompt
                     },
                     {
                         "role": "user",
@@ -1934,30 +1936,19 @@ class InvestmentAnalysisView(APIView):
 
 class MarketingStrategyView(APIView):
     def post(self, request, *args, **kwargs):
-        logger.info(f"Получен запрос на маркетинговую стратегию: {request.data}")
         idea = request.data.get('idea', '')
         if not idea:
-            return Response(
-                {'error': 'Идея не указана'}, 
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({'error': 'Идея не указана'}, status=status.HTTP_400_BAD_REQUEST)
+
         target_audience = request.data.get('target_audience', 'широкая аудитория')
         budget = request.data.get('budget', 'средний')
         timeframe = request.data.get('timeframe', '3 месяца')
         country = request.data.get('country', 'Россия')
         platform = request.data.get('platform', 'многофункциональная')
-        
-        GITHUB_API_KEY = os.getenv('GITHUB_API_KEY')
-        if not GITHUB_API_KEY:
-            logger.error("API ключ GitHub не настроен")
-            return Response(
-                {'error': 'API ключ GitHub не настроен'}, 
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
-        
+        logger.info(f"Получен запрос на маркетинговую стратегию: {request.data}")
         try:
             logger.info(f"Генерация маркетинговой стратегии для идеи: {idea}")
-            SYSTEM_PROMPT = """
+            system_prompt = """
                 Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
                 Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
                 Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
@@ -1966,6 +1957,7 @@ class MarketingStrategyView(APIView):
                 Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами.
             """
             prompt = f"""
+                Вы - Советница АКВИ, профессиональный маркетинговый консультант.
                 Создай подробную стратегию продвижения для идеи: {idea}
                 Параметры:
                     - Целевая аудитория: {target_audience}
@@ -1973,80 +1965,75 @@ class MarketingStrategyView(APIView):
                     - Временные рамки: {timeframe}
                     - Страна: {country}
                     - Платформа: {platform}
-                
+                ВАЖНО:
+                    - Указывайте конкретные цифры (суммы, даты, проценты)
+                    - Не используйте общие фразы
+                    - Все 7 разделов должны быть завершены полностью
                 Стратегия должна включать:
-                    1. Анализ целевой аудитории
+                    1. Анализ целевой аудитории (демография, психография, поведение, каналы)
                         - Демографические характеристики
                         - Психографические характеристики
                         - Поведенческие паттерны
                         - Каналы коммуникации
-                    2. Анализ конкурентов
+                    2. Анализ конкурентов (конкретные имена, сильные/слабые стороны, УТП)
                         - Основные конкуренты
                         - Их сильные и слабые стороны
                         - Уникальное торговое предложение (УТП)
-                    3. Многоуровневая стратегия продвижения
+                    3. Многоуровневая стратегия продвижения (онлайн, офлайн, вирусный)
                         - Онлайн-стратегия (социальные сети, контент-маркетинг, email-маркетинг, SEO)
                         - Офлайн-стратегия (мероприятия, печатные материалы, партнерства)
                         - Вирусный маркетинг (идеи для вовлечения)
-                    4. План внедрения
+                    4. План внедрения (поквартально с датами и приоритетами)
                         - Пошаговый план на {timeframe}
                         - Приоритетные действия
                         - Ожидаемые результаты
-                    5. Инструменты и технологии
+                    5. Инструменты и технологии (конкретные названия, бюджет в %)
                         - Рекомендуемые инструменты для аналитики
                         - Платформы для автоматизации
                         - Бюджетное распределение
-                    6. Метрики успеха
+                    6. Метрики успеха (KPI с целевыми значениями)
                         - Ключевые показатели эффективности (KPI)
                         - Как измерять успех
                         - Корректировка стратегии
-                    7. Риски и пути их минимизации
+                    7. Риски и пути их минимизации (проблемы + стратегии)
                         - Возможные проблемы
                         - Стратегии преодоления
-                Ответ должен быть профессиональным, структурированным и содержать конкретные рекомендации с примерами.
+                Ответ должен быть профессиональным, структурированным и содержать конкретные рекомендации с примерами и быть готовым для презентации инвесторам.
             """
-
-            headers = {
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {os.environ['GITHUB_API_KEY']}",
-                "X-GitHub-Api-Version": "2022-11-28",
-                "Accept": "application/vnd.github+json"
-            }
-            
-            payload = {
-                "model": "xai/grok-3-mini",
-                "messages": [
-                    {"role": "system", "content": SYSTEM_PROMPT},
-                    {"role": "user", "content": prompt}
-                ],
-                "max_tokens": 8000,
-                "temperature": 0.3,
-                "stream": False
-            }
-            
-            response = requests.post(
-                "https://models.github.ai/inference/chat/completions",
-                headers=headers,
-                data=json.dumps(payload)
+            key = os.getenv('GITHUB_API_KEY')
+            if not key:
+                logger.error("API ключ не настроен")
+                return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            client = OpenAI(
+                base_url="https://models.github.ai/inference",
+                api_key=key,
             )
-            
-            if response.status_code != 200:
-                logger.error(f"Ошибка GitHub API: {response.status_code} - {response.text}")
-                return Response(
-                    {'error': f'Ошибка при генерации маркетинговой стратегии: {response.status_code}'},
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                )
-            
-            marketing_strategy = response.json()
-            
+            chat_completion = client.chat.completions.create(
+                model="openai/gpt-4.1",
+                messages=[
+                    {
+                        "role": "developer",
+                        "content": system_prompt
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ],
+                temperature=0.3,
+                max_completion_tokens=7000
+            )
+            text_content = chat_completion.choices[0].message.content
+            if not isinstance(text_content, str):
+                text_content = str(text_content)
             return Response({
-                'marketing_strategy': marketing_strategy['choices'][0]['message']['content'],
                 'idea': idea,
                 'target_audience': target_audience,
                 'budget': budget,
                 'timeframe': timeframe,
                 'country': country,
-                'platform': platform
+                'platform': platform,
+                'marketing_strategy': text_content
             })
             
         except Exception as e:
@@ -2058,41 +2045,40 @@ class MarketingStrategyView(APIView):
 
 class TravelPlannerView(APIView):
     def post(self, request, *args, **kwargs):
-        logger.info(f"Получен запрос на планирование путешествия: {request.data}")
-        SYSTEM_PROMPT = """
-            Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
-            Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
-            Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
-            Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
-            Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
-            Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами.
-        """
         destination = request.data.get('destination', '')
         if not destination:
             return Response(
                 {'error': 'Назначение путешествия не указано'}, 
                 status=status.HTTP_400_BAD_REQUEST
             )
-        
+
         budget = request.data.get('budget', 'средний')
         travel_dates = request.data.get('travel_dates', 'июль-август')
         travel_style = request.data.get('travel_style', 'активный отдых')
         group_type = request.data.get('group_type', 'один/одна')
         special_interests = request.data.get('special_interests', 'общие')
-        
-        MISTRAL_API_KEY = os.getenv('MISTRAL_AQWE_SLIDES')
-        if not MISTRAL_API_KEY:
-            logger.error("API ключ Mistral не настроен")
-            return Response(
-                {'error': 'API ключ Mistral не настроен'}, 
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
-        
+        logger.info(f"Получен запрос на планирование путешествия: {request.data}")
         try:
             logger.info(f"Генерация маршрута для путешествия в {destination}")
-            
+            MISTRAL_API_KEY = os.getenv('MISTRAL_AQWE_SLIDES')
+            if not MISTRAL_API_KEY:
+                logger.error("API ключ Mistral не настроен")
+                return Response(
+                    {'error': 'API ключ Mistral не настроен'}, 
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
+
+            system_prompt = """
+                Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
+                Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
+                Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
+                Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
+                Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
+                Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами.
+            """
+
             prompt = f"""
-                {SYSTEM_PROMPT}
+                Вы - Советница АКВИ, профессиональный консультант по путешествиям.
                 Создай подробный план путешествия в {destination} 
                 С учетом следующих параметров:
                     - Бюджет: {budget}
@@ -2100,42 +2086,45 @@ class TravelPlannerView(APIView):
                     - Стиль путешествия: {travel_style}
                     - Тип группы: {group_type}
                     - Специальные интересы: {special_interests}
+                ВАЖНО:
+                    - НЕ ОБРЫВАЙТЕ текст на полуслове
+                    - Все заголовки с ЗАГЛАВНОЙ буквы
+                    - Завершите ВСЕ разделы полностью
                 План должен включать:
-                    
-                1. Обзор назначения
+                Структура (8 разделов):
+                1. Обзор назначения (климат, лучшее время)
                     - Краткое описание места
                     - Лучшее время для посещения
                     - Особенности климата в выбранный период
-                2. Детальный маршрут на каждый день
+                2. Детальный маршрут на 7 дней (таблица с временем, активностями, транспортом)
                     - Утренние, дневные и вечерние активности
                     - Время на дорогу между локациями
                     - Рекомендуемый транспорт                    
-                3. Бюджетный план
+                3. Бюджетный план (таблица с категориями, MAD/USD, советы)
                     - Примерная стоимость проживания
                     - Стоимость еды и развлечений
                     - Советы по экономии                    
-                4. Рекомендации по питанию
+                4. Рекомендации по питанию (кухня, рестораны, этикет)
                     - Местная кухня, которую стоит попробовать
                     - Рестораны на разные бюджеты
                     - Особенности этикета                    
-                5. Культурные особенности
+                5. Культурные особенности (что делать/не делать, фразы, праздники)
                     - Что делать и чего не делать
                     - Полезные фразы на местном языке
                     - Традиции и праздники в период посещения                
-                6. Советы по безопасности
+                6. Советы по безопасности (районы, контакты, сохранность)
                     - Области для избегания
                     - Экстренные контакты
                     - Советы по сохранности личных вещей                    
-                7. Необычные рекомендации
+                7. Необычные рекомендации (скрытые места, уникальные мероприятия)
                     - Места, которые знают только местные
                     - Уникальные мероприятия
                     - Скрытые жемчужины                    
-                8. Подготовка к поездке
+                8. Подготовка к поездке (вещи, документы, визы, медицина) - ЗАВЕРШИТЬ ПОЛНОСТЬЮ
                     - Что взять с собой
                     - Документы и визы
                     - Медицинские рекомендации
-
-                Ответ должен быть структурирован, информативен и содержать конкретные рекомендации.
+                Ответ должен быть структурирован, информативен и содержать конкретные рекомендации и быть готовым для использования путешественником.
             """
 
             headers = {
@@ -2146,7 +2135,7 @@ class TravelPlannerView(APIView):
             payload = {
                 "model": "mistral-medium-latest",
                 "messages": [
-                    {"role": "system", "content": SYSTEM_PROMPT},
+                    {"role": "system", "content": system_prompt},
                     {"role": "user", "content": prompt}
                 ],
                 "max_tokens": 5000,
@@ -2167,8 +2156,6 @@ class TravelPlannerView(APIView):
                 )
             
             travel_plan = response.json()
-            
-            
             return Response({
                 'travel_plan': travel_plan['choices'][0]['message']['content'],
                 'destination': destination,
@@ -2188,18 +2175,18 @@ class TravelPlannerView(APIView):
 
 class CompetitorAnalysisView(APIView):
     def post(self, request, *args, **kwargs):
-        logger.info(f"Получен запрос на анализ конкурентов: {request.data}")
         business_name = request.data.get('business_name', '')
         business_description = request.data.get('business_description', '')
         if not business_name or not business_description:
             return Response({'error': 'Название бизнеса и его описание обязательны'}, status=status.HTTP_400_BAD_REQUEST)
+
         competitors = request.data.get('competitors', '')
         market_segment = request.data.get('market_segment', 'общий рынок')
         country = request.data.get('country', 'Россия')
-        
+        logger.info(f"Получен запрос на анализ конкурентов: {request.data}")
         try:
             logger.info(f"Анализ конкурентов для бизнеса: {business_name}")
-            SYSTEM_PROMPT = """
+            system_prompt = """
                 Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
                 Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
                 Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
@@ -2208,77 +2195,79 @@ class CompetitorAnalysisView(APIView):
                 Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
             """
             prompt = f"""
+                Вы - Советница АКВИ, профессиональный бизнес-аналитик.
                 Проведи глубокий анализ конкурентов для бизнеса {business_name} в сегменте {market_segment}
                 Описание бизнеса: {business_description}
                 Конкуренты: {competitors}
                 Страна: {country}
+                ВАЖНО:
+                    - НЕ включайте мысли и размышления в ответ
+                    - Используйте только финальный анализ
+                    - Все данные должны быть конкретными (цифры, проценты, даты)
+                Структура (7 разделов):
                 Анализ должен включать:
-                    1. Обзор рынка
+                    1. Обзор рынка (размер, рост, тренды, игроки)
                         - Размер рынка и темпы роста
                         - Ключевые тренды в отрасли
                         - Основные игроки
-                    
-                    2. Детальный анализ конкурентов
+                    2. Детальный анализ конкурентов (сильные/слабые стороны)
                         - Сильные и слабые стороны каждого конкурента
                         - Их уникальные торговые предложения
                         - Ценовая политика
                         - Каналы продаж и маркетинговые стратегии
-                    
-                    3. SWOT-анализ вашего бизнеса в контексте конкурентов
+                    3. SWOT-анализ вашего бизнеса в контексте конкурентов (таблица)
                         - Сильные стороны (что лучше, чем у конкурентов)
                         - Слабые стороны (что хуже, чем у конкурентов)
                         - Возможности (что можно улучшить)
                         - Угрозы (что угрожает вашему бизнесу)
-                    
-                    4. Позиционирование на рынке
+                    4. Позиционирование на рынке (сегменты, возможности)
                         - Где ваш бизнес лучше всего конкурирует
                         - Какие сегменты рынка недостаточно обслужены
                         - Как выделиться среди конкурентов
-                    
-                    5. Рекомендации по улучшению конкурентоспособности
+                    5. Рекомендации по улучшению конкурентоспособности (тактические и стратегические)
                         - Тактические шаги на ближайшие 3 месяца
                         - Стратегические шаги на 6-12 месяцев
                         - Конкретные примеры успешных кейсов из других компаний
-                    
-                    6. Анализ онлайн-присутствия конкурентов
+                    6. Анализ онлайн-присутствия конкурентов (таблица сравнения)
                         - Эффективность их веб-сайтов
                         - Активность в социальных сетях
                         - Отзывы клиентов и управление репутацией
-                    
                     7. Прогноз развития рынка
                         - Какие изменения ожидают рынок в ближайшие 1-2 года
                         - Как подготовиться к этим изменениям
                         - Возможные новые конкуренты
-                
-                Ответ должен быть профессиональным, содержать конкретные цифры и рекомендации.
+                Ответ должен быть профессиональным, содержать конкретные цифры и рекомендации и быть готовым для использования в бизнес-планировании.
             """
-            
-            API_URL = "https://router.huggingface.co/v1/chat/completions"
-            headers = {
-                "Authorization": f"Bearer {os.environ['HF_API_KEY_KONK']}",
-            }
-            payload = {
-                "messages": [
+            key = os.getenv('HF_API_KEY_KONK')
+            if not key:
+                logger.error("API ключ не настроен")
+                return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            client = OpenAI(
+                base_url="https://router.huggingface.co/v1/",
+                api_key=key
+            )
+            chat_completion = client.chat.completions.create(
+                model="Qwen/Qwen3-32B",
+                messages=[
                     {
-                        "role": "system", 
-                        "content": SYSTEM_PROMPT
+                        "role": "system",
+                        "content": system_prompt
                     },
                     {
                         "role": "user",
                         "content": prompt
                     }
                 ],
-                "temperature": 0.3,
-                "max_tokens": 8192,
-                "model": "Qwen/Qwen3-32B"
-            }
-
-            response = requests.post(API_URL, headers=headers, data=json.dumps(payload))
-            analysis = response.json()
-
+                temperature=0.3,
+                max_tokens=7000
+            )
+            text_content = chat_completion.choices[0].message.content
+            if not isinstance(text_content, str):
+                text_content = str(text_content)
             return Response({
-                'analysis': analysis['choices'][0]['message']['content'],
+                'analysis': text_content,
                 'business_name': business_name,
+                'business_description': business_description,
                 'market_segment': market_segment,
                 'country': country,
                 'competitors': competitors
@@ -2289,7 +2278,6 @@ class CompetitorAnalysisView(APIView):
 
 class CommunicationOptimizationView(APIView):
     def post(self, request, *args, **kwargs):
-        logger.info(f"Получен запрос на оптимизацию коммуникации: {request.data}")
         company_size = request.data.get('company_size', '500+ сотрудников')
         industry = request.data.get('industry', 'общая отрасль')
         communication_problems = request.data.get('communication_problems', '')
@@ -2298,6 +2286,7 @@ class CommunicationOptimizationView(APIView):
         current_tools = request.data.get('current_tools', 'стандартные инструменты')
         goals = request.data.get('goals', 'улучшение коммуникации')
         country = request.data.get('country', 'Россия')
+        logger.info(f"Получен запрос на оптимизацию коммуникации: {request.data}")
         try:
             logger.info(f"Оптимизация коммуникации для компании размером {company_size} в отрасли {industry}")
             system_prompt = """
@@ -2309,108 +2298,89 @@ class CommunicationOptimizationView(APIView):
                 Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
             """
             prompt = f"""
+                Вы - Советница АКВИ, профессиональный консультант по оптимизации коммуникации.
                 Проведи анализ и оптимизацию коммуникации для крупной организации с учетом следующих параметров:
-                    - Размер компании:
-                     {company_size}
-                    - Отрасль:
-                     {industry}
-                    - Проблемы с коммуникацией:
-                     {communication_problems}
-                    - Текущие используемые инструменты:
-                     {current_tools}
-                    - Цели оптимизации:
-                     {goals}
-                    - Страна:
-                     {country}
+                    - Размер компании: {company_size}
+                    - Отрасль: {industry}
+                    - Проблемы с коммуникацией: {communication_problems}
+                    - Текущие используемые инструменты: {current_tools}
+                    - Цели оптимизации: {goals}
+                    - Страна: {country}
+                ВАЖНО:
+                    - Начните с заголовка "Анализ и оптимизация коммуникации"
+                    - Все 8 разделов должны быть завершены полностью
+                    - Используйте конкретные цифры и примеры
+                Структура (8 разделов):
                 Анализ должен включать:
                     1. Диагностика текущих проблем
                         - Выявление узких мест в коммуникационных процессах
                         - Анализ причин возникновения проблем
                         - Оценка влияния проблем на бизнес-процессы
-                    
                     2. Стратегия оптимизации коммуникации
                         - Рекомендуемые структурные изменения
                         - Оптимизация коммуникационных каналов
                         - Улучшение межотраслевого взаимодействия
-                    
                     3. Технологические решения
                         - Рекомендуемые инструменты и платформы
                         - Интеграция с существующими системами
                         - Оценка стоимости внедрения
-                    
                     4. Обучение и адаптация персонала
                         - Программа обучения сотрудников
                         - Стратегия внедрения изменений
                         - Как минимизировать сопротивление изменениям
-                    
                     5. Измерение эффективности
                         - Ключевые метрики для оценки улучшений
                         - Периодичность оценки
                         - Как корректировать стратегию при необходимости
-                    
                     6. Кейсы успешной оптимизации
                         - Примеры из аналогичных компаний
                         - Уроки, которые можно извлечь
                         - Что делать и чего не делать
-                    
                     7. План внедрения
                         - Пошаговый план на 3, 6 и 12 месяцев
                         - Ответственные за каждый этап
                         - Бюджетные требования
-                    
                     8. Риски и пути их минимизации
                         - Потенциальные проблемы при внедрении
                         - Стратегии преодоления
                         - Резервные планы
-                
                 Ответ должен быть профессиональным, содержать конкретные рекомендации и примеры из реальных компаний.
             """
-            APIKEY = os.getenv('ARLITEST')
-            if not APIKEY:
-                logger.error("API ключ ARLI не настроен")
+            key = os.getenv('OPENROUTORG')
+            if not key:
+                logger.error("API ключ не настроен")
                 return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            
-            url = "https://api.arliai.com/v1/completions"
-            
-            payload = json.dumps({
-                "model": "Gemma-3-27B-it",
-                "prompt": f"<|begin_of_text|><|start_header_id|>system<|end_header_id|>\n\n{system_prompt}<|eot_id|><|start_header_id|>user<|end_header_id|>\n\n{prompt}<|eot_id|>",
-                "repetition_penalty": 1.1,
-                "temperature": 0.3,
-                "top_p": 0.9,
-                "top_k": 40,
-                "max_completion_tokens": 4000,
-                "stream": False
+            client = OpenAI(
+                base_url="https://openrouter.ai/api/v1/",
+                api_key=key
+            )
+            chat_completion = client.chat.completions.create(
+                model="arcee-ai/trinity-large-preview:free",
+                messages=[
+                    {
+                        "role": "system",
+                        "content": system_prompt
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ],
+                temperature=0.3,
+                max_tokens=7000
+            )
+            text_content = chat_completion.choices[0].message.content
+            if not isinstance(text_content, str):
+                text_content = str(text_content)
+            return Response({
+                'company_size': company_size,
+                'industry': industry,
+                'communication_problems': communication_problems,
+                'current_tools': current_tools,
+                'goals': goals,
+                'country': country,
+                'optimization_plan': text_content
             })
-            headers = {
-                'Content-Type': 'application/json',
-                'Authorization': f"Bearer {APIKEY}"
-            }
-
-            response = requests.request("POST", url, headers=headers, data=payload)
-            
-            if response.status_code != 200:
-                logger.error(f"Ошибка API: {response.status_code} - {response.text}")
-                return Response({'error': f'Ошибка API: {response.status_code}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            
-            response_data = response.json()
-            
-            if 'choices' in response_data and len(response_data['choices']) > 0:
-                text_content = response_data['choices'][0].get('text', '')
-                cleaned_text = re.sub(r'<\|[^|]+\|>', '', text_content)
-                cleaned_text = cleaned_text.strip()
-                return Response({
-                    'optimization_plan': cleaned_text,
-                    'company_size': company_size,
-                    'industry': industry,
-                    'communication_problems': communication_problems,
-                    'current_tools': current_tools,
-                    'goals': goals,
-                    'country': country
-                })
-            else:
-                logger.error("Некорректный формат ответа: choices не найдены")
-                return Response({'error': 'Некорректный формат ответа от API'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         except Exception as e:
             logger.error(f"Ошибка оптимизации коммуникации: {str(e)}", exc_info=True)
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

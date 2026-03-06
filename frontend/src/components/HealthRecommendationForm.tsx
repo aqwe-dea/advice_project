@@ -175,7 +175,7 @@ function HealthRecommendationForm() {
                             whiteSpace: 'pre-wrap',
                             lineHeight: '1.6',
                             fontFamily: 'Arial, sans-serif',
-                            backgroundColor: '#f8f9fa',
+                            backgroundColor: '#040400',
                             padding: '1rem',
                             borderRadius: '4px'
                         }}

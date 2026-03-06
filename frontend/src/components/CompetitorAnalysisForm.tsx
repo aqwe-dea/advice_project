@@ -21,7 +21,7 @@ function CompetitorAnalysisForm() {
         setError('');
         try {
             const response = await axios.post(
-                'https://advice-project.onrender.com/competitor-analysis/',
+                '/competitor-analysis/',
                 { 
                     business_name: businessName,
                     business_description: businessDescription,

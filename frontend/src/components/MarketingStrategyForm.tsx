@@ -32,8 +32,7 @@ function MarketingStrategyForm() {
                     platform
                 },
                 { 
-                    headers: { "Content-Type": "application/json" },
-                    timeout: 60000
+                    headers: { "Content-Type": "application/json" }
                 }
             );
             setStrategy(response.data);

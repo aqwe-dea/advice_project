@@ -22,7 +22,7 @@ function CommunicationOptimizationForm() {
         setError('');
         try {
             const response = await axios.post(
-                'https://advice-project.onrender.com/communication-optimization/',
+                '/communication-optimization/',
                 { 
                     company_size: companySize,
                     industry,
@@ -32,8 +32,7 @@ function CommunicationOptimizationForm() {
                     country
                 },
                 { 
-                    headers: { 'Content-Type': 'application/json' },
-                    timeout: 45000
+                    headers: { 'Content-Type': 'application/json' }
                 }
             );
             setOptimization(response.data);
