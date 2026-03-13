@@ -54,64 +54,36 @@ logger = logging.getLogger(__name__)
 @method_decorator(csrf_exempt, name='dispatch')
 @permission_classes([AllowAny])
 
-def call_stream_chat_api(api_key, messages, stream=True, include_thoughts=True, reasoning_effort="high"):
+def call_stream_chat_api(key, system_prompt, prompt):
     """Вызывает потоковый чат"""
     try:
-        headers = {
-            "Content-Type": "application/json",
-            "Authorization": f"Bearer {api_key}"
-        }
-        
-        payload = {
-            "messages": messages,
-            "stream": stream,
-            "include_thoughts": include_thoughts,
-            "reasoning_effort": reasoning_effort
-        }
-        
-        response = requests.post(
-            "https://api.kie.ai/gemini-3-pro/v1/chat/completions",
-            headers=headers,
-            data=json.dumps(payload),
-            stream=stream
+        key = os.getenv('KIE_AQWE_SLIDES')
+        client = OpenAI(
+            base_url="https://api.kie.ai/gemini-3-pro/v1",
+            api_key=key
         )
-        
-        full_response = ""
-        reasoning_content = ""
-        
-        for line in response.iter_lines():
-            decoded_line = line.decode('utf-8').strip()
-            if decoded_line.startswith('data:'):
-                json_str = decoded_line[6:].strip()
-                if json_str == "[DONE]":
-                    continue                    
-                try:
-                    data = json.loads(json_str)
-                    if 'choices' in data and len(data['choices']) > 0:
-                        delta = data['choices'][0].get('delta', {})
-                        if 'content' in delta and delta['content']:
-                            full_response += delta['content']
-                        if 'reasoning_content' in delta and delta['reasoning_content']:
-                            reasoning_content += delta['reasoning_content']
-                        if 'finish_reason' in data['choices'][0] and data['choices'][0]['finish_reason'] == "stop":
-                            break                            
-                except json.JSONDecodeError as e:
-                    logger.error(f"Ошибка парсинга JSON: {e} | Строка: {json_str}")
-                    continue
-                except Exception as e:
-                    logger.error(f"Ошибка обработки чанка: {str(e)} | Данные: {decoded_line}")
-                    continue
-        
+        chat_completion = client.chat.completions.create(
+            messages=[
+                {"role": "system", "content": system_prompt},
+                {"role": "user", "content": prompt}
+            ],
+            temperature=0.7,
+            max_tokens=7000
+        )
+        text_content = chat_completion.choices[0].message.content
+        if not isinstance(text_content, str):
+            text_content = str(text_content)
+        reasoning_content = chat_completion.choices[0].message.reasoning_content
         return {
-            'text': full_response,
+            'text': text_content,
             'reasoning': reasoning_content
         }
-            
     except Exception as e:
         logger.error(f"Ошибка вызова Gemini API: {str(e)}", exc_info=True)
         return None
         
 class ChatView(APIView):
+    """Этот класс запускает услугу чат"""
     def post(self, request, *args, **kwargs):
         user_message = request.data.get('message', '')
         if not user_message:
@@ -136,12 +108,10 @@ class ChatView(APIView):
             if not APIKEY:
                 logger.error("API ключ SAMBA не настроен")
                 return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            
             client = OpenAI(
                 base_url="https://api.sambanova.ai/v1",
                 api_key=APIKEY
             )
-            
             completion = client.chat.completions.create(
                 model="Llama-4-Maverick-17B-128E-Instruct",
                 messages=[
@@ -151,11 +121,9 @@ class ChatView(APIView):
                 temperature=0.7,
                 max_tokens=7000
             )
-            
             text_content = completion.choices[0].message.content
             if not isinstance(text_content, str):
                 text_content = str(text_content)
-            
             return Response({
                 'response': text_content
             })
@@ -164,6 +132,7 @@ class ChatView(APIView):
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class GenerateCourseView(APIView):
+    """Этот класс запускает услугу курсы"""
     def post(self, request, *args, **kwargs):
         logger.info(f"Получен запрос на генерацию курса: {request.data}")
         course_topic = request.data.get('topic', '') or request.data.get('course_topic', '')
@@ -300,12 +269,10 @@ class GenerateCourseView(APIView):
                 Структура ответа должна четко соответствовать указанным разделам.
             """
             APIKEY = os.getenv('AICCTEST')
-
             client = OpenAI(
                 base_url="https://api.ai.cc/v1",
                 api_key=APIKEY
             )
-
             completion = client.chat.completions.create(
                 model="deepseek-v3.2",
                 messages=[
@@ -321,7 +288,6 @@ class GenerateCourseView(APIView):
                 temperature=0.3,
                 max_tokens=7000
             )
-
             return Response({
                 'course_structure': completion.choices[0].message.content,
                 'course_topic': course_topic,
@@ -397,17 +363,14 @@ class GenerateCourseView(APIView):
                 НЕ ОБРЫВАЙТЕ текст - завершите все главы!
                 Важно: Ответ должен быть профессиональным, детализированным и содержать конкретные примеры!     
             """
-            
             APIKEY = os.getenv('AICCTEST')
             if not APIKEY:
                 logger.error("API ключ AICCTEST не настроен")
-                return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR) 
-            
+                return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             client = OpenAI(
                 base_url="https://api.ai.cc/v1",
                 api_key=APIKEY
             )
-            
             completion = client.chat.completions.create(
                 model="deepseek-v3.2",
                 messages=[
@@ -417,11 +380,9 @@ class GenerateCourseView(APIView):
                 temperature=0.3,
                 max_tokens=7000
             )
-            
             text_content = completion.choices[0].message.content
             if not isinstance(text_content, str):
                 text_content = str(text_content)
-            
             return Response({
                 'course_book': text_content,
                 'course_topic': course_topic
@@ -431,6 +392,7 @@ class GenerateCourseView(APIView):
             return Response({'error': f'Не удалось сгенерировать учебник: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class BuildCourseBookView(APIView):
+    """Этот класс запускает услугу учебники"""
     def post(self, request, *args, **kwargs):
         logger.info("Получен запрос на генерацию учебника")
         course_structure = request.data.get('course_structure')
@@ -438,11 +400,9 @@ class BuildCourseBookView(APIView):
         if not course_structure or not course_topic:
             return Response({
                 'error': 'Необходимы структура курса и тема курса'
-            }, status=status.HTTP_400_BAD_REQUEST)            
-        
+            }, status=status.HTTP_400_BAD_REQUEST)
         try:
             generate_course_view = GenerateCourseView()
-            
             return generate_course_view.build_course_book(
                 course_structure, 
                 course_topic
@@ -452,6 +412,7 @@ class BuildCourseBookView(APIView):
             return Response({'error': f'Не удалось сгенерировать учебник: {str(e)}'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class LegalDocumentAnalysisView(APIView):
+    """Этот класс запускает услугу юридический анализ"""
     def post(self, request, *args, **kwargs):
         if 'file' not in request.FILES:
             return Response(
@@ -499,13 +460,11 @@ class LegalDocumentAnalysisView(APIView):
             APIKEY = os.getenv('CLARIFAITEST')
             if not APIKEY:
                 logger.error("API ключ CLARIFAITEST не настроен")
-                return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR) 
-            
+                return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             client = OpenAI(
                 base_url="https://api.clarifai.com/v2/ext/openai/v1",
                 api_key=APIKEY
             )
-            
             completion = client.chat.completions.create(
                 model="https://clarifai.com/openai/chat-completion/models/gpt-oss-120b/versions/f1d2ad8c01c74705868f5c8ae4a1ff7c",
                 messages=[
@@ -515,11 +474,9 @@ class LegalDocumentAnalysisView(APIView):
                 temperature=0.3,
                 max_tokens=7000
             )
-            
             text_content = completion.choices[0].message.content
             if not isinstance(text_content, str):
                 text_content = str(text_content)
-            
             return Response({
                 'document_summary': {
                     'file_name': uploaded_file.name,
@@ -539,6 +496,7 @@ class LegalDocumentAnalysisView(APIView):
                 default_storage.delete(file_path)
     
 class FinancialAnalysisView(APIView):
+    """Этот класс запускает услугу финансовый анализ"""
     def post(self, request, *args, **kwargs):
         if 'report' in request.FILES:
             file = request.FILES['report']
@@ -583,13 +541,11 @@ class FinancialAnalysisView(APIView):
             APIKEY = os.getenv('CLARIFAITEST')
             if not APIKEY:
                 logger.error("API ключ CLARIFAITEST не настроен")
-                return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR) 
-            
+                return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             client = OpenAI(
                 base_url="https://api.clarifai.com/v2/ext/openai/v1",
                 api_key=APIKEY
             )
-            
             completion = client.chat.completions.create(
                 model="https://clarifai.com/openai/chat-completion/models/gpt-oss-120b/versions/f1d2ad8c01c74705868f5c8ae4a1ff7c",
                 messages=[
@@ -599,11 +555,9 @@ class FinancialAnalysisView(APIView):
                 temperature=0.3,
                 max_tokens=7000
             )
-            
             text_content = completion.choices[0].message.content
             if not isinstance(text_content, str):
                 text_content = str(text_content)
-            
             return Response({
                 'summary': {
                     'total_revenue': total_revenue,
@@ -618,12 +572,11 @@ class FinancialAnalysisView(APIView):
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class PhotoRestorationView(APIView):
+    """Этот класс запускает услугу реставрация изображений"""
     def post(self, request, *args, **kwargs):
+        logger.info(f"Получен запрос на реставрацию фотографии: {request.data}")
         if 'image' not in request.FILES:
-            return Response(
-                {'error': 'Изображение не предоставлено'}, 
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({'error': 'Изображение не предоставлено'}, status=status.HTTP_400_BAD_REQUEST)
         image_file = request.FILES['image']
         image_data = image_file.read()
         base64_image = base64.b64encode(image_data).decode('utf-8')
@@ -652,72 +605,88 @@ class PhotoRestorationView(APIView):
             'special_requests': request.data.get('special_requests', ''),
             'photo_age': request.data.get('photo_age', 'неизвестно')
         }
-        logger.info(f"Получен запрос на реставрацию фотографии: {request.data}")
         try:
             key = os.getenv('FIREWORKSTESTSA')
-            url = "https://api.fireworks.ai/inference/v1/workflows/accounts/fireworks/models/flux-kontext-max"
-
-            headers = {
-                "Content-Type": "application/json",
-                "Authorization": f"Bearer {key}",
-                "Accept": "image/jpeg",
-            }
-
-            data = {
-                "prompt": "restore this image, fix damage, upscale",
-                "input_image": full_original_url,
-                "output_format": "jpeg"
-            }
-
-            response = requests.post(url, headers=headers, json=data)
-            startwork = response.json()
-            requestid = startwork.get('request_id')
-            response2 = requests.post(
-                url="https://api.fireworks.ai/inference/v1/workflows/accounts/fireworks/models/flux-kontext-max/get_result",
+            if not key:
+                return Response({'error': 'API ключ Fireworks не настроен'}, status=500)
+            response = requests.post(
+                url="https://api.fireworks.ai/inference/v1/workflows/accounts/fireworks/models/flux-kontext-max",
                 headers={
                     "Content-Type": "application/json",
                     "Authorization": f"Bearer {key}",
                     "Accept": "image/jpeg",
                 },
                 json={
-                    "id": f"{requestid}"
+                    "prompt": "restore this image, fix damage, upscale",
+                    "input_image": f"data:image/{file_ext[1:]};base64,{base64_image}"
                 }
             )
-            checkwork = response2.json()
-            status = checkwork.get('status')
-            result = checkwork.get('result')
-            progress = checkwork.get('progress')
-            details = checkwork.get('details')
-            image_name = f"restored_{image_file.name}"
-            file_path = default_storage.save(f'tmp/{image_name}', ContentFile(image_data))
-            restored_url = default_storage.url(file_path)
+            if response.status_code != 200:
+                logger.error(f"Fireworks API error: {response.status_code} - {response.text}")
+                return Response({'error': 'Ошибка Fireworks API'}, status=500)
+            startwork = response.json()
+            requestid = startwork.get('request_id')
+            if not requestid:
+                return Response({'error': 'Не получен request_id'}, status=500)
+            check_url = "https://api.fireworks.ai/inference/v1/workflows/accounts/fireworks/models/flux-kontext-max/get_result"
+            result_url = None
+            for attempt in range(8):
+                time.sleep(3)
+                check_response = requests.post(
+                    url=check_url,
+                    headers={
+                        "Content-Type": "application/json",
+                        "Authorization": f"Bearer {key}",
+                    },
+                    json={
+                        "id": requestid
+                    },
+                    timeout=60
+                )
+                checkwork = check_response.json()
+                checkstatus = checkwork.get('status')
+                logger.info(f"Попытка {attempt+1}: статус={checkstatus}")
+                if checkstatus == 'Ready':
+                    result_url = checkwork.get('result', {}).get('sample')
+                    break
+                elif checkstatus == 'Error':
+                    logger.error(f"Задача не выполнена: {checkwork.get('details')}")
+                    break
+            if result_url:
+                restored_response = requests.get(result_url, timeout=60)
+                if restored_response.status_code == 200:
+                    image_name = f"restored_{image_file.name}"
+                    file_path = default_storage.save(
+                        f'tmp/{image_name}', 
+                        ContentFile(restored_response.content)
+                    )
+                    restored_url = default_storage.url(file_path)
+                else:
+                    restored_url = None
+            else:
+                restored_url = None
             restoration_report = self.create_restoration_report(
-                restored_url,
+                restored_url or original_url,
                 original_url,
                 restoration_info
             )
+            imageurl = self.restoreimage(full_original_url)
             return Response({
                 'restoration_report': restoration_report,
                 'restored_url': restored_url,
                 'image_type': file_ext[1:].upper(),
                 'restoration_info': restoration_info,
                 'original_url': original_url,
+                'status': checkstatus,
+                'restoreimage': imageurl,
                 'startwork': startwork,
-                'checkwork': checkwork,
-                'status': status,
-                'result': result,
-                'progress': progress,
-                'details': details
+                'checkwork': checkwork
             })
         except Exception as e:
-            logger.error(f"Ошибка реставрации фотографии: {str(e)}", exc_info=True)
-            return Response(
-                {'error': f'Произошла ошибка при реставрации: {str(e)}'},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
+            logger.error(f"Ошибка реставрации: {str(e)}", exc_info=True)
+            return Response({'error': f'Ошибка: {str(e)}'}, status=500)
         finally:
             pass
-
     def create_restoration_report(self, restored_url, original_url, restoration_info):
         """Создает отчет о реставрации"""
         return {
@@ -737,8 +706,71 @@ class PhotoRestorationView(APIView):
                 'long_term_care': 'Рекомендуется создать цифровую копию для архивации'
             }
         }
-
+    def restoreimage(self, full_original_url):
+        """"Дополнительно восстанавливает изображение"""
+        try:
+            key = os.getenv('KIE_AQWE_SLIDES')
+            if not key:
+                return None
+            response = requests.post(
+                url="https://api.kie.ai/api/v1/jobs/createTask",
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {key}"
+                },
+                json={
+                    "model": "qwen/image-edit",
+                    "input": {
+                        "image_url": full_original_url,
+                        "acceleration": "none",
+                        "image_size": "square_hd",
+                        "num_inference_steps": 30,
+                        "guidance_scale": 4,
+                        "sync_mode": False,
+                        "enable_safety_checker": False,
+                        "output_format": "png",
+                        "negative_prompt": "bad, travesty, lie",
+                        "prompt": "edit this photo, restore, fix, colorize, upscale",
+                        "num_images": "1"
+                    }
+                },
+                timeout=60
+            )
+            if response.status_code != 200:
+                logger.error(f"KIE API error: {response.status_code}")
+                return None   
+            check = response.json()
+            taskid = check.get('data', {}).get('taskId')
+            if not taskid:
+                return None
+            max_attempts = 8
+            for attempt in range(max_attempts):
+                time.sleep(3)
+                result_response = requests.get(
+                    url="https://api.kie.ai/api/v1/jobs/recordInfo",
+                    params={"taskId": taskid},
+                    headers={
+                        "Content-Type": "application/json",
+                        "Authorization": f"Bearer {key}"
+                    },
+                    timeout=60
+                )
+                checkwork = result_response.json()
+                state = checkwork.get('data', {}).get('state')
+                if state == 'success':
+                    urls = checkwork.get('data', {}).get('resultJson', {})
+                    if urls:
+                        return urls[0].strip()
+                elif state == 'fail':
+                    logger.error(f"Задача не выполнена: {checkwork}")
+                    return None
+            return None
+        except Exception as e:
+            logger.error(f"Ошибка KIE: {str(e)}", exc_info=True)
+            return None
+            
 class MedicalImageView(APIView):
+    """Этот класс запускает услугу медицинский анализ"""
     def post(self, request, *args, **kwargs):
         logger.info(f"Получен запрос на медицинский анализ: {request.data}")
         if 'image' not in request.FILES:
@@ -768,8 +800,7 @@ class MedicalImageView(APIView):
             APIKEY = os.getenv('OLLAMATEST')
             if not APIKEY:
                 logger.error("API ключ OLLAMA не настроен")
-                return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR) 
-            
+                return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             client = OpenAI(
                 base_url="https://ollama.com/v1/",
                 api_key=APIKEY
@@ -849,13 +880,11 @@ class MedicalImageView(APIView):
             APIKEY = os.getenv('OLLAMATEST')
             if not APIKEY:
                 logger.error("API ключ OLLAMA не настроен")
-                return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR) 
-            
+                return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             client = OpenAI(
                 base_url="https://ollama.com/v1/",
                 api_key=APIKEY
             )
-            
             chat_completion = client.chat.completions.create(
                 model="qwen3-vl:235b-cloud",
                 messages=[
@@ -868,11 +897,9 @@ class MedicalImageView(APIView):
                 temperature=0.3,
                 max_tokens=7000
             )
-            
             text_content = chat_completion.choices[0].message.content
             if not isinstance(text_content, str):
                 text_content = str(text_content)
-            
             return text_content 
         except Exception as e:
             logger.error(f"Ошибка анализа изображения: {str(e)}")
@@ -943,13 +970,11 @@ class MedicalImageView(APIView):
             APIKEY = os.getenv('OLLAMATEST')
             if not APIKEY:
                 logger.error("API ключ OLLAMA не настроен")
-                return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR) 
-            
+                return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             client = OpenAI(
                 base_url="https://ollama.com/v1/",
                 api_key=APIKEY
             )
-            
             chat_completion = client.chat.completions.create(
                 model="qwen3-vl:235b-cloud",
                 messages=[
@@ -959,33 +984,28 @@ class MedicalImageView(APIView):
                 temperature=0.3,
                 max_tokens=7000
             )
-            
             text_content = chat_completion.choices[0].message.content
             if not isinstance(text_content, str):
                 text_content = str(text_content)
-            
             return text_content
         except Exception as e:
             logger.error(f"Ошибка генерации медицинского анализа: {str(e)}")
             return "Не удалось сгенерировать медицинский анализ"
 
 class ThreeDToProjectView(APIView):
+    """Этот класс запускает услугу 3д моделирования"""
     def post(self, request, *args, **kwargs):
-        logger.info(f"Получен запрос на план 3D-моделирования: {request.data}")
         model_idea = request.data.get('idea', '')
         if not model_idea:
             return Response({'error': 'Идея 3D-модели не указана'}, status=status.HTTP_400_BAD_REQUEST)
+        logger.info(f"Получен запрос на план 3D-моделирования: {request.data}")
         model_type = request.data.get('model_type', 'персонаж')
         software = request.data.get('software', 'Blender, Maya, ZBrush')
         complexity = request.data.get('complexity', 'средняя')
         purpose = request.data.get('purpose', 'визуализация, анимация')
         timeframe = request.data.get('timeframe', '2-4 недели')
-        create_image = self.create_image_model(
-            model_idea, 
-            model_type
-        )
+        logger.info(f"Генерация плана 3D-моделирования для идеи: {model_idea}")
         try:
-            logger.info(f"Генерация плана 3D-моделирования для идеи: {model_idea}")
             system_prompt = """
                 Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
                 Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
@@ -1046,15 +1066,17 @@ class ThreeDToProjectView(APIView):
                 
                 Ответ должен быть структурирован, профессионален и содержать конкретные рекомендации с примерами.
             """
-            url = "https://api.fireworks.ai/inference/v1/completions"
-            APIKEY = os.getenv('FIREWORKSTESTSA')
-            headers = {
-                'Content-Type': 'application/json',
-                'Authorization': f"Bearer {APIKEY}"
-            }
-            payload = {
-                "model": "accounts/fireworks/models/glm-4p7",
-                "messages": [
+            key = os.getenv('ROUTEWAY_AQWE_SLIDES')
+            if not key:
+                logger.error("API ключ key не настроен")
+                return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            client = OpenAI(
+                base_url="https://api.routeway.ai/v1",
+                api_key=key
+            )
+            response = client.chat.completions.create(
+                model="kimi-k2-0905:free",
+                messages=[
                     {
                         "role": "system",
                         "content": system_prompt
@@ -1064,13 +1086,20 @@ class ThreeDToProjectView(APIView):
                         "content": prompt
                     }
                 ],
-                "temperature": 0.3,
-                "max_completion_tokens": 4000
-            }
-            response = requests.request("POST", url, headers=headers, json=payload)
-            modeling_plan = response.json()
+                temperature=0.3,
+                max_tokens=10000,
+                stream=False
+            )
+            text_content = response.choices[0].message.content
+            if not isinstance(text_content, str):
+                text_content = str(text_content)
+            create_image = self.create_image_model(
+                model_idea, 
+                model_type
+            )
             return Response({
-                'modeling_plan': modeling_plan,
+                'modeling_plan': text_content,
+                'check': response,
                 'create_plan': response,
                 'model_idea': model_idea,
                 'model_type': model_type,
@@ -1086,25 +1115,37 @@ class ThreeDToProjectView(APIView):
     def create_image_model(self, model_idea, model_type):
         logger.info(f"Генерация изображение 3D-модели для идеи: {model_idea}")
         try:
-            url = "https://api.fireworks.ai/inference/v1/workflows/accounts/fireworks/models/flux-1-schnell-fp8/text_to_image"
             APIKEY = os.getenv('FIREWORKSTESTSA')
-            headers = {
-                "Content-Type": "application/json",
-                'Authorization': f"Bearer {APIKEY}"
-            }
-            payload = {
-                "prompt": f"Создайте изображеие 3D-модели:  Идея модели: {model_idea} Тип модели: {model_type}"
-            }
-            create_image = requests.request("POST", url, headers=headers, json=payload) 
-            with open("model.jpg", "wb") as f:
+            create_image = requests.request(
+                method="POST",
+                url="https://api.fireworks.ai/inference/v1/workflows/accounts/fireworks/models/flux-1-schnell-fp8/text_to_image",
+                headers={
+                    "Content-Type": "application/json",
+                    'Authorization': f"Bearer {APIKEY}",
+                    "Accept": "image/jpeg"
+                },
+                json={
+                    "prompt": f"3D model render: {model_idea}, {model_type}, professional quality, high detail",
+                    "width": 1024,
+                    "height": 1024,
+                    "steps": 30
+                }
+            )
+            with open("aqwegen3dmodel.jpg", "wb") as f:
                 f.write(create_image.content)
-                return "Image saved as model.jpg"
-                
+                return "Image saved as aqwegen3dmodel.jpg"
+            if create_image.status_code == 200:
+                unique_name = f"aqwegen3dmodel_{hashlib.md5(model_idea.encode()).hexdigest()[:8]}.jpg"
+                file_path = default_storage.save(f'tmp/{unique_name}', ContentFile(create_image.content))
+                return default_storage.url(file_path)
+            else:
+                return "Не удалось создать изображение"
         except Exception as e:
-            logger.error(f"Ошибка создания изображения 3д модели: {str(e)}")
-            return "Не удалось создать изображение 3д модели"
+            logger.error(f"Ошибка создания изображения 3D модели: {str(e)}", exc_info=True)
+            return "Не удалось создать изображение 3D модели"
 
 class HealthRecommendationView(APIView):
+    """Этот класс запускает услугу рекомендация по здоровью"""
     def post(self, request, *args, **kwargs):
         symptoms = request.data.get('symptoms', '')
         if not symptoms:
@@ -1158,13 +1199,11 @@ class HealthRecommendationView(APIView):
             key = os.getenv('OPENROUTORG')
             if not key:
                 logger.error("API ключ не настроен")
-                return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR) 
-            
+                return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             client = OpenAI(
                 base_url="https://openrouter.ai/api/v1/",
                 api_key=key
             )
-            
             chat_completion = client.chat.completions.create(
                 model="arcee-ai/trinity-large-preview:free",
                 messages=[
@@ -1174,7 +1213,6 @@ class HealthRecommendationView(APIView):
                 temperature=0.3,
                 max_tokens=7000
             )
-            
             text_content = chat_completion.choices[0].message.content
             if not isinstance(text_content, str):
                 text_content = str(text_content)
@@ -1191,6 +1229,7 @@ class HealthRecommendationView(APIView):
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class BusinessPlanView(APIView):
+    """Этот класс запускает услугу бизнес планы"""
     def post(self, request, *args, **kwargs):
         logger.info(f"Получен запрос на генерацию бизнес-плана: {request.data}")
         business_idea = request.data.get('idea', '')
@@ -1294,7 +1333,6 @@ class BusinessPlanView(APIView):
                 temperature=0.3,
                 max_tokens=8192,
             )
-
             return Response({
                 'business_plan': completion.choices[0].message.content,
                 'business_idea': business_idea,
@@ -1677,6 +1715,7 @@ class BusinessPlanView(APIView):
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class PresentationGenerationView(APIView):
+    """Этот класс запускает услугу презентации"""
     def post(self, request, *args, **kwargs):
         logger.info(f"Получен запрос на генерацию презентации: {request.data}")
         presentation_idea = request.data.get('presentation_idea', '')
@@ -1755,15 +1794,19 @@ class PresentationGenerationView(APIView):
                     - Включены ссылки на дополнительные материалы
                     - Указаны конкретные цифры и данные там, где это уместно
             """
-            client = InferenceClient(
-                provider="novita",
-                api_key=os.environ["NOVITA_AQWE_SLIDES"],
+            key = os.getenv('NOVITA_AQWE_SLIDES')
+            if not key:
+                logger.error("API ключ key не настроен")
+                return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            client = OpenAI(
+                base_url="https://api.novita.ai/openai",
+                api_key=key
             )
-            completion = client.chat.completions.create(
-                model="zai-org/GLM-4.7-Flash",
+            response = client.chat.completions.create(
+                model="deepseek/deepseek-v3.2-exp",
                 messages=[
-	                {
-                        "role": "system", 
+                    {
+                        "role": "system",
                         "content": system_prompt
                     },
                     {
@@ -1772,16 +1815,14 @@ class PresentationGenerationView(APIView):
                     }
                 ],
                 temperature=0.3,
-                max_tokens=8000,
+                max_tokens=10000,
+                stream=False
             )
-            text_content = completion.choices[0].message.content
+            text_content = response.choices[0].message.content
             if not isinstance(text_content, str):
                 text_content = str(text_content)
-            
             image_prompts = self.extract_image_prompts(text_content)
-            
             images = self.generate_images_for_slides(image_prompts, presentation_idea)
-
             return Response({
                 'presentation_idea': presentation_idea,
                 'presentation_description': presentation_description,
@@ -1795,7 +1836,6 @@ class PresentationGenerationView(APIView):
     def extract_image_prompts(self, text_content):
         """Извлекает промпты для изображений из текста презентации"""
         image_prompts = []
-
         slides_content = {
             "1": "Титульный слайд с названием презентации и профессиональным фоном, минималистичный стиль",
             "2": "Введение с иллюстрацией основной идеи, профессиональный дизайн",
@@ -1841,12 +1881,13 @@ class PresentationGenerationView(APIView):
                     'slide_number': slide_num,
                     'image_url': image_url,
                     'prompt': prompt
-                })            
+                })
             return images
         except Exception as e:
                 logger.error(f"Критическая ошибка при генерации изображений: {str(e)}", exc_info=True)
 
 class InvestmentAnalysisView(APIView):
+    """Этот класс запускает услугу инвестиционный анализ"""
     def post(self, request, *args, **kwargs):
         logger.info(f"Получен запрос на анализ инвестиций: {request.data}")
         initial_investment = request.data.get('initial_investment', '')
@@ -1857,7 +1898,6 @@ class InvestmentAnalysisView(APIView):
         risk_level = request.data.get('risk_level', 'средний')
         investment_type = request.data.get('investment_type', 'акции')
         country = request.data.get('country', 'Россия')
-        
         try:
             logger.info(f"Анализ инвестиций: {initial_investment} на {investment_period} с ожидаемой доходностью {expected_return}")
             system_prompt = """
@@ -1920,7 +1960,6 @@ class InvestmentAnalysisView(APIView):
             }
             response = requests.post(API_URL, headers=headers, data=json.dumps(payload))
             analysis = response.json()
-            
             return Response({
                 'analysis': analysis['choices'][0]['message']['content'],
                 'initial_investment': initial_investment,
@@ -1935,11 +1974,11 @@ class InvestmentAnalysisView(APIView):
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class MarketingStrategyView(APIView):
+    """Этот класс запускает услугу маркетинговая стратегия"""
     def post(self, request, *args, **kwargs):
         idea = request.data.get('idea', '')
         if not idea:
             return Response({'error': 'Идея не указана'}, status=status.HTTP_400_BAD_REQUEST)
-
         target_audience = request.data.get('target_audience', 'широкая аудитория')
         budget = request.data.get('budget', 'средний')
         timeframe = request.data.get('timeframe', '3 месяца')
@@ -2034,8 +2073,7 @@ class MarketingStrategyView(APIView):
                 'country': country,
                 'platform': platform,
                 'marketing_strategy': text_content
-            })
-            
+            })  
         except Exception as e:
             logger.error(f"Ошибка генерации маркетинговой стратегии: {str(e)}", exc_info=True)
             return Response(
@@ -2044,6 +2082,7 @@ class MarketingStrategyView(APIView):
             )
 
 class TravelPlannerView(APIView):
+    """Этот класс запускает услугу планировщик путешествий"""
     def post(self, request, *args, **kwargs):
         destination = request.data.get('destination', '')
         if not destination:
@@ -2051,7 +2090,6 @@ class TravelPlannerView(APIView):
                 {'error': 'Назначение путешествия не указано'}, 
                 status=status.HTTP_400_BAD_REQUEST
             )
-
         budget = request.data.get('budget', 'средний')
         travel_dates = request.data.get('travel_dates', 'июль-август')
         travel_style = request.data.get('travel_style', 'активный отдых')
@@ -2060,14 +2098,6 @@ class TravelPlannerView(APIView):
         logger.info(f"Получен запрос на планирование путешествия: {request.data}")
         try:
             logger.info(f"Генерация маршрута для путешествия в {destination}")
-            MISTRAL_API_KEY = os.getenv('MISTRAL_AQWE_SLIDES')
-            if not MISTRAL_API_KEY:
-                logger.error("API ключ Mistral не настроен")
-                return Response(
-                    {'error': 'API ключ Mistral не настроен'}, 
-                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
-                )
-
             system_prompt = """
                 Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
                 Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
@@ -2076,7 +2106,6 @@ class TravelPlannerView(APIView):
                 Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
                 Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами.
             """
-
             prompt = f"""
                 Вы - Советница АКВИ, профессиональный консультант по путешествиям.
                 Создай подробный план путешествия в {destination} 
@@ -2126,12 +2155,17 @@ class TravelPlannerView(APIView):
                     - Медицинские рекомендации
                 Ответ должен быть структурирован, информативен и содержать конкретные рекомендации и быть готовым для использования путешественником.
             """
-
+            MISTRAL_API_KEY = os.getenv('MISTRAL_AQWE_SLIDES')
+            if not MISTRAL_API_KEY:
+                logger.error("API ключ Mistral не настроен")
+                return Response(
+                    {'error': 'API ключ Mistral не настроен'}, 
+                    status=status.HTTP_500_INTERNAL_SERVER_ERROR
+                )
             headers = {
                 "Content-Type": "application/json",
                 "Authorization": f"Bearer {os.environ['MISTRAL_AQWE_SLIDES']}"
             }
-            
             payload = {
                 "model": "mistral-medium-latest",
                 "messages": [
@@ -2141,20 +2175,17 @@ class TravelPlannerView(APIView):
                 "max_tokens": 5000,
                 "temperature": 0.3
             }
-            
             response = requests.post(
                 "https://api.mistral.ai/v1/chat/completions",
                 headers=headers,
                 data=json.dumps(payload)
-            )
-            
+            )            
             if response.status_code != 200:
                 logger.error(f"Ошибка Mistral API: {response.status_code} - {response.text}")
                 return Response(
                     {'error': f"Ошибка Mistral API: {response.status_code}"},
                     status=status.HTTP_500_INTERNAL_SERVER_ERROR
                 )
-            
             travel_plan = response.json()
             return Response({
                 'travel_plan': travel_plan['choices'][0]['message']['content'],
@@ -2165,7 +2196,6 @@ class TravelPlannerView(APIView):
                 'group_type': group_type,
                 'special_interests': special_interests
             })
-            
         except Exception as e:
             logger.error(f"Ошибка генерации плана путешествия: {str(e)}", exc_info=True)
             return Response(
@@ -2174,12 +2204,12 @@ class TravelPlannerView(APIView):
             )
 
 class CompetitorAnalysisView(APIView):
+    """Этот класс запускает услугу конкурентный анализ"""
     def post(self, request, *args, **kwargs):
         business_name = request.data.get('business_name', '')
         business_description = request.data.get('business_description', '')
         if not business_name or not business_description:
             return Response({'error': 'Название бизнеса и его описание обязательны'}, status=status.HTTP_400_BAD_REQUEST)
-
         competitors = request.data.get('competitors', '')
         market_segment = request.data.get('market_segment', 'общий рынок')
         country = request.data.get('country', 'Россия')
@@ -2277,6 +2307,7 @@ class CompetitorAnalysisView(APIView):
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class CommunicationOptimizationView(APIView):
+    """Этот класс запускает услугу оптимизация коммуникации"""
     def post(self, request, *args, **kwargs):
         company_size = request.data.get('company_size', '500+ сотрудников')
         industry = request.data.get('industry', 'общая отрасль')

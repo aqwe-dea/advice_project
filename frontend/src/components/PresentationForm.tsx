@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import '../App.css';
+import ReactMarkdown from 'react-markdown'
 
 const PresentationForm = () => {
   const [formData, setFormData] = useState({
@@ -60,22 +61,23 @@ const PresentationForm = () => {
     const slides = result.presentation.split(/##\s+\d+\.\s+/).slice(1);    
     return (
       <div className="presentation-container">
-        <h3>Ваша презентация: {result.presentation_idea}</h3>        
-        {slides.map((slideContent: string, index: number) => {
+        <h3>Ваша презентация: {result.presentation_idea}</h3>
+        <ReactMarkdown>{result.presentation}</ReactMarkdown>      
+        {slides.outcome & slides.outcome.map((slideContent: string, index: number) => {
           const slideNumber = index + 1;
           const slideTitleMatch = slideContent.match(/^(.+?)\n/);
           const slideTitle = slideTitleMatch ? slideTitleMatch[1].trim() : `Слайд ${slideNumber}`;
           const slideBody = slideContent.replace(/^(.+?)\n/, '').trim();          
           const slideImage = result.images.find((img: any) => img.slide_number === slideNumber);          
           return (
-            <div key={slideNumber} className="slide">
+            <div key={slides.slideNumber} className="slide">
               <div className="slide-header">
-                <h4>{slideNumber}. {slideTitle}</h4>
+                <h4>Слайд {slideNumber}. {slideTitle}</h4>
               </div>
               <div className="slide-content">
                 {slideImage && (
                   <div className="slide-image">
-                    <img src={slideImage.image_url} alt={`Слайд ${slideNumber}`} />
+                    <img src={slides.outcome.image_url} alt={`Слайд ${slideNumber}`} />
                   </div>
                 )}
                 <div className="slide-text" dangerouslySetInnerHTML={{__html: slideBody.replace(/\n/g, '<br/>')}} />

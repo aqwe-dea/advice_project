@@ -1,6 +1,4 @@
 import React, { useState } from 'react';
-import { styled } from 'styled-components';
-import { colors } from '../theme';
 import '../App.css';
 import axios from 'axios';
 
@@ -24,7 +22,7 @@ function InvestmentAnalysisForm() {
         setError('');
         try {
             const response = await axios.post(
-                'https://advice-project.onrender.com/investment-analysis/',
+                '/investment-analysis/',
                 { 
                     initial_investment: initialInvestment,
                     expected_return: expectedReturn,
