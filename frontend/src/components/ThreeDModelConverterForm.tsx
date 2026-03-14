@@ -1,5 +1,9 @@
 import React, { useState } from 'react';
 import '../App.css';
+import ReactMarkdown from 'react-markdown';
+
+const API_BASE_URL = 'http://localhost:8000';
+const MEDIA_URL = `${API_BASE_URL}/media/`;
 
 const ThreeDModelConverterForm = () => {
   const [formData, setFormData] = useState({
@@ -14,6 +18,7 @@ const ThreeDModelConverterForm = () => {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<any>(null);
   const [progress, setProgress] = useState(0);
+  const [imageLoaded, setImageLoaded] = useState(false);
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -28,6 +33,7 @@ const ThreeDModelConverterForm = () => {
     setError(null);
     setResult(null);
     setProgress(0);
+    setImageLoaded(false);
     try {
       const progressInterval = setInterval(() => {
         setProgress(prev => {
@@ -38,7 +44,7 @@ const ThreeDModelConverterForm = () => {
           return prev + 5;
         });
       }, 300);
-      const response = await fetch('/3d-to-project/', {
+      const response = await fetch(`${API_BASE_URL}/3d-to-project/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -59,61 +65,12 @@ const ThreeDModelConverterForm = () => {
       setIsLoading(false);
     }
   };
-  const renderModelingPlan = () => {
-    if (!result || !result.modeling_plan) return null;
-    const sections = {
-      preparation: extractSection(result.modeling_plan, "1.", "2."),
-      modeling: extractSection(result.modeling_plan, "2.", "3."),
-      texturing: extractSection(result.modeling_plan, "3.", "4."),
-      rigging: extractSection(result.modeling_plan, "4.", "5."),
-      lighting: extractSection(result.modeling_plan, "5.", "6."),
-      postprocessing: extractSection(result.modeling_plan, "6.", "7."),
-      export: extractSection(result.modeling_plan, "7.", "8."),
-      recommendations: extractSection(result.modeling_plan, "8.", null)
-    };
-    return (
-      <div className="modeling-plan">
-        <h3>План 3D-моделирования: {formData.model_type}</h3>
-        <div className="section">
-          <h4>1. Подготовительный этап</h4>
-          <div className="section-content">{sections.preparation || "Не найдено"}</div>
-        </div>
-        <div className="section">
-          <h4>2. Этап моделирования</h4>
-          <div className="section-content">{sections.modeling || "Не найдено"}</div>
-        </div>
-        <div className="section">
-          <h4>3. Текстурирование и материалы</h4>
-          <div className="section-content">{sections.texturing || "Не найдено"}</div>
-        </div>
-        <div className="section">
-          <h4>4. Риггинг и анимация</h4>
-          <div className="section-content">{sections.rigging || "Не найдено"}</div>
-        </div>
-        <div className="section">
-          <h4>5. Освещение и рендеринг</h4>
-          <div className="section-content">{sections.lighting || "Не найдено"}</div>
-        </div>
-        <div className="section">
-          <h4>6. Пост-обработка</h4>
-          <div className="section-content">{sections.postprocessing || "Не найдено"}</div>
-        </div>
-        <div className="section">
-          <h4>7. Экспорт и интеграция</h4>
-          <div className="section-content">{sections.export || "Не найдено"}</div>
-        </div>
-        <div className="section">
-          <h4>8. Рекомендации по улучшению</h4>
-          <div className="section-content">{sections.recommendations || "Не найдено"}</div>
-        </div>
-        <button 
-          onClick={() => setResult(null)}
-          className="reset-button"
-        >
-          Сгенерировать новый план
-        </button>
-      </div>
-    );
+  const getFullImageUrl = (relativeUrl: string | null) => {
+    if (!relativeUrl) return null;
+    if (relativeUrl.startsWith('http://') || relativeUrl.startsWith('https://')) {
+      return relativeUrl;
+    }
+    return `${MEDIA_URL}${relativeUrl.replace('/media/', '')}`;
   };
   const extractSection = (text: string, startMarker: string, endMarker: string | null): string => {
     const startIndex = text.indexOf(startMarker);
@@ -126,6 +83,81 @@ const ThreeDModelConverterForm = () => {
       return text.substring(startIndex + startMarker.length).trim();
     }
     return text.substring(startIndex + startMarker.length, endIndex).trim();
+  };
+  const renderModelingPlan = () => {
+    if (!result || !result.modeling_plan) return null;
+    const imageUrl = getFullImageUrl(result.image3dmodel);
+    
+    return (
+      <div className="modeling-plan">
+        <h3>План 3D-моделирования: {formData.model_type}</h3>
+        {imageUrl && (
+          <div className="model-image-container">
+            <h4>Визуализация 3D-модели</h4>
+            {!imageLoaded && (
+              <div className="image-loader">Загрузка изображения 3D-модели...</div>
+            )}
+            <img 
+              src={imageUrl} 
+              alt={`3D модель: ${formData.idea}`}
+              className="model-image"
+              onLoad={() => setImageLoaded(true)}
+              style={{ 
+                display: imageLoaded ? 'block' : 'none',
+                maxWidth: '100%',
+                maxHeight: '500px',
+                margin: '20px auto',
+                borderRadius: '8px',
+                boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+              }}
+            />
+          </div>
+        )}
+        <div className="plan-text">
+          <ReactMarkdown>{result.modeling_plan}</ReactMarkdown>
+        </div>
+        <div className="sections-container">
+          <div className="section">
+            <h4>1. Подготовительный этап</h4>
+            <div className="section-content">{extractSection(result.modeling_plan, "1.", "2.") || "Не найдено"}</div>
+          </div>
+          <div className="section">
+            <h4>2. Этап моделирования</h4>
+            <div className="section-content">{extractSection(result.modeling_plan, "2.", "3.") || "Не найдено"}</div>
+          </div>
+          <div className="section">
+            <h4>3. Текстурирование и материалы</h4>
+            <div className="section-content">{extractSection(result.modeling_plan, "3.", "4.") || "Не найдено"}</div>
+          </div>
+          <div className="section">
+            <h4>4. Риггинг и анимация</h4>
+            <div className="section-content">{extractSection(result.modeling_plan, "4.", "5.") || "Не найдено"}</div>
+          </div>
+          <div className="section">
+            <h4>5. Освещение и рендеринг</h4>
+            <div className="section-content">{extractSection(result.modeling_plan, "5.", "6.") || "Не найдено"}</div>
+          </div>
+          <div className="section">
+            <h4>6. Пост-обработка</h4>
+            <div className="section-content">{extractSection(result.modeling_plan, "6.", "7.") || "Не найдено"}</div>
+          </div>
+          <div className="section">
+            <h4>7. Экспорт и интеграция</h4>
+            <div className="section-content">{extractSection(result.modeling_plan, "7.", "8.") || "Не найдено"}</div>
+          </div>
+          <div className="section">
+            <h4>8. Рекомендации по улучшению</h4>
+            <div className="section-content">{extractSection(result.modeling_plan, "8.", null) || "Не найдено"}</div>
+          </div>
+        </div>
+        <button 
+          onClick={() => setResult(null)}
+          className="reset-button"
+        >
+          Сгенерировать новый план
+        </button>
+      </div>
+    );
   };
   return (
     <div className="modeling-container">

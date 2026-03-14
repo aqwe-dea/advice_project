@@ -1,8 +1,12 @@
 import React, { useState, useRef } from 'react';
 import '../App.css';
 
+const API_BASE_URL = 'http://localhost:8000';
+const MEDIA_URL = `${API_BASE_URL}/media/`;
+
 const PhotoRestorationForm = () => {
   const [image, setImage] = useState<File | null>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [restorationInfo, setRestorationInfo] = useState({
     damage_type: 'потертости и царапины',
     damage_level: 'средняя',
@@ -14,6 +18,7 @@ const PhotoRestorationForm = () => {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<any>(null);
   const [progress, setProgress] = useState(0);
+  const [imagesLoaded, setImagesLoaded] = useState({ original: false, restored: false });
   const imageInputRef = useRef<HTMLInputElement>(null);
   
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -29,6 +34,11 @@ const PhotoRestorationForm = () => {
         return;
       }
       setImage(selectedImage);
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        setImagePreview(e.target?.result as string);
+      };
+      reader.readAsDataURL(selectedImage);
       setError(null);
     }
   };
@@ -47,6 +57,7 @@ const PhotoRestorationForm = () => {
     setError(null);
     setResult(null);
     setProgress(0);
+    setImagesLoaded({ original: false, restored: false });
     try {
       const progressInterval = setInterval(() => {
         setProgress(prev => {
@@ -66,7 +77,7 @@ const PhotoRestorationForm = () => {
       formData.append('special_requests', restorationInfo.special_requests);
       formData.append('photo_age', restorationInfo.photo_age);
       
-      const response = await fetch('/photo-restoration/', {
+      const response = await fetch(`${API_BASE_URL}/photo-restoration/`, {
         method: 'POST',
         body: formData
       });
@@ -87,11 +98,22 @@ const PhotoRestorationForm = () => {
       setIsLoading(false);
     }
   };
-  
+  const getFullImageUrl = (relativeUrl: string | null) => {
+    if (!relativeUrl) return null;
+    if (relativeUrl.startsWith('http://') || relativeUrl.startsWith('https://')) {
+      return relativeUrl;
+    }
+    return `${MEDIA_URL}${relativeUrl.replace('/media/', '')}`;
+  };
+  const handleImageLoad = (type: 'original' | 'restored') => {
+    setImagesLoaded(prev => ({ ...prev, [type]: true }));
+  };
   const renderRestorationPlan = () => {
     if (!result || !result.restoration_report) return null;
     
     const report = result.restoration_report;
+    const originalUrl = getFullImageUrl(report.before_after_comparison.original_url);
+    const restoredUrl = getFullImageUrl(report.before_after_comparison.restored_url);
     
     return (
       <div className="restoration-plan">
@@ -100,11 +122,25 @@ const PhotoRestorationForm = () => {
         <div className="comparison-container">
           <div className="before">
             <h4>До реставрации</h4>
-            <img src={report.before_after_comparison.original_url} alt="Оригинал" className="comparison-image" />
+            {!imagesLoaded.original && <div className="image-loader">Загрузка...</div>}
+            <img 
+              src={originalUrl || ''} 
+              alt="Оригинал" 
+              className="comparison-image"
+              onLoad={() => handleImageLoad('original')}
+              style={{ display: imagesLoaded.original ? 'block' : 'none' }}
+            />
           </div>
           <div className="after">
             <h4>После реставрации</h4>
-            <img src={report.before_after_comparison.restored_url} alt="Восстановленное" className="comparison-image" />
+            {!imagesLoaded.restored && <div className="image-loader">Загрузка...</div>}
+            <img 
+              src={restoredUrl || ''} 
+              alt="Восстановленное" 
+              className="comparison-image"
+              onLoad={() => handleImageLoad('restored')}
+              style={{ display: imagesLoaded.restored ? 'block' : 'none' }}
+            />
           </div>
         </div>
         
@@ -162,6 +198,7 @@ const PhotoRestorationForm = () => {
               <button 
                 onClick={() => {
                   setImage(null);
+                  setImagePreview(null);
                   if (imageInputRef.current) {
                     imageInputRef.current.value = '';
                   }
@@ -171,6 +208,11 @@ const PhotoRestorationForm = () => {
               >
                 Удалить
               </button>
+            </div>
+          )}
+          {imagePreview && (
+            <div className="image-preview">
+              <img src={imagePreview} alt="Предпросмотр" className="preview-image" />
             </div>
           )}
         </div>

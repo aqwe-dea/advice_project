@@ -2,6 +2,9 @@ import React, { useState } from 'react';
 import '../App.css';
 import ReactMarkdown from 'react-markdown'
 
+const API_BASE_URL = 'http://localhost:8000';
+const MEDIA_URL = `${API_BASE_URL}/media/`;
+
 const PresentationForm = () => {
   const [formData, setFormData] = useState({
     presentation_idea: '',
@@ -11,6 +14,7 @@ const PresentationForm = () => {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<any>(null);
   const [progress, setProgress] = useState(0);
+  const [imagesLoaded, setImagesLoaded] = useState<{[key: number]: boolean}>({});
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { name, value } = e.target;
     setFormData(prev => ({ ...prev, [name]: value }));
@@ -35,7 +39,7 @@ const PresentationForm = () => {
           return prev + 3;
         });
       }, 200);      
-      const response = await fetch('/generate-presentation/', {
+      const response = await fetch(`${API_BASE_URL}/generate-presentation/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -43,7 +47,7 @@ const PresentationForm = () => {
         body: JSON.stringify(formData)
       });      
       clearInterval(progressInterval);
-      setProgress(100);      
+      setProgress(100);     
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Ошибка при генерации презентации');
@@ -56,35 +60,67 @@ const PresentationForm = () => {
       setIsLoading(false);
     }
   };
+  const getFullImageUrl = (relativeUrl: string | null) => {
+    if (!relativeUrl) return null;
+    if (relativeUrl.startsWith('http://') || relativeUrl.startsWith('https://')) {
+      return relativeUrl;
+    }
+    return `${MEDIA_URL}${relativeUrl.replace('/media/', '')}`;
+  };
+  
+  const handleImageLoad = (slideNumber: number) => {
+    setImagesLoaded(prev => ({ ...prev, [slideNumber]: true }));
+  };
   const renderPresentation = () => {
     if (!result || !result.presentation) return null;        
-    const slides = result.presentation.split(/##\s+\d+\.\s+/).slice(1);    
+  
     return (
       <div className="presentation-container">
         <h3>Ваша презентация: {result.presentation_idea}</h3>
-        <ReactMarkdown>{result.presentation}</ReactMarkdown>      
-        {slides.outcome & slides.outcome.map((slideContent: string, index: number) => {
-          const slideNumber = index + 1;
-          const slideTitleMatch = slideContent.match(/^(.+?)\n/);
-          const slideTitle = slideTitleMatch ? slideTitleMatch[1].trim() : `Слайд ${slideNumber}`;
-          const slideBody = slideContent.replace(/^(.+?)\n/, '').trim();          
-          const slideImage = result.images.find((img: any) => img.slide_number === slideNumber);          
-          return (
-            <div key={slides.slideNumber} className="slide">
-              <div className="slide-header">
-                <h4>Слайд {slideNumber}. {slideTitle}</h4>
-              </div>
-              <div className="slide-content">
-                {slideImage && (
-                  <div className="slide-image">
-                    <img src={slides.outcome.image_url} alt={`Слайд ${slideNumber}`} />
+        <div className="presentation-text">
+          <ReactMarkdown>{result.presentation}</ReactMarkdown>
+        </div>      
+        {result.outcome && result.outcome.length > 0 && (
+          <div className="slides-container">
+            <h4>Слайды презентации</h4>
+            {result.outcome.map((slide: any, index: number) => {
+              const slideNumber = slide.slide_number || index + 1;
+              const slideImage = getFullImageUrl(slide.image_url);
+              
+              return (
+                <div key={slideNumber} className="slide">
+                  <div className="slide-header">
+                    <h4>Слайд {slideNumber}</h4>
+                    {slide.prompt && (
+                      <p className="slide-prompt">{slide.prompt}</p>
+                    )}
                   </div>
-                )}
-                <div className="slide-text" dangerouslySetInnerHTML={{__html: slideBody.replace(/\n/g, '<br/>')}} />
-              </div>
-            </div>
-          );
-        })}        
+                  <div className="slide-content">
+                    {slideImage && (
+                      <div className="slide-image">
+                        {!imagesLoaded[slideNumber] && (
+                          <div className="image-loader">Загрузка слайда {slideNumber}...</div>
+                        )}
+                        <img 
+                          src={slideImage} 
+                          alt={`Слайд ${slideNumber}`} 
+                          className="slide-image-element"
+                          onLoad={() => handleImageLoad(slideNumber)}
+                          style={{ 
+                            display: imagesLoaded[slideNumber] ? 'block' : 'none',
+                            width: '100%',
+                            maxHeight: '400px',
+                            objectFit: 'contain'
+                          }}
+                        />
+                      </div>
+                    )}
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}        
         <div className="additional-materials">
           <h4>Дополнительные материалы</h4>
           <div className="materials-content">
@@ -143,7 +179,7 @@ const PresentationForm = () => {
               <div className="progress-bar" style={{ width: `${progress}%` }}></div>
               <p>Генерация презентации: {progress}%</p>
             </div>
-          )}          
+          )}           
           <button 
             type="submit" 
             className="generate-button"
