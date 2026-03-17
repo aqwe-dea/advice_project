@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import '../App.css';
 import ReactMarkdown from 'react-markdown'
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = 'http://127.0.0.1:8000';
 const MEDIA_URL = `${API_BASE_URL}/media/`;
 
 const PresentationForm = () => {
@@ -38,7 +38,7 @@ const PresentationForm = () => {
           }
           return prev + 3;
         });
-      }, 200);      
+      }, 300);      
       const response = await fetch(`${API_BASE_URL}/generate-presentation/`, {
         method: 'POST',
         headers: {

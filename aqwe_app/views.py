@@ -1140,9 +1140,6 @@ class ThreeDToProjectView(APIView):
                     "steps": 30
                 }
             )
-            with open("aqwegen3dmodel.jpg", "wb") as f:
-                f.write(create_image.content)
-                return "Image saved as aqwegen3dmodel.jpg"
             if create_image.status_code == 200:
                 unique_name = f"aqwegen3dmodel_{hashlib.md5(model_idea.encode()).hexdigest()[:8]}.jpg"
                 file_path = default_storage.save(f'tmp/{unique_name}', ContentFile(create_image.content))
@@ -1803,16 +1800,16 @@ class PresentationGenerationView(APIView):
                     - Включены ссылки на дополнительные материалы
                     - Указаны конкретные цифры и данные там, где это уместно
             """
-            key = os.getenv('NOVITA_AQWE_SLIDES')
+            key = os.getenv('ROUTEWAY_AQWE_SLIDES')
             if not key:
                 logger.error("API ключ key не настроен")
                 return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             client = OpenAI(
-                base_url="https://api.novita.ai/openai",
+                base_url="https://api.routeway.ai/v1",
                 api_key=key
             )
             response = client.chat.completions.create(
-                model="deepseek/deepseek-v3.2-exp",
+                model="kimi-k2-0905:free",
                 messages=[
                     {
                         "role": "system",
@@ -1824,7 +1821,7 @@ class PresentationGenerationView(APIView):
                     }
                 ],
                 temperature=0.3,
-                max_tokens=10000,
+                max_tokens=8000,
                 stream=False
             )
             text_content = response.choices[0].message.content

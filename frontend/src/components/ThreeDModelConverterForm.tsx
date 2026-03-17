@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import '../App.css';
 import ReactMarkdown from 'react-markdown';
 
-const API_BASE_URL = 'http://localhost:8000';
+const API_BASE_URL = 'http://127.0.0.1:8000';
 const MEDIA_URL = `${API_BASE_URL}/media/`;
 
 const ThreeDModelConverterForm = () => {
@@ -115,40 +115,6 @@ const ThreeDModelConverterForm = () => {
         )}
         <div className="plan-text">
           <ReactMarkdown>{result.modeling_plan}</ReactMarkdown>
-        </div>
-        <div className="sections-container">
-          <div className="section">
-            <h4>1. Подготовительный этап</h4>
-            <div className="section-content">{extractSection(result.modeling_plan, "1.", "2.") || "Не найдено"}</div>
-          </div>
-          <div className="section">
-            <h4>2. Этап моделирования</h4>
-            <div className="section-content">{extractSection(result.modeling_plan, "2.", "3.") || "Не найдено"}</div>
-          </div>
-          <div className="section">
-            <h4>3. Текстурирование и материалы</h4>
-            <div className="section-content">{extractSection(result.modeling_plan, "3.", "4.") || "Не найдено"}</div>
-          </div>
-          <div className="section">
-            <h4>4. Риггинг и анимация</h4>
-            <div className="section-content">{extractSection(result.modeling_plan, "4.", "5.") || "Не найдено"}</div>
-          </div>
-          <div className="section">
-            <h4>5. Освещение и рендеринг</h4>
-            <div className="section-content">{extractSection(result.modeling_plan, "5.", "6.") || "Не найдено"}</div>
-          </div>
-          <div className="section">
-            <h4>6. Пост-обработка</h4>
-            <div className="section-content">{extractSection(result.modeling_plan, "6.", "7.") || "Не найдено"}</div>
-          </div>
-          <div className="section">
-            <h4>7. Экспорт и интеграция</h4>
-            <div className="section-content">{extractSection(result.modeling_plan, "7.", "8.") || "Не найдено"}</div>
-          </div>
-          <div className="section">
-            <h4>8. Рекомендации по улучшению</h4>
-            <div className="section-content">{extractSection(result.modeling_plan, "8.", null) || "Не найдено"}</div>
-          </div>
         </div>
         <button 
           onClick={() => setResult(null)}
