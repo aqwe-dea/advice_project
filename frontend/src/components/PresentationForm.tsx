@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import '../App.css';
 import ReactMarkdown from 'react-markdown'
 
-const API_BASE_URL = 'http://127.0.0.1:8000';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://advice-project.onrender.com';
 const MEDIA_URL = `${API_BASE_URL}/media/`;
 
 const PresentationForm = () => {
@@ -65,7 +65,8 @@ const PresentationForm = () => {
     if (relativeUrl.startsWith('http://') || relativeUrl.startsWith('https://')) {
       return relativeUrl;
     }
-    return `${MEDIA_URL}${relativeUrl.replace('/media/', '')}`;
+    const cleanUrl = relativeUrl.replace(/^\/+/, '');
+    return `${API_BASE_URL}/${cleanUrl}`;
   };
   
   const handleImageLoad = (slideNumber: number) => {
@@ -103,9 +104,13 @@ const PresentationForm = () => {
                         )}
                         <img 
                           src={slideImage} 
-                          alt={`Слайд ${slideNumber}`} 
+                          alt={`Слайд ${slideNumber}`}
                           className="slide-image-element"
                           onLoad={() => handleImageLoad(slideNumber)}
+                          onError={(e) => {
+                            console.error('Ошибка загрузки:', getFullImageUrl(slide.image_url));
+                            (e.target as HTMLImageElement).src = '/placeholder.png';
+                          }}
                           style={{ 
                             display: imagesLoaded[slideNumber] ? 'block' : 'none',
                             width: '100%',

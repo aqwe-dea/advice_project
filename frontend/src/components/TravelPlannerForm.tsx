@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://advice-project.onrender.com';
+
 function TravelPlannerForm() {
     const [destination, setDestination] = useState<string>('');
     const [budget, setBudget] = useState<string>('средний');
@@ -22,7 +24,7 @@ function TravelPlannerForm() {
         setError('');
         try {
             const response = await axios.post(
-                '/travel-planner/',
+                `${API_BASE_URL}/travel-planner/`,
                 { 
                     destination,
                     budget,

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://advice-project.onrender.com';
+
 function CommunicationOptimizationForm() {
     const [companySize, setCompanySize] = useState<string>('500+ сотрудников');
     const [industry, setIndustry] = useState<string>('общая отрасль');
@@ -22,7 +24,7 @@ function CommunicationOptimizationForm() {
         setError('');
         try {
             const response = await axios.post(
-                '/communication-optimization/',
+                `${API_BASE_URL}/communication-optimization/`,
                 { 
                     company_size: companySize,
                     industry,

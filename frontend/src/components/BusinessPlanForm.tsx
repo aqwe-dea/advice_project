@@ -3,6 +3,8 @@ import '../App.css';
 import 'jspdf';
 import 'jspdf-autotable';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://advice-project.onrender.com';
+
 const BusinessPlanForm = () => {
   const [formData, setFormData] = useState({
     idea: '',
@@ -36,7 +38,7 @@ const BusinessPlanForm = () => {
     setIsLoading(true);
     setError(null);    
     try {
-      const response = await fetch('https://advice-project.onrender.com/business-plan/calculate-financial-plan/', {
+      const response = await fetch(`${API_BASE_URL}/business-plan/calculate-financial-plan/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -67,7 +69,7 @@ const BusinessPlanForm = () => {
     setIsLoading(true);
     setError(null);    
     try {
-      const response = await fetch('https://advice-project.onrender.com/business-plan/generate-marketing-strategy/', {
+      const response = await fetch(`${API_BASE_URL}/business-plan/generate-marketing-strategy/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -98,7 +100,7 @@ const BusinessPlanForm = () => {
     setIsLoading(true);
     setError(null);    
     try {
-      const response = await fetch('https://advice-project.onrender.com/business-plan/generate-risk-analysis/', {
+      const response = await fetch(`${API_BASE_URL}/business-plan/generate-risk-analysis/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -129,7 +131,7 @@ const BusinessPlanForm = () => {
     setIsLoading(true);
     setError(null);    
     try {
-      const response = await fetch('https://advice-project.onrender.com/business-plan/generate-action-plan/', {
+      const response = await fetch(`${API_BASE_URL}/business-plan/generate-action-plan/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
@@ -183,7 +185,7 @@ const BusinessPlanForm = () => {
         return;
       }        
       
-      const response = await fetch('https://advice-project.onrender.com/business-plan/', {
+      const response = await fetch(`${API_BASE_URL}/business-plan/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

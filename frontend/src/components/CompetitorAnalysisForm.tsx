@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://advice-project.onrender.com';
+
 function CompetitorAnalysisForm() {
     const [businessName, setBusinessName] = useState<string>('');
     const [businessDescription, setBusinessDescription] = useState<string>('');
@@ -21,7 +23,7 @@ function CompetitorAnalysisForm() {
         setError('');
         try {
             const response = await axios.post(
-                '/competitor-analysis/',
+                `${API_BASE_URL}/competitor-analysis/`,
                 { 
                     business_name: businessName,
                     business_description: businessDescription,

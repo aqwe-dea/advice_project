@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import axios from 'axios';
 import '../App.css';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://advice-project.onrender.com';
+
 const CourseForm = () => {
   const [topic, setTopic] = useState<string>('');
   const [level, setLevel] = useState<string>('начинающий');
@@ -30,13 +32,13 @@ const CourseForm = () => {
     setCourseBook('');
     try {
       const structureResponse = await axios.post(
-        '/generate-course/',
+        `${API_BASE_URL}/generate-course/`,
         { topic, level },
         { headers: { 'Content-Type': 'application/json' } }
       );
       if (structureResponse.data.course_structure) {
         const bookResponse = await axios.post(
-          '/generate-course/build_course_book/',
+          `${API_BASE_URL}/generate-course/build_course_book/`,
           { 
             course_structure: structureResponse.data.course_structure,
             course_topic: topic 

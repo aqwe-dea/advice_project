@@ -1,6 +1,8 @@
 import React, { useState, useRef } from 'react';
 import '../App.css';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://advice-project.onrender.com';
+
 const MedicalImageAnalysisForm = () => {
   const [image, setImage] = useState<File | null>(null);
   const [patientInfo, setPatientInfo] = useState({
@@ -65,7 +67,7 @@ const MedicalImageAnalysisForm = () => {
       formData.append('symptoms', patientInfo.symptoms);
       formData.append('medical_history', patientInfo.medical_history);
       formData.append('imaging_type', patientInfo.imaging_type);
-      const response = await fetch('/medical-image-analysis/', {
+      const response = await fetch(`${API_BASE_URL}/medical-image-analysis/`, {
         method: 'POST',
         body: formData
       });

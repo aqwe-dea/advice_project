@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import '../App.css';
 import ReactMarkdown from 'react-markdown';
 
-const API_BASE_URL = 'http://127.0.0.1:8000';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://advice-project.onrender.com';
 const MEDIA_URL = `${API_BASE_URL}/media/`;
 
 const ThreeDModelConverterForm = () => {

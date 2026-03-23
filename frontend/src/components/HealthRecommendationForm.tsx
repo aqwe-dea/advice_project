@@ -2,6 +2,8 @@ import React, { useState } from 'react';
 import '../App.css';
 import axios from 'axios';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://advice-project.onrender.com';
+
 function HealthRecommendationForm() {
     const [symptoms, setSymptoms] = useState<string>('');
     const [age, setAge] = useState<string>('');
@@ -21,7 +23,7 @@ function HealthRecommendationForm() {
         setError('');
         try {
             const response = await axios.post(
-                '/health-recommendation/',
+                `${API_BASE_URL}/health-recommendation/`,
                 { 
                     symptoms, 
                     age, 

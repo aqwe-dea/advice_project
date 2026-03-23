@@ -1,7 +1,7 @@
 import React, { useState, useRef } from 'react';
 import '../App.css';
 
-const API_BASE_URL = 'http://127.0.0.1:8000';
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://advice-project.onrender.com';
 const MEDIA_URL = `${API_BASE_URL}/media/`;
 
 const PhotoRestorationForm = () => {
@@ -58,6 +58,7 @@ const PhotoRestorationForm = () => {
     setResult(null);
     setProgress(0);
     setImagesLoaded({ original: false, restored: false });
+    
     try {
       const progressInterval = setInterval(() => {
         setProgress(prev => {
@@ -68,7 +69,6 @@ const PhotoRestorationForm = () => {
           return prev + 5;
         });
       }, 300);
-      
       const formData = new FormData();
       formData.append('image', image);
       formData.append('damage_type', restorationInfo.damage_type);
@@ -76,20 +76,16 @@ const PhotoRestorationForm = () => {
       formData.append('restoration_style', restorationInfo.restoration_style);
       formData.append('special_requests', restorationInfo.special_requests);
       formData.append('photo_age', restorationInfo.photo_age);
-      
       const response = await fetch(`${API_BASE_URL}/photo-restoration/`, {
         method: 'POST',
         body: formData
       });
-      
       clearInterval(progressInterval);
       setProgress(100);
-      
       if (!response.ok) {
         const errorData = await response.json();
         throw new Error(errorData.error || 'Ошибка при реставрации фотографии');
       }
-      
       const data = await response.json();
       setResult(data);
     } catch (err) {
@@ -98,52 +94,71 @@ const PhotoRestorationForm = () => {
       setIsLoading(false);
     }
   };
+
   const getFullImageUrl = (relativeUrl: string | null) => {
     if (!relativeUrl) return null;
     if (relativeUrl.startsWith('http://') || relativeUrl.startsWith('https://')) {
       return relativeUrl;
     }
-    return `${MEDIA_URL}${relativeUrl.replace('/media/', '')}`;
+    const cleanUrl = relativeUrl.replace(/^\/+/, '');
+    return `${API_BASE_URL}/${cleanUrl}`;
   };
+
   const handleImageLoad = (type: 'original' | 'restored') => {
     setImagesLoaded(prev => ({ ...prev, [type]: true }));
   };
+
   const renderRestorationPlan = () => {
     if (!result || !result.restoration_report) return null;
-    
     const report = result.restoration_report;
     const originalUrl = getFullImageUrl(report.before_after_comparison.original_url);
     const restoredUrl = getFullImageUrl(report.before_after_comparison.restored_url);
-    
+    console.log('Original URL:', originalUrl);
+    console.log('Restored URL:', restoredUrl);
+
     return (
       <div className="restoration-plan">
         <h3>Результаты реставрации фотографии: {result.image_type}</h3>
-        
         <div className="comparison-container">
           <div className="before">
             <h4>До реставрации</h4>
+            <p className="debug-url">{originalUrl}</p>
             {!imagesLoaded.original && <div className="image-loader">Загрузка...</div>}
             <img 
               src={originalUrl || ''} 
               alt="Оригинал" 
               className="comparison-image"
-              onLoad={() => handleImageLoad('original')}
+              onLoad={() => {
+                console.log('Оригинал загружен!');
+                handleImageLoad('original');
+              }}
+              onError={(e) => {
+                console.error('Ошибка загрузки оригинала:', e);
+                handleImageLoad('original');
+              }}
               style={{ display: imagesLoaded.original ? 'block' : 'none' }}
             />
           </div>
           <div className="after">
             <h4>После реставрации</h4>
+            <p className="debug-url">{restoredUrl}</p>
             {!imagesLoaded.restored && <div className="image-loader">Загрузка...</div>}
             <img 
               src={restoredUrl || ''} 
               alt="Восстановленное" 
               className="comparison-image"
-              onLoad={() => handleImageLoad('restored')}
+              onLoad={() => {
+                console.log('востановленное загружено!');
+                handleImageLoad('restored');
+              }}
+              onError={(e) => {
+                console.error('Ошибка загрузки восстановленного:', e);
+                handleImageLoad('restored');
+              }}
               style={{ display: imagesLoaded.restored ? 'block' : 'none' }}
             />
           </div>
         </div>
-        
         <div className="section">
           <h4>Анализ повреждений</h4>
           <div className="section-content">
@@ -152,7 +167,6 @@ const PhotoRestorationForm = () => {
             <p>Возраст фотографии: {report.restoration_summary.photo_age}</p>
           </div>
         </div>
-        
         <div className="section">
           <h4>Рекомендации по уходу</h4>
           <div className="section-content">
@@ -161,7 +175,6 @@ const PhotoRestorationForm = () => {
             <p>Долгосрочный уход: {report.recommendations.long_term_care}</p>
           </div>
         </div>
-        
         <button 
           onClick={() => setResult(null)}
           className="reset-button"

@@ -652,19 +652,24 @@ class PhotoRestorationView(APIView):
                 elif checkstatus == 'Error':
                     logger.error(f"Задача не выполнена: {checkwork.get('details')}")
                     break
+            restored_url = None
             if result_url:
-                restored_response = requests.get(result_url, timeout=60)
-                if restored_response.status_code == 200:
-                    image_name = f"restored_{image_file.name}"
-                    file_path = default_storage.save(
-                        f'tmp/{image_name}', 
-                        ContentFile(restored_response.content)
-                    )
-                    restored_url = default_storage.url(file_path)
-                else:
-                    restored_url = None
+                try:
+                    restored_response = requests.get(result_url, timeout=60)
+                    if restored_response.status_code == 200:
+                        image_name = f"restored_{image_file.name}"
+                        file_path = default_storage.save(
+                            f'tmp/{image_name}', 
+                            ContentFile(restored_response.content)
+                        )
+                        restored_url = default_storage.url(file_path)
+                        logger.info(f"Изображение сохранено: {restored_url}")
+                    else:
+                        logger.error(f"Не удалось скачать изображение: {restored_response.status_code}")
+                except Exception as e:
+                    logger.error(f"Ошибка скачивания: {str(e)}")
             else:
-                restored_url = None
+                logger.error("Не получен result_url от Fireworks")
             restoration_report = self.create_restoration_report(
                 restored_url or original_url,
                 original_url,
@@ -758,7 +763,7 @@ class PhotoRestorationView(APIView):
                 checkwork = result_response.json()
                 state = checkwork.get('data', {}).get('state')
                 if state == 'success':
-                    urls = checkwork.get('data', {}).get('resultJson', {})
+                    urls = checkwork.get('data', {}).get('resultJson', {}).get('resultUrls', [])
                     if urls:
                         return urls[0].strip()
                 elif state == 'fail':

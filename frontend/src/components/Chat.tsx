@@ -5,27 +5,19 @@ import { motion } from 'framer-motion';
 import { styled } from 'styled-components';
 import { colors } from '../theme';
 
-//interface HuggingFaceResponse {
-    //choices: Array<{
-        //message: {
-            //content: string;
-        //};
-    //}>;
-    //response: string;
-//}
-
-//interface Message {
-    //user: string;
-    //bot: string;
-//}
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://advice-project.onrender.com';
 
 function Chat() {
     useEffect(() => {
         const fetchHistory = async () => {
-            const history = await axios.get('/api/user-history/?email=...');
+            const userEmail = 'user@example.com';
+            const history = await axios.get(`${API_BASE_URL}/api/user-history/?email=${userEmail}`);
             setMessages(history.data.map((msg: any) => ({
-                user: msg.question,
-                bot: msg.answer
+                sender: 'user',
+                text: msg.question
+            }), (msg: any) => ({
+                sender: 'aqwe',
+                text: msg.answer
             })));
     };
     fetchHistory();
@@ -59,7 +51,7 @@ function Chat() {
     setInput('');
     setIsLoading(true);
     try {
-      const response = await axios.post('/chat/', { message: input });
+      const response = await axios.post(`${API_BASE_URL}/chat/`, { message: input });
       setMessages(prev => [...prev, { sender: 'aqwe', text: response.data.response }]);
     } catch (error) {
       setMessages(prev => [...prev, { 

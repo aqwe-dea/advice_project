@@ -1,6 +1,8 @@
 import React, { useState, useRef } from 'react';
 import '../App.css';
 
+const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://advice-project.onrender.com';
+
 const LegalDocumentAnalysisForm = () => {
   const [file, setFile] = useState<File | null>(null);
   const [isLoading, setIsLoading] = useState(false);
@@ -50,7 +52,7 @@ const LegalDocumentAnalysisForm = () => {
       }, 300);
       const formData = new FormData();
       formData.append('file', file);
-      const response = await fetch('/legal-document-analysis/', {
+      const response = await fetch(`${API_BASE_URL}/legal-document-analysis/`, {
         method: 'POST',
         body: formData
       });
@@ -117,15 +119,18 @@ const LegalDocumentAnalysisForm = () => {
   };
   const extractSection = (text: string, startMarker: string, endMarker: string | null): string => {
     const startIndex = text.indexOf(startMarker);
-    if (startIndex === -1) return "";
-    let endIndex = -1;
+    if (startIndex === -1) return "Раздел не найден";
+    
+    let endIndex = text.length;
     if (endMarker) {
-      endIndex = text.indexOf(endMarker, startIndex + startMarker.length);
+      const foundEndIndex = text.indexOf(endMarker, startIndex + startMarker.length);
+      if (foundEndIndex !== -1) {
+        endIndex = foundEndIndex;
+      }
     }
-    if (endIndex === -1) {
-      return text.substring(startIndex + startMarker.length).trim();
-    }
-    return text.substring(startIndex + startMarker.length, endIndex).trim();
+    
+    const section = text.substring(startIndex + startMarker.length, endIndex).trim();
+    return section || "Раздел пуст";
   };
   return (
     <div className="legal-analysis-container">
