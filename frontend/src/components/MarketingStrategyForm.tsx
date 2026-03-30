@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://advice-project.onrender.com';
+//const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://advice-project.onrender.com';
+//${API_BASE_URL}
 
 function MarketingStrategyForm() {
     const [idea, setIdea] = useState<string>('');
@@ -24,7 +25,7 @@ function MarketingStrategyForm() {
         setError('');
         try {
             const response = await axios.post(
-                `${API_BASE_URL}/marketing-strategy/`,
+                '/marketing-strategy/',
                 { 
                     idea, 
                     target_audience: targetAudience,

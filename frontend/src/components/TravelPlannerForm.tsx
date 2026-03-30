@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://advice-project.onrender.com';
+//const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://advice-project.onrender.com';
+//${API_BASE_URL}
 
 function TravelPlannerForm() {
     const [destination, setDestination] = useState<string>('');
@@ -24,7 +25,7 @@ function TravelPlannerForm() {
         setError('');
         try {
             const response = await axios.post(
-                `${API_BASE_URL}/travel-planner/`,
+                '/travel-planner/',
                 { 
                     destination,
                     budget,
@@ -34,8 +35,7 @@ function TravelPlannerForm() {
                     special_interests: specialInterests
                 },
                 { 
-                    headers: { "Content-Type": "application/json" },
-                    timeout: 60000
+                    headers: { "Content-Type": "application/json" }
                 }
             );
             setPlan(response.data);
