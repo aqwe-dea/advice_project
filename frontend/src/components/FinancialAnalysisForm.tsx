@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://advice-project.onrender.com';
+//const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://advice-project.onrender.com';
+//${API_BASE_URL}
 
 function FinancialAnalysisForm() {
     const [financialData, setFinancialData] = useState<Array<{revenue: string, expenses: string}>>([
@@ -56,7 +57,7 @@ function FinancialAnalysisForm() {
                 payload = { data, country };
             }            
             const response = await axios.post(
-                `${API_BASE_URL}/financial-analysis/`,
+                '/financial-analysis/',
                 payload,
                 { 
                     headers: { 

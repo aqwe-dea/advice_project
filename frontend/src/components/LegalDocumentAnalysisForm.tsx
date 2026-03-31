@@ -1,7 +1,8 @@
 import React, { useState, useRef } from 'react';
 import '../App.css';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://advice-project.onrender.com';
+//const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://advice-project.onrender.com';
+//${API_BASE_URL}
 
 const LegalDocumentAnalysisForm = () => {
   const [file, setFile] = useState<File | null>(null);
@@ -52,7 +53,7 @@ const LegalDocumentAnalysisForm = () => {
       }, 300);
       const formData = new FormData();
       formData.append('file', file);
-      const response = await fetch(`${API_BASE_URL}/legal-document-analysis/`, {
+      const response = await fetch('/legal-document-analysis/', {
         method: 'POST',
         body: formData
       });

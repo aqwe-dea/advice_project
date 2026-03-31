@@ -4,6 +4,7 @@ import ReactMarkdown from 'react-markdown';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://advice-project.onrender.com';
 const MEDIA_URL = `${API_BASE_URL}/media/`;
+//${API_BASE_URL}
 
 const ThreeDModelConverterForm = () => {
   const [formData, setFormData] = useState({
@@ -44,7 +45,7 @@ const ThreeDModelConverterForm = () => {
           return prev + 5;
         });
       }, 300);
-      const response = await fetch(`${API_BASE_URL}/3d-to-project/`, {
+      const response = await fetch('/3d-to-project/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'

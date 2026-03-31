@@ -4,6 +4,7 @@ import ReactMarkdown from 'react-markdown'
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://advice-project.onrender.com';
 const MEDIA_URL = `${API_BASE_URL}/media/`;
+//${API_BASE_URL}
 
 const PresentationForm = () => {
   const [formData, setFormData] = useState({
@@ -39,7 +40,7 @@ const PresentationForm = () => {
           return prev + 3;
         });
       }, 300);      
-      const response = await fetch(`${API_BASE_URL}/generate-presentation/`, {
+      const response = await fetch('/generate-presentation/', {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
