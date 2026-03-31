@@ -268,13 +268,13 @@ class GenerateCourseView(APIView):
                 Ответ должен быть профессиональным, детализированным и содержать конкретные примеры.
                 Структура ответа должна четко соответствовать указанным разделам.
             """
-            APIKEY = os.getenv('AICCTEST')
+            key = os.getenv('AICCTEST')
             client = OpenAI(
                 base_url="https://api.ai.cc/v1",
-                api_key=APIKEY
+                api_key=key
             )
             completion = client.chat.completions.create(
-                model="deepseek-v3.2",
+                model="gpt-5-nano",
                 messages=[
                     {
                         "role": "system",
@@ -286,7 +286,7 @@ class GenerateCourseView(APIView):
                     }
                 ],
                 temperature=0.3,
-                max_tokens=7000
+                max_tokens=10000
             )
             return Response({
                 'course_structure': completion.choices[0].message.content,
@@ -363,22 +363,22 @@ class GenerateCourseView(APIView):
                 НЕ ОБРЫВАЙТЕ текст - завершите все главы!
                 Важно: Ответ должен быть профессиональным, детализированным и содержать конкретные примеры!     
             """
-            APIKEY = os.getenv('AICCTEST')
-            if not APIKEY:
+            key = os.getenv('AICCTEST')
+            if not key:
                 logger.error("API ключ AICCTEST не настроен")
                 return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             client = OpenAI(
                 base_url="https://api.ai.cc/v1",
-                api_key=APIKEY
+                api_key=key
             )
             completion = client.chat.completions.create(
-                model="deepseek-v3.2",
+                model="gpt-5-nano",
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": prompt}
                 ],
                 temperature=0.3,
-                max_tokens=7000
+                max_tokens=10000
             )
             text_content = completion.choices[0].message.content
             if not isinstance(text_content, str):
@@ -457,22 +457,25 @@ class LegalDocumentAnalysisView(APIView):
                     - Не обрывайте предложения на полуслове
                 Ответ должен быть профессиональным, структурированным и содержать ссылки на конкретные статьи ГК РФ.
             """
-            APIKEY = os.getenv('CLARIFAITEST')
-            if not APIKEY:
-                logger.error("API ключ CLARIFAITEST не настроен")
-                return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            key = os.getenv('AICCTEST')
             client = OpenAI(
-                base_url="https://api.clarifai.com/v2/ext/openai/v1",
-                api_key=APIKEY
+                base_url="https://api.ai.cc/v1",
+                api_key=key
             )
             completion = client.chat.completions.create(
-                model="https://clarifai.com/openai/chat-completion/models/gpt-oss-120b/versions/f1d2ad8c01c74705868f5c8ae4a1ff7c",
+                model="gpt-5-nano",
                 messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": prompt}
+                    {
+                        "role": "system",
+                        "content": system_prompt
+                    },
+                    {
+                        "role": "user", 
+                        "content": prompt
+                    }
                 ],
                 temperature=0.3,
-                max_tokens=7000
+                max_tokens=10000
             )
             text_content = completion.choices[0].message.content
             if not isinstance(text_content, str):
@@ -538,22 +541,25 @@ class FinancialAnalysisView(APIView):
                     8. Конкретные рекомендации по оптимизации финансовой деятельности
                     9. Заключение
             """
-            APIKEY = os.getenv('CLARIFAITEST')
-            if not APIKEY:
-                logger.error("API ключ CLARIFAITEST не настроен")
-                return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            key = os.getenv('AICCTEST')
             client = OpenAI(
-                base_url="https://api.clarifai.com/v2/ext/openai/v1",
-                api_key=APIKEY
+                base_url="https://api.ai.cc/v1",
+                api_key=key
             )
             completion = client.chat.completions.create(
-                model="https://clarifai.com/openai/chat-completion/models/gpt-oss-120b/versions/f1d2ad8c01c74705868f5c8ae4a1ff7c",
+                model="gpt-5-nano",
                 messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": prompt}
+                    {
+                        "role": "system",
+                        "content": system_prompt
+                    },
+                    {
+                        "role": "user", 
+                        "content": prompt
+                    }
                 ],
                 temperature=0.3,
-                max_tokens=7000
+                max_tokens=10000
             )
             text_content = completion.choices[0].message.content
             if not isinstance(text_content, str):

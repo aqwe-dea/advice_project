@@ -110,7 +110,6 @@ const PresentationForm = () => {
                           onLoad={() => handleImageLoad(slideNumber)}
                           onError={(e) => {
                             console.error('Ошибка загрузки:', getFullImageUrl(slide.image_url));
-                            (e.target as HTMLImageElement).src = '/placeholder.png';
                           }}
                           style={{ 
                             display: imagesLoaded[slideNumber] ? 'block' : 'none',
