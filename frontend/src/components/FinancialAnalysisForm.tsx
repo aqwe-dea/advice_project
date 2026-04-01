@@ -57,7 +57,7 @@ function FinancialAnalysisForm() {
                 payload = { data, country };
             }            
             const response = await axios.post(
-                '/financial-analysis/',
+                'https://advice-project.onrender.com/financial-analysis/',
                 payload,
                 { 
                     headers: { 

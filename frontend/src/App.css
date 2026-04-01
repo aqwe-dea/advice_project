@@ -735,6 +735,32 @@
   margin-right: 8px;
 }
 
+.business-plan-content {
+  background-color: #1a1a2e; /* Тёмно-синий фон */
+  color: #f8f8f0; /* Светлый текст */
+  padding: 1.5rem;
+  border-radius: 10px;
+}
+
+.business-plan-content h1,
+.business-plan-content h2,
+.business-plan-content h3,
+.business-plan-content h4 {
+  color: #7a6ac8; /* Фиолетовые заголовки */
+}
+
+.business-plan-content table {
+  background-color: #16213e;
+  color: #f8f8f0;
+  border: 1px solid #7a6ac8;
+}
+
+.business-plan-content th,
+.business-plan-content td {
+  padding: 0.75rem;
+  border: 1px solid #7a6ac8;
+}
+
 @keyframes spin {
   to { transform: rotate(360deg); }
 }
