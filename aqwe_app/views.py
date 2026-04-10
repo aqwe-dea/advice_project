@@ -888,16 +888,16 @@ class MedicalImageView(APIView):
                 Если вы не уверены в каком-то аспекте, честно укажите это и объясните, почему требуется консультация специалиста.
                 Помните: это не замена профессиональной медицинской консультации.
             """
-            APIKEY = os.getenv('OLLAMATEST')
-            if not APIKEY:
-                logger.error("API ключ OLLAMA не настроен")
+            key = os.getenv('HF_API_KEY')
+            if not key:
+                logger.error("API ключ не настроен")
                 return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             client = OpenAI(
-                base_url="https://ollama.com/v1/",
-                api_key=APIKEY
+                base_url="https://router.huggingface.co/v1/",
+                api_key=key
             )
             chat_completion = client.chat.completions.create(
-                model="qwen3-vl:235b-cloud",
+                model="Qwen/Qwen3-VL-235B-A22B-Instruct:novita",
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": [
@@ -978,16 +978,16 @@ class MedicalImageView(APIView):
                 Важно: Это не заменяет профессиональную медицинскую консультацию.
                 Ответ должен быть структурирован, безопасен и профессионален.
             """
-            APIKEY = os.getenv('OLLAMATEST')
-            if not APIKEY:
+            key = os.getenv('OLLAMATEST')
+            if not key:
                 logger.error("API ключ OLLAMA не настроен")
                 return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             client = OpenAI(
                 base_url="https://ollama.com/v1/",
-                api_key=APIKEY
+                api_key=key
             )
             chat_completion = client.chat.completions.create(
-                model="qwen3-vl:235b-cloud",
+                model="gemma4:31b-cloud",
                 messages=[
                     {"role": "system", "content": system_prompt},
                     {"role": "user", "content": prompt}
@@ -1811,16 +1811,15 @@ class PresentationGenerationView(APIView):
                     - Включены ссылки на дополнительные материалы
                     - Указаны конкретные цифры и данные там, где это уместно
             """
-            key = os.getenv('ROUTEWAY_AQWE_SLIDES')
+            key = os.getenv('KIE_AQWE_SLIDES')
             if not key:
                 logger.error("API ключ key не настроен")
                 return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             client = OpenAI(
-                base_url="https://api.routeway.ai/v1",
+                base_url="https://api.kie.ai/gemini-3-pro/v1",
                 api_key=key
             )
             response = client.chat.completions.create(
-                model="kimi-k2-0905:free",
                 messages=[
                     {
                         "role": "system",
