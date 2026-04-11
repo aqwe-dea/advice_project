@@ -1816,23 +1816,31 @@ class PresentationGenerationView(APIView):
                 logger.error("API ключ key не настроен")
                 return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             client = OpenAI(
-                base_url="https://api.kie.ai/gemini-3-pro/v1",
+                base_url="https://api.kie.ai/gemini-3-flash/v1/",
                 api_key=key
             )
             response = client.chat.completions.create(
+                stream=False,
+                include_thoughts=True,
+                reasoning_effort="high",
                 messages=[
                     {
                         "role": "system",
-                        "content": system_prompt
+                        "content": [
+                            "type": "text",
+                            "text": system_prompt
+                        ],
                     },
                     {
                         "role": "user",
-                        "content": prompt
+                        "content": [
+                            "type": "text",
+                            "text": prompt
+                        ],
                     }
                 ],
                 temperature=0.3,
-                max_tokens=8000,
-                stream=False
+                max_tokens=8000
             )
             text_content = response.choices[0].message.content
             if not isinstance(text_content, str):
