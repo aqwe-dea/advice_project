@@ -612,51 +612,53 @@ class PhotoRestorationView(APIView):
             'photo_age': request.data.get('photo_age', 'неизвестно')
         }
         try:
-            key = os.getenv('FIREWORKSTESTSA')
+            key = os.getenv('KIE_AQWE_SLIDES')
             if not key:
-                return Response({'error': 'API ключ Fireworks не настроен'}, status=500)
+                return Response({'error': 'API ключ key не настроен'}, status=500)
             response = requests.post(
-                url="https://api.fireworks.ai/inference/v1/workflows/accounts/fireworks/models/flux-kontext-max",
+                url="https://api.kie.ai/api/v1/jobs/createTask",
                 headers={
                     "Content-Type": "application/json",
                     "Authorization": f"Bearer {key}",
                     "Accept": "image/jpeg",
                 },
                 json={
-                    "prompt": "restore this image, fix damage, upscale",
-                    "input_image": f"data:image/{file_ext[1:]};base64,{base64_image}"
+                    "model": "recraft/crisp-upscale",
+                    "input": {
+                        "image": f"data:image/{file_ext[1:]};base64,{base64_image}"
+                    }
                 }
             )
             if response.status_code != 200:
-                logger.error(f"Fireworks API error: {response.status_code} - {response.text}")
-                return Response({'error': 'Ошибка Fireworks API'}, status=500)
+                logger.error(f"kie API error: {response.status_code} - {response.text}")
+                return Response({'error': 'Ошибка kie API'}, status=500)
             startwork = response.json()
-            requestid = startwork.get('request_id')
-            if not requestid:
-                return Response({'error': 'Не получен request_id'}, status=500)
-            check_url = "https://api.fireworks.ai/inference/v1/workflows/accounts/fireworks/models/flux-kontext-max/get_result"
+            taskid = startwork.get('data', {}).get('taskId')
+            if not taskid:
+                return Response({'error': 'Не получен taskid'}, status=500)
+            check_url = "https://api.kie.ai/api/v1/jobs/recordInfo"
             result_url = None
             for attempt in range(8):
                 time.sleep(3)
-                check_response = requests.post(
+                check_response = requests.get(
                     url=check_url,
                     headers={
                         "Content-Type": "application/json",
                         "Authorization": f"Bearer {key}",
                     },
-                    json={
-                        "id": requestid
+                    params={
+                        "taskId": taskid
                     },
                     timeout=60
                 )
                 checkwork = check_response.json()
-                checkstatus = checkwork.get('status')
+                checkstatus = checkwork.get('data', {}).get('state')
                 logger.info(f"Попытка {attempt+1}: статус={checkstatus}")
-                if checkstatus == 'Ready':
-                    result_url = checkwork.get('result', {}).get('sample')
+                if checkstatus == 'success':
+                    result_url = checkwork.get('data', {}).get('resultJson', {}).get('resultUrls', [])
                     break
-                elif checkstatus == 'Error':
-                    logger.error(f"Задача не выполнена: {checkwork.get('details')}")
+                elif checkstatus == 'fail':
+                    logger.error(f"Задача не выполнена: {checkwork.get('data', {}).get('state')}")
                     break
             restored_url = None
             if result_url:
@@ -675,7 +677,7 @@ class PhotoRestorationView(APIView):
                 except Exception as e:
                     logger.error(f"Ошибка скачивания: {str(e)}")
             else:
-                logger.error("Не получен result_url от Fireworks")
+                logger.error("Не получен result_url от kie")
             restoration_report = self.create_restoration_report(
                 restored_url or original_url,
                 original_url,
@@ -1826,17 +1828,17 @@ class PresentationGenerationView(APIView):
                 messages=[
                     {
                         "role": "system",
-                        "content": [
+                        "content": {
                             "type": "text",
                             "text": system_prompt
-                        ],
+                        },
                     },
                     {
                         "role": "user",
-                        "content": [
+                        "content": {
                             "type": "text",
                             "text": prompt
-                        ],
+                        },
                     }
                 ],
                 temperature=0.3,

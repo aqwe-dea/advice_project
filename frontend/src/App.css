@@ -294,6 +294,20 @@
   font-family: Arial, sans-serif;
 }
 
+.medical-analysis-content {
+  background-color: #1a1a2e; /* Тёмно-синий фон */
+  color: #f8f8f0; /* Светлый текст */
+  padding: 1.5rem;
+  border-radius: 10px;
+}
+
+.medical-analysis-content h1,
+.medical-analysis-content h2,
+.medical-analysis-content h3,
+.medical-analysis-content h4 {
+  color: #7a6ac8; /* Фиолетовые заголовки */
+}
+
 .medical-analysis-container h2 {
   color: #7a6ac8;
   margin-bottom: 10px;
