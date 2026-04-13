@@ -619,23 +619,17 @@ class PhotoRestorationView(APIView):
                 url="https://api.kie.ai/api/v1/jobs/createTask",
                 headers={
                     "Content-Type": "application/json",
-                    "Authorization": f"Bearer {key}",
-                    "Accept": "image/jpeg",
+                    "Authorization": f"Bearer {key}"
                 },
                 json={
                     "model": "recraft/crisp-upscale",
                     "input": {
-                        "image": f"data:image/{file_ext[1:]};base64,{base64_image}"
+                        "image": full_original_url
                     }
                 }
             )
-            if response.status_code != 200:
-                logger.error(f"kie API error: {response.status_code} - {response.text}")
-                return Response({'error': 'Ошибка kie API'}, status=500)
             startwork = response.json()
             taskid = startwork.get('data', {}).get('taskId')
-            if not taskid:
-                return Response({'error': 'Не получен taskid'}, status=500)
             check_url = "https://api.kie.ai/api/v1/jobs/recordInfo"
             result_url = None
             for attempt in range(8):
@@ -655,7 +649,7 @@ class PhotoRestorationView(APIView):
                 checkstatus = checkwork.get('data', {}).get('state')
                 logger.info(f"Попытка {attempt+1}: статус={checkstatus}")
                 if checkstatus == 'success':
-                    result_url = checkwork.get('data', {}).get('resultJson', {}).get('resultUrls', [])
+                    result_url = checkwork.get('data', {}).get('resultJson', {})
                     break
                 elif checkstatus == 'fail':
                     logger.error(f"Задача не выполнена: {checkwork.get('data', {}).get('state')}")
@@ -1823,26 +1817,18 @@ class PresentationGenerationView(APIView):
             )
             response = client.chat.completions.create(
                 stream=False,
-                include_thoughts=True,
                 reasoning_effort="high",
+                model="gemini-3-flash",
                 messages=[
                     {
                         "role": "system",
-                        "content": {
-                            "type": "text",
-                            "text": system_prompt
-                        },
+                        "content": system_prompt
                     },
                     {
                         "role": "user",
-                        "content": {
-                            "type": "text",
-                            "text": prompt
-                        },
+                        "content": prompt
                     }
-                ],
-                temperature=0.3,
-                max_tokens=8000
+                ]
             )
             text_content = response.choices[0].message.content
             if not isinstance(text_content, str):
