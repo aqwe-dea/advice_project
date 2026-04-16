@@ -947,6 +947,13 @@
   line-height: 1.6;
 }
 
+.presentation-content {
+  background-color: #1a1a2e;
+  color: #f8f8f0;
+  padding: 1.5rem;
+  border-radius: 10px;
+}
+
 .presentation-text h1,
 .presentation-text h2,
 .presentation-text h3,

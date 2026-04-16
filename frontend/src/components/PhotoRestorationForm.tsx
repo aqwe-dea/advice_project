@@ -77,7 +77,7 @@ const PhotoRestorationForm = () => {
       formData.append('restoration_style', restorationInfo.restoration_style);
       formData.append('special_requests', restorationInfo.special_requests);
       formData.append('photo_age', restorationInfo.photo_age);
-      const response = await fetch('/photo-restoration/', {
+      const response = await fetch('https://advice-project.onrender.com/photo-restoration/', {
         method: 'POST',
         body: formData
       });
@@ -102,7 +102,7 @@ const PhotoRestorationForm = () => {
       return relativeUrl;
     }
     const cleanUrl = relativeUrl.replace(/^\/+/, '');
-    return `${API_BASE_URL}/${cleanUrl}`;
+    return `${MEDIA_URL}/${cleanUrl}`;
   };
 
   const handleImageLoad = (type: 'original' | 'restored') => {

@@ -58,24 +58,34 @@ def call_stream_chat_api(key, system_prompt, prompt):
     """Вызывает потоковый чат"""
     try:
         key = os.getenv('KIE_AQWE_SLIDES')
+        if not key:
+            logger.error("API ключ key не настроен")
+            return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         client = OpenAI(
-            base_url="https://api.kie.ai/gemini-3-pro/v1",
+            base_url="https://api.kie.ai/gemini-3-flash/v1/",
             api_key=key
         )
-        chat_completion = client.chat.completions.create(
+        response = client.chat.completions.create(
+            stream=False,
+            reasoning_effort="high",
+            model="gemini-3-flash",
             messages=[
-                {"role": "system", "content": system_prompt},
-                {"role": "user", "content": prompt}
-            ],
-            temperature=0.7,
-            max_tokens=7000
+                {
+                    "role": "system",
+                    "content": system_prompt
+                },
+                {
+                    "role": "user",
+                    "content": prompt
+                }
+            ]
         )
-        text_content = chat_completion.choices[0].message.content
+        text_content = response.choices[0].message.content
         if not isinstance(text_content, str):
             text_content = str(text_content)
-        reasoning_content = chat_completion.choices[0].message.reasoning_content
+        reasoning_content = response.choices[0].message.reasoning_content
         return {
-            'text': text_content,
+            'outcome': text_content,
             'reasoning': reasoning_content
         }
     except Exception as e:
@@ -612,6 +622,8 @@ class PhotoRestorationView(APIView):
             'photo_age': request.data.get('photo_age', 'неизвестно')
         }
         try:
+            with open(image_data, "rb") as img_file:
+                base64_image = base64.b64encode(img_file.read()).decode('utf-8')
             key = os.getenv('KIE_AQWE_SLIDES')
             if not key:
                 return Response({'error': 'API ключ key не настроен'}, status=500)
@@ -624,7 +636,7 @@ class PhotoRestorationView(APIView):
                 json={
                     "model": "recraft/crisp-upscale",
                     "input": {
-                        "image": full_original_url
+                        "image": f"data:image/jpeg;base64,{base64_image}"
                     }
                 }
             )
@@ -650,9 +662,11 @@ class PhotoRestorationView(APIView):
                 logger.info(f"Попытка {attempt+1}: статус={checkstatus}")
                 if checkstatus == 'success':
                     result_url = checkwork.get('data', {}).get('resultJson', {})
+                    if result_url:
+                        return result_url[0].strip()
                     break
                 elif checkstatus == 'fail':
-                    logger.error(f"Задача не выполнена: {checkwork.get('data', {}).get('state')}")
+                    logger.error(f"Задача не выполнена: {checkwork.get('data', {})}")
                     break
             restored_url = None
             if result_url:
@@ -718,7 +732,7 @@ class PhotoRestorationView(APIView):
         try:
             key = os.getenv('KIE_AQWE_SLIDES')
             if not key:
-                return None
+                return Response({'error': 'API ключ key не настроен'}, status=500)
             response = requests.post(
                 url="https://api.kie.ai/api/v1/jobs/createTask",
                 headers={
@@ -743,13 +757,11 @@ class PhotoRestorationView(APIView):
                 },
                 timeout=60
             )
-            if response.status_code != 200:
-                logger.error(f"KIE API error: {response.status_code}")
+            if response.code != 200:
+                logger.error(f"KIE API error: {response.code}")
                 return None   
             check = response.json()
             taskid = check.get('data', {}).get('taskId')
-            if not taskid:
-                return None
             max_attempts = 8
             for attempt in range(max_attempts):
                 time.sleep(3)
