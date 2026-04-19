@@ -2,7 +2,7 @@ import React, { useState, useRef } from 'react';
 import '../App.css';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://advice-project.onrender.com';
-const MEDIA_URL = `${API_BASE_URL}/media/`;
+//const MEDIA_URL = `${API_BASE_URL}/media/`;
 //${API_BASE_URL}
 
 const PhotoRestorationForm = () => {
@@ -77,7 +77,7 @@ const PhotoRestorationForm = () => {
       formData.append('restoration_style', restorationInfo.restoration_style);
       formData.append('special_requests', restorationInfo.special_requests);
       formData.append('photo_age', restorationInfo.photo_age);
-      const response = await fetch('https://advice-project.onrender.com/photo-restoration/', {
+      const response = await fetch('/photo-restoration/', {
         method: 'POST',
         body: formData
       });
@@ -102,7 +102,7 @@ const PhotoRestorationForm = () => {
       return relativeUrl;
     }
     const cleanUrl = relativeUrl.replace(/^\/+/, '');
-    return `${MEDIA_URL}/${cleanUrl}`;
+    return `/${cleanUrl}`;
   };
 
   const handleImageLoad = (type: 'original' | 'restored') => {

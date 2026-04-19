@@ -599,10 +599,7 @@ class PhotoRestorationView(APIView):
         allowed_extensions = ['.jpg', '.jpeg', '.png', '.tiff', '.bmp']
         file_ext = os.path.splitext(image_file.name)[1].lower()
         if file_ext not in allowed_extensions:
-            return Response(
-                {'error': f'Поддерживаются только форматы: {", ".join(allowed_extensions)}'},
-                status=status.HTTP_400_BAD_REQUEST
-            )
+            return Response({'error': f'Поддерживаются только форматы: {", ".join(allowed_extensions)}'}, status=status.HTTP_400_BAD_REQUEST)
         original_file_path = default_storage.save(f'tmp/original_{image_file.name}', ContentFile(image_data))
         original_url = default_storage.url(original_file_path)
         full_original_url = request.build_absolute_uri(original_url)
@@ -622,11 +619,10 @@ class PhotoRestorationView(APIView):
             'photo_age': request.data.get('photo_age', 'неизвестно')
         }
         try:
-            with open(image_data, "rb") as img_file:
-                base64_image = base64.b64encode(img_file.read()).decode('utf-8')
             key = os.getenv('KIE_AQWE_SLIDES')
             if not key:
                 return Response({'error': 'API ключ key не настроен'}, status=500)
+
             response = requests.post(
                 url="https://api.kie.ai/api/v1/jobs/createTask",
                 headers={
@@ -636,42 +632,43 @@ class PhotoRestorationView(APIView):
                 json={
                     "model": "recraft/crisp-upscale",
                     "input": {
-                        "image": f"data:image/jpeg;base64,{base64_image}"
+                        "image": full_original_url
                     }
                 }
             )
+
             startwork = response.json()
             taskid = startwork.get('data', {}).get('taskId')
             check_url = "https://api.kie.ai/api/v1/jobs/recordInfo"
             result_url = None
+
             for attempt in range(8):
                 time.sleep(3)
                 check_response = requests.get(
                     url=check_url,
-                    headers={
-                        "Content-Type": "application/json",
-                        "Authorization": f"Bearer {key}",
-                    },
                     params={
                         "taskId": taskid
                     },
-                    timeout=60
+                    headers={
+                        "Content-Type": "application/json",
+                        "Authorization": f"Bearer {key}"
+                    },
+                    timeout=45
                 )
                 checkwork = check_response.json()
                 checkstatus = checkwork.get('data', {}).get('state')
                 logger.info(f"Попытка {attempt+1}: статус={checkstatus}")
                 if checkstatus == 'success':
                     result_url = checkwork.get('data', {}).get('resultJson', {})
-                    if result_url:
-                        return result_url[0].strip()
                     break
                 elif checkstatus == 'fail':
-                    logger.error(f"Задача не выполнена: {checkwork.get('data', {})}")
+                    logger.error(f"Задача не выполнена: {checkwork}")
                     break
             restored_url = None
+
             if result_url:
                 try:
-                    restored_response = requests.get(result_url, timeout=60)
+                    restored_response = requests.get(result_url)
                     if restored_response.status_code == 200:
                         image_name = f"restored_{image_file.name}"
                         file_path = default_storage.save(
@@ -692,6 +689,7 @@ class PhotoRestorationView(APIView):
                 restoration_info
             )
             imageurl = self.restoreimage(full_original_url)
+            
             return Response({
                 'restoration_report': restoration_report,
                 'restored_url': restored_url,
@@ -731,8 +729,6 @@ class PhotoRestorationView(APIView):
         """"Дополнительно восстанавливает изображение"""
         try:
             key = os.getenv('KIE_AQWE_SLIDES')
-            if not key:
-                return Response({'error': 'API ключ key не настроен'}, status=500)
             response = requests.post(
                 url="https://api.kie.ai/api/v1/jobs/createTask",
                 headers={
@@ -754,12 +750,8 @@ class PhotoRestorationView(APIView):
                         "prompt": "edit this photo, restore, fix, colorize, upscale",
                         "num_images": "1"
                     }
-                },
-                timeout=60
-            )
-            if response.code != 200:
-                logger.error(f"KIE API error: {response.code}")
-                return None   
+                }
+            )  
             check = response.json()
             taskid = check.get('data', {}).get('taskId')
             max_attempts = 8
@@ -767,17 +759,19 @@ class PhotoRestorationView(APIView):
                 time.sleep(3)
                 result_response = requests.get(
                     url="https://api.kie.ai/api/v1/jobs/recordInfo",
-                    params={"taskId": taskid},
+                    params={
+                        "taskId": taskid
+                    },
                     headers={
                         "Content-Type": "application/json",
                         "Authorization": f"Bearer {key}"
                     },
-                    timeout=60
+                    timeout=45
                 )
                 checkwork = result_response.json()
                 state = checkwork.get('data', {}).get('state')
                 if state == 'success':
-                    urls = checkwork.get('data', {}).get('resultJson', {}).get('resultUrls', [])
+                    urls = checkwork.get('data', {}).get('resultJson', {})
                     if urls:
                         return urls[0].strip()
                 elif state == 'fail':
