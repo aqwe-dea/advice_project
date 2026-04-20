@@ -642,8 +642,8 @@ class PhotoRestorationView(APIView):
             check_url = "https://api.kie.ai/api/v1/jobs/recordInfo"
             result_url = None
 
-            for attempt in range(8):
-                time.sleep(3)
+            for attempt in range(12):
+                time.sleep(min(2 ** attempt, 10))
                 check_response = requests.get(
                     url=check_url,
                     params={
@@ -653,7 +653,7 @@ class PhotoRestorationView(APIView):
                         "Content-Type": "application/json",
                         "Authorization": f"Bearer {key}"
                     },
-                    timeout=45
+                    timeout=120
                 )
                 checkwork = check_response.json()
                 checkstatus = checkwork.get('data', {}).get('state')
@@ -668,7 +668,7 @@ class PhotoRestorationView(APIView):
 
             if result_url:
                 try:
-                    restored_response = requests.get(result_url)
+                    restored_response = requests.get(result_url, timeout=120)
                     if restored_response.status_code == 200:
                         image_name = f"restored_{image_file.name}"
                         file_path = default_storage.save(
@@ -683,12 +683,16 @@ class PhotoRestorationView(APIView):
                     logger.error(f"Ошибка скачивания: {str(e)}")
             else:
                 logger.error("Не получен result_url от kie")
+                
             restoration_report = self.create_restoration_report(
                 restored_url or original_url,
                 original_url,
                 restoration_info
             )
-            imageurl = self.restoreimage(full_original_url)
+            if restored_url:
+                imageurl = None
+            else:
+                imageurl = self.restoreimage(full_original_url)
             
             return Response({
                 'restoration_report': restoration_report,
@@ -701,6 +705,7 @@ class PhotoRestorationView(APIView):
                 'startwork': startwork,
                 'checkwork': checkwork
             })
+
         except Exception as e:
             logger.error(f"Ошибка реставрации: {str(e)}", exc_info=True)
             return Response({'error': f'Ошибка: {str(e)}'}, status=500)
@@ -729,6 +734,7 @@ class PhotoRestorationView(APIView):
         """"Дополнительно восстанавливает изображение"""
         try:
             key = os.getenv('KIE_AQWE_SLIDES')
+
             response = requests.post(
                 url="https://api.kie.ai/api/v1/jobs/createTask",
                 headers={
@@ -751,12 +757,14 @@ class PhotoRestorationView(APIView):
                         "num_images": "1"
                     }
                 }
-            )  
+            )
+
             check = response.json()
             taskid = check.get('data', {}).get('taskId')
-            max_attempts = 8
+            max_attempts = 12
+
             for attempt in range(max_attempts):
-                time.sleep(3)
+                time.sleep(min(2 ** attempt, 10))
                 result_response = requests.get(
                     url="https://api.kie.ai/api/v1/jobs/recordInfo",
                     params={
@@ -766,7 +774,7 @@ class PhotoRestorationView(APIView):
                         "Content-Type": "application/json",
                         "Authorization": f"Bearer {key}"
                     },
-                    timeout=45
+                    timeout=120
                 )
                 checkwork = result_response.json()
                 state = checkwork.get('data', {}).get('state')
@@ -778,6 +786,7 @@ class PhotoRestorationView(APIView):
                     logger.error(f"Задача не выполнена: {checkwork}")
                     return None
             return None
+
         except Exception as e:
             logger.error(f"Ошибка KIE: {str(e)}", exc_info=True)
             return None
