@@ -93,8 +93,8 @@ INSTALLED_APPS = [
     'sslserver',
 ]
 X_FRAME_OPTIONS = 'ALLOW'
-CORS_ALLOW_METHODS = ['GET', 'POST', 'OPTIONS']
-CORS_ALLOW_HEADERS = ['content-type', 'autorization']
+CORS_ALLOW_METHODS = ['GET', 'POST', 'OPTIONS', 'PUT', 'HEAD', 'PATCH']
+CORS_ALLOW_HEADERS = ['content-type', 'authorization', 'accept', 'autorization']
 CORS_ALLOW_CREDENTIALS = True
 CORS_ORIGIN_ALLOW_ALL = True
 CORS_ALLOWED_ORIGINS = [
