@@ -658,7 +658,6 @@ class PhotoRestorationView(APIView):
                 )
                 checkwork = check_response.json()
                 checkstatus = checkwork.get('data', {}).get('state')
-                logger.info(f"Попытка {attempt+1}: статус={checkstatus}")
                 if checkstatus == 'success':
                     result_url = checkwork.get('data', {}).get('resultJson', {})
                     break
