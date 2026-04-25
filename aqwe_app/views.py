@@ -642,7 +642,7 @@ class PhotoRestorationView(APIView):
             check_url = "https://api.kie.ai/api/v1/jobs/recordInfo"
             result_url = None
             total_wait = 0
-            max_total_wait = 180
+            max_total_wait = 300
 
             while total_wait < max_total_wait:
                 check_response = requests.get(
@@ -664,8 +664,8 @@ class PhotoRestorationView(APIView):
                 elif checkstatus == 'fail':
                     logger.error(f"Задача не выполнена: {checkwork}")
                     break
-                time.sleep(5)
-                total_wait += 5
+                time.sleep(10)
+                total_wait += 10
             restored_url = None
 
             if result_url:
@@ -764,7 +764,7 @@ class PhotoRestorationView(APIView):
             check = response.json()
             taskid = check.get('data', {}).get('taskId')
             total_wait = 0
-            max_total_wait = 180
+            max_total_wait = 360
 
             while total_wait < max_total_wait:
                 result_response = requests.get(
@@ -776,7 +776,7 @@ class PhotoRestorationView(APIView):
                         "Content-Type": "application/json",
                         "Authorization": f"Bearer {key}"
                     },
-                    timeout=30
+                    timeout=45
                 )
                 checkwork = result_response.json()
                 state = checkwork.get('data', {}).get('state')
@@ -787,8 +787,8 @@ class PhotoRestorationView(APIView):
                 elif state == 'fail':
                     logger.error(f"Задача не выполнена: {checkwork}")
                     return None
-                time.sleep(5)
-                total_wait += 5
+                time.sleep(10)
+                total_wait += 10
             return None
 
         except Exception as e:
