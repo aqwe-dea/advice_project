@@ -54,6 +54,69 @@ logger = logging.getLogger(__name__)
 @method_decorator(csrf_exempt, name='dispatch')
 @permission_classes([AllowAny])
 
+def poll_kie_task(taskid: str, key: str, check_url: str, max_duration: int = 900):
+    """
+    Опрос задачи KIE.ai с экспоненциальной задержкой
+    max_duration: секунд (по доке: 600-900 сек = 10-15 мин)
+    """
+    
+    start_time = time.time()
+    elapsed = 0
+    attempt = 0
+    
+    while elapsed < max_duration:
+        attempt += 1
+        
+        if elapsed < 30:
+            sleep_time = 3
+        elif elapsed < 120:
+            sleep_time = 8
+        else:
+            sleep_time = 20
+        
+        try:
+            check_response = requests.get(
+                url=check_url,
+                params={"taskId": taskid},
+                headers={
+                    "Content-Type": "application/json",
+                    "Authorization": f"Bearer {key}"
+                },
+                timeout=30
+            )
+            checkwork = check_response.json()
+            state = checkwork.get('data', {}).get('state')
+            
+            logger.info(f"Попытка {attempt} ({elapsed}с): статус={state}")
+            
+            if state == 'success':
+                result_json_str = checkwork.get('data', {}).get('resultJson', '{}')
+                result_data = json.loads(result_json_str)
+                result_urls = result_data.get('resultUrls', [])
+                
+                if result_urls:
+                    return result_urls[0].strip()
+                else:
+                    logger.error("resultUrls пустой в success-ответе")
+                    return None
+                    
+            elif state == 'fail':
+                fail_code = checkwork.get('data', {}).get('failCode')
+                fail_msg = checkwork.get('data', {}).get('failMsg')
+                logger.error(f"Задача не выполнена: code={fail_code}, msg={fail_msg}")
+                return None
+                
+        except requests.Timeout:
+            logger.warning(f"Таймаут запроса на попытке {attempt}")
+        except Exception as e:
+            logger.error(f"Ошибка опроса: {str(e)}")
+        
+        time.sleep(sleep_time)
+        elapsed = time.time() - start_time
+    
+    logger.error(f"Превышено максимальное время опроса ({max_duration}с)")
+    return None
+
 def call_stream_chat_api(key, system_prompt, prompt):
     """Вызывает потоковый чат"""
     try:
@@ -640,37 +703,12 @@ class PhotoRestorationView(APIView):
             startwork = response.json()
             taskid = startwork.get('data', {}).get('taskId')
             check_url = "https://api.kie.ai/api/v1/jobs/recordInfo"
-            result_url = None
-            total_wait = 0
-            max_total_wait = 300
-
-            while total_wait < max_total_wait:
-                check_response = requests.get(
-                    url=check_url,
-                    params={
-                        "taskId": taskid
-                    },
-                    headers={
-                        "Content-Type": "application/json",
-                        "Authorization": f"Bearer {key}"
-                    },
-                    timeout=30
-                )
-                checkwork = check_response.json()
-                checkstatus = checkwork.get('data', {}).get('state')
-                if checkstatus == 'success':
-                    result_url = checkwork.get('data', {}).get('resultJson', {})
-                    break
-                elif checkstatus == 'fail':
-                    logger.error(f"Задача не выполнена: {checkwork}")
-                    break
-                time.sleep(10)
-                total_wait += 10
+            result_url = poll_kie_task(taskid, key, check_url, max_duration=600)
             restored_url = None
 
             if result_url:
                 try:
-                    restored_response = requests.get(result_url)
+                    restored_response = requests.get(result_url, timeout=60)
                     if restored_response.status_code == 200:
                         image_name = f"restored_{image_file.name}"
                         file_path = default_storage.save(
@@ -680,11 +718,11 @@ class PhotoRestorationView(APIView):
                         restored_url = default_storage.url(file_path)
                         logger.info(f"Изображение сохранено: {restored_url}")
                     else:
-                        logger.error(f"Не удалось скачать изображение: {restored_response.status_code}")
+                        logger.error(f"Не удалось скачать: {restored_response.status_code}")
                 except Exception as e:
                     logger.error(f"Ошибка скачивания: {str(e)}")
             else:
-                logger.error("Не получен result_url от kie")
+                logger.error("Не получен result_url от KIE")
             
             if restored_url:
                 imageurl = None
@@ -702,10 +740,9 @@ class PhotoRestorationView(APIView):
                 'image_type': file_ext[1:].upper(),
                 'restoration_info': restoration_info,
                 'original_url': original_url,
-                'status': checkstatus,
+                'status': result_url,
                 'restoreimage': imageurl,
-                'startwork': startwork,
-                'checkwork': checkwork
+                'startwork': startwork
             })
 
         except Exception as e:
