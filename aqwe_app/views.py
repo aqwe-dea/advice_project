@@ -68,11 +68,11 @@ def poll_kie_task(taskid: str, key: str, check_url: str, max_duration: int = 900
         attempt += 1
         
         if elapsed < 30:
-            sleep_time = 3
+            sleep_time = 5
         elif elapsed < 120:
-            sleep_time = 8
+            sleep_time = 10
         else:
-            sleep_time = 20
+            sleep_time = 30
         
         try:
             check_response = requests.get(
@@ -662,7 +662,7 @@ class PhotoRestorationView(APIView):
         allowed_extensions = ['.jpg', '.jpeg', '.png', '.tiff', '.bmp']
         file_ext = os.path.splitext(image_file.name)[1].lower()
         if file_ext not in allowed_extensions:
-            return Response({'error': f'Поддерживаются только форматы: {", ".join(allowed_extensions)}'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'error': f'Поддерживаются только форматы: {", ".join(allowed_extensions)}'}, status=status.HTTP_400_BAD_REQUEST)        
         original_file_path = default_storage.save(f'tmp/original_{image_file.name}', ContentFile(image_data))
         with default_storage.open(original_file_path, 'rb') as img_file:
             image_data = img_file.read()
@@ -698,9 +698,10 @@ class PhotoRestorationView(APIView):
                 json={
                     "model": "recraft/crisp-upscale",
                     "input": {
-                        "image": f"data:{file_ext[1:]};base64,{base64_image}"
+                        "image": full_original_url
                     }
-                }
+                },
+                timeout=120
             )
 
             startwork = response.json()
@@ -711,7 +712,7 @@ class PhotoRestorationView(APIView):
 
             if result_url:
                 try:
-                    restored_response = requests.get(result_url, timeout=60)
+                    restored_response = requests.get(result_url, timeout=240)
                     if restored_response.status_code == 200:
                         image_name = f"restored_{image_file.name}"
                         file_path = default_storage.save(
@@ -821,9 +822,15 @@ class PhotoRestorationView(APIView):
                 checkwork = result_response.json()
                 state = checkwork.get('data', {}).get('state')
                 if state == 'success':
-                    urls = checkwork.get('data', {}).get('resultJson', {})
-                    if urls:
-                        return urls[0].strip()
+                    result_json_str = checkwork.get('data', {}).get('resultJson', '{}')
+                    result_data = json.loads(result_json_str)
+                    result_urls = result_data.get('resultUrls', [])
+                
+                    if result_urls:
+                        return result_urls[0].strip()
+                    else:
+                        logger.error("resultUrls пустой в success-ответе")
+                        return None
                 elif state == 'fail':
                     logger.error(f"Задача не выполнена: {checkwork}")
                     return None
