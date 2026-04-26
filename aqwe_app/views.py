@@ -664,6 +664,9 @@ class PhotoRestorationView(APIView):
         if file_ext not in allowed_extensions:
             return Response({'error': f'Поддерживаются только форматы: {", ".join(allowed_extensions)}'}, status=status.HTTP_400_BAD_REQUEST)
         original_file_path = default_storage.save(f'tmp/original_{image_file.name}', ContentFile(image_data))
+        with default_storage.open(original_file_path, 'rb') as img_file:
+            image_data = img_file.read()
+            base64_image = base64.b64encode(image_data).decode('utf-8')
         original_url = default_storage.url(original_file_path)
         full_original_url = request.build_absolute_uri(original_url)
         system_prompt = """
@@ -695,7 +698,7 @@ class PhotoRestorationView(APIView):
                 json={
                     "model": "recraft/crisp-upscale",
                     "input": {
-                        "image": full_original_url
+                        "image": f"data:{file_ext[1:]};base64,{base64_image}"
                     }
                 }
             )
