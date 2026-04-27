@@ -98,9 +98,11 @@ const PhotoRestorationForm = () => {
 
   const getFullImageUrl = (relativeUrl: string | null) => {
     if (!relativeUrl) return null;
+
     if (relativeUrl.startsWith('http://') || relativeUrl.startsWith('https://')) {
       return relativeUrl;
     }
+    
     const cleanUrl = relativeUrl.replace(/^\/+/, '');
     return `/${cleanUrl}`;
   };
@@ -129,6 +131,7 @@ const PhotoRestorationForm = () => {
               src={originalUrl || ''} 
               alt="Оригинал" 
               className="comparison-image"
+              crossOrigin="anonymous"
               onLoad={() => {
                 console.log('Оригинал загружен!');
                 handleImageLoad('original');
@@ -146,14 +149,12 @@ const PhotoRestorationForm = () => {
             {!imagesLoaded.restored && <div className="image-loader">Загрузка...</div>}
             <img 
               src={restoredUrl || ''} 
-              alt="Восстановленное" 
+              alt="Восстановленное"
               className="comparison-image"
-              onLoad={() => {
-                console.log('востановленное загружено!');
-                handleImageLoad('restored');
-              }}
+              crossOrigin="anonymous"
+              onLoad={() => handleImageLoad('restored')}
               onError={(e) => {
-                console.error('Ошибка загрузки восстановленного:', e);
+                console.error('Ошибка загрузки:', restoredUrl);
                 handleImageLoad('restored');
               }}
               style={{ display: imagesLoaded.restored ? 'block' : 'none' }}

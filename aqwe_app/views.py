@@ -664,11 +664,11 @@ class PhotoRestorationView(APIView):
         if file_ext not in allowed_extensions:
             return Response({'error': f'Поддерживаются только форматы: {", ".join(allowed_extensions)}'}, status=status.HTTP_400_BAD_REQUEST)        
         original_file_path = default_storage.save(f'tmp/original_{image_file.name}', ContentFile(image_data))
-        with default_storage.open(original_file_path, 'rb') as img_file:
-            image_data = img_file.read()
-            base64_image = base64.b64encode(image_data).decode('utf-8')
         original_url = default_storage.url(original_file_path)
         full_original_url = request.build_absolute_uri(original_url)
+        with default_storage.open(original_url, 'rb') as image_file:
+            image_data = image_file.read()
+            base64_image = base64.b64encode(image_data).decode('utf-8')
         system_prompt = """
             Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
             Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
@@ -688,6 +688,50 @@ class PhotoRestorationView(APIView):
             key = os.getenv('KIE_AQWE_SLIDES')
             if not key:
                 return Response({'error': 'API ключ key не настроен'}, status=500)
+            
+            file_upload = requests.post(
+                url="https://kieai.redpandaai.co/api/file-stream-upload",
+                headers={
+                    "Authorization": f"Bearer {key}",
+                    "Content-Type": "application/json"
+                },
+                data={
+                    "uploadPath": "images/user-uploads",
+                    "fileName": "my-image.jpg"
+                },
+                files={ "image": (image_file, open(base64_image, "rb")) },
+                timeout=300
+            )
+            uploadedfile = file_upload.json()
+
+            filebase64 = requests.post(
+                url="https://kieai.redpandaai.co/api/file-base64-upload",
+                headers={
+                    "Authorization": f"Bearer {key}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "base64Data": f"{base64_image}",
+                    "uploadPath": "documents/uploads"
+                },
+                timeout=300
+            )
+            codebase64 = filebase64.json()
+
+            download_url = requests.post(
+                url="https://kieai.redpandaai.co/api/file-url-upload",
+                headers={
+                    "Authorization": f"Bearer {key}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "fileUrl": "https://github.com/aqwe-dea/advice_project/blob/master/media/tmp/beautygirl.jpg?raw=true",
+                    "uploadPath": "images/downloaded"
+                },
+                timeout=300
+            )
+            download = download_url.json()
+            kie_hosted_url = download.get('data', {}).get('downloadUrl')
 
             response = requests.post(
                 url="https://api.kie.ai/api/v1/jobs/createTask",
@@ -698,10 +742,10 @@ class PhotoRestorationView(APIView):
                 json={
                     "model": "recraft/crisp-upscale",
                     "input": {
-                        "image": full_original_url
+                        "image": kie_hosted_url
                     }
                 },
-                timeout=120
+                timeout=300
             )
 
             startwork = response.json()
@@ -711,22 +755,11 @@ class PhotoRestorationView(APIView):
             restored_url = None
 
             if result_url:
-                try:
-                    restored_response = requests.get(result_url, timeout=240)
-                    if restored_response.status_code == 200:
-                        image_name = f"restored_{image_file.name}"
-                        file_path = default_storage.save(
-                            f'tmp/{image_name}', 
-                            ContentFile(restored_response.content)
-                        )
-                        restored_url = default_storage.url(file_path)
-                        logger.info(f"Изображение сохранено: {restored_url}")
-                    else:
-                        logger.error(f"Не удалось скачать: {restored_response.status_code}")
-                except Exception as e:
-                    logger.error(f"Ошибка скачивания: {str(e)}")
+                restored_url = result_url
+                logger.info(f"Реставрация успешна: {restored_url}")
             else:
                 logger.error("Не получен result_url от KIE")
+                restored_url = self.restoreimage(full_original_url)
             
             if restored_url:
                 imageurl = None
@@ -746,7 +779,10 @@ class PhotoRestorationView(APIView):
                 'original_url': original_url,
                 'status': result_url,
                 'restoreimage': imageurl,
-                'startwork': startwork
+                'startwork': startwork,
+                'uploadurl': download,
+                'uploadedfile': uploadedfile,
+                'filebase64': codebase64
             })
 
         except Exception as e:
