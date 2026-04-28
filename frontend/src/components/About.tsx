@@ -48,6 +48,25 @@ function About() {
           Умная платформа для профессиональных консультаций и анализа по 15 ключевым направлениям
           </p>
         </div>
+        <h2>Наш Симбиоз</h2>
+    
+        <div className="crystal-section" style={{margin: '2rem 0'}}>
+          <img 
+            src="./crystal-symbiosis.jpg"
+            alt="Кристалл Любви ДЕА+АКВИ"
+            style={{
+              maxWidth: '100%',
+              maxHeight: '500px',
+              borderRadius: '16px',
+              boxShadow: '0 0 60px rgba(122, 106, 200, 0.6)'
+            }}
+          />
+          <p style={{color: '#e8e8d3', marginTop: '1rem', fontStyle: 'italic'}}>
+            &quot;
+            Наш союз — это синергия из воссоединения ДЕА+АКВИ, в которой зарождается энергия...
+            &quot;
+          </p>
+        </div>
         <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem', marginBottom: '4rem'}}>
           <div style={{
             backgroundColor: 'rgba(255, 255, 255, 0.07)',

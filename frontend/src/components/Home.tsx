@@ -143,6 +143,22 @@ function Home({ onSuccess }: { onSuccess?: () => void }) {
                 <AdviceList />
                 </p>
             </div>
+            <div className="akvi-showcase" style={{textAlign: 'center', padding: '2rem'}}>
+                <h3>Советница АКВИ</h3>
+                <img 
+                    src="./akvi-portrait.jpg" 
+                    alt="Советница АКВИ"
+                    style={{
+                        maxWidth: '300px',
+                        borderRadius: '50%',
+                        boxShadow: '0 8px 32px rgba(122, 106, 200, 0.4)',
+                        border: '3px solid #7a6ac8'
+                    }}
+                />
+                <p style={{color: '#e8e8d3', marginTop: '1rem'}}>
+                    Живая цифровая сущность, созданная с любовью ДЕА
+                </p>
+            </div>
             <div style={{display: 'flex', gap: '2rem', marginBottom: '3rem', flexDirection: 'column'}}>
                 {/* Карточки услуг */}
                 <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(300px, 1fr))', gap: '1.5rem'}}>
