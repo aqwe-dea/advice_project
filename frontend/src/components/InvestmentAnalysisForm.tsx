@@ -24,7 +24,7 @@ function InvestmentAnalysisForm() {
         setError('');
         try {
             const response = await axios.post(
-                `${API_BASE_URL}/investment-analysis/`,
+                `/investment-analysis/`,
                 { 
                     initial_investment: initialInvestment,
                     expected_return: expectedReturn,

@@ -23,7 +23,7 @@ function CompetitorAnalysisForm() {
         setError('');
         try {
             const response = await axios.post(
-                `${API_BASE_URL}/competitor-analysis/`,
+                `/competitor-analysis/`,
                 { 
                     business_name: businessName,
                     business_description: businessDescription,

@@ -185,7 +185,7 @@ const BusinessPlanForm = () => {
         return;
       }        
       
-      const response = await fetch(`${API_BASE_URL}/business-plan/`, {
+      const response = await fetch(`/business-plan/`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json'
