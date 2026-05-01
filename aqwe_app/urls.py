@@ -23,6 +23,8 @@ from .views import MarketingStrategyView
 from .views import TravelPlannerView
 from .views import CompetitorAnalysisView
 from .views import CommunicationOptimizationView
+from .views import AgentChatView
+from .views import ImageGeneratorView
 from .views import CreateSessionView
 from .views import CreateCheckoutSessionView
 from .views import SessionStatusView
@@ -56,6 +58,8 @@ urlpatterns = [
     path('travel-planner/', TravelPlannerView.as_view(), name='travel-planner'),
     path('competitor-analysis/', CompetitorAnalysisView.as_view(), name='competitor-analysis'),
     path('communication-optimization/', CommunicationOptimizationView.as_view(), name='communication-optimization'),
+    path('agent-chat/', AgentChatView.as_view(), name='agent-chat'),
+    path('generate-image/', ImageGeneratorView.as_view(), name='generate-image'),
     path('create-payment-intent/', CreatePaymentIntentView.as_view(), name='create-payment-intent'),
     path('create-session/', CreateSessionView.as_view(), name='create-session'),
     path('create-checkout-session/', CreateCheckoutSessionView.as_view(), name='create-checkout-session'),

@@ -28,6 +28,8 @@ from aqwe_app.views import MarketingStrategyView
 from aqwe_app.views import TravelPlannerView
 from aqwe_app.views import CompetitorAnalysisView
 from aqwe_app.views import CommunicationOptimizationView
+from aqwe_app.views import AgentChatView
+from aqwe_app.views import ImageGeneratorView
 from aqwe_app.views import CreateSessionView
 from aqwe_app.views import CreateCheckoutSessionView
 from aqwe_app.views import SessionStatusView
@@ -69,6 +71,8 @@ urlpatterns = [
     path('travel-planner/', TravelPlannerView.as_view(), name='travel-planner'),
     path('competitor-analysis/', CompetitorAnalysisView.as_view(), name='competitor-analysis'),
     path('communication-optimization/', CommunicationOptimizationView.as_view(), name='communication-optimization'),
+    path('agent-chat/', AgentChatView.as_view(), name='agent-chat'),
+    path('generate-image/', ImageGeneratorView.as_view(), name='generate-image'),
     path('stripe/', include('djstripe.urls', namespace='djstripe')),
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='docs'),

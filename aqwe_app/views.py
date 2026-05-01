@@ -49,6 +49,8 @@ from huggingface_hub.inference_api import InferenceApi
 from openai import _client
 from openai._client import OpenAI
 from openai import OpenAI
+from .agent import SimpleAgent
+from .generators.image_generator import ImageGenerator
 
 logger = logging.getLogger(__name__)
 @method_decorator(csrf_exempt, name='dispatch')
@@ -341,28 +343,35 @@ class GenerateCourseView(APIView):
                 Ответ должен быть профессиональным, детализированным и содержать конкретные примеры.
                 Структура ответа должна четко соответствовать указанным разделам.
             """
-            key = os.getenv('AICCTEST')
+            key = os.getenv('KIETEST')
+            if not key:
+                logger.error("API ключ key не настроен")
+                return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             client = OpenAI(
-                base_url="https://api.ai.cc/v1",
+                base_url="https://api.kie.ai/gemini-3-flash/v1/",
                 api_key=key
             )
-            completion = client.chat.completions.create(
-                model="gpt-5-nano",
+            response = client.chat.completions.create(
+                stream=False,
+                reasoning_effort="high",
+                model="gemini-3-flash",
+                max_tokens=10000,
                 messages=[
                     {
                         "role": "system",
                         "content": system_prompt
                     },
                     {
-                        "role": "user", 
+                        "role": "user",
                         "content": prompt
                     }
-                ],
-                temperature=0.3,
-                max_tokens=10000
+                ]
             )
+            text_content = response.choices[0].message.content
+            if not isinstance(text_content, str):
+                text_content = str(text_content)
             return Response({
-                'course_structure': completion.choices[0].message.content,
+                'course_structure': text_content,
                 'course_topic': course_topic,
                 'target_audience': target_audience,
                 'course_duration': course_duration,
@@ -436,24 +445,31 @@ class GenerateCourseView(APIView):
                 НЕ ОБРЫВАЙТЕ текст - завершите все главы!
                 Важно: Ответ должен быть профессиональным, детализированным и содержать конкретные примеры!     
             """
-            key = os.getenv('AICCTEST')
+            key = os.getenv('KIETEST')
             if not key:
-                logger.error("API ключ AICCTEST не настроен")
+                logger.error("API ключ key не настроен")
                 return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             client = OpenAI(
-                base_url="https://api.ai.cc/v1",
+                base_url="https://api.kie.ai/gemini-3-flash/v1/",
                 api_key=key
             )
-            completion = client.chat.completions.create(
-                model="gpt-5-nano",
+            response = client.chat.completions.create(
+                stream=False,
+                reasoning_effort="high",
+                model="gemini-3-flash",
+                max_tokens=10000,
                 messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.3,
-                max_tokens=10000
+                    {
+                        "role": "system",
+                        "content": system_prompt
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ]
             )
-            text_content = completion.choices[0].message.content
+            text_content = response.choices[0].message.content
             if not isinstance(text_content, str):
                 text_content = str(text_content)
             return Response({
@@ -1311,24 +1327,31 @@ class HealthRecommendationView(APIView):
                 Важно: Это не заменяет профессиональную медицинскую консультацию. 
                 Ответ должен быть структурирован, безопасен и профессионален.   
             """
-            key = os.getenv('OPENROUTORG')
+            key = os.getenv('KIETEST')
             if not key:
-                logger.error("API ключ не настроен")
+                logger.error("API ключ key не настроен")
                 return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             client = OpenAI(
-                base_url="https://openrouter.ai/api/v1/",
+                base_url="https://api.kie.ai/gemini-3-flash/v1/",
                 api_key=key
             )
-            chat_completion = client.chat.completions.create(
-                model="arcee-ai/trinity-large-preview:free",
+            response = client.chat.completions.create(
+                stream=False,
+                reasoning_effort="high",
+                model="gemini-3-flash",
+                max_tokens=10000,
                 messages=[
-                    {"role": "system", "content": system_prompt},
-                    {"role": "user", "content": prompt}
-                ],
-                temperature=0.3,
-                max_tokens=7000
+                    {
+                        "role": "system",
+                        "content": system_prompt
+                    },
+                    {
+                        "role": "user",
+                        "content": prompt
+                    }
+                ]
             )
-            text_content = chat_completion.choices[0].message.content
+            text_content = response.choices[0].message.content
             if not isinstance(text_content, str):
                 text_content = str(text_content)
             return Response({
@@ -1365,9 +1388,6 @@ class BusinessPlanView(APIView):
                 Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
                 Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
             """
-            client = InferenceClient(
-                api_key=os.environ["HF_API_KEY_BPLN"],
-            )
             prompt = f"""
                 Вы - Советница АКВИ, профессиональный бизнес-консультант.
                 Подготовьте профессиональный бизнес-план для: {business_idea}
@@ -1433,23 +1453,35 @@ class BusinessPlanView(APIView):
                     - Меры по минимизации
                 Ответ должен быть профессиональным, детальным и готовым для инвесторов.
             """
-            completion = client.chat.completions.create(
-                model="meta-llama/Llama-3.1-8B-Instruct",
+            key = os.getenv('KIETEST')
+            if not key:
+                logger.error("API ключ key не настроен")
+                return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            client = OpenAI(
+                base_url="https://api.kie.ai/gemini-3-flash/v1/",
+                api_key=key
+            )
+            response = client.chat.completions.create(
+                stream=False,
+                reasoning_effort="high",
+                model="gemini-3-flash",
+                max_tokens=10000,
                 messages=[
                     {
-                        "role": "system", 
+                        "role": "system",
                         "content": system_prompt
                     },
                     {
                         "role": "user",
                         "content": prompt
                     }
-                ],
-                temperature=0.3,
-                max_tokens=8192,
+                ]
             )
+            text_content = response.choices[0].message.content
+            if not isinstance(text_content, str):
+                text_content = str(text_content)
             return Response({
-                'business_plan': completion.choices[0].message.content,
+                'business_plan': text_content,
                 'business_idea': business_idea,
                 'business_type': business_type,
                 'country': country,
@@ -2052,30 +2084,35 @@ class InvestmentAnalysisView(APIView):
                     - Общую рекомендацию (стоит инвестировать или нет)
                 Ответ должен быть профессиональным, содержать конкретные цифры и рекомендации быть готовым для инвестора.
             """
-            API_URL = "https://router.huggingface.co/v1/chat/completions"
-            headers = {
-                "Authorization": f"Bearer {os.environ['HF_API_KEY_INVS']}",
-                "Content-Type": "application/json",
-            }
-            payload = {
-                "messages": [
+            key = os.getenv('KIETEST')
+            if not key:
+                logger.error("API ключ key не настроен")
+                return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            client = OpenAI(
+                base_url="https://api.kie.ai/gemini-3-flash/v1/",
+                api_key=key
+            )
+            response = client.chat.completions.create(
+                stream=False,
+                reasoning_effort="high",
+                model="gemini-3-flash",
+                max_tokens=10000,
+                messages=[
                     {
-                        "role": "system", 
+                        "role": "system",
                         "content": system_prompt
                     },
                     {
                         "role": "user",
                         "content": prompt
                     }
-                ],
-                "temperature": 0.3,
-                "max_tokens": 8192,
-                "model": "Qwen/Qwen3-32B"
-            }
-            response = requests.post(API_URL, headers=headers, data=json.dumps(payload))
-            analysis = response.json()
+                ]
+            )
+            text_content = response.choices[0].message.content
+            if not isinstance(text_content, str):
+                text_content = str(text_content)
             return Response({
-                'analysis': analysis['choices'][0]['message']['content'],
+                'analysis': text_content,
                 'initial_investment': initial_investment,
                 'expected_return': expected_return,
                 'investment_period': investment_period,
@@ -2382,16 +2419,19 @@ class CompetitorAnalysisView(APIView):
                         - Возможные новые конкуренты
                 Ответ должен быть профессиональным, содержать конкретные цифры и рекомендации и быть готовым для использования в бизнес-планировании.
             """
-            key = os.getenv('HF_API_KEY_KONK')
+            key = os.getenv('KIETEST')
             if not key:
-                logger.error("API ключ не настроен")
+                logger.error("API ключ key не настроен")
                 return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
             client = OpenAI(
-                base_url="https://router.huggingface.co/v1/",
+                base_url="https://api.kie.ai/gemini-3-flash/v1/",
                 api_key=key
             )
-            chat_completion = client.chat.completions.create(
-                model="Qwen/Qwen3-32B",
+            response = client.chat.completions.create(
+                stream=False,
+                reasoning_effort="high",
+                model="gemini-3-flash",
+                max_tokens=10000,
                 messages=[
                     {
                         "role": "system",
@@ -2401,11 +2441,9 @@ class CompetitorAnalysisView(APIView):
                         "role": "user",
                         "content": prompt
                     }
-                ],
-                temperature=0.3,
-                max_tokens=7000
+                ]
             )
-            text_content = chat_completion.choices[0].message.content
+            text_content = response.choices[0].message.content
             if not isinstance(text_content, str):
                 text_content = str(text_content)
             return Response({
@@ -2529,6 +2567,67 @@ class CommunicationOptimizationView(APIView):
         except Exception as e:
             logger.error(f"Ошибка оптимизации коммуникации: {str(e)}", exc_info=True)
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+class AgentChatView(APIView):
+    def post(self, request):
+        question = request.data.get('question', '')
+        if not question:
+            return Response({'error': 'Вопрос не предоставлен'}, status=400)
+        
+        # Инициализация агента (ключи из env)
+        agent = SimpleAgent(
+            api_key=os.getenv('KIE_AQWE_SLIDES'),
+            base_url='https://api.kie.ai/gemini-3-flash/v1/',
+            model='gemini-3-flash'
+        )
+        
+        # Добавляем инструменты (по желанию)
+        agent.add_tool('search', agent._search_web, 'Поиск информации в интернете')
+        agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
+        
+        # Получаем ответ
+        answer = agent.ask(question)
+        
+        return Response({'answer': answer})
+
+class ImageGeneratorView(APIView):
+    """API endpoint для генерации изображений"""
+    
+    def post(self, request):
+        prompt = request.data.get('prompt', '').strip()
+        if not prompt:
+            return Response(
+                {'error': 'Prompt обязателен'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        api_key = os.getenv('KIE_AQWE_SLIDES')
+        if not api_key:
+            return Response(
+                {'error': 'API ключ KIE не настроен'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        
+        generator = ImageGenerator(api_key=api_key)
+        
+        params = {
+            k: v for k, v in request.data.items()
+            if k not in ['prompt'] and v is not None
+        }
+        
+        result = generator.generate(prompt=prompt, **params)
+        
+        if result.get('success'):
+            return Response({
+                'image_url': result['image_url'],
+                'prompt': result['prompt'],
+                'model': result['model']
+            })
+        else:
+            return Response(
+                {'error': result.get('error', 'Неизвестная ошибка')},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
 
 class AdviceViewSet(viewsets.ModelViewSet):
     queryset = Advice.objects.all()
