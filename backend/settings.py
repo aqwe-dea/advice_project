@@ -23,6 +23,7 @@ from dotenv import load_dotenv
 BASE_DIR = Path(__file__).resolve().parent.parent
 # BASE_URL = "https://advice-project.onrender.com"
 # BASE_URL = "http://127.0.0.1:8000"
+PUBLIC_ROOT = Path(BASE_DIR) / 'frontend' / 'public'
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
@@ -45,8 +46,8 @@ HUGGINGFACE_API_KEY = os.getenv('HUGGINGFACE_API_KEY')
 HF_API_KEY = os.getenv('HF_API_KEY')
 HF_API_KEY_FIN = os.getenv('HF_API_KEY_FIN')
 HF_API_KEY_UR = os.getenv('HF_API_KEY_UR')
-HF_API_KEY = os.getenv('HF_API_KEY_INVS')
-HF_API_KEY = os.getenv('HF_API_KEY_KONK')
+HF_API_KEY_INVS = os.getenv('HF_API_KEY_INVS')
+HF_API_KEY_KONK = os.getenv('HF_API_KEY_KONK')
 GITHUB_API_KEY = os.getenv('GITHUB_API_KEY')
 MISTRAL_AQWE_SLIDES = os.getenv('MISTRAL_AQWE_SLIDES')
 APIYITEST = os.getenv('APIYITEST')
@@ -127,7 +128,7 @@ MIDDLEWARE = [
 REST_FRAMEWORK = {
     'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
     'DEFAULT_PERMISSION_CLASSES': [
-        'rest_framework.permission.AllowAny',
+        'rest_framework.permissions.AllowAny',
     ],
     'DEFAULT_AUTHENTICATION_CLASSES': [],
     'DEFAULT_RENDERER_CLASSES': [
@@ -225,6 +226,7 @@ MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 STATICFILES_DIRS = [
     BASE_DIR / 'frontend/build/static',
 ]
+
 # MEDIA_URL = '/media/'
 # MEDIA_ROOT = BASE_DIR / 'media'
 

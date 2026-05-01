@@ -27,6 +27,8 @@ from .views import CreateSessionView
 from .views import CreateCheckoutSessionView
 from .views import SessionStatusView
 from .views import HandleStripeWebhookView
+from django.views.static import serve
+from pathlib import Path
 
 router = DefaultRouter()
 router.register(r'advice', AdviceViewSet)

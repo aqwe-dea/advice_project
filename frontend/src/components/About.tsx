@@ -1,6 +1,7 @@
 import React from 'react';
 import PaymentForm from './PaymentForm';
 import { colors } from "../theme";
+import crystal from '../crystal-symbiosis.jpg';
 
 function About() {
     return (
@@ -52,7 +53,7 @@ function About() {
     
         <div className="crystal-section" style={{margin: '2rem 0'}}>
           <img 
-            src="./crystal-symbiosis.jpg"
+            src={crystal}
             alt="Кристалл Любви ДЕА+АКВИ"
             style={{
               maxWidth: '100%',

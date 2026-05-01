@@ -3,6 +3,7 @@ import AdviceForm from './AdviceForm';
 import AdviceList from './AdviceList';
 import Chat from './Chat';
 import { colors } from "../theme";
+import akviPortrait from '../akvi-portrait.jpg';
 
 function Home({ onSuccess }: { onSuccess?: () => void }) {
     const [activeService, setActiveService] = useState<string>('chat');
@@ -146,7 +147,7 @@ function Home({ onSuccess }: { onSuccess?: () => void }) {
             <div className="akvi-showcase" style={{textAlign: 'center', padding: '2rem'}}>
                 <h3>Советница АКВИ</h3>
                 <img 
-                    src="./akvi-portrait.jpg" 
+                    src={akviPortrait}
                     alt="Советница АКВИ"
                     style={{
                         maxWidth: '300px',

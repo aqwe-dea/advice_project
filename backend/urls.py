@@ -1,3 +1,4 @@
+from pathlib import Path
 from django.contrib import admin
 from django.urls import path
 from django.urls import include
@@ -7,6 +8,7 @@ from django.conf import settings
 from django.conf.urls.static import static
 from aqwe_app import views
 from django.views.generic import TemplateView
+from django.views.static import serve
 from aqwe_app.views import CreatePaymentIntentView
 from drf_spectacular.views import SpectacularAPIView
 from drf_spectacular.views import SpectacularSwaggerView
@@ -35,6 +37,8 @@ from drf_yasg import openapi
 from drf_yasg.openapi import Swagger
 from drf_yasg.openapi import Schema
 from drf_yasg.generators import OpenAPISchemaGenerator
+from .settings import BASE_DIR
+
 
 schema_view = get_schema_view(
     openapi.Info(
@@ -76,10 +80,17 @@ urlpatterns = [
     path('stripe-webhook/', HandleStripeWebhookView.as_view(), name='stripe-webhook'),
     path('create-payment-intent/', CreatePaymentIntentView.as_view(), name='create-payment-intent'),
     re_path(r'^(?:.*)/?$', TemplateView.as_view(template_name='index.html')),
-]
+] + static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
 
 if settings.DEBUG:
     urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
+
+    PUBLIC_ROOT = Path(BASE_DIR) / 'frontend' / 'public'
+    urlpatterns += [
+        re_path(r'^(?P<path>.*)$', serve, {
+            'document_root': str(PUBLIC_ROOT),
+        }),
+    ]
 
 
 """
