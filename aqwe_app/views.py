@@ -51,6 +51,7 @@ from openai._client import OpenAI
 from openai import OpenAI
 from .agent import SimpleAgent
 from .generators.image_generator import ImageGenerator
+from .generators.code_generator import CodeGenerator
 
 logger = logging.getLogger(__name__)
 @method_decorator(csrf_exempt, name='dispatch')
@@ -2576,7 +2577,7 @@ class AgentChatView(APIView):
         
         # Инициализация агента (ключи из env)
         agent = SimpleAgent(
-            api_key=os.getenv('KIE_AQWE_SLIDES'),
+            api_key=os.getenv('KIETEST'),
             base_url='https://api.kie.ai/gemini-3-flash/v1/',
             model='gemini-3-flash'
         )
@@ -2584,6 +2585,7 @@ class AgentChatView(APIView):
         # Добавляем инструменты (по желанию)
         agent.add_tool('search', agent._search_web, 'Поиск информации в интернете')
         agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
+        agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
         
         # Получаем ответ
         answer = agent.ask(question)
@@ -2601,7 +2603,7 @@ class ImageGeneratorView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        api_key = os.getenv('KIE_AQWE_SLIDES')
+        api_key = os.getenv('KIETEST')
         if not api_key:
             return Response(
                 {'error': 'API ключ KIE не настроен'},
@@ -2622,6 +2624,50 @@ class ImageGeneratorView(APIView):
                 'image_url': result['image_url'],
                 'prompt': result['prompt'],
                 'model': result['model']
+            })
+        else:
+            return Response(
+                {'error': result.get('error', 'Неизвестная ошибка')},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+class CodeGeneratorView(APIView):
+    """API endpoint для генерации кода"""
+    
+    def post(self, request):
+        prompt = request.data.get('prompt', '').strip()
+        if not prompt:
+            return Response(
+                {'error': 'Prompt (описание задачи) обязателен'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Параметры из запроса
+        language = request.data.get('language', 'python')
+        include_comments = request.data.get('include_comments', True)
+        
+        # Инициализация генератора
+        api_key = os.getenv('KIETEST')
+        if not api_key:
+            return Response(
+                {'error': 'API ключ KIE не настроен'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        
+        generator = CodeGenerator(api_key=api_key)
+        
+        # Генерация кода
+        result = generator.generate(
+            prompt=prompt,
+            language=language,
+            include_comments=include_comments
+        )
+        
+        if result.get('success'):
+            return Response({
+                'code': result['code'],
+                'language': result['language'],
+                'prompt': result['prompt']
             })
         else:
             return Response(

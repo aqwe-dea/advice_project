@@ -30,6 +30,7 @@ from aqwe_app.views import CompetitorAnalysisView
 from aqwe_app.views import CommunicationOptimizationView
 from aqwe_app.views import AgentChatView
 from aqwe_app.views import ImageGeneratorView
+from aqwe_app.views import CodeGeneratorView
 from aqwe_app.views import CreateSessionView
 from aqwe_app.views import CreateCheckoutSessionView
 from aqwe_app.views import SessionStatusView
@@ -73,6 +74,7 @@ urlpatterns = [
     path('communication-optimization/', CommunicationOptimizationView.as_view(), name='communication-optimization'),
     path('agent-chat/', AgentChatView.as_view(), name='agent-chat'),
     path('generate-image/', ImageGeneratorView.as_view(), name='generate-image'),
+    path('generate-code/', CodeGeneratorView.as_view(), name='generate-code'),
     path('stripe/', include('djstripe.urls', namespace='djstripe')),
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='docs'),
