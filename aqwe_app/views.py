@@ -50,8 +50,15 @@ from openai import _client
 from openai._client import OpenAI
 from openai import OpenAI
 from .agent import SimpleAgent
+from .smartagent.smart_agent import SmartAgent
 from .generators.image_generator import ImageGenerator
 from .generators.code_generator import CodeGenerator
+from .generators.video_generator import VideoGenerator
+from .generators.voice_generator import VoiceGenerator
+from .generators.liveimage_generator import LiveimageGenerator
+from .generators.character_generator import CharacterGenerator
+from .generators.instrumental_generator import InstrumentalGenerator
+from .generators.image_edit import ImageEdit
 
 logger = logging.getLogger(__name__)
 @method_decorator(csrf_exempt, name='dispatch')
@@ -2578,8 +2585,8 @@ class AgentChatView(APIView):
         # Инициализация агента (ключи из env)
         agent = SimpleAgent(
             api_key=os.getenv('KIETEST'),
-            base_url='https://api.kie.ai/gemini-3-flash/v1/',
-            model='gemini-3-flash'
+            base_url='https://api.kie.ai/gemini-3.1-pro/v1/',
+            model='gemini-3.1-pro'
         )
         
         # Добавляем инструменты (по желанию)
@@ -2591,6 +2598,41 @@ class AgentChatView(APIView):
         answer = agent.ask(question)
         
         return Response({'answer': answer})
+
+class SmartAgentView(APIView):
+    """API endpoint для умного агента с памятью"""
+    
+    def post(self, request):
+        question = request.data.get('question', '')
+        if not question:
+            return Response(
+                {'error': 'Вопрос обязателен'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        user_feedback = request.data.get('feedback')  # Опционально
+        
+        # Инициализация
+        
+        agent = SmartAgent(
+            api_key=os.getenv('KIETEST'),
+            base_url='https://api.kie.ai/gemini-2.5-pro/v1/',
+            model='gemini-2.5-pro'
+        )
+        
+        agent.add_tool('search', agent._search_web, 'Поиск информации в интернете')
+        agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
+        # Добавляем инструменты (пример)
+        # agent.add_tool('search', agent._hyperbrowse, 'Поиск в интернете')
+        
+        # Запрос к агенту
+        answer = agent.ask(question, user_feedback)
+        
+        return Response({
+            'answer': answer,
+            'question': question,
+            'timestamp': datetime.now().isoformat()
+        })
 
 class ImageGeneratorView(APIView):
     """API endpoint для генерации изображений"""
@@ -2622,6 +2664,49 @@ class ImageGeneratorView(APIView):
         if result.get('success'):
             return Response({
                 'image_url': result['image_url'],
+                'prompt': result['prompt'],
+                'model': result['model']
+            })
+        else:
+            return Response(
+                {'error': result.get('error', 'Неизвестная ошибка')},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+class VideoGeneratorView(APIView):
+    """API endpoint для генерации видео"""
+    
+    def post(self, request):
+        prompt = request.data.get('prompt', '').strip()
+        if not prompt:
+            return Response(
+                {'error': 'Prompt (описание видео) обязателен'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Параметры
+        #duration = request.data.get('duration', 5)
+        #resolution = request.data.get('resolution', '720p')
+        #style = request.data.get('style', 'cinematic')
+        
+        # Инициализация
+        api_key = os.getenv('KIETEST')
+        if not api_key:
+            return Response(
+                {'error': 'API ключ KIE не настроен'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        
+        generator = VideoGenerator(api_key=api_key)
+        
+        # Генерация
+        result = generator.generate(
+            prompt=prompt
+        )
+        
+        if result.get('success'):
+            return Response({
+                'video_url': result['video_url'],
                 'prompt': result['prompt'],
                 'model': result['model']
             })
@@ -2668,6 +2753,192 @@ class CodeGeneratorView(APIView):
                 'code': result['code'],
                 'language': result['language'],
                 'prompt': result['prompt']
+            })
+        else:
+            return Response(
+                {'error': result.get('error', 'Неизвестная ошибка')},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+class VoiceGeneratorView(APIView):
+    """API endpoint для генерации речи/голоса"""
+    
+    def post(self, request):
+        text = request.data.get('text', '').strip()
+        if not text:
+            return Response(
+                {'error': 'Текст для озвучки обязателен'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        # Параметры
+        #voice = request.data.get('voice', 'Z3R5wn05IrDiVCyEkUrK')
+        #language = request.data.get('language', 'ru')
+        #speed = request.data.get('speed', 1.0)
+        
+        # Инициализация
+        api_key = os.getenv('KIETEST')
+        if not api_key:
+            return Response(
+                {'error': 'API ключ KIE не настроен'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        
+        generator = VoiceGenerator(api_key=api_key)
+        
+        # Генерация
+        result = generator.generate(
+            text=text
+        )
+        
+        if result.get('success'):
+            return Response({
+                'audio_url': result['audio_url'],
+                'text': result['text'],
+                'model': result['model']
+            })
+        else:
+            return Response(
+                {'error': result.get('error', 'Неизвестная ошибка')},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+class LiveimageGeneratorView(APIView):
+    """API endpoint для генерации живых изображений"""
+    
+    def post(self, request):
+        prompt = request.data.get('prompt', '').strip()
+        if not prompt:
+            return Response(
+                {'error': 'Prompt обязателен'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        image_url = request.data.get('image_url', '').strip()
+
+        api_key = os.getenv('KIETEST')
+        if not api_key:
+            return Response(
+                {'error': 'API ключ KIE не настроен'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        
+        generator = LiveimageGenerator(api_key=api_key)
+        
+        result = generator.generate(prompt=prompt, image_url=image_url)
+        
+        if result.get('success'):
+            return Response({
+                'liveimage_url': result['liveimage_url'],
+                'prompt': result['prompt'],
+                'model': result['model']
+            })
+        else:
+            return Response(
+                {'error': result.get('error', 'Неизвестная ошибка')},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+class CharacterGeneratorView(APIView):
+    """API endpoint для генерации персонажей"""
+    
+    def post(self, request):
+        prompt = request.data.get('prompt', '').strip()
+        if not prompt:
+            return Response(
+                {'error': 'Prompt обязателен'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        image_url = request.data.get('image_url', '').strip()
+        audio_url = request.data.get('audio_url', '').strip()
+
+        api_key = os.getenv('KIETEST')
+        if not api_key:
+            return Response(
+                {'error': 'API ключ KIE не настроен'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        
+        generator = CharacterGenerator(api_key=api_key)
+        
+        result = generator.generate(prompt=prompt, image_url=image_url, audio_url=audio_url)
+        
+        if result.get('success'):
+            return Response({
+                'character_url': result['character_url'],
+                'prompt': result['prompt'],
+                'model': result['model']
+            })
+        else:
+            return Response(
+                {'error': result.get('error', 'Неизвестная ошибка')},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+class InstrumentalGeneratorView(APIView):
+    """API endpoint для генерации инструментальной музыки"""
+    
+    def post(self, request):
+        prompt = request.data.get('prompt', '').strip()
+        if not prompt:
+            return Response(
+                {'error': 'Prompt обязателен'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+        
+        api_key = os.getenv('KIETEST')
+        if not api_key:
+            return Response(
+                {'error': 'API ключ KIE не настроен'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        
+        generator = InstrumentalGenerator(api_key=api_key)
+        
+        result = generator.generate(prompt=prompt)
+        
+        if result.get('success'):
+            return Response({
+                'instrumental_url': result['instrumental_url'],
+                'prompt': result['prompt'],
+                'model': result['model']
+            })
+        else:
+            return Response(
+                {'error': result.get('error', 'Неизвестная ошибка')},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
+class ImageEditView(APIView):
+    """API endpoint для редактирования изображений"""
+    
+    def post(self, request):
+        prompt = request.data.get('prompt', '').strip()
+        if not prompt:
+            return Response(
+                {'error': 'Prompt обязателен'},
+                status=status.HTTP_400_BAD_REQUEST
+            )
+
+        input_urls = request.data.get('input_urls', '').strip()
+
+        api_key = os.getenv('KIETEST')
+        if not api_key:
+            return Response(
+                {'error': 'API ключ KIE не настроен'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        
+        generator = ImageEdit(api_key=api_key)
+        
+        result = generator.generate(prompt=prompt, input_urls=input_urls)
+        
+        if result.get('success'):
+            return Response({
+                'edit_url': result['edit_url'],
+                'prompt': result['prompt'],
+                'model': result['model']
             })
         else:
             return Response(

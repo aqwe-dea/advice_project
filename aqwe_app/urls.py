@@ -25,8 +25,15 @@ from .views import TravelPlannerView
 from .views import CompetitorAnalysisView
 from .views import CommunicationOptimizationView
 from .views import AgentChatView
+from .views import SmartAgentView
 from .views import ImageGeneratorView
 from .views import CodeGeneratorView
+from .views import VideoGeneratorView
+from .views import VoiceGeneratorView
+from .views import LiveimageGeneratorView
+from .views import InstrumentalGeneratorView
+from .views import CharacterGeneratorView
+from .views import ImageEditView
 from .views import CreateSessionView
 from .views import CreateCheckoutSessionView
 from .views import SessionStatusView
@@ -63,6 +70,13 @@ urlpatterns = [
     path('agent-chat/', AgentChatView.as_view(), name='agent-chat'),
     path('generate-image/', ImageGeneratorView.as_view(), name='generate-image'),
     path('generate-code/', CodeGeneratorView.as_view(), name='generate-code'),
+    path('generate-video/', VideoGeneratorView.as_view(), name='generate-video'),
+    path('generate-voice/', VoiceGeneratorView.as_view(), name='generate-voice'),
+    path('generate-liveimage/', LiveimageGeneratorView.as_view(), name='generate-liveimage'),
+    path('generate-character/', CharacterGeneratorView.as_view(), name='generate-character'),
+    path('generate-instrumental/', InstrumentalGeneratorView.as_view(), name='generate-instrumental'),
+    path('image-edit/', ImageEditView.as_view(), name='image-edit'),
+    path('smart-agent/', SmartAgentView.as_view(), name='smart-agent'),
     path('create-payment-intent/', CreatePaymentIntentView.as_view(), name='create-payment-intent'),
     path('create-session/', CreateSessionView.as_view(), name='create-session'),
     path('create-checkout-session/', CreateCheckoutSessionView.as_view(), name='create-checkout-session'),

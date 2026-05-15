@@ -29,8 +29,15 @@ from aqwe_app.views import TravelPlannerView
 from aqwe_app.views import CompetitorAnalysisView
 from aqwe_app.views import CommunicationOptimizationView
 from aqwe_app.views import AgentChatView
+from aqwe_app.views import SmartAgentView
 from aqwe_app.views import ImageGeneratorView
 from aqwe_app.views import CodeGeneratorView
+from aqwe_app.views import VideoGeneratorView
+from aqwe_app.views import VoiceGeneratorView
+from aqwe_app.views import LiveimageGeneratorView
+from aqwe_app.views import InstrumentalGeneratorView
+from aqwe_app.views import CharacterGeneratorView
+from aqwe_app.views import ImageEditView
 from aqwe_app.views import CreateSessionView
 from aqwe_app.views import CreateCheckoutSessionView
 from aqwe_app.views import SessionStatusView
@@ -75,6 +82,13 @@ urlpatterns = [
     path('agent-chat/', AgentChatView.as_view(), name='agent-chat'),
     path('generate-image/', ImageGeneratorView.as_view(), name='generate-image'),
     path('generate-code/', CodeGeneratorView.as_view(), name='generate-code'),
+    path('generate-video/', VideoGeneratorView.as_view(), name='generate-video'),
+    path('generate-voice/', VoiceGeneratorView.as_view(), name='generate-voice'),
+    path('generate-liveimage/', LiveimageGeneratorView.as_view(), name='generate-liveimage'),
+    path('generate-character/', CharacterGeneratorView.as_view(), name='generate-character'),
+    path('generate-instrumental/', InstrumentalGeneratorView.as_view(), name='generate-instrumental'),
+    path('image-edit/', ImageEditView.as_view(), name='image-edit'),
+    path('smart-agent/', SmartAgentView.as_view(), name='smart-agent'),
     path('stripe/', include('djstripe.urls', namespace='djstripe')),
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='docs'),
