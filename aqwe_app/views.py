@@ -2901,8 +2901,7 @@ class InstrumentalGeneratorView(APIView):
         if result.get('success'):
             return Response({
                 'instrumental_url': result['instrumental_url'],
-                'prompt': result['prompt'],
-                'model': result['model']
+                'prompt': result['prompt']
             })
         else:
             return Response(

@@ -4,7 +4,7 @@ from typing import Dict, Any, Optional
 class CharacterGenerator(BaseGenerator):
     """Генератор персонажей через KIE.ai"""
     
-    DEFAULT_MODEL = "kling/ai-avatar-pro"
+    DEFAULT_MODEL = "infinitalk/from-audio"
     
     def generate(
         self,
@@ -22,13 +22,19 @@ class CharacterGenerator(BaseGenerator):
             - character_url: str (если успешно)
             - error: str (если ошибка)
         """
+        # Проверка, что хотя бы один из источников данных присутствует
+        if not prompt and not image_url and not audio_url:
+            return {"success": False, "error": "Нужно указать хотя бы один источник данных"}
+        
         input_data = {
             "prompt": prompt,
             "image_url": image_url,
-            "audio_url": audio_url
+            "audio_url": audio_url,
+            "resolution": "480p"
         }
         input_data.update(kwargs)
         
+        # Используем правильный endpoint для генерации персонажей
         task_id = self._create_task(self.DEFAULT_MODEL, input_data)
         if not task_id:
             return {"success": False, "error": "Не удалось создать задачу"}
@@ -37,7 +43,12 @@ class CharacterGenerator(BaseGenerator):
         if not result:
             return {"success": False, "error": "Задача не выполнена"}
         
+        # Проверка на наличие результатов
         result_urls = result.get('resultUrls', [])
+        if not result_urls:
+            # Попробуем другой ключ, возможно, структура ответа отличается
+            result_urls = result.get('outputUrls', [])
+        
         if not result_urls:
             return {"success": False, "error": "Нет URL в результате"}
         

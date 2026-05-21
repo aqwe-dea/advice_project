@@ -28,6 +28,16 @@ import MarketingStrategyForm from "./components/MarketingStrategyForm";
 import TravelPlannerForm from "./components/TravelPlannerForm";
 import CompetitorAnalysisForm from "./components/CompetitorAnalysisForm";
 import CommunicationOptimizationForm from "./components/CommunicationOptimizationForm";
+import GeneratorImageForm from "./generators/GeneratorImageForm";
+import GeneratorVideoForm from "./generators/GeneratorVideoForm";
+import GeneratorInstrumentalForm from "./generators/GeneratorInstrumentalForm";
+import GeneratorVoiceForm from "./generators/GeneratorVoiceForm";
+import GeneratorLiveimageForm from "./generators/GeneratorLiveimageForm";
+import EditImageForm from "./generators/EditImageForm";
+import GeneratorCharacterForm from "./generators/GeneratorCharacterForm";
+import GeneratorCodeForm from "./generators/GeneratorCodeForm";
+import AgentChatForm from "./agents/AgentChatForm";
+import SmartAgentForm from "./agents/SmartAgentForm";
 import SessionPurchase from './components/SessionPurchase';
 import PaymentSuccess from './components/PaymentSuccess';
 
@@ -334,6 +344,16 @@ function AppContent() {
           <Route path="/travel-planner" element={<TravelPlannerForm />} />
           <Route path="/competitor-analysis" element={<CompetitorAnalysisForm />} />
           <Route path="/communication-optimization" element={<CommunicationOptimizationForm />} />
+          <Route path="/generate-image" element={<GeneratorImageForm />} />
+          <Route path="/generate-video" element={<GeneratorVideoForm />} />
+          <Route path="/generate-instrumental" element={<GeneratorInstrumentalForm />} />
+          <Route path="/generate-voice" element={<GeneratorVoiceForm />} />
+          <Route path="/generate-liveimage" element={<GeneratorLiveimageForm />} />
+          <Route path="/image-edit" element={<EditImageForm />} />
+          <Route path="/generate-character" element={<GeneratorCharacterForm />} />
+          <Route path="/generate-code" element={<GeneratorCodeForm />} />
+          <Route path="/agent-chat" element={<AgentChatForm />} />
+          <Route path="/smart-agent" element={<SmartAgentForm />} />
           <Route path="/purchase-session" element={<SessionPurchase />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
         </Routes>

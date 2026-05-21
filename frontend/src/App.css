@@ -1092,3 +1092,1075 @@
   margin-left: 10px;
   font-weight: bold;
 }
+
+.image-generation {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #333;
+}
+
+.form-group textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 16px;
+  resize: vertical;
+  min-height: 100px;
+}
+
+.generate-button, 
+.generate-again-button {
+  background: #6a5af9;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  transition: background 0.3s;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.generate-button:hover, 
+.generate-again-button:hover {
+  background: #5a4af7;
+}
+
+.progress-container {
+  margin: 20px 0;
+}
+
+.progress-bar {
+  height: 10px;
+  background: #e0e0e0;
+  border-radius: 5px;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+
+.progress-bar::after {
+  content: '';
+  display: block;
+  height: 100%;
+  background: #6a5af9;
+  width: 0%;
+  transition: width 0.3s;
+}
+
+.error-message {
+  color: #d9534f;
+  background: #fde5e5;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+.result-container {
+  text-align: center;
+}
+
+.image-container {
+  margin: 20px 0;
+  position: relative;
+}
+
+.generated-image {
+  max-width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: 1px solid #eee;
+}
+
+.image-prompt {
+  margin-top: 10px;
+  color: #666;
+  font-style: italic;
+  max-width: 80%;
+  margin: 0 auto;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.action-buttons button {
+  flex: 1;
+}
+
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s linear infinite;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.video-generation {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #333;
+}
+
+.form-group textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 16px;
+  resize: vertical;
+  min-height: 100px;
+}
+
+.generate-button, 
+.generate-again-button {
+  background: #6a5af9;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  transition: background 0.3s;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.generate-button:hover, 
+.generate-again-button:hover {
+  background: #5a4af7;
+}
+
+.progress-container {
+  margin: 20px 0;
+}
+
+.progress-bar {
+  height: 10px;
+  background: #e0e0e0;
+  border-radius: 5px;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+
+.progress-bar::after {
+  content: '';
+  display: block;
+  height: 100%;
+  background: #6a5af9;
+  width: 0%;
+  transition: width 0.3s;
+}
+
+.error-message {
+  color: #d9534f;
+  background: #fde5e5;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+.result-container {
+  text-align: center;
+}
+
+.video-container {
+  margin: 20px 0;
+  position: relative;
+}
+
+.generated-video {
+  max-width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: 1px solid #eee;
+}
+
+.video-prompt {
+  margin-top: 10px;
+  color: #666;
+  font-style: italic;
+  max-width: 80%;
+  margin: 0 auto;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.action-buttons button {
+  flex: 1;
+}
+
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s linear infinite;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.instrumental-generation {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #333;
+}
+
+.form-group textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 16px;
+  resize: vertical;
+  min-height: 100px;
+}
+
+.generate-button, 
+.generate-again-button {
+  background: #6a5af9;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  transition: background 0.3s;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.generate-button:hover, 
+.generate-again-button:hover {
+  background: #5a4af7;
+}
+
+.progress-container {
+  margin: 20px 0;
+}
+
+.progress-bar {
+  height: 10px;
+  background: #e0e0e0;
+  border-radius: 5px;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+
+.progress-bar::after {
+  content: '';
+  display: block;
+  height: 100%;
+  background: #6a5af9;
+  width: 0%;
+  transition: width 0.3s;
+}
+
+.error-message {
+  color: #d9534f;
+  background: #fde5e5;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+.result-container {
+  text-align: center;
+}
+
+.instrumental-container {
+  margin: 20px 0;
+  position: relative;
+}
+
+.generated-instrumental {
+  max-width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: 1px solid #eee;
+}
+
+.instrumental-prompt {
+  margin-top: 10px;
+  color: #666;
+  font-style: italic;
+  max-width: 80%;
+  margin: 0 auto;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.action-buttons button {
+  flex: 1;
+}
+
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s linear infinite;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.voice-generation {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #333;
+}
+
+.form-group textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 16px;
+  resize: vertical;
+  min-height: 100px;
+}
+
+.generate-button, 
+.generate-again-button {
+  background: #6a5af9;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  transition: background 0.3s;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.generate-button:hover, 
+.generate-again-button:hover {
+  background: #5a4af7;
+}
+
+.progress-container {
+  margin: 20px 0;
+}
+
+.progress-bar {
+  height: 10px;
+  background: #e0e0e0;
+  border-radius: 5px;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+
+.progress-bar::after {
+  content: '';
+  display: block;
+  height: 100%;
+  background: #6a5af9;
+  width: 0%;
+  transition: width 0.3s;
+}
+
+.error-message {
+  color: #d9534f;
+  background: #fde5e5;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+.result-container {
+  text-align: center;
+}
+
+.voice-container {
+  margin: 20px 0;
+  position: relative;
+}
+
+.generated-voice {
+  max-width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: 1px solid #eee;
+}
+
+.voice-text {
+  margin-top: 10px;
+  color: #666;
+  font-style: italic;
+  max-width: 80%;
+  margin: 0 auto;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.action-buttons button {
+  flex: 1;
+}
+
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s linear infinite;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.liveimage-generation {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #333;
+}
+
+.form-group textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 16px;
+  resize: vertical;
+  min-height: 100px;
+}
+
+.generate-button, 
+.generate-again-button {
+  background: #6a5af9;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  transition: background 0.3s;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.generate-button:hover, 
+.generate-again-button:hover {
+  background: #5a4af7;
+}
+
+.progress-container {
+  margin: 20px 0;
+}
+
+.progress-bar {
+  height: 10px;
+  background: #e0e0e0;
+  border-radius: 5px;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+
+.progress-bar::after {
+  content: '';
+  display: block;
+  height: 100%;
+  background: #6a5af9;
+  width: 0%;
+  transition: width 0.3s;
+}
+
+.error-message {
+  color: #d9534f;
+  background: #fde5e5;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+.result-container {
+  text-align: center;
+}
+
+.liveimage-container {
+  margin: 20px 0;
+  position: relative;
+}
+
+.generated-liveimage {
+  max-width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: 1px solid #eee;
+}
+
+.liveimage-prompt {
+  margin-top: 10px;
+  color: #666;
+  font-style: italic;
+  max-width: 80%;
+  margin: 0 auto;
+}
+
+.liveimage-image_url {
+  margin-top: 10px;
+  color: #666;
+  font-style: italic;
+  max-width: 80%;
+  margin: 0 auto;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.action-buttons button {
+  flex: 1;
+}
+
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s linear infinite;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.edit-image {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #333;
+}
+
+.form-group textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 16px;
+  resize: vertical;
+  min-height: 100px;
+}
+
+.generate-button, 
+.generate-again-button {
+  background: #6a5af9;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  transition: background 0.3s;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.generate-button:hover, 
+.generate-again-button:hover {
+  background: #5a4af7;
+}
+
+.progress-container {
+  margin: 20px 0;
+}
+
+.progress-bar {
+  height: 10px;
+  background: #e0e0e0;
+  border-radius: 5px;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+
+.progress-bar::after {
+  content: '';
+  display: block;
+  height: 100%;
+  background: #6a5af9;
+  width: 0%;
+  transition: width 0.3s;
+}
+
+.error-message {
+  color: #d9534f;
+  background: #fde5e5;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+.result-container {
+  text-align: center;
+}
+
+.editimage-container {
+  margin: 20px 0;
+  position: relative;
+}
+
+.edit-image {
+  max-width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: 1px solid #eee;
+}
+
+.editimage-prompt {
+  margin-top: 10px;
+  color: #666;
+  font-style: italic;
+  max-width: 80%;
+  margin: 0 auto;
+}
+
+.editimage-input_urls {
+  margin-top: 10px;
+  color: #666;
+  font-style: italic;
+  max-width: 80%;
+  margin: 0 auto;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.action-buttons button {
+  flex: 1;
+}
+
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s linear infinite;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.character-generation {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #333;
+}
+
+.form-group textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 16px;
+  resize: vertical;
+  min-height: 100px;
+}
+
+.generate-button, 
+.generate-again-button {
+  background: #6a5af9;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  transition: background 0.3s;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.generate-button:hover, 
+.generate-again-button:hover {
+  background: #5a4af7;
+}
+
+.progress-container {
+  margin: 20px 0;
+}
+
+.progress-bar {
+  height: 10px;
+  background: #e0e0e0;
+  border-radius: 5px;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+
+.progress-bar::after {
+  content: '';
+  display: block;
+  height: 100%;
+  background: #6a5af9;
+  width: 0%;
+  transition: width 0.3s;
+}
+
+.error-message {
+  color: #d9534f;
+  background: #fde5e5;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+.result-container {
+  text-align: center;
+}
+
+.character-container {
+  margin: 20px 0;
+  position: relative;
+}
+
+.generated-character {
+  max-width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: 1px solid #eee;
+}
+
+.character-prompt {
+  margin-top: 10px;
+  color: #666;
+  font-style: italic;
+  max-width: 80%;
+  margin: 0 auto;
+}
+
+.character-image_url {
+  margin-top: 10px;
+  color: #666;
+  font-style: italic;
+  max-width: 80%;
+  margin: 0 auto;
+}
+
+.character-audio_url {
+  margin-top: 10px;
+  color: #666;
+  font-style: italic;
+  max-width: 80%;
+  margin: 0 auto;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.action-buttons button {
+  flex: 1;
+}
+
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s linear infinite;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+.code-generation {
+  max-width: 800px;
+  margin: 0 auto;
+  padding: 20px;
+  background: #f8f9fa;
+  border-radius: 10px;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+}
+
+.form-group {
+  margin-bottom: 20px;
+}
+
+.form-group label {
+  display: block;
+  margin-bottom: 8px;
+  font-weight: bold;
+  color: #333;
+}
+
+.form-group textarea {
+  width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 16px;
+  resize: vertical;
+  min-height: 100px;
+}
+
+.generate-button, 
+.generate-again-button {
+  background: #6a5af9;
+  color: white;
+  border: none;
+  padding: 12px 24px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 16px;
+  font-weight: bold;
+  transition: background 0.3s;
+  width: 100%;
+  margin-top: 10px;
+}
+
+.generate-button:hover, 
+.generate-again-button:hover {
+  background: #5a4af7;
+}
+
+.progress-container {
+  margin: 20px 0;
+}
+
+.progress-bar {
+  height: 10px;
+  background: #e0e0e0;
+  border-radius: 5px;
+  margin-bottom: 8px;
+  overflow: hidden;
+}
+
+.progress-bar::after {
+  content: '';
+  display: block;
+  height: 100%;
+  background: #6a5af9;
+  width: 0%;
+  transition: width 0.3s;
+}
+
+.error-message {
+  color: #d9534f;
+  background: #fde5e5;
+  padding: 10px;
+  border-radius: 5px;
+  margin-bottom: 20px;
+}
+
+.result-container {
+  text-align: center;
+}
+
+.code-container {
+  margin: 20px 0;
+  position: relative;
+}
+
+.generated-code {
+  max-width: 100%;
+  border-radius: 8px;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+  border: 1px solid #eee;
+}
+
+.code-prompt {
+  margin-top: 10px;
+  color: #666;
+  font-style: italic;
+  max-width: 80%;
+  margin: 0 auto;
+}
+
+.code-language {
+  margin-top: 10px;
+  color: #666;
+  font-style: italic;
+  max-width: 80%;
+  margin: 0 auto;
+}
+
+.code-include_comments {
+  margin-top: 10px;
+  color: #666;
+  font-style: italic;
+  max-width: 80%;
+  margin: 0 auto;
+}
+
+.action-buttons {
+  display: flex;
+  gap: 10px;
+  margin-top: 20px;
+}
+
+.action-buttons button {
+  flex: 1;
+}
+
+.spinner {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 3px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 1s linear infinite;
+  margin-right: 8px;
+}
+
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
