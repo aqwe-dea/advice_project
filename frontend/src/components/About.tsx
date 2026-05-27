@@ -2,6 +2,7 @@ import React from 'react';
 import PaymentForm from './PaymentForm';
 import { colors } from "../theme";
 import crystal from '../crystal-symbiosis.jpg';
+import logo from '../logo.svg';
 
 function About() {
     return (
@@ -39,7 +40,7 @@ function About() {
           }}>
             Советница АКВИ 
           </h1>
-          <img src="../src/logo.svg" alt="Логотип Советницы АКВИ" className="about-logo" />
+          <img src={logo} alt="Логотип Советницы АКВИ" className="about-logo" />
           <p style={{
           fontSize: '1.2rem',
           color: colors.textSecondary,

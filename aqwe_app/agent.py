@@ -83,7 +83,7 @@ class SimpleAgent:
                 relevant = [line for line in lines if query.lower() in line.lower()]
                 text = '\n'.join(relevant[:10])  
         
-            return f"[Hyperbrowse] {url}:\n{text[:1000]}..."  
+            return f"[Hyperbrowse] {url}:\n{text[:1000]}..."
         except Exception as e:
             return f"[Hyperbrowse Error] {str(e)}"
 
@@ -93,9 +93,9 @@ class SimpleAgent:
     
     # === Примеры инструментов ===
     
-    def _search_web(self, query: str) -> str:
-        """Пример инструмента: поиск (заглушка)"""
-        return f"[Поиск] Результаты по запросу '{query}': пример ответа."
+    def _googleSearch(self, query: str) -> str:
+        """Пример инструмента: поиск (googleSearch)"""
+        return f"[googleSearch] Результаты по запросу '{query}': пример ответа."
     
     def _calculate(self, expression: str) -> str:
         """Пример инструмента: вычисления"""

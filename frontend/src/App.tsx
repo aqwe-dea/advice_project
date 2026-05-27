@@ -40,6 +40,7 @@ import AgentChatForm from "./agents/AgentChatForm";
 import SmartAgentForm from "./agents/SmartAgentForm";
 import SessionPurchase from './components/SessionPurchase';
 import PaymentSuccess from './components/PaymentSuccess';
+import GeneratorsAgents from './components/GeneratorsAgents';
 
 function AppContent() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -306,6 +307,18 @@ function AppContent() {
               transition: 'all 0.2s'
             }}>О проекте</Link>
           </li>
+          <li style={{marginBottom: '1.2rem'}}>
+            <Link to="/generators-agents" onClick={handleLinkClick} style={{
+              color: isActive('/generators-agents') ? 'white' : 'rgba(255, 255, 255, 0.85)',
+              textDecoration: 'none', 
+              display: 'block', 
+              padding: '0.8rem 1rem',
+              borderRadius: '8px',
+              backgroundColor: isActive('/generators-agents') ? 'rgba(255, 255, 255, 0.1)' : 'transparent',
+              fontWeight: isActive('/generators-agents') ? 'bold' : 'normal',
+              transition: 'all 0.2s'
+            }}>Генераторы и агенты</Link>
+          </li>
           <li>
             <a href="/portfolio" style={{color: '#f8f8f0', textDecoration: 'none'}}>
               Наше портфолио
@@ -354,6 +367,7 @@ function AppContent() {
           <Route path="/generate-code" element={<GeneratorCodeForm />} />
           <Route path="/agent-chat" element={<AgentChatForm />} />
           <Route path="/smart-agent" element={<SmartAgentForm />} />
+          <Route path="/generators-agents" element={<GeneratorsAgents />} />
           <Route path="/purchase-session" element={<SessionPurchase />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
         </Routes>
