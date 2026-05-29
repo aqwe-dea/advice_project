@@ -1,5 +1,4 @@
 from .long_term import LongTermMemory
-
 class ExperienceLearner:
     def __init__(self, memory: LongTermMemory):
         self.memory = memory

@@ -4,15 +4,15 @@ from django.core.mail import send_mail
 from django.core.mail import EmailMessage
 #from docx import Document
 
-def send_advice_email(user_email: str, advice_message: str):
+def send_advice_email(user_email: str, advice: str):
     subject = 'Ваш детальный совет от АКВИ'
-    message = f'категория: {advice.category}\n\nВопрос: {advice.question}\n\nОтвет: {advice.answer}\n\nЗаметки: {advice.notes}'
+    advice = f'категория: {advice.category}\n\nВопрос: {advice.question}\n\nОтвет: {advice.answer}\n\nЗаметки: {advice.notes}'
     from_email = settings.DEFAULT_FROM_EMAIL
     to_email = [user_email]
-    email = EmailMessage(subject, advice_message, from_email, to_email)
+    email = EmailMessage(subject, advice, from_email, to_email)
     email.attach_file('advice.txt')
     with open('advice.txt', 'w') as f:
-        f.write(advice_message)
+        f.write(advice)
     try:
         email.send(fail_silently=False)
     except Exception as e:

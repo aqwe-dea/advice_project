@@ -2577,6 +2577,8 @@ class CommunicationOptimizationView(APIView):
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 class AgentChatView(APIView):
+    """Простой агент для взаимодействия с LLM API. Поддерживает: память контекста, инструменты, базовое планирование."""
+    
     def post(self, request):
         question = request.data.get('question', '')
         if not question:
@@ -3008,13 +3010,13 @@ class CreateDetailedAdviceView(APIView):
     @staticmethod
     def send_advice_to_email(email: str, advice: Advice):
         subject = 'Ваш детальный совет от АКВИ'
-        message = (
+        advice = (
             f'Категория: {advice.category}\n\n'
             f'Вопрос: {advice.question}\n\n'
             f'Ответ: {advice.answer}\n\n'
             f'Заметки: {advice.notes}'
         )
-        send_advice_email(email, message)    
+        send_advice_email(email, advice)    
 
 class CreateSessionView(APIView):
     def post(self, request, *args, **kwargs):

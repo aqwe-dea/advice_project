@@ -1,4 +1,16 @@
+import os
 import chromadb
+from uuid import UUID
+from typing import Dict, List
+from chromadb import __version__
+from chromadb.api.models.Collection import Collection
+from chromadb.api import AdminAPI, ClientAPI, ServerAPI
+from chromadb.api.collection_configuration import (
+    CreateCollectionConfiguration,
+    UpdateCollectionConfiguration,
+    validate_embedding_function_conflict_on_create,
+    validate_embedding_function_conflict_on_get,
+)
 
 class LongTermMemory:
     def __init__(self, collection_name: str = "agent_experience"):
