@@ -2622,7 +2622,8 @@ class SmartAgentView(APIView):
             model='gemini-2.5-pro'
         )
         
-        agent.add_tool('search', agent._search_web, 'Поиск информации в интернете')
+        agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
+        agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
         agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
         # Добавляем инструменты (пример)
         # agent.add_tool('search', agent._hyperbrowse, 'Поиск в интернете')
