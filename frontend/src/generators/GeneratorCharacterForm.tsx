@@ -139,12 +139,11 @@ const GeneratorCharacterForm = () => {
         </form>
       ) : (
         <div className="result-container">
-          <h3>Ваш персонаж</h3>
+          <h3>Ваш сгенерированный персонаж</h3>
           
           <div className="character-container">
-            <img 
-              src={result.character_url} 
-              alt="Сгенерированный персонаж" 
+            <video 
+              src={result.character_url}
               className="generated-character"
             />
             <p className="character-prompt">Запрос: "{result.prompt}"</p>

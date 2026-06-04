@@ -111,12 +111,11 @@ const GeneratorVoiceForm = () => {
         </form>
       ) : (
         <div className="result-container">
-          <h3>Ваш голос</h3>
+          <h3>Ваш сгенерированный голос</h3>
           
           <div className="voice-container">
-            <img 
-              src={result.audio_url} 
-              alt="Сгенерированный голос" 
+            <audio 
+              src={result.audio_url}
               className="generated-voice"
             />
             <p className="voice-text">Запрос: "{result.text}"</p>

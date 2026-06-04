@@ -125,12 +125,11 @@ const GeneratorLiveimageForm = () => {
         </form>
       ) : (
         <div className="result-container">
-          <h3>Ваше живое изображение</h3>
+          <h3>Ваше сгенерированное живое изображение</h3>
           
           <div className="liveimage-container">
-            <img 
-              src={result.liveimage_url} 
-              alt="Сгенерированное живое изображение" 
+            <video 
+              src={result.liveimage_url}
               className="generated-liveimage"
             />
             <p className="liveimage-prompt">Запрос: "{result.prompt}"</p>

@@ -111,12 +111,11 @@ const GeneratorVideoForm = () => {
         </form>
       ) : (
         <div className="result-container">
-          <h3>Ваше видео</h3>
+          <h3>Ваше сгенерированное видео</h3>
           
           <div className="video-container">
-            <img 
-              src={result.video_url} 
-              alt="Сгенерированное видео" 
+            <video 
+              src={result.video_url}
               className="generated-video"
             />
             <p className="video-prompt">Запрос: "{result.prompt}"</p>

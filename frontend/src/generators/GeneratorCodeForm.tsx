@@ -139,14 +139,12 @@ const GeneratorCodeForm = () => {
         </form>
       ) : (
         <div className="result-container">
-          <h3>Ваш код</h3>
+          <h3>Ваш сгенерированный код</h3>
           
           <div className="code-container">
-            <img 
-              src={result.code} 
-              alt="Сгенерированный код" 
-              className="generated-code"
-            />
+            <p className="generated-code">
+            Ваш код: "{result.code}"  
+            </p>
             <p className="code-prompt">Запрос: "{result.prompt}"</p>
           </div>
           

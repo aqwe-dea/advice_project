@@ -111,12 +111,11 @@ const GeneratorInstrumentalForm = () => {
         </form>
       ) : (
         <div className="result-container">
-          <h3>Ваша музыка</h3>
+          <h3>Ваша сгенерированная музыка</h3>
           
           <div className="instrumental-container">
-            <img 
-              src={result.instrumental_url} 
-              alt="Сгенерированная музыка" 
+            <audio 
+              src={result.instrumental_url}
               className="generated-instrumental"
             />
             <p className="instrumental-prompt">Запрос: "{result.prompt}"</p>
