@@ -1,11 +1,12 @@
 import React, { useState, useRef } from 'react';
 import '../App.css';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://advice-project.onrender.com';
-//const MEDIA_URL = `${API_BASE_URL}/media/`;
-//${API_BASE_URL}
+// const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://advice-project.onrender.com';
+// const MEDIA_URL = `${API_BASE_URL}/media/`;
+// ${API_BASE_URL}
 
 const PhotoRestorationForm = () => {
+  const [image_url, setImage_url] = useState('');
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [restorationInfo, setRestorationInfo] = useState({
@@ -54,11 +55,16 @@ const PhotoRestorationForm = () => {
       setError('Пожалуйста, загрузите фотографию');
       return;
     }
+    if (!image_url.trim()) {
+      setError('Пожалуйста, введите url адрес изображения');
+      return;
+    }
     setIsLoading(true);
     setError(null);
     setResult(null);
     setProgress(0);
     setImagesLoaded({ original: false, restored: false });
+    setImage_url('');
     
     try {
       const progressInterval = setInterval(() => {
@@ -72,6 +78,7 @@ const PhotoRestorationForm = () => {
       }, 300);
       const formData = new FormData();
       formData.append('image', image);
+      formData.append('image_url', image_url);
       formData.append('damage_type', restorationInfo.damage_type);
       formData.append('damage_level', restorationInfo.damage_level);
       formData.append('restoration_style', restorationInfo.restoration_style);
@@ -230,6 +237,18 @@ const PhotoRestorationForm = () => {
               <img src={imagePreview} alt="Предпросмотр" className="preview-image" />
             </div>
           )}
+        </div>
+        <div className="form-group">
+          <label htmlFor="image_url">УРЛ адрес вашего изображения *</label>
+          <textarea
+            id="image_url"
+            name="image_url"
+            value={image_url}
+            onChange={(e) => setImage_url(e.target.value)}
+            placeholder="здесь должен быть урл адрес вашего изображения"
+            required
+            rows={4}
+          />
         </div>
         <div className="form-group">
           <label htmlFor="damage_type">Тип повреждений</label>

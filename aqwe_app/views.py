@@ -352,34 +352,35 @@ class GenerateCourseView(APIView):
                 Структура ответа должна четко соответствовать указанным разделам.
             """
             key = os.getenv('KIETEST')
-            if not key:
-                logger.error("API ключ key не настроен")
-                return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            client = OpenAI(
-                base_url="https://api.kie.ai/gemini-3-flash/v1/",
-                api_key=key
+            response = requests.post(
+                "https://api.kie.ai/gemini-2.5-flash/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {key}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "model": "gemini-2.5-flash",
+                    "stream": False,
+                    "messages": [
+                        {
+                            "role": "system",
+                            "content": system_prompt
+                        },
+                        {
+                            "role": "user",
+                            "content": prompt
+                        }
+                    ],
+                    "max_tokens": 10000
+                }
             )
-            response = client.chat.completions.create(
-                stream=False,
-                reasoning_effort="high",
-                model="gemini-3-flash",
-                max_tokens=10000,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": system_prompt
-                    },
-                    {
-                        "role": "user",
-                        "content": prompt
-                    }
-                ]
-            )
-            text_content = response.choices[0].message.content
-            if not isinstance(text_content, str):
-                text_content = str(text_content)
+            response.raise_for_status()
+            data = response.json()
+            logger.info(f"Ответ API: {data.get('choices', [{}])[0].get('message', {}).get('content', '')[:200]}...")
+            
+            result = data.get('choices', [{}])[0].get('message', {}).get('content', '')
             return Response({
-                'course_structure': text_content,
+                'course_structure': result,
                 'course_topic': course_topic,
                 'target_audience': target_audience,
                 'course_duration': course_duration,
@@ -454,34 +455,34 @@ class GenerateCourseView(APIView):
                 Важно: Ответ должен быть профессиональным, детализированным и содержать конкретные примеры!     
             """
             key = os.getenv('KIETEST')
-            if not key:
-                logger.error("API ключ key не настроен")
-                return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            client = OpenAI(
-                base_url="https://api.kie.ai/gemini-3-flash/v1/",
-                api_key=key
+            response = requests.post(
+                "https://api.kie.ai/gemini-2.5-flash/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {key}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "model": "gemini-2.5-flash",
+                    "stream": False,
+                    "messages": [
+                        {
+                            "role": "system",
+                            "content": system_prompt
+                        },
+                        {
+                            "role": "user",
+                            "content": prompt
+                        }
+                    ],
+                    "max_tokens": 10000
+                }
             )
-            response = client.chat.completions.create(
-                stream=False,
-                reasoning_effort="high",
-                model="gemini-3-flash",
-                max_tokens=10000,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": system_prompt
-                    },
-                    {
-                        "role": "user",
-                        "content": prompt
-                    }
-                ]
-            )
-            text_content = response.choices[0].message.content
-            if not isinstance(text_content, str):
-                text_content = str(text_content)
+            response.raise_for_status()
+            data = response.json()
+            logger.info(f"Ответ API: {data.get('choices', [{}])[0].get('message', {}).get('content', '')[:200]}...")
+            result = data.get('choices', [{}])[0].get('message', {}).get('content', '')
             return Response({
-                'course_book': text_content,
+                'course_book': result,
                 'course_topic': course_topic
             })
         except Exception as e:
@@ -560,7 +561,8 @@ class LegalDocumentAnalysisView(APIView):
                 api_key=key
             )
             completion = client.chat.completions.create(
-                model="gpt-5-nano",
+                model="alibaba/qwen3-vl-plus",
+                max_tokens=10000,
                 messages=[
                     {
                         "role": "system",
@@ -570,9 +572,7 @@ class LegalDocumentAnalysisView(APIView):
                         "role": "user", 
                         "content": prompt
                     }
-                ],
-                temperature=0.3,
-                max_tokens=10000
+                ]
             )
             text_content = completion.choices[0].message.content
             if not isinstance(text_content, str):
@@ -644,7 +644,8 @@ class FinancialAnalysisView(APIView):
                 api_key=key
             )
             completion = client.chat.completions.create(
-                model="gpt-5-nano",
+                model="alibaba/qwen3-vl-plus",
+                max_tokens=10000,
                 messages=[
                     {
                         "role": "system",
@@ -654,9 +655,7 @@ class FinancialAnalysisView(APIView):
                         "role": "user", 
                         "content": prompt
                     }
-                ],
-                temperature=0.3,
-                max_tokens=10000
+                ]
             )
             text_content = completion.choices[0].message.content
             if not isinstance(text_content, str):
@@ -681,6 +680,7 @@ class PhotoRestorationView(APIView):
         if 'image' not in request.FILES:
             return Response({'error': 'Изображение не предоставлено'}, status=status.HTTP_400_BAD_REQUEST)
         image_file = request.FILES['image']
+        image_url = request.data.get('image_url', '')
         image_data = image_file.read()
         base64_image = base64.b64encode(image_data).decode('utf-8')
         allowed_extensions = ['.jpg', '.jpeg', '.png', '.tiff', '.bmp']
@@ -690,9 +690,6 @@ class PhotoRestorationView(APIView):
         original_file_path = default_storage.save(f'tmp/original_{image_file.name}', ContentFile(image_data))
         original_url = default_storage.url(original_file_path)
         full_original_url = request.build_absolute_uri(original_url)
-        with default_storage.open(original_url, 'rb') as image_file:
-            image_data = image_file.read()
-            base64_image = base64.b64encode(image_data).decode('utf-8')
         system_prompt = """
             Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
             Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
@@ -709,53 +706,53 @@ class PhotoRestorationView(APIView):
             'photo_age': request.data.get('photo_age', 'неизвестно')
         }
         try:
-            key = os.getenv('KIE_AQWE_SLIDES')
+            key = os.getenv('KIETEST')
             if not key:
                 return Response({'error': 'API ключ key не настроен'}, status=500)
             
-            file_upload = requests.post(
-                url="https://kieai.redpandaai.co/api/file-stream-upload",
-                headers={
-                    "Authorization": f"Bearer {key}",
-                    "Content-Type": "application/json"
-                },
-                data={
-                    "uploadPath": "images/user-uploads",
-                    "fileName": "my-image.jpg"
-                },
-                files={ "image": (image_file, open(base64_image, "rb")) },
-                timeout=300
-            )
-            uploadedfile = file_upload.json()
+            #file_upload = requests.post(
+            #    url="https://kieai.redpandaai.co/api/file-stream-upload",
+            #    headers={
+            #        "Authorization": f"Bearer {key}",
+            #        "Content-Type": "application/json"
+            #    },
+            #    data={
+            #        "uploadPath": "images/user-uploads",
+            #        "fileName": "my-image.jpg"
+            #    },
+            #    files={ "image": (image_file, open(base64_image, "rb")) },
+            #    timeout=300
+            #)
+            #uploadedfile = file_upload.json()
 
-            filebase64 = requests.post(
-                url="https://kieai.redpandaai.co/api/file-base64-upload",
-                headers={
-                    "Authorization": f"Bearer {key}",
-                    "Content-Type": "application/json"
-                },
-                json={
-                    "base64Data": f"{base64_image}",
-                    "uploadPath": "documents/uploads"
-                },
-                timeout=300
-            )
-            codebase64 = filebase64.json()
+            #filebase64 = requests.post(
+            #    url="https://kieai.redpandaai.co/api/file-base64-upload",
+            #    headers={
+            #        "Authorization": f"Bearer {key}",
+            #        "Content-Type": "application/json"
+            #    },
+            #    json={
+            #        "base64Data": f"{base64_image}",
+            #        "uploadPath": "documents/uploads"
+            #    },
+            #    timeout=300
+            #)
+            #codebase64 = filebase64.json()
 
-            download_url = requests.post(
-                url="https://kieai.redpandaai.co/api/file-url-upload",
-                headers={
-                    "Authorization": f"Bearer {key}",
-                    "Content-Type": "application/json"
-                },
-                json={
-                    "fileUrl": "https://github.com/aqwe-dea/advice_project/blob/master/media/tmp/beautygirl.jpg?raw=true",
-                    "uploadPath": "images/downloaded"
-                },
-                timeout=300
-            )
-            download = download_url.json()
-            kie_hosted_url = download.get('data', {}).get('downloadUrl')
+            #download_url = requests.post(
+            #    url="https://kieai.redpandaai.co/api/file-url-upload",
+            #    headers={
+            #        "Authorization": f"Bearer {key}",
+            #        "Content-Type": "application/json"
+            #    },
+            #    json={
+            #        "fileUrl": "https://github.com/aqwe-dea/advice_project/blob/master/media/tmp/beautygirl.jpg?raw=true",
+            #        "uploadPath": "images/downloaded"
+            #    },
+            #    timeout=300
+            #)
+            #download = download_url.json()
+            #kie_hosted_url = download.get('data', {}).get('downloadUrl')
 
             response = requests.post(
                 url="https://api.kie.ai/api/v1/jobs/createTask",
@@ -766,14 +763,13 @@ class PhotoRestorationView(APIView):
                 json={
                     "model": "recraft/crisp-upscale",
                     "input": {
-                        "image": kie_hosted_url
+                        "image": image_url
                     }
-                },
-                timeout=300
+                }
             )
 
-            startwork = response.json()
-            taskid = startwork.get('data', {}).get('taskId')
+            data = response.json()
+            taskid = data.get('data', {}).get('taskId')
             check_url = "https://api.kie.ai/api/v1/jobs/recordInfo"
             result_url = poll_kie_task(taskid, key, check_url, max_duration=600)
             restored_url = None
@@ -783,12 +779,12 @@ class PhotoRestorationView(APIView):
                 logger.info(f"Реставрация успешна: {restored_url}")
             else:
                 logger.error("Не получен result_url от KIE")
-                restored_url = self.restoreimage(full_original_url)
+                restored_url = self.restoreimage(image_url)
             
             if restored_url:
                 imageurl = None
             else:
-                imageurl = self.restoreimage(full_original_url)   
+                imageurl = self.restoreimage(image_url)   
             restoration_report = self.create_restoration_report(
                 restored_url or original_url,
                 original_url,
@@ -802,12 +798,12 @@ class PhotoRestorationView(APIView):
                 'restoration_info': restoration_info,
                 'original_url': original_url,
                 'status': result_url,
-                'restoreimage': imageurl,
-                'startwork': startwork,
-                'uploadurl': download,
-                'uploadedfile': uploadedfile,
-                'filebase64': codebase64
+                'restoreimage': imageurl
             })
+            #    'startwork': startwork
+            #    'uploadurl': download,
+            #    'uploadedfile': uploadedfile,
+            #    'filebase64': codebase64
 
         except Exception as e:
             logger.error(f"Ошибка реставрации: {str(e)}", exc_info=True)
@@ -833,7 +829,7 @@ class PhotoRestorationView(APIView):
                 'long_term_care': 'Рекомендуется создать цифровую копию для архивации'
             }
         }
-    def restoreimage(self, full_original_url):
+    def restoreimage(self, image_url):
         """"Дополнительно восстанавливает изображение"""
         try:
             key = os.getenv('KIE_AQWE_SLIDES')
@@ -847,7 +843,7 @@ class PhotoRestorationView(APIView):
                 json={
                     "model": "qwen/image-edit",
                     "input": {
-                        "image_url": full_original_url,
+                        "image_url": image_url,
                         "acceleration": "none",
                         "image_size": "square_hd",
                         "num_inference_steps": 30,
@@ -1208,41 +1204,64 @@ class ThreeDToProjectView(APIView):
                 НЕ ПОВТОРЯЙТЕ разделы - каждый только один раз!
                 Ответ должен быть структурирован, профессионален и содержать конкретные рекомендации с примерами.
             """
-            key = os.getenv('ROUTEWAY_AQWE_SLIDES')
-            if not key:
-                logger.error("API ключ key не настроен")
-                return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            client = OpenAI(
-                base_url="https://api.routeway.ai/v1",
-                api_key=key
+    
+            key = os.getenv('KIETEST')
+            response = requests.post(
+                url="https://api.kie.ai/gemini-2.5-pro/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {key}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "model": "gemini-2.5-pro",
+                    "stream": False,
+                    "max_tokens": 10000,
+                    "messages": [
+                        {"role": "system", "content": system_prompt},
+                        {"role": "user", "content": prompt}
+                    ]
+                }
             )
-            response = client.chat.completions.create(
-                model="kimi-k2-0905:free",
-                messages=[
-                    {
-                        "role": "system",
-                        "content": system_prompt
-                    },
-                    {
-                        "role": "user",
-                        "content": prompt
-                    }
-                ],
-                temperature=0.3,
-                max_tokens=10000,
-                stream=False
-            )
-            text_content = response.choices[0].message.content
-            if not isinstance(text_content, str):
-                text_content = str(text_content)
+            
+            response.raise_for_status()
+            data = response.json()
+            #data = response.json().get('data', {})
+            #logger.info(f"Ответ API: {data.get('choices', [{}])[0].get('message', {}).get('content', '')[:200]}...")
+            logger.info(f"Полный ответ API: {data}")
+            result = data.get('choices', [{}])[0].get('message', {}).get('content', '')
+            #result = data.get('data', {}).get('content', [{}])
+            #key = os.getenv('AICCTEST')
+            #if not key:
+            #    logger.error("API ключ key не настроен")
+            #    return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+            #client = OpenAI(
+            #    base_url="https://api.ai.cc/v1",
+            #    api_key=key
+            #)
+            #completion = client.chat.completions.create(
+            #    model="alibaba/qwen3-vl-plus",
+            #    messages=[
+            #        {
+            #            "role": "system",
+            #            "content": system_prompt
+            #        },
+            #        {
+            #            "role": "user",
+            #            "content": prompt
+            #        }
+            #    ]
+            #)
+            #text_content = completion.choices[0].message.content
+            #if not isinstance(text_content, str):
+            #    text_content = str(text_content)
             create_image = self.create_image_model(
                 model_idea, 
                 model_type
             )
             return Response({
-                'modeling_plan': text_content,
+                'modeling_plan': result,
                 'check': response,
-                'create_plan': response,
+                'create_plan': data,
                 'model_idea': model_idea,
                 'model_type': model_type,
                 'software': software,
