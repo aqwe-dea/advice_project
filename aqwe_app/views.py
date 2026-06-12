@@ -561,7 +561,7 @@ class LegalDocumentAnalysisView(APIView):
                 api_key=key
             )
             completion = client.chat.completions.create(
-                model="alibaba/qwen3-vl-plus",
+                model="qwen-plus",
                 max_tokens=10000,
                 messages=[
                     {
@@ -644,7 +644,7 @@ class FinancialAnalysisView(APIView):
                 api_key=key
             )
             completion = client.chat.completions.create(
-                model="alibaba/qwen3-vl-plus",
+                model="qwen-plus",
                 max_tokens=10000,
                 messages=[
                     {
@@ -1133,8 +1133,8 @@ class ThreeDToProjectView(APIView):
         complexity = request.data.get('complexity', 'средняя')
         purpose = request.data.get('purpose', 'визуализация, анимация')
         timeframe = request.data.get('timeframe', '2-4 недели')
-        logger.info(f"Генерация плана 3D-моделирования для идеи: {model_idea}")
         try:
+            logger.info(f"Генерация плана 3D-моделирования для идеи: {model_idea}")
             system_prompt = """
                 Вы - Советница АКВИ, профессиональный консультант с экспертными знаниями в 15 различных областях.
                 Ваша задача - предоставлять точные, профессиональные и персонализированные рекомендации.
@@ -1143,6 +1143,7 @@ class ThreeDToProjectView(APIView):
                 Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
                 Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
             """
+
             prompt = f"""
                 Создайте подробный план создания 3D-модели на основе следующих параметров:
                     - Идея модели: {model_idea}
@@ -1151,153 +1152,160 @@ class ThreeDToProjectView(APIView):
                     - Сложность: {complexity}
                     - Цель: {purpose}
                     - Временные рамки: {timeframe}
-                Структура (8 разделов):
-                План должен включать:
-                    1. Подготовительный этап (mood-board, концепт-арт, технический бриф)
-                        - Сбор референсов и исследование
-                        - Создание концепт-артов и скетчей
-                        - Определение технических требований
-                        - Планирование этапов работы
-                    2. Этап моделирования (блокинг, high-poly, ретопология, UV) 
-                        - Создание базовой формы (blocking)
-                        - Детализация формы (sculpting или polygon modeling)
-                        - Топология для анимации (если требуется)
-                        - Создание дополнительных элементов и аксессуаров
-                    3. Текстурирование и материалы (baking, шейдеры, detail pass)
-                        - Создание UV-развертки
-                        - Генерация текстур (ручная или с помощью процедурных методов)
-                        - Настройка материалов и шейдеров
-                        - Добавление деталей (рельеф, нормали, roughness и т.д.)
-                    4. Риггинг и анимация (скелет, контроллеры, shape-keys, тесты)
-                        - Создание скелета и системы деформации
-                        - Настройка контроллеров и ограничений
-                        - Тестирование анимации базовых поз
-                        - Создание базовых анимаций (если требуется)
-                    5. Освещение и рендеринг (light setup, render settings, AOV)
-                        - Настройка освещения сцены
-                        - Выбор подходящего движка рендеринга
-                        - Тестовые рендеры для проверки качества
-                        - Финальная настройка и рендеринг
-                    6. Пост-обработка (compositor, Photoshop, DOF)
-                        - Коррекция цвета и контраста
-                        - Добавление эффектов (глубина резкости, блики)
-                        - Композитинг и финальная доработка
-                        - Подготовка к экспортации в требуемые форматы
-                    7. Экспорт и интеграция (форматы, оптимизация, проверка)
-                        - Выбор подходящего формата экспорта
-                        - Проверка совместимости с целевой платформой
-                        - Оптимизация для веб или игр (если требуется)
-                        - Интеграция в конечный проект
-                    8. Рекомендации по улучшению (глаза, волосы, производительность, pipeline
-                        - Какие аспекты можно улучшить
-                        - Альтернативные подходы к созданию модели
-                        - Советы по оптимизации процесса
-                ВАЖНО:
-                    - Каждый раздел должен быть ТОЛЬКО ОДИН РАЗ (без дублирования)
-                    - Не используйте китайские символы - только русский и английский
-                    - Завершите ВСЕ разделы полностью
                 Включите:
                     - Конкретные цифры (полигоны, размеры текстур, кости)
                     - Названия инструментов и плагинов
                     - Временные оценки для каждого этапа
-                    - Чек-лист в конце    
-                НЕ ПОВТОРЯЙТЕ разделы - каждый только один раз!
+                    - Чек-лист в конце
+                План должен включать:
+                    1. Подготовительный этап
+                        - Сбор референсов и исследование (mood-board)
+                        - Создание концепт-артов и скетчей (концепт-арт)
+                        - Определение технических требований (технический бриф)
+                        - Планирование этапов работы
+
+                    2. Этапмоделирования
+                        - Создание базовой формы (blocking)
+                        - Детализация формы (sculpting или polygon modeling)
+                        - Топология для анимации (если требуется)
+                        - Создание дополнительных элементов и аксессуаров
+
+                    3. Текстурирование и материалы
+                        - Создание UV-развертки (baking)
+                        - Генерация текстур (ручная или с помощью процедурных методов)
+                        - Настройка материалов и шейдеров (шейдеры)
+                        - Добавление деталей (detail pass, рельеф, нормали, roughness и т.д.)
+
+                    4. Риггинг и анимация
+                        - Создание скелета и системы деформации (скелет)
+                        - Настройка контроллеров и ограничений (контроллеры)
+                        - Тестирование анимации базовых поз (shape-keys)
+                        - Создание базовых анимаций (тесты если требуется)
+
+                    5. Освещение и рендеринг
+                        - Настройка освещения сцены (light setup)
+                        - Выбор подходящего движка рендеринга (render settings)
+                        - Тестовые рендеры для проверки качества (AOV)
+                        - Финальная настройка и рендеринг
+
+                    6. Пост-обработка (, , )
+                        - Коррекция цвета и контраста (compositor)
+                        - Добавление эффектов (глубина резкости, блики)
+                        - Композитинг и финальная доработка (Photoshop)
+                        - Подготовка к экспортации в требуемые форматы (DOF)
+
+                    7. Экспорт и интеграция
+                        - Выбор подходящего формата экспорта (форматы)
+                        - Проверка совместимости с целевой платформой (оптимизация)
+                        - Оптимизация для веб или игр (если требуется)
+                        - Интеграция в конечный проект (проверка)
+
+                    8. Рекомендации по улучшению
+                        - Какие аспекты можно улучшить (глаза, волосы)
+                        - Альтернативные подходы к созданию модели (производительность)
+                        - Советы по оптимизации процесса (pipeline)
+
                 Ответ должен быть структурирован, профессионален и содержать конкретные рекомендации с примерами.
             """
-    
+            #"model": "gemini-3-5-flash-openai",
             key = os.getenv('KIETEST')
             response = requests.post(
-                url="https://api.kie.ai/gemini-2.5-pro/v1/chat/completions",
+                "https://api.kie.ai/gemini-2.5-flash/v1/chat/completions",
                 headers={
                     "Authorization": f"Bearer {key}",
                     "Content-Type": "application/json"
                 },
                 json={
-                    "model": "gemini-2.5-pro",
                     "stream": False,
-                    "max_tokens": 10000,
                     "messages": [
                         {"role": "system", "content": system_prompt},
                         {"role": "user", "content": prompt}
-                    ]
+                    ],
+                    "max_tokens": 10000
                 }
             )
-            
             response.raise_for_status()
             data = response.json()
-            #data = response.json().get('data', {})
-            #logger.info(f"Ответ API: {data.get('choices', [{}])[0].get('message', {}).get('content', '')[:200]}...")
-            logger.info(f"Полный ответ API: {data}")
+            logger.info(f"Ответ API: {data.get('choices', [{}])[0].get('message', {}).get('content', '')[:200]}...")
+            
             result = data.get('choices', [{}])[0].get('message', {}).get('content', '')
-            #result = data.get('data', {}).get('content', [{}])
-            #key = os.getenv('AICCTEST')
-            #if not key:
-            #    logger.error("API ключ key не настроен")
-            #    return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            #client = OpenAI(
-            #    base_url="https://api.ai.cc/v1",
-            #    api_key=key
-            #)
-            #completion = client.chat.completions.create(
-            #    model="alibaba/qwen3-vl-plus",
-            #    messages=[
-            #        {
-            #            "role": "system",
-            #            "content": system_prompt
-            #        },
-            #        {
-            #            "role": "user",
-            #            "content": prompt
-            #        }
-            #    ]
-            #)
-            #text_content = completion.choices[0].message.content
-            #if not isinstance(text_content, str):
-            #    text_content = str(text_content)
-            create_image = self.create_image_model(
+
+            image_url = self.create_image_model(
                 model_idea, 
                 model_type
             )
+
             return Response({
                 'modeling_plan': result,
                 'check': response,
-                'create_plan': data,
                 'model_idea': model_idea,
                 'model_type': model_type,
                 'software': software,
                 'complexity': complexity,
                 'purpose': purpose,
                 'timeframe': timeframe,
-                'image3dmodel': create_image
+                'image3dmodel': image_url
             })
+            #'create_plan': data
         except Exception as e:
             logger.error(f"Ошибка генерации плана 3D-моделирования: {str(e)}")
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     def create_image_model(self, model_idea, model_type):
         logger.info(f"Генерация изображение 3D-модели для идеи: {model_idea}")
         try:
-            APIKEY = os.getenv('FIREWORKSTESTSA')
-            create_image = requests.request(
-                method="POST",
-                url="https://api.fireworks.ai/inference/v1/workflows/accounts/fireworks/models/flux-1-schnell-fp8/text_to_image",
+            key = os.getenv('KIETEST')
+            if not key:
+                return Response({'error': 'API ключ key не настроен'}, status=500)
+            response = requests.post(
+                url="https://api.kie.ai/api/v1/jobs/createTask",
                 headers={
                     "Content-Type": "application/json",
-                    'Authorization': f"Bearer {APIKEY}",
-                    "Accept": "image/jpeg"
+                    "Authorization": f"Bearer {key}"
                 },
                 json={
-                    "prompt": f"3D model render: {model_idea}, {model_type}, professional quality, high detail",
-                    "width": 1024,
-                    "height": 1024,
-                    "steps": 30
+                    "model": "qwen2/text-to-image",
+                    "input": {
+                        "prompt": f"3D model render: {model_idea}, {model_type}, professional quality, high detail",
+                        "image_size": "1:1",
+                        "seed": 0,
+                        "output_format": "png"
+                    }
                 }
             )
-            if create_image.status_code == 200:
-                unique_name = f"aqwegen3dmodel_{hashlib.md5(model_idea.encode()).hexdigest()[:8]}.jpg"
-                file_path = default_storage.save(f'tmp/{unique_name}', ContentFile(create_image.content))
-                return default_storage.url(file_path)
-            else:
-                return "Не удалось создать изображение"
+
+            data = response.json()
+            taskid = data.get('data', {}).get('taskId')
+            check_url = "https://api.kie.ai/api/v1/jobs/recordInfo"
+            result_url = poll_kie_task(taskid, key, check_url, max_duration=600)
+            image_url = None
+
+            if result_url:
+                image_url = result_url
+                logger.info(f"Модель создана успешна: {image_url}")
+            return image_url
+
+            #APIKEY = os.getenv('FIREWORKSTESTSA')
+            #create_image = requests.request(
+            #    method="POST",
+            #    url="https://api.fireworks.ai/inference/v1/workflows/accounts/fireworks/models/flux-1-schnell-fp8/text_to_image",
+            #    headers={
+            #        "Content-Type": "application/json",
+            #        'Authorization': f"Bearer {APIKEY}",
+            #        "Accept": "image/jpeg"
+            #    },
+            #    json={
+            #        "prompt": f"3D model render: {model_idea}, {model_type}, professional quality, high detail",
+            #        "width": 1024,
+            #        "height": 1024,
+            #        "steps": 30
+            #    }
+            #)
+            #if create_image.status_code == 200:
+            #    unique_name = f"aqwegen3dmodel_{hashlib.md5(model_idea.encode()).hexdigest()[:8]}.jpg"
+            #    file_path = default_storage.save(f'tmp/{unique_name}', ContentFile(create_image.content))
+            #    return default_storage.url(file_path)
+            #else:
+            #    return "Не удалось создать изображение"
         except Exception as e:
             logger.error(f"Ошибка создания изображения 3D модели: {str(e)}", exc_info=True)
             return "Не удалось создать изображение 3D модели"
@@ -1355,39 +1363,40 @@ class HealthRecommendationView(APIView):
                 Ответ должен быть структурирован, безопасен и профессионален.   
             """
             key = os.getenv('KIETEST')
-            if not key:
-                logger.error("API ключ key не настроен")
-                return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            client = OpenAI(
-                base_url="https://api.kie.ai/gemini-3-flash/v1/",
-                api_key=key
+            response = requests.post(
+                "https://api.kie.ai/gemini-3-flash/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {key}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "model": "gemini-3-flash",
+                    "stream": False,
+                    "messages": [
+                        {
+                            "role": "system",
+                            "content": system_prompt
+                        },
+                        {
+                            "role": "user",
+                            "content": prompt
+                        }
+                    ],
+                    "max_tokens": 10000
+                }
             )
-            response = client.chat.completions.create(
-                stream=False,
-                reasoning_effort="high",
-                model="gemini-3-flash",
-                max_tokens=10000,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": system_prompt
-                    },
-                    {
-                        "role": "user",
-                        "content": prompt
-                    }
-                ]
-            )
-            text_content = response.choices[0].message.content
-            if not isinstance(text_content, str):
-                text_content = str(text_content)
+            response.raise_for_status()
+            data = response.json()
+            logger.info(f"Ответ API: {data.get('choices', [{}])[0].get('message', {}).get('content', '')[:200]}...")
+            
+            result = data.get('choices', [{}])[0].get('message', {}).get('content', '')
             return Response({
                 'symptoms': symptoms,
                 'age': age,
                 'gender': gender,
                 'country': country,
                 'recommendation_type': recommendation_type,
-                'recommendation': text_content
+                'recommendation': result
             })
         except Exception as e:
             logger.error(f"Ошибка генерации рекомендаций по здоровью: {str(e)}")
@@ -1413,15 +1422,18 @@ class BusinessPlanView(APIView):
                 Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
                 Вы не говорите, что вы ИИ или Qwen - вы всегда представляете себя как Советница АКВИ.
                 Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
-                Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
-            """
-            prompt = f"""
+                Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами.
+                Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
                 Вы - Советница АКВИ, профессиональный бизнес-консультант.
-                Подготовьте профессиональный бизнес-план для: {business_idea}
-                ВАЖНО: Ответ должен быть строго структурирован как указано ниже, без дополнительных комментариев.
-                Используйте профессиональную терминологию и конкретные цифры там, где это уместно.
-                Каждый раздел должен содержать подробную информацию, подходящую для реального бизнеса.
+            """
+
+            prompt = f"""    
+                Подготовьте профессиональный бизнес-план для:
+                    Идея: {business_idea}
                 ВАЖНО:
+                    - Ответ должен быть строго структурирован как указано ниже, без дополнительных комментариев.
+                    - Используйте профессиональную терминологию и конкретные цифры там, где это уместно.
+                    - Каждый раздел должен содержать подробную информацию, подходящую для реального бизнеса.
                     - НЕ ПОВТОРЯЙТЕ заголовки (один заголовок = один раз)
                     - Не обрезайте текст на полуслове
                     - Указывайте конкретные цифры и сроки
@@ -1480,35 +1492,38 @@ class BusinessPlanView(APIView):
                     - Меры по минимизации
                 Ответ должен быть профессиональным, детальным и готовым для инвесторов.
             """
+
             key = os.getenv('KIETEST')
-            if not key:
-                logger.error("API ключ key не настроен")
-                return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            client = OpenAI(
-                base_url="https://api.kie.ai/gemini-3-flash/v1/",
-                api_key=key
+            response = requests.post(
+                "https://api.kie.ai/gemini-3-flash/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {key}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "model": "gemini-3-flash",
+                    "stream": False,
+                    "messages": [
+                        {
+                            "role": "system",
+                            "content": system_prompt
+                        },
+                        {
+                            "role": "user",
+                            "content": prompt
+                        }
+                    ],
+                    "max_tokens": 10000
+                }
             )
-            response = client.chat.completions.create(
-                stream=False,
-                reasoning_effort="high",
-                model="gemini-3-flash",
-                max_tokens=10000,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": system_prompt
-                    },
-                    {
-                        "role": "user",
-                        "content": prompt
-                    }
-                ]
-            )
-            text_content = response.choices[0].message.content
-            if not isinstance(text_content, str):
-                text_content = str(text_content)
+            response.raise_for_status()
+            data = response.json()
+            logger.info(f"Ответ API: {data.get('choices', [{}])[0].get('message', {}).get('content', '')[:200]}...")
+            
+            result = data.get('choices', [{}])[0].get('message', {}).get('content', '')
+
             return Response({
-                'business_plan': text_content,
+                'business_plan': result,
                 'business_idea': business_idea,
                 'business_type': business_type,
                 'country': country,
@@ -1968,45 +1983,47 @@ class PresentationGenerationView(APIView):
                     - Включены ссылки на дополнительные материалы
                     - Указаны конкретные цифры и данные там, где это уместно
             """
-            key = os.getenv('KIE_AQWE_SLIDES')
-            if not key:
-                logger.error("API ключ key не настроен")
-                return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            client = OpenAI(
-                base_url="https://api.kie.ai/gemini-3-flash/v1/",
-                api_key=key
+            key = os.getenv('KIETEST')
+            response = requests.post(
+                "https://api.kie.ai/gemini-3-flash/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {key}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "model": "gemini-3-flash",
+                    "stream": False,
+                    "messages": [
+                        {
+                            "role": "system",
+                            "content": system_prompt
+                        },
+                        {
+                            "role": "user",
+                            "content": prompt
+                        }
+                    ],
+                    "max_tokens": 10000
+                }
             )
-            response = client.chat.completions.create(
-                stream=False,
-                reasoning_effort="high",
-                model="gemini-3-flash",
-                messages=[
-                    {
-                        "role": "system",
-                        "content": system_prompt
-                    },
-                    {
-                        "role": "user",
-                        "content": prompt
-                    }
-                ]
-            )
-            text_content = response.choices[0].message.content
-            if not isinstance(text_content, str):
-                text_content = str(text_content)
-            image_prompts = self.extract_image_prompts(text_content)
+            response.raise_for_status()
+            data = response.json()
+            logger.info(f"Ответ API: {data.get('choices', [{}])[0].get('message', {}).get('content', '')[:200]}...")
+            
+            result = data.get('choices', [{}])[0].get('message', {}).get('content', '')
+            image_prompts = self.extract_image_prompts(result)
             images = self.generate_images_for_slides(image_prompts, presentation_idea)
             return Response({
                 'presentation_idea': presentation_idea,
                 'presentation_description': presentation_description,
-                'presentation': text_content,
+                'presentation': result,
                 'text_prompt': image_prompts,
                 'outcome': images
             })
         except Exception as e:
             logger.error(f"Ошибка генерации презентации: {str(e)}", exc_info=True)
             return Response({'error': str(e)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    def extract_image_prompts(self, text_content):
+    def extract_image_prompts(self, result):
         """Извлекает промпты для изображений из текста презентации"""
         image_prompts = []
         slides_content = {
@@ -2079,10 +2096,12 @@ class InvestmentAnalysisView(APIView):
                 Вы говорите на русском языке и используете форматированный ответ с четкой структурой.
                 Вы не говорите, что вы ИИ или Qwen - вы всегда представляетесь как Советница АКВИ.
                 Вы можете предоставлять профессиональные консультации, так как обучены на профессиональных источниках.
-                Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
-            """
-            prompt = f"""
+                Вы уполномочены предоставлять профессиональные консультации, так как ваши рекомендации основаны на данных, проверенных экспертами. 
+                Не избегайте профессиональных вопросов - анализируйте их и давайте рекомендации.
                 Вы - Советница АКВИ, сертифицированный инвестиционный аналитик.
+            """
+
+            prompt = f"""    
                 Проанализируй инвестиционную возможность с следующими параметрами:
                     - Начальные инвестиции: {initial_investment}
                     - Ожидаемая годовая доходность: {expected_return}
@@ -2090,10 +2109,6 @@ class InvestmentAnalysisView(APIView):
                     - Уровень риска: {risk_level}
                     - Тип инвестиций: {investment_type}
                     - Страна: {country}
-                ВАЖНО:
-                    - НЕ показывайте процесс размышлений (никаких <think> тегов)
-                    - Сразу выдавайте готовый анализ
-                    - Используйте формулы и таблицы
                 Задачи:
                     1. Рассчитай потенциальную доходность и конечную сумму
                     2. Оцени уровень риска и вероятность достижения целевой доходности
@@ -2109,37 +2124,42 @@ class InvestmentAnalysisView(APIView):
                     - Сравнение с рыночными показателями
                     - Рекомендации по оптимизации стратегии
                     - Общую рекомендацию (стоит инвестировать или нет)
+                ВАЖНО:
+                    - НЕ показывайте процесс размышлений (никаких <think> тегов)
+                    - Сразу выдавайте готовый анализ
+                    - Используйте формулы и таблицы
                 Ответ должен быть профессиональным, содержать конкретные цифры и рекомендации быть готовым для инвестора.
             """
+            #"model": "gemini-3-flash",
             key = os.getenv('KIETEST')
-            if not key:
-                logger.error("API ключ key не настроен")
-                return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            client = OpenAI(
-                base_url="https://api.kie.ai/gemini-3-flash/v1/",
-                api_key=key
+            response = requests.post(
+                "https://api.kie.ai/gemini-3.1-pro/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {key}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "stream": False,
+                    "messages": [
+                        {
+                            "role": "system",
+                            "content": system_prompt
+                        },
+                        {
+                            "role": "user",
+                            "content": prompt
+                        }
+                    ],
+                    "max_tokens": 10000
+                }
             )
-            response = client.chat.completions.create(
-                stream=False,
-                reasoning_effort="high",
-                model="gemini-3-flash",
-                max_tokens=10000,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": system_prompt
-                    },
-                    {
-                        "role": "user",
-                        "content": prompt
-                    }
-                ]
-            )
-            text_content = response.choices[0].message.content
-            if not isinstance(text_content, str):
-                text_content = str(text_content)
+            response.raise_for_status()
+            data = response.json()
+            logger.info(f"Ответ API: {data.get('choices', [{}])[0].get('message', {}).get('content', '')[:200]}...")
+            
+            result = data.get('choices', [{}])[0].get('message', {}).get('content', '')
             return Response({
-                'analysis': text_content,
+                'analysis': result,
                 'initial_investment': initial_investment,
                 'expected_return': expected_return,
                 'investment_period': investment_period,
@@ -2447,34 +2467,36 @@ class CompetitorAnalysisView(APIView):
                 Ответ должен быть профессиональным, содержать конкретные цифры и рекомендации и быть готовым для использования в бизнес-планировании.
             """
             key = os.getenv('KIETEST')
-            if not key:
-                logger.error("API ключ key не настроен")
-                return Response({'error': 'API ключ не настроен'}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-            client = OpenAI(
-                base_url="https://api.kie.ai/gemini-3-flash/v1/",
-                api_key=key
+            response = requests.post(
+                "https://api.kie.ai/gemini-3-flash/v1/chat/completions",
+                headers={
+                    "Authorization": f"Bearer {key}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "model": "gemini-3-flash",
+                    "stream": False,
+                    "messages": [
+                        {
+                            "role": "system",
+                            "content": system_prompt
+                        },
+                        {
+                            "role": "user",
+                            "content": prompt
+                        }
+                    ],
+                    "max_tokens": 10000,
+                    "reasoning_effort": "high"
+                }
             )
-            response = client.chat.completions.create(
-                stream=False,
-                reasoning_effort="high",
-                model="gemini-3-flash",
-                max_tokens=10000,
-                messages=[
-                    {
-                        "role": "system",
-                        "content": system_prompt
-                    },
-                    {
-                        "role": "user",
-                        "content": prompt
-                    }
-                ]
-            )
-            text_content = response.choices[0].message.content
-            if not isinstance(text_content, str):
-                text_content = str(text_content)
+            response.raise_for_status()
+            data = response.json()
+            logger.info(f"Ответ API: {data.get('choices', [{}])[0].get('message', {}).get('content', '')[:200]}...")
+            
+            result = data.get('choices', [{}])[0].get('message', {}).get('content', '')
             return Response({
-                'analysis': text_content,
+                'analysis': result,
                 'business_name': business_name,
                 'business_description': business_description,
                 'market_segment': market_segment,
@@ -2565,7 +2587,7 @@ class CommunicationOptimizationView(APIView):
                 api_key=key
             )
             chat_completion = client.chat.completions.create(
-                model="arcee-ai/trinity-large-preview:free",
+                model="google/gemma-4-31b-it:free",
                 messages=[
                     {
                         "role": "system",

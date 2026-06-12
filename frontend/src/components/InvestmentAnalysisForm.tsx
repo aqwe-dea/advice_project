@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import '../App.css';
 import axios from 'axios';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://advice-project.onrender.com';
+//const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://advice-project.onrender.com';
 
 function InvestmentAnalysisForm() {
     const [initialInvestment, setInitialInvestment] = useState<string>('');
