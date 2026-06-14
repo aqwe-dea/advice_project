@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import '../App.css';
 import ReactMarkdown from 'react-markdown'
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://advice-project.onrender.com';
+//const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://advice-project.onrender.com';
 //const MEDIA_URL = `${API_BASE_URL}/media/`;
 //${API_BASE_URL}
 
@@ -63,11 +63,13 @@ const PresentationForm = () => {
   };
   const getFullImageUrl = (relativeUrl: string | null) => {
     if (!relativeUrl) return null;
+
     if (relativeUrl.startsWith('http://') || relativeUrl.startsWith('https://')) {
       return relativeUrl;
     }
+    
     const cleanUrl = relativeUrl.replace(/^\/+/, '');
-    return `${API_BASE_URL}/${cleanUrl}`;
+    return `/${cleanUrl}`;
   };
   
   const handleImageLoad = (slideNumber: number) => {

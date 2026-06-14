@@ -2,8 +2,8 @@ import React, { useState } from 'react';
 import '../App.css';
 import ReactMarkdown from 'react-markdown';
 
-const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://advice-project.onrender.com';
-const MEDIA_URL = `${API_BASE_URL}/media/`;
+//const API_BASE_URL = process.env.REACT_APP_API_URL || 'https://advice-project.onrender.com';
+//const MEDIA_URL = `${API_BASE_URL}/media/`;
 //${API_BASE_URL}
 
 const ThreeDModelConverterForm = () => {
@@ -68,10 +68,13 @@ const ThreeDModelConverterForm = () => {
   };
   const getFullImageUrl = (relativeUrl: string | null) => {
     if (!relativeUrl) return null;
+
     if (relativeUrl.startsWith('http://') || relativeUrl.startsWith('https://')) {
       return relativeUrl;
     }
-    return `${MEDIA_URL}${relativeUrl.replace('/media/', '')}`;
+    
+    const cleanUrl = relativeUrl.replace(/^\/+/, '');
+    return `/${cleanUrl}`;
   };
   const extractSection = (text: string, startMarker: string, endMarker: string | null): string => {
     const startIndex = text.indexOf(startMarker);

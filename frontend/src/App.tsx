@@ -6,6 +6,7 @@ import logo from '../src/logo.svg';
 import './App.css';
 import Home from './components/Home';
 import About from './components/About';
+import BookCoExperience from './components/BookCoExperience';
 import PortfolioView from './components/PortfolioView';
 import Sovet from './components/Sovet';
 import DetailedAdviceForm from './components/DetailedAdviceForm';
@@ -324,6 +325,11 @@ function AppContent() {
               Наше портфолио
             </a>
           </li>
+          <li>
+            <a href="/book-co-experience" style={{color: '#f8f8f0', textDecoration: 'none'}}>
+              Книга о совместном опыте
+            </a>
+          </li>
         </ul>
       </nav>
       <Navbar />
@@ -338,6 +344,7 @@ function AppContent() {
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/about" element={<About />} />
+          <Route path="/book-co-experience" element={<BookCoExperience />} />
           <Route path="/portfolio" element={<PortfolioView />} />
           <Route path="/sovet" element={<Sovet />} />
           <Route path="/detailed-advice" element={<DetailedAdviceForm />} />
