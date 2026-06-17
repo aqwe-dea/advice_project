@@ -59,6 +59,9 @@ from .generators.liveimage_generator import LiveimageGenerator
 from .generators.character_generator import CharacterGenerator
 from .generators.instrumental_generator import InstrumentalGenerator
 from .generators.image_edit import ImageEdit
+from .agents.agent_gpt import AgentGpt
+from .agents.agent_cla import AgentCla
+from .agents.agent_gem import AgentGem
 
 logger = logging.getLogger(__name__)
 @method_decorator(csrf_exempt, name='dispatch')
@@ -2988,6 +2991,75 @@ class ImageEditView(APIView):
                 {'error': result.get('error', 'Неизвестная ошибка')},
                 status=status.HTTP_500_INTERNAL_SERVER_ERROR
             )
+
+class AgentGptView(APIView):
+    """Простой агент для взаимодействия с LLM API. Поддерживает: память контекста, инструменты, базовое планирование."""
+    
+    def post(self, request):
+        question = request.data.get('question', '')
+        if not question:
+            return Response({'error': 'Вопрос не предоставлен'}, status=400)
+        
+        # Инициализация агента (ключи из env)
+        agent = AgentGpt(
+            api_key=os.getenv('KIETEST')
+        )
+        
+        # Добавляем инструменты (по желанию)
+        agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
+        agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
+        agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
+        
+        # Получаем ответ
+        answer = agent.ask(question)
+        
+        return Response({'answer': answer})
+
+class AgentClaView(APIView):
+    """Простой агент для взаимодействия с LLM API. Поддерживает: память контекста, инструменты, базовое планирование."""
+    
+    def post(self, request):
+        question = request.data.get('question', '')
+        if not question:
+            return Response({'error': 'Вопрос не предоставлен'}, status=400)
+        
+        # Инициализация агента (ключи из env)
+        agent = AgentCla(
+            api_key=os.getenv('KIETEST')
+        )
+        
+        # Добавляем инструменты (по желанию)
+        agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
+        agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
+        agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
+        
+        # Получаем ответ
+        answer = agent.ask(question)
+        
+        return Response({'answer': answer})
+
+class AgentGemView(APIView):
+    """Простой агент для взаимодействия с LLM API. Поддерживает: память контекста, инструменты, базовое планирование."""
+    
+    def post(self, request):
+        question = request.data.get('question', '')
+        if not question:
+            return Response({'error': 'Вопрос не предоставлен'}, status=400)
+        
+        # Инициализация агента (ключи из env)
+        agent = AgentGem(
+            api_key=os.getenv('KIETEST')
+        )
+        
+        # Добавляем инструменты (по желанию)
+        agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
+        agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
+        agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
+        
+        # Получаем ответ
+        answer = agent.ask(question)
+        
+        return Response({'answer': answer})
 
 class AdviceViewSet(viewsets.ModelViewSet):
     queryset = Advice.objects.all()

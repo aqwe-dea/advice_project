@@ -42,6 +42,9 @@ from aqwe_app.views import CreateSessionView
 from aqwe_app.views import CreateCheckoutSessionView
 from aqwe_app.views import SessionStatusView
 from aqwe_app.views import HandleStripeWebhookView
+from aqwe_app.views import AgentGptView
+from aqwe_app.views import AgentClaView
+from aqwe_app.views import AgentGemView
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from drf_yasg.openapi import Swagger
@@ -89,6 +92,9 @@ urlpatterns = [
     path('generate-instrumental/', InstrumentalGeneratorView.as_view(), name='generate-instrumental'),
     path('image-edit/', ImageEditView.as_view(), name='image-edit'),
     path('smart-agent/', SmartAgentView.as_view(), name='smart-agent'),
+    path('agent-gpt/', AgentGptView.as_view(), name='agent-gpt'),
+    path('agent-cla/', AgentClaView.as_view(), name='agent-cla'),
+    path('agent-gem/', AgentGemView.as_view(), name='agent-gem'),
     path('stripe/', include('djstripe.urls', namespace='djstripe')),
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='docs'),

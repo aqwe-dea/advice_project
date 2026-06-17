@@ -38,6 +38,9 @@ from .views import CreateSessionView
 from .views import CreateCheckoutSessionView
 from .views import SessionStatusView
 from .views import HandleStripeWebhookView
+from .views import AgentGptView
+from .views import AgentClaView
+from .views import AgentGemView
 from django.views.static import serve
 from pathlib import Path
 
@@ -77,6 +80,9 @@ urlpatterns = [
     path('generate-instrumental/', InstrumentalGeneratorView.as_view(), name='generate-instrumental'),
     path('image-edit/', ImageEditView.as_view(), name='image-edit'),
     path('smart-agent/', SmartAgentView.as_view(), name='smart-agent'),
+    path('agent-gpt/', AgentGptView.as_view(), name='agent-gpt'),
+    path('agent-cla/', AgentClaView.as_view(), name='agent-cla'),
+    path('agent-gem/', AgentGemView.as_view(), name='agent-gem'),
     path('create-payment-intent/', CreatePaymentIntentView.as_view(), name='create-payment-intent'),
     path('create-session/', CreateSessionView.as_view(), name='create-session'),
     path('create-checkout-session/', CreateCheckoutSessionView.as_view(), name='create-checkout-session'),
