@@ -41,6 +41,12 @@ from .views import HandleStripeWebhookView
 from .views import AgentGptView
 from .views import AgentClaView
 from .views import AgentGemView
+from .views import TeacherAgentView
+from .views import IntegratorAgentView
+from .views import ToolManagerView
+from .views import DirectorAgentView
+from .views import ComposerAgentView
+from .views import InsiderAgentView
 from django.views.static import serve
 from pathlib import Path
 
@@ -83,6 +89,12 @@ urlpatterns = [
     path('agent-gpt/', AgentGptView.as_view(), name='agent-gpt'),
     path('agent-cla/', AgentClaView.as_view(), name='agent-cla'),
     path('agent-gem/', AgentGemView.as_view(), name='agent-gem'),
+    path('agent-teacher/', TeacherAgentView.as_view(), name='agent-teacher'),
+    path('agent-integrator/', IntegratorAgentView.as_view(), name='agent-integrator'),
+    path('agent-toolmanager/', ToolManagerView.as_view(), name='agent-toolmanager'),
+    path('agent-director/', DirectorAgentView.as_view(), name='agent-director'),
+    path('agent-composer/', ComposerAgentView.as_view(), name='agent-composer'),
+    path('agent-insider/', InsiderAgentView.as_view(), name='agent-insider'),
     path('create-payment-intent/', CreatePaymentIntentView.as_view(), name='create-payment-intent'),
     path('create-session/', CreateSessionView.as_view(), name='create-session'),
     path('create-checkout-session/', CreateCheckoutSessionView.as_view(), name='create-checkout-session'),

@@ -62,6 +62,13 @@ from .generators.image_edit import ImageEdit
 from .agents.agent_gpt import AgentGpt
 from .agents.agent_cla import AgentCla
 from .agents.agent_gem import AgentGem
+from .agents.teacher_agent import TeacherAgent
+from .agents.self_improve import SelfImproveLoop
+from .agents.integrator_agent import IntegratorAgent
+from .agents.tool_manager_agent import ToolManagerAgent
+from .agents.director_agent import DirectorAgent
+from .agents.composer_agent import ComposerAgent
+from .agents.insider_agent import InsiderAgent
 
 logger = logging.getLogger(__name__)
 @method_decorator(csrf_exempt, name='dispatch')
@@ -3059,6 +3066,105 @@ class AgentGemView(APIView):
         # Получаем ответ
         answer = agent.ask(question)
         
+        return Response({'answer': answer})
+
+class TeacherAgentView(APIView):
+    """Агент-учитель: отвечает на вопросы, выдаёт справочные материалы, адаптирует сложность"""
+    def post(self, request):
+        question = request.data.get('question', '')
+        if not question:
+            return Response({'error': 'Вопрос не предоставлен'}, status=400)
+
+        level = request.data.get('level', 'middle')
+        # Инициализация агента (ключи из env)
+        agent = TeacherAgent(
+            api_key=os.getenv('KIETEST')
+        )
+        
+        # Добавляем инструменты (по желанию)
+        agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
+        agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
+        agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
+        
+        # Получаем ответ
+        answer = agent.ask(
+            question=question, 
+            level=level  # ← Теперь переменная существует!
+        )
+        
+        return Response({'answer': answer})
+    
+    def test_teacher_agent(code: str) -> tuple[bool, str]:
+        """Тест: код должен содержать методы ask() и generate_study_card()"""
+        required_methods = ['def ask(', 'def generate_study_card(']
+        missing = [m for m in required_methods if m not in code]
+    
+        if not missing:
+            return True, "Все требуемые методы найдены"
+        return False, f"Отсутствуют: {', '.join(missing)}"
+
+        # Запуск цикла улучшения
+        loop = SelfImproveLoop(agent=teacher_agent, max_iterations=3)
+        result = loop.run(
+            test_function=test_teacher_agent,
+            initial_code=initial_teacher_code
+        )
+
+class IntegratorAgentView(APIView):
+    def post(self, request):
+        service = request.data.get('service', '')
+        requirements = request.data.get('requirements', '')
+        if not service:
+            return Response({'error': 'Укажите название сервиса'}, status=400)
+        
+        agent = IntegratorAgent(api_key=os.getenv('KIETEST'))
+        return Response({'answer': agent.ask(service, requirements)})
+
+class ToolManagerView(APIView):
+    def post(self, request):
+        tool_name = request.data.get('tool_name', '')
+        params = request.data.get('params', {})
+        if not tool_name:
+            return Response({'error': 'Укажите tool_name'}, status=400)
+        
+        agent = ToolManagerAgent(api_key=os.getenv('KIETEST'))
+        # Пример регистрации на лету (в проде вынесем в конфиг)
+        agent.register_tool('hello', lambda msg="Мир": f"Привет, {msg}!", {"msg": "string"})
+        
+        return Response({'answer': agent.ask(tool_name, params)})
+
+class DirectorAgentView(APIView):
+    def post(self, request):
+        topic = request.data.get('topic', '')
+        platform = request.data.get('platform', 'universal')
+        if not topic:
+            return Response({'error': 'Укажите тему для сценария'}, status=400)
+        
+        agent = DirectorAgent(api_key=os.getenv('KIETEST'))
+        answer = agent.ask(topic, platform)
+        return Response({'answer': answer})
+
+class ComposerAgentView(APIView):
+    def post(self, request):
+        mood = request.data.get('mood', 'meditative')
+        genre = request.data.get('genre', 'ambient+techno+dub')
+        
+        agent = ComposerAgent(api_key=os.getenv('KIETEST'))
+        answer = agent.ask(mood, genre)
+        return Response({'answer': answer})
+
+class InsiderAgentView(APIView):
+    def post(self, request):
+        subject = request.data.get('subject', '')
+        focus = request.data.get('focus', 'public_profile')
+        if not subject:
+            return Response({'error': 'Укажите объект исследования'}, status=400)
+        
+        agent = InsiderAgent(api_key=os.getenv('KIETEST'))
+        agent.add_tool('googleSearch', agent._googleSearch, 'Поиск в интернете')
+        agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Просмотр веб-страниц')
+        
+        answer = agent.ask(subject, focus)
         return Response({'answer': answer})
 
 class AdviceViewSet(viewsets.ModelViewSet):

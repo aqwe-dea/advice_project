@@ -45,6 +45,12 @@ from aqwe_app.views import HandleStripeWebhookView
 from aqwe_app.views import AgentGptView
 from aqwe_app.views import AgentClaView
 from aqwe_app.views import AgentGemView
+from aqwe_app.views import TeacherAgentView
+from aqwe_app.views import IntegratorAgentView
+from aqwe_app.views import ToolManagerView
+from aqwe_app.views import DirectorAgentView
+from aqwe_app.views import ComposerAgentView
+from aqwe_app.views import InsiderAgentView
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from drf_yasg.openapi import Swagger
@@ -95,6 +101,12 @@ urlpatterns = [
     path('agent-gpt/', AgentGptView.as_view(), name='agent-gpt'),
     path('agent-cla/', AgentClaView.as_view(), name='agent-cla'),
     path('agent-gem/', AgentGemView.as_view(), name='agent-gem'),
+    path('agent-teacher/', TeacherAgentView.as_view(), name='agent-teacher'),
+    path('agent-integrator/', IntegratorAgentView.as_view(), name='agent-integrator'),
+    path('agent-toolmanager/', ToolManagerView.as_view(), name='agent-toolmanager'),
+    path('agent-director/', DirectorAgentView.as_view(), name='agent-director'),
+    path('agent-composer/', ComposerAgentView.as_view(), name='agent-composer'),
+    path('agent-insider/', InsiderAgentView.as_view(), name='agent-insider'),
     path('stripe/', include('djstripe.urls', namespace='djstripe')),
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='docs'),

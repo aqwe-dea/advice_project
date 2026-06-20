@@ -88,34 +88,41 @@ class AgentGpt:
             )
             response.raise_for_status()
             data = response.json()
-            #data = response.json().get('data')
-            logger.info(f"Otvet api: {response} and data: {data}")
-            #logger.info(f"Ответ API: {data.get('choices', [{}])[0].get('message', {}).get('content', '')[:200]}...")
-            #text = data.get('choices', [{}])[0].get('message', {}).get('content')
 
-            choices = data.get('choices', [{}])[0]
-            text = choices.get('message', {}).get('content', '')
-            #text = data.get('choices', [{}])[0].get('message', {})
-            #text = data.get('choices', [{}])[0].get('message', {}).get('content')
-            #text = data.get('choices').get('message').get('content')
+            # Извлечение текста с поддержкой разных форматов
+            choices = data.get('choices', [{}])
+            if not choices:
+                logger.error("Нет choices в ответе API")
+                return "Ошибка: пустой ответ от API"
             
-            # Добавляем в контекст только успешные ответы
+            message = choices[0].get('message', {})
+            content = message.get('content')
+        
+            if isinstance(content, list):
+                text = '\n'.join(
+                    item.get('text', '') for item in content 
+                    if isinstance(item, dict) and item.get('text')
+                )
+            else:
+                text = content or ''
+        
+            if not text.strip():
+                logger.error(f"Пустой текст в ответе: {data}")
+                return "Ошибка: агент не сгенерировал ответ"
+        
+            # Обновление контекста
             self.context.append({"role": "user", "content": [{"type": "text", "text": prompt}]})
             self.context.append({"role": "assistant", "content": [{"type": "text", "text": text}]})
-            
-            if text:
-                logger.info(f"✅ text сгенерирован: {text}")
-
-            if not text:
-                logger.error(f"Не удалось извлечь text из ответа: {data}")
-                return {"success": False, "error": "Пустой ответ от API"} 
-            
+        
+            logger.info(f"✅ Ответ агента: {text[:200]}...")
             return text
-              
-            
+        
+        except requests.Timeout:
+            logger.error("Таймаут запроса к API")
+            return "Ошибка: таймаут соединения"
         except Exception as e:
             logger.error(f"Ошибка LLM: {str(e)}")
-            return f"Извините, произошла ошибка. Пожалуйста, попробуйте позже."
+            return f"Ошибка: {str(e)}"
     
     def ask(self, question: str) -> str:
         """Основной метод: задать вопрос агенту."""
