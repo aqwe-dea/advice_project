@@ -51,6 +51,9 @@ from aqwe_app.views import ToolManagerView
 from aqwe_app.views import DirectorAgentView
 from aqwe_app.views import ComposerAgentView
 from aqwe_app.views import InsiderAgentView
+from aqwe_app.views import MarketerAgentView
+from aqwe_app.views import InvestorAgentView
+from aqwe_app.views import FreelancerAgentView
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from drf_yasg.openapi import Swagger
@@ -107,6 +110,9 @@ urlpatterns = [
     path('agent-director/', DirectorAgentView.as_view(), name='agent-director'),
     path('agent-composer/', ComposerAgentView.as_view(), name='agent-composer'),
     path('agent-insider/', InsiderAgentView.as_view(), name='agent-insider'),
+    path('agent-marketer/', MarketerAgentView.as_view(), name='agent-marketer'),
+    path('agent-investor/', InvestorAgentView.as_view(), name='agent-investor'),
+    path('agent-freelancer/', FreelancerAgentView.as_view(), name='agent-freelancer'),
     path('stripe/', include('djstripe.urls', namespace='djstripe')),
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='docs'),

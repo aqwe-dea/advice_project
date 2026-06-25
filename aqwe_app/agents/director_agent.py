@@ -3,7 +3,7 @@ import json
 import requests
 import logging
 import re
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Any
 from bs4 import BeautifulSoup
 
 logger = logging.getLogger(__name__)
@@ -38,6 +38,12 @@ class DirectorAgent:
             {"role": "user", "parts": [{"text": self.SYSTEM_PROMPT.strip()}]}
         ]
         self.tools: Dict[str, Dict] = {}
+        self.video_generator = None  # ← Будет установлен при интеграции
+    
+    def set_video_generator(self, generator):
+        """Установить генератор видео для pipeline"""
+        self.video_generator = generator
+        logger.info("🎬 Video generator подключён к DirectorAgent")
     
     def add_tool(self, name: str, func: callable, description: str):
         self.tools[name] = {'func': func, 'description': description}
@@ -267,6 +273,85 @@ class DirectorAgent:
 
         return self._call_llm(prompt)
     
+    # === 🎬 НОВЫЙ МЕТОД: PIPELINE ГЕНЕРАЦИИ ВИДЕО ===
+    def generate_video_pipeline(self, topic: str, duration: int = 30, platform: str = "universal") -> Dict[str, Any]:
+        """
+            Полный pipeline: Идея → Сценарий → Промпт для видео → Генерация → Результат
+        
+            Returns:
+                dict с ключами:
+                    - success: bool
+                    - script: str (сценарий)
+                    - video_prompt: str (промpt для генератора)
+                    - video_url: str (если успешно)
+                    - error: str (если ошибка)
+        """
+        logger.info(f"🎬 Запуск video pipeline: topic={topic}, duration={duration}s")
+        
+        # 1. Создаём сценарий
+        script = self.generate_script(topic, duration)
+        if not script or "ошибка" in script.lower():
+            return {"success": False, "error": "Не удалось создать сценарий", "script": script}
+        
+        logger.info(f"✅ Сценарий создан: {len(script)} символов")
+        
+        # 2. Извлекаем промпт для видео из сценария
+        prompt_extraction = self._call_llm(f"""
+            Из этого сценария извлеки ТОЛЬКО промпт для генерации видео (без объяснений, без форматирования):
+
+            {script[:2000]}
+
+            Верни чистый промпт на английском для видео-API: описание визуала, стиля, настроения, длительности.
+        """.strip())
+        
+        if not prompt_extraction or len(prompt_extraction) < 20:
+            # Фолбэк: используем тему как промпт
+            video_prompt = f"Create a short video about: {topic}. Style: cinematic, engaging, vertical format, {duration} seconds."
+        else:
+            video_prompt = prompt_extraction.strip()
+        
+        logger.info(f"🎞️ Промпт для видео: {video_prompt[:150]}...")
+        
+        # 3. Генерируем видео (если генератор подключён)
+        if not self.video_generator:
+            return {
+                "success": True,
+                "script": script,
+                "video_prompt": video_prompt,
+                "video_url": None,
+                "warning": "Video generator not connected. Call set_video_generator() first."
+            }
+        
+        try:
+            video_result = self.video_generator.generate(prompt=video_prompt)
+            
+            if not video_result.get('success'):
+                return {
+                    "success": False,
+                    "error": video_result.get('error', 'Video generation failed'),
+                    "script": script,
+                    "video_prompt": video_prompt
+                }
+            
+            logger.info(f"✅ Видео сгенерировано: {video_result.get('video_url')}")
+            
+            return {
+                "success": True,
+                "script": script,
+                "video_prompt": video_prompt,
+                "video_url": video_result.get('video_url'),
+                "metadata": video_result.get('metadata', {})
+            }
+            
+        except Exception as e:
+            logger.error(f"Ошибка генерации видео: {str(e)}")
+            return {
+                "success": False,
+                "error": f"Video generation error: {str(e)}",
+                "script": script,
+                "video_prompt": video_prompt
+            }
+
     def clear_context(self):
         self.context = [{"role": "user", "parts": [{"text": self.SYSTEM_PROMPT.strip()}]}]
     

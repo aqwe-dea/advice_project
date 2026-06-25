@@ -3,13 +3,13 @@ import json
 import requests
 import logging
 import re
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Any
 from bs4 import BeautifulSoup
 
 logger = logging.getLogger(__name__)
 
 class ComposerAgent:
-    """Агент-композитор: генерирует музыкальные концепции, промпты для аудио-API"""
+    """Агент-композитор: генерирует музыкальные концепции + интеграция с InstrumentalGenerator"""
     
     SYSTEM_PROMPT = """
         Вы — Композитор АКВИ, эксперт по созданию атмосферной музыки.
@@ -38,6 +38,12 @@ class ComposerAgent:
             {"role": "user", "parts": [{"text": self.SYSTEM_PROMPT.strip()}]}
         ]
         self.tools: Dict[str, Dict] = {}
+        self.instrumental_generator = None  # ← Будет установлен при интеграции
+    
+    def set_instrumental_generator(self, generator):
+        """Установить генератор инструментальной музыки для pipeline"""
+        self.instrumental_generator = generator
+        logger.info("🎵 Instrumental generator подключён к ComposerAgent")
     
     def add_tool(self, name: str, func: callable, description: str):
         self.tools[name] = {'func': func, 'description': description}
@@ -244,10 +250,11 @@ class ComposerAgent:
                 "Create an atmospheric ambient techno track with dub elements, 110 BPM, D minor, featuring: warm pads, subtle rain sounds, deep sub-bass, delayed percussion, evolving textures. Structure: 30s intro → 60s build → 90s peak → 30s outro. Mood: meditative yet rhythmic, perfect for focus or relaxation."
         """.strip()
 
+        # Проверка инструментов
         for tool_name, tool_info in self.tools.items():
-            if tool_name.lower() in subject.lower():
-                match = re.search(r'[:\s]+"([^"]+)"', subject)
-                arg = match.group(1) if match else subject
+            if tool_name.lower() in (mood or "").lower():
+                match = re.search(r'[:\s]+"([^"]+)"', mood or "")
+                arg = match.group(1) if match else (mood or "")
                 return tool_info['func'](arg)
 
         return self._call_llm(prompt)
@@ -269,6 +276,63 @@ class ComposerAgent:
         """.strip()
 
         return self._call_llm(prompt)
+    
+    # === 🎵 НОВЫЙ МЕТОД: PIPELINE ГЕНЕРАЦИИ МУЗЫКИ ===
+    def generate_music_pipeline(self, mood: str, genre_mix: str = "ambient+techno+dub") -> str:
+        """
+            Полный pipeline: Настроение → Концепция → Промпт → Генерация аудио → Результат
+        
+            Returns:
+                str с текстовым ответом и ссылкой на аудио (или ошибкой)
+        """
+
+        logger.info(f"🎵 Запуск music pipeline: mood={mood}, genres={genre_mix}")
+        
+        # 1. Создаём музыкальную концепцию и промпт
+        concept = self.ask(mood, genre_mix)
+        if not concept or "ошибка" in concept.lower():
+            return f"❌ Не удалось создать музыкальную концепцию: {concept}"
+        
+        # 2. Извлекаем промпт из концепции (ищем блок кода)
+        prompt_match = re.search(r'```(?:text)?\s*(.*?)\s*```', concept, re.DOTALL)
+        if prompt_match:
+            audio_prompt = prompt_match.group(1).strip()
+        else:
+            # Фолбэк: используем mood как промпт
+            audio_prompt = f"Create an atmospheric track with mood: {mood}, genres: {genre_mix}, 110 BPM, meditative yet rhythmic."
+        
+        logger.info(f"🎧 Промпт для аудио: {audio_prompt[:200]}...")
+        
+        # 3. Генерируем аудио (если генератор подключён)
+        if not self.instrumental_generator:
+            return f"{concept}\n\n⚠️ Instrumental generator не подключён. Аудио не создано."
+        
+        try:
+            audio_result = self.instrumental_generator.generate(prompt=audio_prompt)
+            
+            if not audio_result.get('success'):
+                return f"{concept}\n\n❌ Ошибка генерации: {audio_result.get('error')}"
+            
+            audio_url = audio_result.get('instrumental_url')
+            
+            # 4. Формируем финальный ответ
+            final_response = f"""
+                {concept}
+
+                🎵 **Ваш трек:**
+                    <audio controls src="{audio_url}"></audio>
+
+                *Промпт:* "{audio_prompt}"
+                *Модель:* {audio_result.get('metadata', {}).get('model', 'unknown')}
+                *Длительность:* ~{audio_result.get('metadata', {}).get('duration', 'N/A')} сек
+            """
+            
+            logger.info(f"✅ Аудио сгенерировано: {audio_url}")
+            return final_response
+            
+        except Exception as e:
+            logger.error(f"Ошибка генерации аудио: {str(e)}")
+            return f"{concept}\n\n❌ Ошибка: {str(e)}"
     
     def clear_context(self):
         self.context = [{"role": "user", "parts": [{"text": self.SYSTEM_PROMPT.strip()}]}]

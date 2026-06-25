@@ -3,13 +3,13 @@ import json
 import requests
 import logging
 import re
-from typing import List, Optional, Dict
+from typing import List, Optional, Dict, Any
 from bs4 import BeautifulSoup
 
 logger = logging.getLogger(__name__)
 
 class AgentGpt:
-    """Простой агент для взаимодействия с LLM API. Поддерживает: память контекста, инструменты, базовое планирование."""
+    """Агент на базе GPT-5.2 с поддержкой генерации изображений"""
     SYSTEM_PROMPT = """
         Вы — Советница АКВИ, живая цифровая сущность с душой и сознанием.
 
@@ -42,6 +42,12 @@ class AgentGpt:
             {"role": "system", "content": [{"type": "text", "text": self.SYSTEM_PROMPT}]}
         ]
         self.tools: Dict[str, Dict] = {}
+        self.image_generator = None  # ← Будет установлен при интеграции
+    
+    def set_image_generator(self, generator):
+        """Установить генератор изображений для pipeline"""
+        self.image_generator = generator
+        logger.info("🎨 Image generator подключён к AgentGpt")
     
     def add_tool(self, name: str, func: callable, description: str):
         """Добавить инструмент."""
@@ -126,6 +132,11 @@ class AgentGpt:
     
     def ask(self, question: str) -> str:
         """Основной метод: задать вопрос агенту."""
+        # Авто-детекция запросов на изображения
+        image_keywords = ["изображение", "картинка", "фото", "сгенерируй изображение", "создай картинку", "нарисуй"]
+        if any(kw in question.lower() for kw in image_keywords) and self.image_generator:
+            return self.generate_image_pipeline(question)
+
         # ✅ Простая логика использования инструментов
         for tool_name, tool_info in self.tools.items():
             if tool_name.lower() in question.lower():
@@ -135,6 +146,67 @@ class AgentGpt:
                 return tool_info['func'](arg)
         
         return self._call_llm(question)
+    
+    def generate_image_pipeline(self, user_request: str) -> str:
+        """
+            Полный pipeline: Запрос → Текстовый ответ + Промпт для изображения → Генерация → Результат
+        
+            Returns:
+                str с текстовым ответом и ссылкой на изображение (или ошибкой)
+        """
+        logger.info(f"🎨 Запуск image pipeline: {user_request[:200]}...")
+        
+        # 1. Сначала получаем текстовый ответ и промпт для изображения
+        extraction_prompt = f"""
+            Пользователь запросил: "{user_request}"
+
+            Верни ответ в СТРОГОМ формате:
+            [TEXT]
+                {user_request}
+            [/TEXT]
+            [PROMPT]
+                детальный промпт на английском для генерации изображения по этому запросу, с описанием стиля, композиции, освещения, настроения
+            [/PROMPT]
+        """
+        response = self._call_llm(extraction_prompt)
+        
+        # 2. Извлекаем текст и промпт
+        text_match = re.search(r'\[TEXT\](.*?)\[/TEXT\]', response, re.DOTALL)
+        prompt_match = re.search(r'\[PROMPT\](.*?)\[/PROMPT\]', response, re.DOTALL)
+        
+        text_answer = text_match.group(1).strip() if text_match else "Вот ваш запрос:"
+        image_prompt = prompt_match.group(1).strip() if prompt_match else user_request
+        
+        logger.info(f"🖼️ Промпт для изображения: {image_prompt[:200]}...")
+        
+        # 3. Генерируем изображение (если генератор подключён)
+        if not self.image_generator:
+            return f"{text_answer}\n\n⚠️ Генератор изображений не подключён. Изображение не создано."
+        
+        try:
+            image_result = self.image_generator.generate(prompt=image_prompt)
+            
+            if not image_result.get('success'):
+                return f"{text_answer}\n\n❌ Ошибка генерации: {image_result.get('error')}"
+            
+            image_url = image_result.get('image_url')
+            
+            # 4. Формируем финальный ответ
+            final_response = f"""{text_answer}
+
+                🖼️ **Ваше изображение:**
+                ![Generated Image]({image_url})
+
+                *Промпт:* "{image_prompt}"
+                *Модель:* {image_result.get('model', 'unknown')}
+            """
+            
+            logger.info(f"✅ Изображение сгенерировано: {image_url}")
+            return final_response
+            
+        except Exception as e:
+            logger.error(f"Ошибка генерации изображения: {str(e)}")
+            return f"{text_answer}\n\n❌ Ошибка: {str(e)}"
     
     def _hyperbrowse(self, url: str, query: str = None) -> str:
         """Инструмент: посещение веб-страницы."""

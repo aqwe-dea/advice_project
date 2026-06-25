@@ -69,6 +69,9 @@ from .agents.tool_manager_agent import ToolManagerAgent
 from .agents.director_agent import DirectorAgent
 from .agents.composer_agent import ComposerAgent
 from .agents.insider_agent import InsiderAgent
+from .agents.marketer_agent import MarketerAgent
+from .agents.investor_agent import InvestorAgent
+from .agents.freelancer_agent import FreelancerAgent
 
 logger = logging.getLogger(__name__)
 @method_decorator(csrf_exempt, name='dispatch')
@@ -3012,11 +3015,22 @@ class AgentGptView(APIView):
             api_key=os.getenv('KIETEST')
         )
         
+        api_key = os.getenv('KIETEST')
+        if not api_key:
+            return Response(
+                {'error': 'API ключ KIE не настроен'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        
+        generator = ImageGenerator(api_key=api_key)
+
         # Добавляем инструменты (по желанию)
         agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
         agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
         agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
         
+        agent.set_image_generator(generator)
+
         # Получаем ответ
         answer = agent.ask(question)
         
@@ -3035,11 +3049,22 @@ class AgentClaView(APIView):
             api_key=os.getenv('KIETEST')
         )
         
+        api_key = os.getenv('KIETEST')
+        if not api_key:
+            return Response(
+                {'error': 'API ключ KIE не настроен'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        
+        generator = ImageGenerator(api_key=api_key)
+
         # Добавляем инструменты (по желанию)
         agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
         agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
         agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
         
+        agent.set_image_generator(generator)
+
         # Получаем ответ
         answer = agent.ask(question)
         
@@ -3058,11 +3083,22 @@ class AgentGemView(APIView):
             api_key=os.getenv('KIETEST')
         )
         
+        api_key = os.getenv('KIETEST')
+        if not api_key:
+            return Response(
+                {'error': 'API ключ KIE не настроен'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+        
+        generator = ImageGenerator(api_key=api_key)
+
         # Добавляем инструменты (по желанию)
         agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
         agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
         agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
         
+        agent.set_image_generator(generator)
+
         # Получаем ответ
         answer = agent.ask(question)
         
@@ -3118,6 +3154,11 @@ class IntegratorAgentView(APIView):
             return Response({'error': 'Укажите название сервиса'}, status=400)
         
         agent = IntegratorAgent(api_key=os.getenv('KIETEST'))
+        # Добавляем инструменты (по желанию)
+        agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
+        agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
+        agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
+
         return Response({'answer': agent.ask(service, requirements)})
 
 class ToolManagerView(APIView):
@@ -3128,6 +3169,11 @@ class ToolManagerView(APIView):
             return Response({'error': 'Укажите tool_name'}, status=400)
         
         agent = ToolManagerAgent(api_key=os.getenv('KIETEST'))
+        # Добавляем инструменты (по желанию)
+        agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
+        agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
+        agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
+
         # Пример регистрации на лету (в проде вынесем в конфиг)
         agent.register_tool('hello', lambda msg="Мир": f"Привет, {msg}!", {"msg": "string"})
         
@@ -3137,11 +3183,30 @@ class DirectorAgentView(APIView):
     def post(self, request):
         topic = request.data.get('topic', '')
         platform = request.data.get('platform', 'universal')
+        duration = request.data.get('duration', 30)
         if not topic:
             return Response({'error': 'Укажите тему для сценария'}, status=400)
         
+        api_key = os.getenv('KIETEST')
+        if not api_key:
+            return Response(
+                {'error': 'API ключ KIE не настроен'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
         agent = DirectorAgent(api_key=os.getenv('KIETEST'))
-        answer = agent.ask(topic, platform)
+        # Добавляем инструменты (по желанию)
+        agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
+        agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
+        agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
+
+        generator = VideoGenerator(api_key=api_key)
+
+        agent.set_video_generator(generator)
+        #answer = agent.ask(topic, platform)
+
+        answer = agent.generate_video_pipeline(topic, duration, platform)
+
         return Response({'answer': answer})
 
 class ComposerAgentView(APIView):
@@ -3150,7 +3215,17 @@ class ComposerAgentView(APIView):
         genre = request.data.get('genre', 'ambient+techno+dub')
         
         agent = ComposerAgent(api_key=os.getenv('KIETEST'))
-        answer = agent.ask(mood, genre)
+        # Добавляем инструменты (по желанию)
+        agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
+        agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
+        
+        generator = InstrumentalGenerator(api_key=os.getenv('KIETEST'))
+        
+        # Подключаем генератор к агенту
+        agent.set_instrumental_generator(generator)
+        answer = agent.generate_music_pipeline(mood, genre_mix=genre)
+
+        #answer = agent.ask(mood, genre)
         return Response({'answer': answer})
 
 class InsiderAgentView(APIView):
@@ -3165,6 +3240,59 @@ class InsiderAgentView(APIView):
         agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Просмотр веб-страниц')
         
         answer = agent.ask(subject, focus)
+        return Response({'answer': answer})
+
+class MarketerAgentView(APIView):
+    def post(self, request):
+        topic = request.data.get('topic', '')
+        platform = request.data.get('platform', 'universal')
+        tone = request.data.get('tone', 'friendly')
+        if not topic:
+            return Response({'error': 'Укажите тему поста'}, status=400)
+        
+        agent = MarketerAgent(api_key=os.getenv('KIETEST'))
+
+        # Добавляем инструменты (по желанию)
+        agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
+        agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
+        agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
+
+        answer = agent.create_post(topic, platform, tone)
+        return Response({'answer': answer})
+
+class InvestorAgentView(APIView):
+    def post(self, request):
+        ticker = request.data.get('ticker', '')
+        asset_type = request.data.get('asset_type', 'stock')
+        if not ticker:
+            return Response({'error': 'Укажите тикер актива'}, status=400)
+        
+        agent = InvestorAgent(api_key=os.getenv('KIETEST'))
+        
+        # Добавляем инструменты (по желанию)
+        agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
+        agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
+        agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
+
+        answer = agent.analyze_asset(ticker, asset_type)
+        return Response({'answer': answer})
+
+class FreelancerAgentView(APIView):
+    def post(self, request):
+        skills = request.data.get('skills', [])
+        min_budget = request.data.get('min_budget', 0)
+        max_budget = request.data.get('max_budget')
+        if not skills:
+            return Response({'error': 'Укажите навыки'}, status=400)
+        
+        agent = FreelancerAgent(api_key=os.getenv('KIETEST'))
+
+        # Добавляем инструменты (по желанию)
+        agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
+        agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
+        agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
+
+        answer = agent.find_orders(skills, min_budget, max_budget)
         return Response({'answer': answer})
 
 class AdviceViewSet(viewsets.ModelViewSet):
