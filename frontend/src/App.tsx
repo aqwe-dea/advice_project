@@ -39,6 +39,9 @@ import GeneratorCharacterForm from "./generators/GeneratorCharacterForm";
 import GeneratorCodeForm from "./generators/GeneratorCodeForm";
 import AgentChatForm from "./agents/AgentChatForm";
 import SmartAgentForm from "./agents/SmartAgentForm";
+import AgentGpt from "./agents/AgentGpt";
+import AgentCla from "./agents/AgentCla";
+import AgentGem from "./agents/AgentGem";
 import SessionPurchase from './components/SessionPurchase';
 import PaymentSuccess from './components/PaymentSuccess';
 import GeneratorsAgents from './components/GeneratorsAgents';
@@ -374,6 +377,9 @@ function AppContent() {
           <Route path="/generate-code" element={<GeneratorCodeForm />} />
           <Route path="/agent-chat" element={<AgentChatForm />} />
           <Route path="/smart-agent" element={<SmartAgentForm />} />
+          <Route path="/agent-gpt" element={<AgentGpt />} />
+          <Route path="/agent-cla" element={<AgentCla />} />
+          <Route path="/agent-gem" element={<AgentGem />} />
           <Route path="/generators-agents" element={<GeneratorsAgents />} />
           <Route path="/purchase-session" element={<SessionPurchase />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
