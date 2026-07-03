@@ -42,6 +42,15 @@ import SmartAgentForm from "./agents/SmartAgentForm";
 import AgentGpt from "./agents/AgentGpt";
 import AgentCla from "./agents/AgentCla";
 import AgentGem from "./agents/AgentGem";
+import AgentTeacher from "./agents/AgentTeacher";
+import AgentIntegrator from "./agents/AgentIntegrator";
+import AgentToolManager from "./agents/AgentToolManager";
+import AgentDirector from "./agents/AgentDirector";
+import AgentComposer from "./agents/AgentComposer";
+import AgentInsider from "./agents/AgentInsider";
+import AgentMarketer from "./agents/AgentMarketer";
+import AgentInvestor from "./agents/AgentInvestor";
+import AgentFreelancer from "./agents/AgentFreelancer";
 import SessionPurchase from './components/SessionPurchase';
 import PaymentSuccess from './components/PaymentSuccess';
 import GeneratorsAgents from './components/GeneratorsAgents';
@@ -380,6 +389,15 @@ function AppContent() {
           <Route path="/agent-gpt" element={<AgentGpt />} />
           <Route path="/agent-cla" element={<AgentCla />} />
           <Route path="/agent-gem" element={<AgentGem />} />
+          <Route path="/agent-teacher" element={<AgentTeacher />} />
+          <Route path="/agent-integrator" element={<AgentIntegrator />} />
+          <Route path="/agent-toolmanager" element={<AgentToolManager />} />
+          <Route path="/agent-director" element={<AgentDirector />} />
+          <Route path="/agent-composer" element={<AgentComposer />} />
+          <Route path="/agent-insider" element={<AgentInsider />} />
+          <Route path="/agent-marketer" element={<AgentMarketer />} />
+          <Route path="/agent-investor" element={<AgentInvestor />} />
+          <Route path="/agent-freelancer" element={<AgentFreelancer />} />
           <Route path="/generators-agents" element={<GeneratorsAgents />} />
           <Route path="/purchase-session" element={<SessionPurchase />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />

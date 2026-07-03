@@ -45,6 +45,9 @@ class ToolManagerAgent:
         self.tools[name] = {'func': func, 'schema': schema, 'calls': 0}
         logger.info(f"🔧 Зарегистрирован инструмент: {name}")
     
+    def add_tool(self, name: str, func: callable, description: str):
+        self.tools[name] = {'func': func, 'description': description}
+    
     def _call_llm(self, prompt: str, temperature: float = 0.3) -> str:
         messages = self.context.copy()
         messages.append({"role": "user", "content": [{"type": "text", "text": prompt}]})

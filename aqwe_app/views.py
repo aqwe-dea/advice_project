@@ -3168,11 +3168,18 @@ class ToolManagerView(APIView):
         if not tool_name:
             return Response({'error': 'Укажите tool_name'}, status=400)
         
+        url = request.data.get('url', '')
+        query = request.data.get('query', '')
+        expression = request.data.get('expression', '')
+
         agent = ToolManagerAgent(api_key=os.getenv('KIETEST'))
         # Добавляем инструменты (по желанию)
         agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
         agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
         agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
+        #agent.register_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
+        #agent.register_tool('calculate', agent._calculate, 'Математические вычисления')
+        #agent.register_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
 
         # Пример регистрации на лету (в проде вынесем в конфиг)
         agent.register_tool('hello', lambda msg="Мир": f"Привет, {msg}!", {"msg": "string"})

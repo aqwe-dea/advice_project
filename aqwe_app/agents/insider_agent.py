@@ -297,4 +297,4 @@ class InsiderAgent:
             return f"[Hyperbrowse Error] {str(e)}"
     
     def _googleSearch(self, query: str) -> str:
-        return f"[googleSearch] Результаты по запросу '{query}': пример ответа."
+        return f"[googleSearch] Результаты по запросу {query}"

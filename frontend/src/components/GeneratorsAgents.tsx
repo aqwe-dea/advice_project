@@ -216,6 +216,51 @@ function GeneratorsAgents() {
                 исследования вопроса как делать интересный контент и продавать его.
                 </a>
               </li>
+              <li>
+                <a href="/agent-teacher" style={{color: '#f8f8f0', textDecoration: 'none'}}>
+                Агент-учитель: отвечает на вопросы, выдаёт справочные материалы, адаптирует сложность
+                </a>
+              </li>
+              <li>
+                <a href="/agent-integrator" style={{color: '#f8f8f0', textDecoration: 'none'}}>
+                Агент-интегратор: генерирует код обёрток для API, сервисов, вебхуков
+                </a>
+              </li>
+              <li>
+                <a href="/agent-toolmanager" style={{color: '#f8f8f0', textDecoration: 'none'}}>
+                Агент-техник: управляет реестром инструментов, динамически вызывает функции, логирует выполнения
+                </a>
+              </li>
+              <li>
+                <a href="/agent-director" style={{color: '#f8f8f0', textDecoration: 'none'}}>
+                Агент-режиссёр: создаёт сценарии, концепции видео, тренд-анализ
+                </a>
+              </li>
+              <li>
+                <a href="/agent-composer" style={{color: '#f8f8f0', textDecoration: 'none'}}>
+                Агент-композитор: генерирует музыкальные концепции + интеграция с InstrumentalGenerator
+                </a>
+              </li>
+              <li>
+                <a href="/agent-insider" style={{color: '#f8f8f0', textDecoration: 'none'}}>
+                Агент-инсайдер: агрегация открытых данных, OSINT, структурирование информации
+                </a>
+              </li>
+              <li>
+                <a href="/agent-marketer" style={{color: '#f8f8f0', textDecoration: 'none'}}>
+                Агент-маркетолог: авто-постинг, A/B тесты, аналитика вовлечения
+                </a>
+              </li>
+              <li>
+                <a href="/agent-investor" style={{color: '#f8f8f0', textDecoration: 'none'}}>
+                Агент-инвестор: скоринг активов, анализ рисков, рекомендации
+                </a>
+              </li>
+              <li>
+                <a href="/agent-freelancer" style={{color: '#f8f8f0', textDecoration: 'none'}}>
+                Агент-фрилансер: поиск заказов, авто-отклики, управление задачами
+                </a>
+              </li>
             </p>
           </div>
         </div>
