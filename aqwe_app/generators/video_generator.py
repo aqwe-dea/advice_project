@@ -34,9 +34,9 @@ class VideoGenerator(BaseGenerator):
         
         input_data = {
             "prompt": prompt.strip(),
-            "aspect_ratio": "2:3",
+            "aspect_ratio": "1:1",
             "mode": "normal",
-            "duration": "6",
+            "duration": "30",
             "resolution": kwargs.get('resolution', '480p')
         }
 

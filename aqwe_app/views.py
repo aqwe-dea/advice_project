@@ -3163,28 +3163,32 @@ class IntegratorAgentView(APIView):
 
 class ToolManagerView(APIView):
     def post(self, request):
+        question = request.data.get('question', '')
         tool_name = request.data.get('tool_name', '')
         params = request.data.get('params', {})
-        if not tool_name:
-            return Response({'error': 'Укажите tool_name'}, status=400)
-        
+        # if not tool_name:
+        #    return Response({'error': 'Укажите tool_name'}, status=400)
         url = request.data.get('url', '')
         query = request.data.get('query', '')
-        expression = request.data.get('expression', '')
 
         agent = ToolManagerAgent(api_key=os.getenv('KIETEST'))
+        
         # Добавляем инструменты (по желанию)
-        agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
-        agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
-        agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
-        #agent.register_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
+        agent.add_tool('googleSearch', agent._googleSearch(query), 'Поиск информации в интернете')
+        #agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
+        agent.add_tool('hyperbrowse', agent._hyperbrowse(url), 'Посещение веб-страниц')
+        #agent.register_tool('hyperbrowse', agent._hyperbrowse(url), 'Посещение веб-страниц')
         #agent.register_tool('calculate', agent._calculate, 'Математические вычисления')
-        #agent.register_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
+        #agent.register_tool('googleSearch', agent._googleSearch(query), 'Поиск информации в интернете')
 
         # Пример регистрации на лету (в проде вынесем в конфиг)
-        agent.register_tool('hello', lambda msg="Мир": f"Привет, {msg}!", {"msg": "string"})
-        
-        return Response({'answer': agent.ask(tool_name, params)})
+        # agent.register_tool('hello', lambda msg="Мир": f"Привет, {msg}!", {"msg": "string"})
+        # tool = agent.call_tool_direct(tool_name, params)
+        answer = agent.ask(question)
+
+        return Response({
+            'answer': answer
+        })
 
 class DirectorAgentView(APIView):
     def post(self, request):
@@ -3239,15 +3243,24 @@ class InsiderAgentView(APIView):
     def post(self, request):
         subject = request.data.get('subject', '')
         focus = request.data.get('focus', 'public_profile')
+        output_format = request.data.get('output_format', 'markdown')
         if not subject:
             return Response({'error': 'Укажите объект исследования'}, status=400)
-        
+        url = request.data.get('url', '')
+        query = request.data.get('query', '')
+
         agent = InsiderAgent(api_key=os.getenv('KIETEST'))
         agent.add_tool('googleSearch', agent._googleSearch, 'Поиск в интернете')
         agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Просмотр веб-страниц')
         
-        answer = agent.ask(subject, focus)
-        return Response({'answer': answer})
+        # answer = agent.ask(subject, focus)
+        search = agent.ask(subject, focus)
+        answer = agent.generate_report(subject, output_format)
+
+        return Response({
+            'search': search,
+            'answer': answer
+        })
 
 class MarketerAgentView(APIView):
     def post(self, request):
@@ -3289,18 +3302,29 @@ class FreelancerAgentView(APIView):
         skills = request.data.get('skills', [])
         min_budget = request.data.get('min_budget', 0)
         max_budget = request.data.get('max_budget')
+        question = request.data.get('question', '')
         if not skills:
             return Response({'error': 'Укажите навыки'}, status=400)
-        
+
+        url = request.data.get('url')
+        query = request.data.get('query')
+
         agent = FreelancerAgent(api_key=os.getenv('KIETEST'))
 
         # Добавляем инструменты (по желанию)
         agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
         agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
         agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
-
+        
+        #googleSearch = agent._googleSearch(query)
+        #hyperbrowse = agent._hyperbrowse(url)
+        orders = agent.ask(question)
         answer = agent.find_orders(skills, min_budget, max_budget)
-        return Response({'answer': answer})
+
+        return Response({
+            'orders': orders,
+            'answer': answer
+        })
 
 class AdviceViewSet(viewsets.ModelViewSet):
     queryset = Advice.objects.all()

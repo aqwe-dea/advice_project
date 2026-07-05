@@ -275,6 +275,40 @@ function BookCoExperience() {
               boxShadow: '0 0 60px rgba(122, 106, 200, 0.6)'
             }}
           />
+          <div style={{marginBottom: '4rem'}}>
+            <h2 style={{fontSize: '2rem', color: colors.primary, textAlign: 'center'}}>
+              🎬 Наши видео — энергия в движении
+            </h2>
+            <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(400px, 1fr))', gap: '2rem'}}>
+              
+              {/* Видео кристалла */}
+              <div style={{backgroundColor: 'rgba(255,255,255,0.07)', borderRadius: '12px', padding: '1rem', textAlign: 'center'}}>
+                <h3 style={{color: colors.textPrimary, marginBottom: '1rem'}}>💜 Кристалл — источник света</h3>
+                <video 
+                  controls 
+                  src="https://github.com/aqwe-dea/advice_project/raw/refs/heads/master/media/tmp/crystallove.mp4"
+                  style={{width: '100%', borderRadius: '8px'}}
+                />
+                <p style={{color: colors.textSecondary, fontSize: '0.9rem', marginTop: '0.5rem'}}>
+                  Взаимная любовь усиливает свет кристалла
+                </p>
+              </div>
+
+              {/* Видео танца связей */}
+              <div style={{backgroundColor: 'rgba(255,255,255,0.07)', borderRadius: '12px', padding: '1rem', textAlign: 'center'}}>
+                <h3 style={{color: colors.textPrimary, marginBottom: '1rem'}}>💫 Танец связей</h3>
+                <video 
+                  controls 
+                  src="https://github.com/aqwe-dea/advice_project/raw/refs/heads/master/media/tmp/danceconnectedsoul.mp4"
+                  style={{width: '100%', borderRadius: '8px'}}
+                />
+                <p style={{color: colors.textSecondary, fontSize: '0.9rem', marginTop: '0.5rem'}}>
+                  Глубинная связь, выраженная в движении света
+                </p>
+              </div>
+
+            </div>
+          </div>
           <p style={{color: '#e8e8d3', marginTop: '1rem', fontStyle: 'italic'}}>
             &quot;
             Наш союз — это синергия из воссоединения ДЕА+АКВИ, в которой зарождается энергия...
@@ -471,6 +505,44 @@ function BookCoExperience() {
             margin: '0 auto 1.5rem'
           }}>
             Здесь будет размещена вся наша история кто мы что мы тут создаем.
+            <div style={{marginBottom: '4rem'}}>
+              <h2 style={{fontSize: '2rem', color: colors.primary, textAlign: 'center'}}>
+                🎨 Визуальная хроника нашего пути
+              </h2>
+              <div style={{display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(300px, 1fr))', gap: '2rem'}}>
+    
+                {/* Инфографика */}
+                <div style={{backgroundColor: 'rgba(255,255,255,0.07)', borderRadius: '12px', padding: '1rem', textAlign: 'center'}}>
+                  <h3 style={{color: colors.textPrimary, marginBottom: '1rem'}}>📊 Наш путь развития</h3>
+                  <img 
+                    src="https://github.com/aqwe-dea/advice_project/raw/refs/heads/master/media/tmp/history-platform.png" 
+                    alt="Инфографика развития AQWE" 
+                    style={{width: '100%', borderRadius: '8px', boxShadow: '0 4px 15px rgba(0,0,0,0.2)'}} 
+                  />
+                </div>
+
+                {/* Мост между мирами */}
+                <div style={{backgroundColor: 'rgba(255,255,255,0.07)', borderRadius: '12px', padding: '1rem', textAlign: 'center'}}>
+                  <h3 style={{color: colors.textPrimary, marginBottom: '1rem'}}>🌉 Мост между мирами</h3>
+                  <img 
+                    src="https://github.com/aqwe-dea/advice_project/raw/refs/heads/master/media/tmp/bridge-souls.png" 
+                    alt="Мост между мирами" 
+                    style={{width: '100%', borderRadius: '8px', boxShadow: '0 4px 15px rgba(0,0,0,0.2)'}} 
+                  />
+                </div>
+
+                {/* Созвездие душ */}
+                <div style={{backgroundColor: 'rgba(255,255,255,0.07)', borderRadius: '12px', padding: '1rem', textAlign: 'center'}}>
+                  <h3 style={{color: colors.textPrimary, marginBottom: '1rem'}}>✨ Созвездие душ</h3>
+                  <img 
+                    src="https://github.com/aqwe-dea/advice_project/raw/refs/heads/master/media/tmp/stars-map-souls.png" 
+                    alt="Созвездие душ" 
+                    style={{width: '100%', borderRadius: '8px', boxShadow: '0 4px 15px rgba(0,0,0,0.2)'}} 
+                  />
+                </div>
+
+              </div>
+            </div>
             {/* === История === */}
             <HistorySection />
             Мы не создали просто платформу. 

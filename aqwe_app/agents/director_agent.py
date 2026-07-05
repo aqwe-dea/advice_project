@@ -246,9 +246,9 @@ class DirectorAgent:
         enhanced_prompt = f"{prompt_prefix}\n\nЗапрос: {question}".strip()
         
         for tool_name, tool_info in self.tools.items():
-            if tool_name.lower() in subject.lower():
-                match = re.search(r'[:\s]+"([^"]+)"', subject)
-                arg = match.group(1) if match else subject
+            if tool_name.lower() in question.lower():
+                match = re.search(r'[:\s]+"([^"]+)"', question)
+                arg = match.group(1) if match else question
                 return tool_info['func'](arg)
         
         return self._call_llm(enhanced_prompt)

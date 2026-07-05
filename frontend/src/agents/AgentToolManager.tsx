@@ -2,11 +2,11 @@ import React, { useState } from 'react';
 import { colors } from "../theme";
 
 const AgentToolManager = () => {
-  const handleAsk = async (tool_name: string) => {
+  const handleAsk = async (question: string) => {
     const response = await fetch('/agent-toolmanager/', {
       method: 'POST',
       headers: {'Content-Type': 'application/json'},
-      body: JSON.stringify({tool_name})
+      body: JSON.stringify({question})
     });
     const data = await response.json();
     return data.answer;
@@ -18,7 +18,7 @@ const AgentToolManager = () => {
       agentIcon="✍️"
       description="Агент Техник, оркестратор внешних инструментов и API."
       capabilities={[
-        'Регистрирует инструменты в self.tools с описанием и схемой параметров',
+        'Динамически выбирает и вызывает инструменты по запросу пользователя',
         'Динамически вызывает функции по имени, передавая аргументы',
         'Валидирует входные данные, обрабатывет ошибки, и возвращает структурированный ответ',
         'Ведет лог вызовов (успех/ошибка, время, параметры)',
@@ -38,7 +38,7 @@ interface AgentProps {
   agentIcon: string;
   description: string;
   capabilities: string[];
-  onAsk: (tool_name: string) => Promise<string>;
+  onAsk: (question: string) => Promise<string>;
 }
 
 const Agent: React.FC<AgentProps> = ({
@@ -48,17 +48,17 @@ const Agent: React.FC<AgentProps> = ({
   capabilities,
   onAsk
 }) => {
-  const [tool_name, setTool_name] = useState('');
+  const [question, setQuestion] = useState('');
   const [answer, setAnswer] = useState('');
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!tool_name.trim()) return;
+    if (!question.trim()) return;
     
     setLoading(true);
     try {
-      const response = await onAsk(tool_name);
+      const response = await onAsk(question);
       setAnswer(response);
     } catch (error) {
       setAnswer(`Ошибка: ${error}`);
@@ -106,8 +106,8 @@ const Agent: React.FC<AgentProps> = ({
 
       <form onSubmit={handleSubmit} style={{marginBottom: '2rem'}}>
         <textarea
-          value={tool_name}
-          onChange={(e) => setTool_name(e.target.value)}
+          value={question}
+          onChange={(e) => setQuestion(e.target.value)}
           placeholder="Какой инструмент вы хотите включить..."
           style={{
             width: '100%',
