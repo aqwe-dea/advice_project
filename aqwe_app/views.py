@@ -3302,12 +3302,13 @@ class FreelancerAgentView(APIView):
         skills = request.data.get('skills', [])
         min_budget = request.data.get('min_budget', 0)
         max_budget = request.data.get('max_budget')
-        question = request.data.get('question', '')
+        prompt = request.data.get('skills', []) 
+        question = request.data.get('skills', [])
         if not skills:
             return Response({'error': 'Укажите навыки'}, status=400)
 
-        url = request.data.get('url')
-        query = request.data.get('query')
+        url = request.data.get('skills', [])
+        query = request.data.get('skills', [])
 
         agent = FreelancerAgent(api_key=os.getenv('KIETEST'))
 
@@ -3316,12 +3317,16 @@ class FreelancerAgentView(APIView):
         agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
         agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
         
-        #googleSearch = agent._googleSearch(query)
-        #hyperbrowse = agent._hyperbrowse(url)
-        orders = agent.ask(question)
-        answer = agent.find_orders(skills, min_budget, max_budget)
+        descriptiontask = agent._call_llm(prompt)
+        search = agent._googleSearch(query)
+        open_url = agent._hyperbrowse(url)
+        answer = agent.ask(question)
+        orders = agent.find_orders(skills, min_budget, max_budget)
 
         return Response({
+            'task': descriptiontask,
+            'search': search,
+            'open_url': open_url,
             'orders': orders,
             'answer': answer
         })

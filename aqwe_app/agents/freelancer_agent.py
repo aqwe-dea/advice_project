@@ -126,6 +126,57 @@ class FreelancerAgent:
             
             claude_tools = self._build_claude_tools()
             
+            #"tools": [
+            #    {
+            #        "name": "get_current_weather",
+            #        "description": "Get the current weather in a given location",
+            #        "input_schema": {
+            #            "type": "object",
+            #            "properties": {
+            #                "location": {
+            #                    "type": "string",
+            #                    "description": "The city and state, e.g. Boston, MA"
+            #                }
+            #            },
+            #            "required": [
+            #                "location"
+            #            ]
+            #        }
+            #    },
+            #    {
+            #        "name": "hyperbrowse",
+            #        "description": "watch url read data see page",
+            #        "input_schema": {
+            #            "type": "object",
+            #            "properties": {
+            #                "url": {
+            #                    "type": "string",
+            #                    "description": "url request by query"
+            #                }
+            #            },
+            #            "required": [
+            #                "url"
+            #            ]
+            #        }
+            #    },
+            #    {
+            #        "name": "googleSearch",
+            #        "description": "google search in global network",
+            #        "input_schema": {
+            #            "type": "object",
+            #            "properties": {
+            #                "query": {
+            #                    "type": "string",
+            #                    "description": "your query"
+            #                }
+            #            },
+            #            "required": [
+            #                "query"
+            #            ]
+            #        }
+            #    }
+            #],
+
             try:
                 response = requests.post(
                     f"{self.base_url}/messages",
@@ -137,57 +188,7 @@ class FreelancerAgent:
                     json={
                         "model": "claude-opus-4-8",
                         "messages": messages,
-                        #"tools": claude_tools if claude_tools else None,
-                        "tools": [
-                            {
-                                "name": "get_current_weather",
-                                "description": "Get the current weather in a given location",
-                                "input_schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "location": {
-                                            "type": "string",
-                                            "description": "The city and state, e.g. Boston, MA"
-                                        }
-                                    },
-                                    "required": [
-                                        "location"
-                                    ]
-                                }
-                            },
-                            {
-                                "name": "hyperbrowse",
-                                "description": "watch url read data see page",
-                                "input_schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "url": {
-                                            "type": "string",
-                                            "description": "url request by query"
-                                        }
-                                    },
-                                    "required": [
-                                        "url"
-                                    ]
-                                }
-                            },
-                            {
-                                "name": "googleSearch",
-                                "description": "google search in global network",
-                                "input_schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "query": {
-                                            "type": "string",
-                                            "description": "your query"
-                                        }
-                                    },
-                                    "required": [
-                                        "query"
-                                    ]
-                                }
-                            }
-                        ],
+                        "tools": claude_tools if claude_tools else None,
                         "tool_choice": {"type": "auto"},  # ← Принудить использование инструментов
                         "thinkingFlag": False,
                         "stream": False,
