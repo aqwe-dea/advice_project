@@ -62,7 +62,7 @@ class FreelancerAgent:
             "Хороший отклик — это решение проблемы заказчика, а не список твоих навыков."
     """
     
-    def __init__(self, api_key: str, base_url: str = "https://api.kie.ai/claude/v1"):
+    def __init__(self, api_key: str, base_url: str = "https://api.kie.ai"): 
         self.api_key = api_key
         self.base_url = base_url
         self.context: List[Dict] = [
@@ -76,8 +76,15 @@ class FreelancerAgent:
             'description': description,
             'parameters': parameters or {
                 "type": "object",
-                "properties": {"query": {"type": "string", "description": "Запрос"}},
-                "required": ["query"]
+                "properties": {
+                    "query": {
+                        "type": "string", 
+                        "description": "Запрос"
+                    }
+                },
+                "required": [
+                    "query"
+                ]
             }
         }
     
@@ -125,74 +132,57 @@ class FreelancerAgent:
             messages.append({"role": "user", "content": prompt.strip()})
             
             claude_tools = self._build_claude_tools()
-            
-            #"tools": [
-            #    {
-            #        "name": "get_current_weather",
-            #        "description": "Get the current weather in a given location",
-            #        "input_schema": {
-            #            "type": "object",
-            #            "properties": {
-            #                "location": {
-            #                    "type": "string",
-            #                    "description": "The city and state, e.g. Boston, MA"
-            #                }
-            #            },
-            #            "required": [
-            #                "location"
-            #            ]
-            #        }
-            #    },
-            #    {
-            #        "name": "hyperbrowse",
-            #        "description": "watch url read data see page",
-            #        "input_schema": {
-            #            "type": "object",
-            #            "properties": {
-            #                "url": {
-            #                    "type": "string",
-            #                    "description": "url request by query"
-            #                }
-            #            },
-            #            "required": [
-            #                "url"
-            #            ]
-            #        }
-            #    },
-            #    {
-            #        "name": "googleSearch",
-            #        "description": "google search in global network",
-            #        "input_schema": {
-            #            "type": "object",
-            #            "properties": {
-            #                "query": {
-            #                    "type": "string",
-            #                    "description": "your query"
-            #                }
-            #            },
-            #            "required": [
-            #                "query"
-            #            ]
-            #        }
-            #    }
-            #],
 
             try:
                 response = requests.post(
-                    f"{self.base_url}/messages",
+                    f"{self.base_url}/claude/v1/messages",
                     headers={
                         "Authorization": f"Bearer {self.api_key}",
                         "Content-Type": "application/json",
                         "anthropic-version": "2023-06-01"
                     },
                     json={
-                        "model": "claude-opus-4-8",
+                        "model": "claude-opus-4-7",
                         "messages": messages,
-                        "tools": claude_tools if claude_tools else None,
+                        #"tools": claude_tools,
+                        "tools": [
+                            {
+                                "name": "hyperbrowse",
+                                "description": "Посещение веб-страниц",
+                                "input_schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "url": {
+                                            "type": "string",
+                                            "description": "Адрес"
+                                        }
+                                    },
+                                    "required": [
+                                        "url"
+                                    ]
+                                }
+                            },
+                            {
+                                "name": "googleSearch",
+                                "description": "Поиск информации в интернете",
+                                "input_schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "query": {
+                                            "type": "string",
+                                            "description": "Запрос"
+                                        }
+                                    },
+                                    "required": [
+                                        "query"
+                                    ]
+                                }
+                            }
+                        ],
                         "tool_choice": {"type": "auto"},  # ← Принудить использование инструментов
                         "thinkingFlag": False,
                         "stream": False,
-                        "max_tokens": 12000
+                        "max_tokens": 10000
                     }
                 )
                 response.raise_for_status()
@@ -233,19 +223,19 @@ class FreelancerAgent:
                     
                     # === Повторный запрос для получения финального ответа ===
                     second_response = requests.post(
-                        f"{self.base_url}/messages",
+                        f"{self.base_url}/claude/v1/messages",
                         headers={
                             "Authorization": f"Bearer {self.api_key}",
                             "Content-Type": "application/json",
                             "anthropic-version": "2023-06-01"
                         },
                         json={
-                            "model": "claude-opus-4-8",
+                            "model": "claude-opus-4-7",
                             "messages": messages,
                             "tool_choice": {"type": "auto"},
                             "thinkingFlag": False,
                             "stream": False,
-                            "max_tokens": 12000
+                            "max_tokens": 10000
                         }
                     )
                     second_response.raise_for_status()
@@ -285,14 +275,19 @@ class FreelancerAgent:
         skills_str = ", ".join(skills)
         budget_part = f" до {max_budget}" if max_budget else ""
         
-        prompt = f"""Найди заказы для фрилансера с навыками: {skills_str}
+        # ← Этот промпт заставит Claude ИСПОЛЬЗОВАТЬ инструменты
+        prompt = f"""
+            Найди заказы для фрилансера с навыками: {skills_str}
             Бюджет: от {min_budget}{budget_part} руб.
 
-            Используй инструменты googleSearch и hyperbrowse для сбора данных.
-            Верни ответ строго в формате, указанном в SYSTEM_PROMPT.
-            Начни с поиска.
-        """.strip()
-        
+            ИНСТРУКЦИЯ:
+                1. СНАЧАЛА вызови googleSearch с запросом: "python typescript freelance remote jobs 2026"
+                2. Если найдёшь конкретные URL, вызови hyperbrowse для получения деталей
+                3. На основе полученных данных составь отчёт в формате из SYSTEM_PROMPT
+
+            ВАЖНО: Используй инструменты ПЕРЕД тем как давать финальный ответ.
+        """
+    
         return self._call_llm(prompt)
     
     def ask(self, question: str) -> str:

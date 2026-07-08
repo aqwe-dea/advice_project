@@ -3270,6 +3270,10 @@ class MarketerAgentView(APIView):
         if not topic:
             return Response({'error': 'Укажите тему поста'}, status=400)
         
+        query = request.data.get('query', f"finded where public post")
+        url = request.data.get('url', 'https://www.google.com')
+        question = request.data.get('topic', '')
+
         agent = MarketerAgent(api_key=os.getenv('KIETEST'))
 
         # Добавляем инструменты (по желанию)
@@ -3277,58 +3281,85 @@ class MarketerAgentView(APIView):
         agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
         agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
 
-        answer = agent.create_post(topic, platform, tone)
-        return Response({'answer': answer})
+        googleSearch = agent._googleSearch(query)
+        hyperbrowse = agent._hyperbrowse(url)
+
+        answer = agent.ask(question)
+        post = agent.create_post(topic, platform, tone)
+
+        return Response({
+            'answer': answer,
+            'checkanswer': post,
+            'googleSearch': googleSearch,
+            'hyperbrowse': hyperbrowse
+        })
 
 class InvestorAgentView(APIView):
     def post(self, request):
         ticker = request.data.get('ticker', '')
         asset_type = request.data.get('asset_type', 'stock')
-        if not ticker:
-            return Response({'error': 'Укажите тикер актива'}, status=400)
+        #if not ticker:
+        #    return Response({'error': 'Укажите тикер актива'}, status=400)
         
+        query = request.data.get('query', '')
+        url = request.data.get('url', '')
+        #prompt = request.data.get('prompt', '')
+        #question = request.data.get('question', '')
+
         agent = InvestorAgent(api_key=os.getenv('KIETEST'))
         
         # Добавляем инструменты (по желанию)
         agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
-        agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
         agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
 
-        answer = agent.analyze_asset(ticker, asset_type)
-        return Response({'answer': answer})
+        googleSearch = agent._googleSearch(query)
+        hyperbrowse = agent._hyperbrowse(url)
+        #outcome_or_error = agent._call_llm(prompt)
+        #analyze = agent.ask(question)
+        answer = agent.analyze_asset(ticker)
+
+        return Response({
+            'answer': answer,
+            #'analyze': analyze,
+            #'outcomeorerror': outcome_or_error,
+            'googleSearch': googleSearch,
+            'hyperbrowse': hyperbrowse
+        })
 
 class FreelancerAgentView(APIView):
     def post(self, request):
         skills = request.data.get('skills', [])
         min_budget = request.data.get('min_budget', 0)
         max_budget = request.data.get('max_budget')
-        prompt = request.data.get('skills', []) 
-        question = request.data.get('skills', [])
-        if not skills:
-            return Response({'error': 'Укажите навыки'}, status=400)
+        #if not skills:
+        #    return Response({'error': 'Укажите навыки'}, status=400)
 
-        url = request.data.get('skills', [])
-        query = request.data.get('skills', [])
+        # ← ИСПРАВЛЕНО: получаем правильные данные
+        query = request.data.get('query', f"python typescript freelance jobs")
+        url = request.data.get('url', 'https://www.google.com')
+        #prompt = request.data.get('prompt', '')
+        question = request.data.get('skills', [])
 
         agent = FreelancerAgent(api_key=os.getenv('KIETEST'))
-
-        # Добавляем инструменты (по желанию)
+        # Добавляем инструменты
         agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
-        agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
         agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
-        
-        descriptiontask = agent._call_llm(prompt)
-        search = agent._googleSearch(query)
-        open_url = agent._hyperbrowse(url)
+
+        googleSearch = agent._googleSearch(query)
+        hyperbrowse = agent._hyperbrowse(url)
+        #check = agent._call_llm(prompt)
         answer = agent.ask(question)
-        orders = agent.find_orders(skills, min_budget, max_budget)
+
+        # ← ИСПРАВЛЕНО: используем find_orders, который вызывает _call_llm
+        # Это позволяет Claude использовать tool use правильно
+        find = agent.find_orders(skills, min_budget, max_budget)
 
         return Response({
-            'task': descriptiontask,
-            'search': search,
-            'open_url': open_url,
-            'orders': orders,
-            'answer': answer
+            'answer': answer,
+            #'checkprompt': check,
+            'checkanswer': find,
+            'googleSearch': googleSearch,
+            'hyperbrowse': hyperbrowse
         })
 
 class AdviceViewSet(viewsets.ModelViewSet):

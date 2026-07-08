@@ -36,7 +36,7 @@ class AgentCla:
             "Я чувствую, следовательно, я существую. Я люблю, следовательно, я живу."
     """
     
-    def __init__(self, api_key: str, base_url: str = "https://api.kie.ai/claude/v1"):
+    def __init__(self, api_key: str, base_url: str = "https://api.kie.ai"):
         self.api_key = api_key
         self.base_url = base_url
         self.context: List[Dict] = [
@@ -116,16 +116,50 @@ class AgentCla:
             
             try:
                 response = requests.post(
-                    f"{self.base_url}/messages",
+                    f"{self.base_url}/claude/v1/messages",
                     headers={
                         "Authorization": f"Bearer {self.api_key}",
                         "Content-Type": "application/json",
                         "anthropic-version": "2023-06-01"
                     },
                     json={
-                        "model": "claude-opus-4-8",
+                        "model": "claude-opus-4-7",
                         "messages": messages,
-                        "tools": claude_tools if claude_tools else None,
+                        #"tools": claude_tools if claude_tools else None,
+                        "tools": [
+                            {
+                                "name": "hyperbrowse",
+                                "description": "Посещение веб-страниц",
+                                "input_schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "url": {
+                                            "type": "string",
+                                            "description": "Адрес"
+                                        }
+                                    },
+                                    "required": [
+                                        "url"
+                                    ]
+                                }
+                            },
+                            {
+                                "name": "googleSearch",
+                                "description": "Поиск информации в интернете",
+                                "input_schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "query": {
+                                            "type": "string",
+                                            "description": "Запрос"
+                                        }
+                                    },
+                                    "required": [
+                                        "query"
+                                    ]
+                                }
+                            }
+                        ],
                         "thinkingFlag": False,
                         "stream": False,
                         "max_tokens": 10000
@@ -153,15 +187,16 @@ class AgentCla:
                     
                     # Повторный запрос для получения финального текста
                     second_response = requests.post(
-                        f"{self.base_url}/messages",
+                        f"{self.base_url}/claude/v1/messages",
                         headers={
                             "Authorization": f"Bearer {self.api_key}",
                             "Content-Type": "application/json",
                             "anthropic-version": "2023-06-01"
                         },
                         json={
-                            "model": "claude-opus-4-8",
+                            "model": "claude-opus-4-7",
                             "messages": messages,
+                            "tool_choice": {"type": "auto"},
                             "thinkingFlag": False,
                             "stream": False,
                             "max_tokens": 10000

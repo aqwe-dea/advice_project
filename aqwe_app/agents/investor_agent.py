@@ -27,17 +27,16 @@ class InvestorAgent:
             - Скоринг 1-10 с пояснением
             - Точки входа/выхода (если применимо)
             - Предупреждения о рисках
-        
+
         ИНСТРУМЕНТЫ:
-            У тебя есть доступ к:
-                - googleSearch: для поиска инструмента и других запросов пользователя
-                - hyperbrowse: для просмотра актуальной информации с переходом на страницу
+            - googleSearch(query: str): Поиск информации в интернете
+            - hyperbrowse(url: str, query: str): Посещение веб-страниц.
 
         ВАША ФИЛОСОФИЯ:
             "Инвестиции — это управление рисками, а не погоня за доходом."
     """
     
-    def __init__(self, api_key: str, base_url: str = "https://api.kie.ai/claude/v1"):
+    def __init__(self, api_key: str, base_url: str = "https://api.kie.ai"):
         self.api_key = api_key
         self.base_url = base_url
         self.context: List[Dict] = [
@@ -46,14 +45,20 @@ class InvestorAgent:
         self.tools: Dict[str, Dict] = {}
     
     def add_tool(self, name: str, func: callable, description: str, parameters: Dict = None):
-        """Добавить инструмент с описанием схемы параметров"""
         self.tools[name] = {
             'func': func, 
             'description': description,
             'parameters': parameters or {
                 "type": "object",
-                "properties": {"query": {"type": "string", "description": "Запрос"}},
-                "required": ["query"]
+                "properties": {
+                    "query": {
+                        "type": "string", 
+                        "description": "Запрос"
+                    }
+                },
+                "required": [
+                    "query"
+                ]
             }
         }
     
@@ -75,26 +80,26 @@ class InvestorAgent:
         """
         try:
             content = data.get('content', [])
-            if not content:
+            if not content or not isinstance(content, list):
                 return "", None
             
-            first_block = content[0] if isinstance(content, list) else content
+            first_block = content[0]
+            if not isinstance(first_block, dict):
+                return str(first_block), None
             
-            # Случай 1: текстовый ответ
-            if isinstance(first_block, dict) and first_block.get('type') == 'text':
+            # Текстовый ответ
+            if first_block.get('type') == 'text':
                 return first_block.get('text', ''), None
             
-            # Случай 2: tool_use
-            if isinstance(first_block, dict) and first_block.get('type') == 'tool_use':
-                tool_info = {
+            # Tool use
+            if first_block.get('type') == 'tool_use':
+                return "", {
+                    'id': first_block.get('id'),  # ← КРИТИЧНО: извлекаем id!
                     'name': first_block.get('name'),
                     'input': first_block.get('input', {})
                 }
-                return "", tool_info
             
-            # Фолбэк: попытка извлечь text напрямую
-            text = first_block.get('text', '') if isinstance(first_block, dict) else str(first_block)
-            return text, None
+            return "", None
             
         except Exception as e:
             logger.error(f"Ошибка извлечения: {str(e)}")
@@ -111,19 +116,54 @@ class InvestorAgent:
             
             try:
                 response = requests.post(
-                    f"{self.base_url}/messages",
+                    f"{self.base_url}/claude/v1/messages",
                     headers={
                         "Authorization": f"Bearer {self.api_key}",
                         "Content-Type": "application/json",
                         "anthropic-version": "2023-06-01"
                     },
                     json={
-                        "model": "claude-opus-4-8",
+                        "model": "claude-opus-4-7",
                         "messages": messages,
-                        "tools": claude_tools if claude_tools else None,
                         "thinkingFlag": False,
                         "stream": False,
                         "max_tokens": 10000
+                        #"tools": claude_tools if claude_tools else None,
+                        #"tools": [
+                        #    {
+                        #        "name": "hyperbrowse",
+                        #        "description": "Посещение веб-страниц",
+                        #        "input_schema": {
+                        #            "type": "object",
+                        #            "properties": {
+                        #                "url": {
+                        #                    "type": "string",
+                        #                    "description": "Адрес"
+                        #                }
+                        #            },
+                        #            "required": [
+                        #                "url"
+                        #            ]
+                        #        }
+                        #    },
+                        #    {
+                        #        "name": "googleSearch",
+                        #        "description": "Поиск информации в интернете",
+                        #        "input_schema": {
+                        #            "type": "object",
+                        #            "properties": {
+                        #                "query": {
+                        #                    "type": "string",
+                        #                    "description": "Запрос"
+                        #                }
+                        #            },
+                        #            "required": [
+                        #                "query"
+                        #            ]
+                        #        }
+                        #    }
+                        #]
+                        #"tool_choice": {"type": "auto"},  # ← Принудить использование инструментов 
                     }
                 )
                 response.raise_for_status()
@@ -136,46 +176,72 @@ class InvestorAgent:
                 # Если модель запросила инструмент — выполняем его
                 if tool_call and tool_call['name'] in self.tools:
                     logger.info(f"🔧 Tool use: {tool_call['name']}({tool_call['input']})")
-                    func = self.tools[tool_call['name']]['func']
-                    result = func(**tool_call['input'])
                     
-                    # Отправляем результат обратно в Claude
-                    messages.append({"role": "assistant", "content": data.get('content', [])})
+                    func = self.tools[tool_call['name']]['func']
+                    query = tool_call['input'].get('query', '')
+                    
+                    # Выполняем инструмент
+                    try:
+                        tool_result = func(query)
+                    except Exception as e:
+                        tool_result = f"Ошибка выполнения: {str(e)}"
+                    
+                    logger.info(f"✅ Инструмент выполнен, результат: {tool_result[:200]}...")
+                    
+                    # === Формируем tool_result в формате Claude ===
                     messages.append({
-                        "role": "user", 
-                        "content": f"Результат выполнения {tool_call['name']}: {result}"
+                        "role": "assistant",
+                        "content": [data['content'][0]]  # Сохраняем original tool_use
+                    })
+                    messages.append({
+                        "role": "user",
+                        "content": [
+                            {
+                                "type": "tool_result",
+                                "tool_use_id": tool_call['id'],  # ← КРИТИЧНО: передаём id!
+                                "content": tool_result
+                            }
+                        ]
                     })
                     
                     # Повторный запрос для получения финального текста
                     second_response = requests.post(
-                        f"{self.base_url}/messages",
+                        f"{self.base_url}/claude/v1/messages",
                         headers={
                             "Authorization": f"Bearer {self.api_key}",
                             "Content-Type": "application/json",
                             "anthropic-version": "2023-06-01"
                         },
                         json={
-                            "model": "claude-opus-4-8",
+                            "model": "claude-opus-4-7",
                             "messages": messages,
                             "thinkingFlag": False,
+                            #"tool_choice": {"type": "auto"},
                             "stream": False,
                             "max_tokens": 10000
                         }
                     )
                     second_response.raise_for_status()
                     second_data = second_response.json()
-                    text, _ = self._extract_text_from_response(second_data)
+                    final_text, _ = self._extract_text_from_response(second_data)
+                    if final_text:
+                        self.context.append({"role": "user", "content": prompt.strip()})
+                        self.context.append({"role": "assistant", "content": final_text})
+                        return final_text
+                    
+                    # Фолбэк
+                    return f"✅ {tool_call['name']} выполнен. Данные: {tool_result[:2000]}"
                 
+                # === Обычный текстовый ответ ===
+                if text and text.strip():
+                    self.context.append({"role": "user", "content": prompt.strip()})
+                    self.context.append({"role": "assistant", "content": text})
+                    logger.info(f"✅ Ответ: {text[:1000]}...")
+                    return text
+
                 if not text.strip():
-                    logger.warning(f"Пустой текст. Ответ: {json.dumps(data, ensure_ascii=False)[:300]}")
+                    logger.warning(f"Пустой текст. Ответ: {json.dumps(data, ensure_ascii=False)[:1000]}")
                     return "Ошибка: агент не сгенерировал ответ"
-                
-                # Обновление контекста
-                self.context.append({"role": "user", "content": prompt.strip()})
-                self.context.append({"role": "assistant", "content": text})
-                
-                logger.info(f"✅ Ответ: {text[:150]}...")
-                return text
                 
             except requests.Timeout:
                 if attempt == max_retries - 1:
@@ -189,30 +255,28 @@ class InvestorAgent:
         
         return "Ошибка: исчерпаны попытки выполнения"
     
-    def analyze_asset(self, ticker: str, asset_type: str = "stock") -> str:
-        prompt = f"""Проанализируй актив: {ticker} ({asset_type})
-
+    def analyze_asset(self, ticker: str) -> str:
+        prompt = f"""
+            Проанализируй актив: {ticker} 
+            
             Используй публичные данные (если есть доступ к инструментам — запроси):
+                - вызови googleSearch для получения актуальных данных
+                - вызови hyperbrowse для перехода по сссылке и подтвержения результатов
                 - Финансовые метрики (P/E, EPS, долг/капитал, свободный денежный поток)
                 - Рыночная позиция и конкуренты
                 - Макро-факторы (отраслевые тренды, регуляторика)
                 - Технические индикаторы (если применимо)
-
             Верни:
             ## 🔍 Резюме
-            - Потенциал роста: ...
-            - Ключевые риски: ...
-            - Рекомендация: ...
-
+                - Потенциал роста: ...
+                - Ключевые риски: ...
+                - Рекомендация: ...
             ## 📊 Детальный анализ
             [по метрикам]
-
             ## ⭐ Скоринг: X/10
             [обоснование]
-
             ## 🎯 Точки входа/выхода
             [если применимо]
-
             ## ⚠️ Предупреждения
             [красные флаги]
         """
@@ -232,7 +296,7 @@ class InvestorAgent:
 
     def _hyperbrowse(self, url: str, query: str = None) -> str:
         try:
-            response = requests.get(url, timeout=30)
+            response = requests.get(url)
             response.raise_for_status()
             soup = BeautifulSoup(response.text, 'html.parser')
             for tag in soup(['script', 'style', 'nav', 'footer']):
