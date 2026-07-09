@@ -7,6 +7,8 @@ from typing import List, Optional, Dict, Any
 from bs4 import BeautifulSoup
 from .web_search import web_search
 from .web_search import web_search as _web_search
+from .web_fetch import web_fetch
+from .wikipedia_search import search_by_wikipedia
 
 logger = logging.getLogger(__name__)
 
@@ -40,6 +42,15 @@ class FreelancerAgent:
             max_results: Сколько результатов вернуть (1..20).
             provider: "tavily" | "serper".
             region: Регион поиска (например, "ru-ru", "us-en", "wt-wt").
+        - web_fetch(url: str, max_length: int = 5000): Загружает веб-страницу и извлекает основной текст. Загрузка и парсинг веб-страниц.
+        Args:
+            url: Адрес страницы (обязателен, должен начинаться с http:// или https://)
+            max_length: Максимальная длина возвращаемого текста (по умолчанию 5000)
+        - search_by_wikipedia(query: str, lang: str, max_results: int = 3): Ищет статьи в Wikipedia и возвращает результаты. Поиск статей в Wikipedia. 
+        Args:
+            query: Поисковый запрос (обязателен)
+            lang: Язык Wikipedia ('ru', 'en', 'de' и т.д.)
+            max_results: Максимальное количество результатов (1-10)
 
         ФОРМАТ ОТВЕТА (СТРОГО):
             ## 🔍 Подходящие заказы
@@ -169,6 +180,31 @@ class FreelancerAgent:
                                     "properties": {
                                         "query": {"type": "string", "description": "Поисковый запрос"},
                                         "max_results": {"type": "integer", "default": 5},
+                                    },
+                                    "required": ["query"],
+                                }
+                            },
+                            {
+                                "name": "web_fetch",
+                                "description": "Загружает веб-страницу и извлекает основной текст.",
+                                "input_schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "url": {"type": "string", "description": "Адрес страницы"},
+                                        "max_length": {"type": "integer", "default": 5000},
+                                    },
+                                    "required": ["url"],
+                                }
+                            },
+                            {
+                                "name": "search_by_wikipedia",
+                                "description": "Ищет статьи в Wikipedia и возвращает результаты.",
+                                "input_schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "query": {"type": "string", "description": "Поисковый запрос"},
+                                        "lang": {"type": "string", "description": "Язык Wikipedia"},
+                                        "max_results": {"type": "integer", "default": 3},
                                     },
                                     "required": ["query"],
                                 }
@@ -305,6 +341,14 @@ class FreelancerAgent:
     def web_search(query: str, max_results: int = 5) -> str:
         """Ищет информацию в интернете. Возвращает JSON с title/url/snippet."""
         return _web_search(query, max_results=max_results)
+    
+    def web_fetch(url: str, max_length: int = 5000) -> str:
+        """Загружает веб-страницу и извлекает основной текст. JSON-строка с заголовком, текстом и метаданными."""
+        return web_fetch(url, max_length=max_length)
+    
+    def search_by_wikipedia(query: str, lang: str = "ru", max_results: int = 3) -> str:
+        """Ищет статьи в Wikipedia и возвращает результаты. JSON-строка со списком статей (заголовок, описание, url)."""
+        return search_by_wikipedia(query, lang=lang, max_results=max_results)
 
     def _hyperbrowse(self, url: str, query: str = None) -> str:
         try:
