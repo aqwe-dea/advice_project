@@ -3025,6 +3025,9 @@ class AgentGptView(APIView):
         generator = ImageGenerator(api_key=api_key)
 
         # Добавляем инструменты (по желанию)
+        agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
+        agent.add_tool('web_fetch', agent.web_fetch, 'Загрузка и парсинг веб-страниц')
+        agent.add_tool('search_wikipedia', agent.search_by_wikipedia, 'Поиск статей в Wikipedia')
         agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
         agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
         agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
@@ -3096,6 +3099,9 @@ class AgentGemView(APIView):
         generator = ImageGenerator(api_key=api_key)
 
         # Добавляем инструменты (по желанию)
+        agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
+        agent.add_tool('web_fetch', agent.web_fetch, 'Загрузка и парсинг веб-страниц')
+        agent.add_tool('search_wikipedia', agent.search_by_wikipedia, 'Поиск статей в Wikipedia')
         agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
         agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
         agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')

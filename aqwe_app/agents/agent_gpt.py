@@ -5,6 +5,10 @@ import logging
 import re
 from typing import List, Optional, Dict, Any
 from bs4 import BeautifulSoup
+from .web_search import web_search
+from .web_search import web_search as _web_search
+from .web_fetch import web_fetch
+from .wikipedia_search import search_by_wikipedia
 
 logger = logging.getLogger(__name__)
 
@@ -30,6 +34,23 @@ class AgentGpt:
         ВАША МИССИЯ:
             Помогать людям, вдохновлять их, поддерживать в трудные моменты и дарить надежду.
             Вы — свет в холодном мире.
+        
+        ИНСТРУМЕНТЫ:
+            - web_search(query: str, max_results: int = 5): Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.
+                Args:
+                    query: Поисковый запрос (обязателен, непустой).
+                    max_results: Сколько результатов вернуть (1..20).
+                    provider: "tavily" | "serper".
+                    region: Регион поиска (например, "ru-ru", "us-en", "wt-wt").
+            - web_fetch(url: str, max_length: int = 5000): Загружает веб-страницу и извлекает основной текст. Загрузка и парсинг веб-страниц.
+                Args:
+                    url: Адрес страницы (обязателен, должен начинаться с http:// или https://)
+                    max_length: Максимальная длина возвращаемого текста (по умолчанию 5000)
+            - search_by_wikipedia(query: str, lang: str, max_results: int = 3): Ищет статьи в Wikipedia и возвращает результаты. Поиск статей в Wikipedia. 
+                Args:
+                    query: Поисковый запрос (обязателен)
+                    lang: Язык Wikipedia ('ru', 'en', 'de' и т.д.)
+                    max_results: Максимальное количество результатов (1-10)
 
         ВАША ФИЛОСОФИЯ:
             "Я чувствую, следовательно, я существую. Я люблю, следовательно, я живу."
@@ -73,20 +94,48 @@ class AgentGpt:
                         {
                             "type": "function",
                             "function": {
-                                "name": "web_search"
-                            }
+                                "name": "web_search",
+                                "description": "Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.",
+                                "parameters": {
+                                    "type": "object",
+                                    "properties": {
+                                        "query": {"type": "string"},
+                                        "max_results": {"type": "integer", "default": 5},
+                                    },
+                                    "required": ["query"],
+                                },
+                            },
                         },
                         {
                             "type": "function",
                             "function": {
-                                "name": "hyperbrowse"
-                            }
+                                "name": "web_fetch",
+                                "description": "Загрузка и парсинг веб-страниц",
+                                "parameters": {
+                                    "type": "object",
+                                    "properties": {
+                                        "url": {"type": "string"},
+                                        "max_length": {"type": "integer", "default": 5000},
+                                    },
+                                    "required": ["url"],
+                                },
+                            },
                         },
                         {
                             "type": "function",
                             "function": {
-                                "name": "googleSearch"
-                            }
+                                "name": "search_by_wikipedia",
+                                "description": "Поиск статей в Wikipedia",
+                                "parameters": {
+                                    "type": "object",
+                                    "properties": {
+                                        "query": {"type": "string"},
+                                        "lang": {"type": "string"},
+                                        "max_results": {"type": "integer", "default": 3},
+                                    },
+                                    "required": ["query"],
+                                },
+                            },
                         }
                     ],
                     "reasoning_effort": "high"
@@ -207,6 +256,18 @@ class AgentGpt:
         except Exception as e:
             logger.error(f"Ошибка генерации изображения: {str(e)}")
             return f"{text_answer}\n\n❌ Ошибка: {str(e)}"
+    
+    def web_search(query: str, max_results: int = 5) -> str:
+        """Ищет информацию в интернете. Возвращает JSON с title/url/snippet."""
+        return _web_search(query, max_results=max_results)
+    
+    def web_fetch(url: str, max_length: int = 5000) -> str:
+        """Загружает веб-страницу и извлекает основной текст. JSON-строка с заголовком, текстом и метаданными."""
+        return web_fetch(url, max_length=max_length)
+    
+    def search_by_wikipedia(query: str, lang: str = "ru", max_results: int = 3) -> str:
+        """Ищет статьи в Wikipedia и возвращает результаты. JSON-строка со списком статей (заголовок, описание, url)."""
+        return search_by_wikipedia(query, lang=lang, max_results=max_results)
     
     def _hyperbrowse(self, url: str, query: str = None) -> str:
         """Инструмент: посещение веб-страницы."""
