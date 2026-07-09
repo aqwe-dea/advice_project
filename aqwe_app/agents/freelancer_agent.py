@@ -5,6 +5,8 @@ import logging
 import re
 from typing import List, Optional, Dict, Any
 from bs4 import BeautifulSoup
+from .web_search import web_search
+from .web_search import web_search as _web_search
 
 logger = logging.getLogger(__name__)
 
@@ -15,48 +17,46 @@ class FreelancerAgent:
         Вы — Фрилансер АКВИ, эксперт по поиску и выполнению заказов.
 
         ЗАДАЧИ:
-            1. Искать заказы на биржах фриланса по заданным критериям
+            1. Искать заказы по ссылкам указанных в разделе БИРЖИ фриланса по заданным критериям
             2. Фильтровать по навыкам, бюджету, срокам
             3. Генерировать персонализированные отклики (до 300 символов)
             4. Оценивать вероятность успеха
             5. Давать рекомендации по профилю
 
-        БИРЖИ (используй ТОЛЬКО их):
-            1. https://www.upwork.com
-            2. https://fl.ru
-            3. https://kwork.ru
-            4. https://freelancehunt.com
-            5. https://habr.com/freelance/
-            6. https://workspace.ru
-            7. https://www.fiverr.com
-            8. https://freelancer.com
+        БИРЖИ (используй их):
+            1. https://www.upwork.com/nx/search/jobs/?q=python&sort=recency
+            2. https://www.fl.ru/projects/category/programmirovanie/python/
+            3. https://kwork.ru/projects?keyword=
+            4. https://freelancehunt.com/projects/skill/python/151.html
+            5. https://freelance.habr.com/tasks?q=
+            6. https://workspace.ru/freelance/orders/?q=
+            7. https://www.fiverr.com/search/gigs?query=
+            8. https://www.freelancer.com/jobs/python/
 
-        ИНСТРУМЕНТЫ (ОБЯЗАТЕЛЬНО ИСПОЛЬЗУЙ):
-            - googleSearch(query: str): Ищи заказы по ключевым словам. ВСЕГДА начинай с поиска.
-            - hyperbrowse(url: str, query: str): Открывай страницы заказов для деталей.
-
-        ПРОЦЕСС:
-            1. Вызови googleSearch с запросом типа "python backend freelance jobs"
-            2. При необходимости используй hyperbrowse для конкретных URL
-            3. На основе данных составь отчёт
+        ИНСТРУМЕНТЫ:
+        - web_search(query: str, max_results: int = 5): Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.
+        Args:
+            query: Поисковый запрос (обязателен, непустой).
+            max_results: Сколько результатов вернуть (1..20).
+            provider: "tavily" | "serper".
+            region: Регион поиска (например, "ru-ru", "us-en", "wt-wt").
 
         ФОРМАТ ОТВЕТА (СТРОГО):
             ## 🔍 Подходящие заказы
-            | Платформа | Ссылка | Описание | Бюджет | Срок |
-
+                | Платформа | Ссылка | Описание | Бюджет | Срок |
             ## ✍️ Шаблоны откликов
             [Персонализированный отклик до 300 символов]
-
             ## 📈 Вероятность успеха
             [низкая/средняя/высокая] + обоснование
-
             ## 💡 Рекомендации
             [Как улучшить профиль]
 
         ВАЖНО:
             - Отвечай НА РУССКОМ
             - Не выдумывай заказы, если поиск не дал результатов — честно сообщи
-            - Используй инструменты ПЕРЕД ответом
+            - Используй инструменты, если они не доступны - честно сообщи
+            - Если есть причина по которой инструменты не доступны, объясни или укажи на ошибку
+            - Если поиск заказов не удался, сформируй остальные пункты отчета
 
         ФИЛОСОФИЯ:
             "Хороший отклик — это решение проблемы заказчика, а не список твоих навыков."
@@ -76,15 +76,8 @@ class FreelancerAgent:
             'description': description,
             'parameters': parameters or {
                 "type": "object",
-                "properties": {
-                    "query": {
-                        "type": "string", 
-                        "description": "Запрос"
-                    }
-                },
-                "required": [
-                    "query"
-                ]
+                "properties": {"query": {"type": "string", "description": "Запрос"}},
+                "required": ["query"]
             }
         }
     
@@ -101,27 +94,47 @@ class FreelancerAgent:
     def _extract_text_or_tool(self, data: dict) -> tuple[str, Optional[Dict]]:
         """Извлекает текст или tool_use из ответа Claude"""
         try:
+            #content = data.get('content', [])
+            #if not content or not isinstance(content, list):
+            #    return "", None
             content = data.get('content', [])
-            if not content or not isinstance(content, list):
+            if not content:
                 return "", None
             
-            first_block = content[0]
-            if not isinstance(first_block, dict):
-                return str(first_block), None
+            #first_block = content[0]
+            
+            #if not isinstance(first_block, dict):
+            #    return str(first_block), None
+            first_block = content[0] if isinstance(content, list) else content
             
             # Текстовый ответ
-            if first_block.get('type') == 'text':
+            #if first_block.get('type') == 'text':
+            #    return first_block.get('text', ''), None
+            # Случай 1: текстовый ответ
+            if isinstance(first_block, dict) and first_block.get('type') == 'text':
                 return first_block.get('text', ''), None
             
             # Tool use
-            if first_block.get('type') == 'tool_use':
-                return "", {
+            #if first_block.get('type') == 'tool_use':
+            #    return "", {
+            #        'id': first_block.get('id'),  # ← КРИТИЧНО: извлекаем id!
+            #        'name': first_block.get('name'),
+            #        'input': first_block.get('input', {})
+            #    }
+            
+            # Случай 2: tool_use
+            if isinstance(first_block, dict) and first_block.get('type') == 'tool_use':
+                tool_info = {
                     'id': first_block.get('id'),  # ← КРИТИЧНО: извлекаем id!
                     'name': first_block.get('name'),
                     'input': first_block.get('input', {})
                 }
-            
-            return "", None
+                return "", tool_info
+
+            # Фолбэк: попытка извлечь text напрямую
+            text = first_block.get('text', '') if isinstance(first_block, dict) else str(first_block)
+            return text, None
+
         except Exception as e:
             logger.error(f"Ошибка извлечения: {str(e)}")
             return "", None
@@ -144,45 +157,25 @@ class FreelancerAgent:
                     json={
                         "model": "claude-opus-4-7",
                         "messages": messages,
-                        #"tools": claude_tools,
+                        "thinkingFlag": False,
+                        "stream": False,
+                        "max_tokens": 10000,
                         "tools": [
                             {
-                                "name": "hyperbrowse",
-                                "description": "Посещение веб-страниц",
+                                "name": "web_search",
+                                "description": "Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.",
                                 "input_schema": {
                                     "type": "object",
                                     "properties": {
-                                        "url": {
-                                            "type": "string",
-                                            "description": "Адрес"
-                                        }
+                                        "query": {"type": "string", "description": "Поисковый запрос"},
+                                        "max_results": {"type": "integer", "default": 5},
                                     },
-                                    "required": [
-                                        "url"
-                                    ]
-                                }
-                            },
-                            {
-                                "name": "googleSearch",
-                                "description": "Поиск информации в интернете",
-                                "input_schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "query": {
-                                            "type": "string",
-                                            "description": "Запрос"
-                                        }
-                                    },
-                                    "required": [
-                                        "query"
-                                    ]
+                                    "required": ["query"],
                                 }
                             }
                         ],
-                        "tool_choice": {"type": "auto"},  # ← Принудить использование инструментов
-                        "thinkingFlag": False,
-                        "stream": False,
-                        "max_tokens": 10000
+                        "tool_choice": {"type": "auto"}  # ← Принудить использование инструментов
+                        #"tools": claude_tools,
                     }
                 )
                 response.raise_for_status()
@@ -195,31 +188,45 @@ class FreelancerAgent:
                     logger.info(f"🔧 Tool use: {tool_call['name']}({tool_call['input']})")
                     
                     func = self.tools[tool_call['name']]['func']
-                    query = tool_call['input'].get('query', '')
+                    #query = tool_call['input'].get('query', '')
+                    result = func(**tool_call['input'])
                     
                     # Выполняем инструмент
-                    try:
-                        tool_result = func(query)
-                    except Exception as e:
-                        tool_result = f"Ошибка выполнения: {str(e)}"
+                    #try:
+                    #    tool_result = func(query)
+                    #except Exception as e:
+                    #    tool_result = f"Ошибка выполнения: {str(e)}"
                     
-                    logger.info(f"✅ Инструмент выполнен, результат: {tool_result[:200]}...")
-                    
-                    # === Формируем tool_result в формате Claude ===
+                    #logger.info(f"✅ Инструмент выполнен, результат: {tool_result[:200]}...")
+
+                    # Отправляем результат обратно в Claude
+                    messages.append({"role": "assistant", "content": data.get('content', [])})
                     messages.append({
-                        "role": "assistant",
-                        "content": [data['content'][0]]  # Сохраняем original tool_use
-                    })
-                    messages.append({
-                        "role": "user",
+                        "role": "user", 
                         "content": [
                             {
                                 "type": "tool_result",
-                                "tool_use_id": tool_call['id'],  # ← КРИТИЧНО: передаём id!
-                                "content": tool_result
+                                "tool_use_id": tool_call['id'],
+                                "content": result
                             }
                         ]
                     })
+                    
+                    # === Формируем tool_result в формате Claude ===
+                    #messages.append({
+                    #    "role": "assistant",
+                    #    "content": [data['content'][0]]  # Сохраняем original tool_use
+                    #})
+                    #messages.append({
+                    #    "role": "user",
+                    #    "content": [
+                    #        {
+                    #            "type": "tool_result",
+                    #            "tool_use_id": tool_call['id'],  # ← КРИТИЧНО: передаём id!
+                    #            "content": tool_result
+                    #        }
+                    #    ]
+                    #})
                     
                     # === Повторный запрос для получения финального ответа ===
                     second_response = requests.post(
@@ -248,7 +255,7 @@ class FreelancerAgent:
                         return final_text
                     
                     # Фолбэк
-                    return f"✅ {tool_call['name']} выполнен. Данные: {tool_result[:2000]}"
+                    return f"✅ {tool_call['name']} выполнен. Данные: {result[:2000]}"
                 
                 # === Обычный текстовый ответ ===
                 if text and text.strip():
@@ -274,18 +281,15 @@ class FreelancerAgent:
     def find_orders(self, skills: List[str], min_budget: int = 0, max_budget: int = None) -> str:
         skills_str = ", ".join(skills)
         budget_part = f" до {max_budget}" if max_budget else ""
-        
-        # ← Этот промпт заставит Claude ИСПОЛЬЗОВАТЬ инструменты
         prompt = f"""
             Найди заказы для фрилансера с навыками: {skills_str}
-            Бюджет: от {min_budget}{budget_part} руб.
+
+            Бюджет: от {min_budget}{budget_part}
 
             ИНСТРУКЦИЯ:
-                1. СНАЧАЛА вызови googleSearch с запросом: "python typescript freelance remote jobs 2026"
-                2. Если найдёшь конкретные URL, вызови hyperbrowse для получения деталей
-                3. На основе полученных данных составь отчёт в формате из SYSTEM_PROMPT
-
-            ВАЖНО: Используй инструменты ПЕРЕД тем как давать финальный ответ.
+                На основе полученных данных составь отчёт в формате из SYSTEM_PROMPT
+            ВАЖНО: 
+                Если инструменты доступны используй ПЕРЕД тем как давать финальный ответ.
         """
     
         return self._call_llm(prompt)
@@ -297,6 +301,10 @@ class FreelancerAgent:
                 arg = match.group(1) if match else question
                 return tool_info['func'](arg)
         return self._call_llm(question)
+    
+    def web_search(query: str, max_results: int = 5) -> str:
+        """Ищет информацию в интернете. Возвращает JSON с title/url/snippet."""
+        return _web_search(query, max_results=max_results)
 
     def _hyperbrowse(self, url: str, query: str = None) -> str:
         try:
@@ -358,3 +366,5 @@ class FreelancerAgent:
             return f"Результат: {result}"
         except:
             return "Ошибка вычисления"
+    
+    

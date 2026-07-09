@@ -3304,7 +3304,7 @@ class InvestorAgentView(APIView):
         query = request.data.get('query', '')
         url = request.data.get('url', '')
         #prompt = request.data.get('prompt', '')
-        #question = request.data.get('question', '')
+        question = request.data.get('ticker', '')
 
         agent = InvestorAgent(api_key=os.getenv('KIETEST'))
         
@@ -3315,12 +3315,12 @@ class InvestorAgentView(APIView):
         googleSearch = agent._googleSearch(query)
         hyperbrowse = agent._hyperbrowse(url)
         #outcome_or_error = agent._call_llm(prompt)
-        #analyze = agent.ask(question)
-        answer = agent.analyze_asset(ticker)
+        answer = agent.ask(question)
+        analyze = agent.analyze_asset(ticker)
 
         return Response({
             'answer': answer,
-            #'analyze': analyze,
+            'analyze': analyze,
             #'outcomeorerror': outcome_or_error,
             'googleSearch': googleSearch,
             'hyperbrowse': hyperbrowse
@@ -3335,31 +3335,32 @@ class FreelancerAgentView(APIView):
         #    return Response({'error': 'Укажите навыки'}, status=400)
 
         # ← ИСПРАВЛЕНО: получаем правильные данные
-        query = request.data.get('query', f"python typescript freelance jobs")
-        url = request.data.get('url', 'https://www.google.com')
-        #prompt = request.data.get('prompt', '')
+        #query = request.data.get('query', f"python typescript freelance jobs")
+        #url = request.data.get('url', 'https://www.google.com')
+        prompt = request.data.get('skills', [])
         question = request.data.get('skills', [])
 
         agent = FreelancerAgent(api_key=os.getenv('KIETEST'))
         # Добавляем инструменты
+        agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
         agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
         agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
 
-        googleSearch = agent._googleSearch(query)
-        hyperbrowse = agent._hyperbrowse(url)
-        #check = agent._call_llm(prompt)
-        answer = agent.ask(question)
+        #googleSearch = agent._googleSearch(query)
+        #hyperbrowse = agent._hyperbrowse(url)
+        answer = agent._call_llm(prompt)
+        find = agent.ask(question)
 
         # ← ИСПРАВЛЕНО: используем find_orders, который вызывает _call_llm
         # Это позволяет Claude использовать tool use правильно
-        find = agent.find_orders(skills, min_budget, max_budget)
+        check = agent.find_orders(skills, min_budget, max_budget)
 
         return Response({
             'answer': answer,
-            #'checkprompt': check,
-            'checkanswer': find,
-            'googleSearch': googleSearch,
-            'hyperbrowse': hyperbrowse
+            'checkprompt': check,
+            'checkanswer': find
+            #'googleSearch': googleSearch,
+            #'hyperbrowse': hyperbrowse
         })
 
 class AdviceViewSet(viewsets.ModelViewSet):

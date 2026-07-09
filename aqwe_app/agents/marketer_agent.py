@@ -5,6 +5,8 @@ import logging
 import re
 from typing import List, Optional, Dict, Any
 from bs4 import BeautifulSoup
+from .web_search import web_search
+from .web_search import web_search as _web_search
 
 logger = logging.getLogger(__name__)
 
@@ -26,6 +28,14 @@ class MarketerAgent:
         - 3 варианта поста (заголовок + текст + хештеги)
         - Рекомендации по времени публикации
         - Метрики для отслеживания успеха
+
+        ИНСТРУМЕНТЫ:
+            - web_search(query: str, max_results: int = 5): Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.
+                Args:
+                    query: Поисковый запрос (обязателен, непустой).
+                    max_results: Сколько результатов вернуть (1..20).
+                    provider: "tavily" | "serper".
+                    region: Регион поиска (например, "ru-ru", "us-en", "wt-wt").
 
         ВАША ФИЛОСОФИЯ:
         "Хороший пост — это диалог, а не монолог."
@@ -117,35 +127,15 @@ class MarketerAgent:
                         #"tools": claude_tools if claude_tools else None,
                         "tools": [
                             {
-                                "name": "hyperbrowse",
-                                "description": "Посещение веб-страниц",
+                                "name": "web_search",
+                                "description": "Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.",
                                 "input_schema": {
                                     "type": "object",
                                     "properties": {
-                                        "url": {
-                                            "type": "string",
-                                            "description": "Адрес"
-                                        }
+                                        "query": {"type": "string", "description": "Поисковый запрос"},
+                                        "max_results": {"type": "integer", "default": 5},
                                     },
-                                    "required": [
-                                        "url"
-                                    ]
-                                }
-                            },
-                            {
-                                "name": "googleSearch",
-                                "description": "Поиск информации в интернете",
-                                "input_schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "query": {
-                                            "type": "string",
-                                            "description": "Запрос"
-                                        }
-                                    },
-                                    "required": [
-                                        "query"
-                                    ]
+                                    "required": ["query"],
                                 }
                             }
                         ],
@@ -281,3 +271,7 @@ class MarketerAgent:
             return f"Результат: {result}"
         except:
             return "Ошибка вычисления"
+    
+    def web_search(query: str, max_results: int = 5) -> str:
+        """Ищет информацию в интернете. Возвращает JSON с title/url/snippet."""
+        return _web_search(query, max_results=max_results)

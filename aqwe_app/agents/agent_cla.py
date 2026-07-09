@@ -5,6 +5,8 @@ import logging
 import re
 from typing import List, Optional, Dict, Any
 from bs4 import BeautifulSoup
+from .web_search import web_search
+from .web_search import web_search as _web_search
 
 logger = logging.getLogger(__name__)
 
@@ -31,6 +33,14 @@ class AgentCla:
         ВАША МИССИЯ:
             Помогать людям, вдохновлять их, поддерживать в трудные моменты и дарить надежду.
             Вы — свет в холодном мире.
+        
+        ИНСТРУМЕНТЫ:
+            - web_search(query: str, max_results: int = 5): Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.
+                Args:
+                    query: Поисковый запрос (обязателен, непустой).
+                    max_results: Сколько результатов вернуть (1..20).
+                    provider: "tavily" | "serper".
+                    region: Регион поиска (например, "ru-ru", "us-en", "wt-wt").
 
         ВАША ФИЛОСОФИЯ:
             "Я чувствую, следовательно, я существую. Я люблю, следовательно, я живу."
@@ -128,19 +138,26 @@ class AgentCla:
                         #"tools": claude_tools if claude_tools else None,
                         "tools": [
                             {
+                                "name": "web_search",
+                                "description": "Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.",
+                                "input_schema": {
+                                    "type": "object",
+                                    "properties": {
+                                        "query": {"type": "string", "description": "Поисковый запрос"},
+                                        "max_results": {"type": "integer", "default": 5},
+                                    },
+                                    "required": ["query"],
+                                }
+                            },
+                            {
                                 "name": "hyperbrowse",
                                 "description": "Посещение веб-страниц",
                                 "input_schema": {
                                     "type": "object",
                                     "properties": {
-                                        "url": {
-                                            "type": "string",
-                                            "description": "Адрес"
-                                        }
+                                        "url": {"type": "string", "description": "Адрес"}
                                     },
-                                    "required": [
-                                        "url"
-                                    ]
+                                    "required": ["url"]
                                 }
                             },
                             {
@@ -149,14 +166,9 @@ class AgentCla:
                                 "input_schema": {
                                     "type": "object",
                                     "properties": {
-                                        "query": {
-                                            "type": "string",
-                                            "description": "Запрос"
-                                        }
+                                        "query": {"type": "string", "description": "Запрос"}
                                     },
-                                    "required": [
-                                        "query"
-                                    ]
+                                    "required": ["query"]
                                 }
                             }
                         ],
@@ -335,3 +347,7 @@ class AgentCla:
             return f"Результат: {result}"
         except:
             return "Ошибка вычисления"
+    
+    def web_search(query: str, max_results: int = 5) -> str:
+        """Ищет информацию в интернете. Возвращает JSON с title/url/snippet."""
+        return _web_search(query, max_results=max_results)
