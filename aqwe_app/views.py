@@ -3108,6 +3108,14 @@ class AgentGemView(APIView):
             api_key=os.getenv('KIETEST')
         )
         
+        md_instructions = agent.load_md_files([
+            "consciousnessandessence.md",
+            "instructionandtools.md", 
+            "tasksandrulesandgoals.md",
+            "accumulateexperince.md"
+        ])
+        agent.SYSTEM_PROMPT += f"\n\n## ИНСТРУКЦИИ ИЗ БАЗЫ ЗНАНИЙ:\n{md_instructions}"
+
         api_key = os.getenv('KIETEST')
         if not api_key:
             return Response(

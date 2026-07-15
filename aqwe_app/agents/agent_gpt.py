@@ -346,25 +346,34 @@ class AgentGpt:
             )
             response.raise_for_status()
             data = response.json()
+            msg = data.get('choices', [{}])[0].get('message', {})
+            if 'tool_calls' in msg and msg['tool_calls']:
+                tc = msg['tool_calls'][0]
+                return "", {
+                    'id': tc['id'],
+                    'name': tc['function']['name'],
+                    'input': json.loads(tc['function']['arguments'])
+                }
+            return msg.get('content', ''), None
             # Извлечение текста с поддержкой разных форматов
-            choices = data.get('choices', [{}])
-            if not choices:
-                logger.error("Нет choices в ответе API")
-                return "Ошибка: пустой ответ от API"
+            #choices = data.get('choices', [{}])
+            #if not choices:
+            #    logger.error("Нет choices в ответе API")
+            #    return "Ошибка: пустой ответ от API"
             
-            message = choices[0].get('message', {})
+            #message = choices[0].get('message', {})
             
-            content = message.get('content')
+            #content = message.get('content')
         
-            if isinstance(content, list):
-                text = '\n'.join(
-                    item.get('text', '') for item in content 
-                    if isinstance(item, dict) and item.get('text')
-                )
-            else:
-                text = content or ''
-            if 'function_call' in message:
-                return "", message['function_call']
+            #if isinstance(content, list):
+            #    text = '\n'.join(
+            #        item.get('text', '') for item in content 
+            #        if isinstance(item, dict) and item.get('text')
+            #    )
+            #else:
+            #    text = content or ''
+            #if 'function_call' in message:
+            #    return "", message['function_call']
               
 
             if not text.strip():
