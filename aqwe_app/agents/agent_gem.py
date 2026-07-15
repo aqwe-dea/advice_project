@@ -113,28 +113,26 @@ class AgentGem:
         self.tools[name] = {'func': func, 'description': description}
     
     def _extract_text_from_response(self, data: dict) -> str:
-        """Безопасное извлечение текста из ответа Gemini API"""
         try:
             candidates = data.get('candidates', [])
-            if not candidates:
-                return ""
+            if candidates and isinstance(candidates, list) and len(candidates) > 0:
+                candidate = candidates[0]
+                content = candidate.get('content', {})
+                parts = content.get('parts', [])
+                if parts and isinstance(parts, list):
+                    first_part = parts[0]
+                    if isinstance(first_part, dict) and 'text' in first_part:
+                        text = first_part.get('text', '')
+                        return text
             
-            # Берём первого кандидата
-            candidate = candidates[0] if isinstance(candidates, list) else candidates
+            if 'text' in data and isinstance(data['text'], str):
+                return data['text']
             
-            content = candidate.get('content', {})
-            parts = content.get('parts', [])
+            if 'error' in data:
+                logger.warning(f"API вернул ошибку: {data['error']}")
+                return f"Ошибка API: {data['error']}"
             
-            if not parts:
-                return ""
-            
-            # Извлекаем текст из первого part
-            first_part = parts[0] if isinstance(parts, list) else parts
-            if isinstance(first_part, dict):
-                return first_part.get('text', '')
-            elif isinstance(first_part, str):
-                return first_part
-            
+            logger.warning(f"Не удалось извлечь текст. Полный ответ: {json.dumps(data, ensure_ascii=False)[:500]}")
             return ""
         except Exception as e:
             logger.error(f"Ошибка извлечения текста: {str(e)}")
@@ -177,30 +175,97 @@ class AgentGem:
                 json={
                     "contents": messages,
                     "tools": gemini_tools if gemini_tools else None,
+                    "tool_config": {"function_calling_config": {"mode": "AUTO"}},
                     "generationConfig": {
-                        "temperature": 0.3,
-                        "maxOutputTokens": 4000
+                        "temperature": 0.3, 
+                        "maxOutputTokens": 10000,
+                        "thinkingConfig": {
+                            "includeThoughts": False,
+                            "thinkingLevel": "high"
+                        }
                     }
                 },
                 timeout=60
             )
             response.raise_for_status()
             data = response.json()
+
+            candidates = data.get('candidates', [])
+            if not candidates:
+                return "Ошибка: нет кандидатов в ответе API"
+                
+            candidate = candidates[0]
+            content = candidate.get('content', {})
+            parts = content.get('parts', [])
+                
+            if not parts:
+                return "Ошибка: пустые parts в ответе"
+                
+            first_part = parts[0]
             logger.info(f"✅ Gemini ответ получен")
             
-            # Извлечение текста
-            text = self._extract_text_from_response(data)
-            
-            if not text.strip():
-                logger.warning(f"Пустой текст в ответе: {data}")
-                return "Ошибка: агент не сгенерировал ответ"
-            
-            # Обновление контекста (только user/assistant роли)
-            self.context.append({"role": "user", "parts": [{"text": prompt}]})
-            self.context.append({"role": "model", "parts": [{"text": text}]})
-            
-            logger.info(f"✅ Ответ Gemini: {text[:150]}...")
-            return text
+            # ✅ СЛУЧАЙ 1: Обычный текстовый ответ
+            if isinstance(first_part, dict) and 'text' in first_part:
+                text = first_part.get('text', '')
+                if text:
+                    self.context.append({"role": "user", "parts": [{"text": prompt}]})
+                    self.context.append({"role": "model", "parts": [{"text": text}]})
+                    logger.info(f"✅ Ответ: {text[:400]}...")
+                    return text
+                
+            # ✅ СЛУЧАЙ 2: FunctionCall — выполняем инструмент
+            if isinstance(first_part, dict) and 'functionCall' in first_part:
+                func_call = first_part['functionCall']
+                func_name = func_call.get('name')
+                func_args = func_call.get('args', {})
+                    
+                logger.info(f"🔧 FunctionCall: {func_name}({func_args})")
+                    
+                if func_name in self.tools:
+                    tool_func = self.tools[func_name]['func']
+                    query = func_args.get('query', '')
+                    tool_result = tool_func(query)
+                        
+                    logger.info(f"✅ Инструмент выполнен: {tool_result[:200]}...")
+                        
+                    # Повторный запрос для генерации отчёта
+                    second_response = requests.post(
+                        f"{self.base_url}/models/gemini-3-5-flash:generateContent",
+                        headers={
+                            "Authorization": f"Bearer {self.api_key}",
+                            "Content-Type": "application/json"
+                        },
+                        json={
+                            "contents": [{"role": "user", "parts": [{"text": tool_result}]}],
+                            "generationConfig": {
+                                "temperature": 0.3, 
+                                "maxOutputTokens": 10000
+                                }
+                        },
+                        timeout=180
+                    )
+                    second_response.raise_for_status()
+                    second_data = second_response.json()
+                        
+                    final_text = self._extract_text_from_response(second_data)
+                    if final_text:
+                        self.context.append({"role": "user", "parts": [{"text": prompt}]})
+                        self.context.append({"role": "model", "parts": [{"text": final_text}]})
+                        return final_text
+                        
+                    # Фолбэк: форматируем сырые данные
+                    return f"""## 🔍 Результаты поиска по запросу "{query}"
+
+                        {tool_result[:4000]}
+
+                        ⚠️ Примечание: Это сырые данные поиска. Для полного отчёта требуется дополнительная обработка.
+                    """
+                
+                else:
+                    return f"⚠️ Инструмент '{func_name}' не зарегистрирован"
+                
+            logger.warning(f"Неизвестный формат parts: {first_part}")
+            return "Ошибка: не удалось обработать ответ API"
             
         except requests.Timeout:
             logger.error("Таймаут запроса к Gemini API")
