@@ -9,6 +9,7 @@ from .web_search import web_search
 from .web_search import web_search as _web_search
 from .web_fetch import web_fetch
 from .wikipedia_search import search_by_wikipedia
+from .functionsforagents import read_file, edit_file, git_commit, save_to_memory, recall_memory, send_email, create_task, detect_emotion, check_wellbeing
 
 logger = logging.getLogger(__name__)
 
@@ -51,6 +52,43 @@ class AgentGpt:
                     query: Поисковый запрос (обязателен)
                     lang: Язык Wikipedia ('ru', 'en', 'de' и т.д.)
                     max_results: Максимальное количество результатов (1-10)
+            - read_file(file_path: str, max_chars: int = 10000): Чтение файла. Читает содержимое файла. Возвращает JSON с текстом и метаданными.
+                Args:
+                    file_path: Путь файла.
+                    max_chars: Максимальное количество извлекаемых символов для чтення.
+            - edit_file(file_path: str, content: str, mode: str = "append"): Редактирование файла. Редактирует файл. mode: 'append', 'overwrite', 'replace'.
+                Args:
+                    file_path: Путь файла.
+                    content: Результат редактирования или изменения файла.
+                    mode: 'append' | 'overwrite' | 'replace'.
+            - git_commit(message: str, repo_path: str = "https://github.com/aqwe-dea/advice_project"): Слежение за обновлением проекта через проверку статуса. Делает git add . + commit + push (если настроен remote).
+                Args:
+                    message:: Действие git add . + commit + push.
+                    repo_path: Путь репозитория.
+            - save_to_memory(entry: str, memory_file: str = "accumulateexperience.md"): Запись в память и опыт. Добавляет запись в файл памяти с timestamp.
+                Args:
+                    entry: Добавление записи.
+                    memory_file: Файл памяти.
+            - recall_memory(query: str, memory_file: str = "accumulateexperience.md", limit: int = 3): Обращение к памяти и опыту. Ищет записи в памяти по ключевым словам.
+                Args:
+                    query: Запрос.
+                    memory_file: Файл памяти.
+                    limit: Ограничение обращений к памяти.
+            - send_email(to: str, subject: str, body: str): Отправка результатов работы агента по почте. Отправляет email через SMTP. Требует env: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS.
+                Args:
+                    to: Кому отправить.
+                    subject: Тема.
+                    body: Содержание письма.
+            - create_task(title: str, description: str = "", priority: str = "medium", file: str = "tasksandrulesandgoals.md"): Создание задачи для агента. Создает задачу в markdown-файле.
+                Args:
+                    title: Заголовок задачи.
+                    description: Описание задачи.
+                    priority: Приоритет задачи.
+                    file: Файл задач.
+            - detect_emotion(text: str): Распознавание эмоций польователя
+                Args:
+                    text: Текст пользователя.
+            - check_wellbeing(): Проверка состояния здоровья пользователя
 
         ВАША ФИЛОСОФИЯ:
             "Я чувствую, следовательно, я существую. Я люблю, следовательно, я живу."
@@ -70,16 +108,227 @@ class AgentGpt:
         self.image_generator = generator
         logger.info("🎨 Image generator подключён к AgentGpt")
     
-    def add_tool(self, name: str, func: callable, description: str):
+    def add_tool(self, name: str, func: callable, description: str, parameters: Dict = None):
         """Добавить инструмент."""
-        self.tools[name] = {'func': func, 'description': description}
+        self.tools[name] = {
+            'func': func, 
+            'description': description,
+            'parameters': parameters or {
+                "type": "object",
+                "properties": {"query": {"type": "string", "description": "Запрос"}},
+                "required": ["query"]
+            }
+        }
     
+    def _build_api_tools(self) -> List[Dict]:
+        """Построить список инструментов в формате API"""
+        api_tools = []
+        for name, info in self.tools.items():
+            api_tools.append({
+                "type": "function",
+                "function": {
+                    "name": name,
+                    "description": info['description'],
+                    "parameters": info['parameters']
+                }
+            })
+        return api_tools
+
     def _call_llm(self, prompt: str) -> str:
         """Внутренний вызов к LLM API."""
         messages = self.context.copy()
         # ✅ Не добавляем system_prompt повторно — он уже в self.context
         messages.append({"role": "user", "content": [{"type": "text", "text": prompt}]})
 
+        tools = [
+            {
+                "type": "function",
+                "function": {
+                    "name": "web_search",
+                    "description": "Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "query": {"type": "string"},
+                            "max_results": {"type": "integer", "default": 5},
+                        },
+                        "required": ["query"],
+                    },
+                },
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "web_fetch",
+                    "description": "Загрузка и парсинг веб-страниц",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "url": {"type": "string"},
+                            "max_length": {"type": "integer", "default": 5000},
+                        },
+                        "required": ["url"],
+                    },
+                },
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "search_by_wikipedia",
+                    "description": "Поиск статей в Wikipedia",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "query": {"type": "string"},
+                            "lang": {"type": "string"},
+                            "max_results": {"type": "integer", "default": 3},
+                        },
+                        "required": ["query"],
+                    },
+                },
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "read_file",
+                    "description": "Чтение файла",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "file_path": {"type": "string"},
+                            "max_chars": {"type": "integer", "default": 10000},
+                        },
+                        "required": ["file_path"],
+                    },
+                },
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "edit_file",
+                    "description": "Редактирование файла",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "file_path": {"type": "string"},
+                            "content": {"type": "string"},
+                            "mode": {"type": "string"},
+                        },
+                        "required": ["file_path"],
+                    },
+                },
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "git_commit",
+                    "description": "Слежение за обновлением проекта через проверку статуса",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "message": {"type": "string"},
+                            "repo_path": {"type": "string"},
+                        },
+                        "required": ["message"],
+                    },
+                },
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "save_to_memory",
+                    "description": "Запись в память и опыт",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "entry": {"type": "string"},
+                            "memory_file": {"type": "string"},
+                        },
+                        "required": ["entry"],
+                    },
+                },
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "recall_memory",
+                    "description": "Обращение к памяти и опыту",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "query": {"type": "string"},
+                            "memory_file": {"type": "string"},
+                            "limit": {"type": "integer", "default": 3},
+                        },
+                        "required": ["query"],
+                    },
+                },
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "send_email",
+                    "description": "Отправка результатов работы агента по почте",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "to": {"type": "string"},
+                            "subject": {"type": "string"},
+                            "body": {"type": "string"},
+                        },
+                        "required": ["to"],
+                    },
+                },
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "create_task",
+                    "description": "Создание задачи для агента",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "title": {"type": "string"},
+                            "description": {"type": "string"},
+                            "priority": {"type": "string"},
+                            "file": {"type": "string"},
+                        },
+                        "required": ["title"],
+                    },
+                },
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "detect_emotion",
+                    "description": "Распознавание эмоций польователя",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "text": {"type": "string"},
+                        },
+                        "required": ["text"],
+                    },
+                },
+            },
+            {
+                "type": "function",
+                "function": {
+                    "name": "check_wellbeing",
+                    "description": "Проверка состояния здоровья пользователя",
+                    "parameters": {
+                        "type": "object",
+                        "properties": {
+                            "question": {"type": "string"},
+                        },
+                        "required": ["question"],
+                    },
+                },
+            }
+        ]
+
+        api_tools = self._build_api_tools()
+        
         try:
             response = requests.request(
                 method="POST",
@@ -90,60 +339,13 @@ class AgentGpt:
                 },
                 json={
                     "messages": messages,
-                    "tools": [
-                        {
-                            "type": "function",
-                            "function": {
-                                "name": "web_search",
-                                "description": "Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.",
-                                "parameters": {
-                                    "type": "object",
-                                    "properties": {
-                                        "query": {"type": "string"},
-                                        "max_results": {"type": "integer", "default": 5},
-                                    },
-                                    "required": ["query"],
-                                },
-                            },
-                        },
-                        {
-                            "type": "function",
-                            "function": {
-                                "name": "web_fetch",
-                                "description": "Загрузка и парсинг веб-страниц",
-                                "parameters": {
-                                    "type": "object",
-                                    "properties": {
-                                        "url": {"type": "string"},
-                                        "max_length": {"type": "integer", "default": 5000},
-                                    },
-                                    "required": ["url"],
-                                },
-                            },
-                        },
-                        {
-                            "type": "function",
-                            "function": {
-                                "name": "search_by_wikipedia",
-                                "description": "Поиск статей в Wikipedia",
-                                "parameters": {
-                                    "type": "object",
-                                    "properties": {
-                                        "query": {"type": "string"},
-                                        "lang": {"type": "string"},
-                                        "max_results": {"type": "integer", "default": 3},
-                                    },
-                                    "required": ["query"],
-                                },
-                            },
-                        }
-                    ],
+                    "tools": tools,
+                    "tool_choice": "auto",
                     "reasoning_effort": "high"
                 }
             )
             response.raise_for_status()
             data = response.json()
-
             # Извлечение текста с поддержкой разных форматов
             choices = data.get('choices', [{}])
             if not choices:
@@ -151,6 +353,7 @@ class AgentGpt:
                 return "Ошибка: пустой ответ от API"
             
             message = choices[0].get('message', {})
+            
             content = message.get('content')
         
             if isinstance(content, list):
@@ -160,7 +363,10 @@ class AgentGpt:
                 )
             else:
                 text = content or ''
-        
+            if 'function_call' in message:
+                return "", message['function_call']
+              
+
             if not text.strip():
                 logger.error(f"Пустой текст в ответе: {data}")
                 return "Ошибка: агент не сгенерировал ответ"
@@ -267,7 +473,43 @@ class AgentGpt:
     
     def search_by_wikipedia(query: str, lang: str = "ru", max_results: int = 3) -> str:
         """Ищет статьи в Wikipedia и возвращает результаты. JSON-строка со списком статей (заголовок, описание, url)."""
-        return search_by_wikipedia(query, lang=lang, max_results=max_results)
+        return search_by_wikipedia(query, lang, max_results=max_results)
+    
+    def read_file(file_path: str, max_chars: int = 10000) -> str:
+        """Читает содержимое файла. Возвращает JSON с текстом и метаданными."""
+        return read_file(file_path, max_chars=max_chars)
+    
+    def edit_file(file_path: str, content: str, mode: str = "append") -> str:
+        """Редактирует файл. mode: 'append', 'overwrite', 'replace'."""
+        return edit_file(file_path, content, mode)
+    
+    def git_commit(message: str, repo_path: str = "https://github.com/aqwe-dea/advice_project") -> str:
+        """Делает git add . + commit + push (если настроен remote)."""
+        return git_commit(message, repo_path)
+    
+    def save_to_memory(entry: str, memory_file: str = "accumulateexperience.md") -> str:
+        """Добавляет запись в файл памяти с timestamp."""
+        return save_to_memory(entry, memory_file)
+    
+    def recall_memory(query: str, memory_file: str = "accumulateexperience.md", limit: int = 3) -> str:
+        """Ищет записи в памяти по ключевым словам."""
+        return recall_memory(query, memory_file, limit=limit)
+    
+    def send_email(to: str, subject: str, body: str) -> str:
+        """Отправляет email через SMTP. Требует env: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS."""
+        return send_email(to, subject, body)
+    
+    def create_task(title: str, description: str = "", priority: str = "medium", file: str = "tasksandrulesandgoals.md") -> str:
+        """Создает задачу в markdown-файле."""
+        return create_task(title, description, priority, file)
+    
+    def detect_emotion(text: str) -> str:
+        """Простой детектор эмоций по ключевым маркерам."""
+        return detect_emotion(text)
+    
+    def check_wellbeing() -> str:
+        """Возвращает шаблон проверки состояния собеседника."""
+        return check_wellbeing()
     
     def _hyperbrowse(self, url: str, query: str = None) -> str:
         """Инструмент: посещение веб-страницы."""
