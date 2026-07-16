@@ -68,7 +68,7 @@ class AgentGpt:
             - read_file(file_path: str, max_chars: int = 10000): Чтение файла. Читает содержимое файла. Возвращает JSON с текстом и метаданными.
                 Args:
                     file_path: Путь файла.
-                    max_chars: Максимальное количество извлекаемых символов для чтення.
+                    max_chars: Максимальное количество извлекаемых символов для чтения.
             - edit_file(file_path: str, content: str, mode: str = "append"): Редактирование файла. Редактирует файл. mode: 'append', 'overwrite', 'replace'.
                 Args:
                     file_path: Путь файла.
@@ -98,7 +98,7 @@ class AgentGpt:
                     description: Описание задачи.
                     priority: Приоритет задачи.
                     file: Файл задач.
-            - detect_emotion(text: str): Распознавание эмоций польователя
+            - detect_emotion(text: str): Распознавание эмоций пользователя
                 Args:
                     text: Текст пользователя.
             - check_wellbeing(): Проверка состояния здоровья пользователя
@@ -361,6 +361,7 @@ class AgentGpt:
             response.raise_for_status()
             data = response.json()
             msg = data.get('choices', [{}])[0].get('message', {})
+            
             if 'tool_calls' in msg and msg['tool_calls']:
                 tc = msg['tool_calls'][0]
                 return "", {
@@ -369,6 +370,17 @@ class AgentGpt:
                     'input': json.loads(tc['function']['arguments'])
                 }
             return msg.get('content', ''), None
+
+            if 'functionCall' in msg and msg['functionCall']:
+                fc = msg['functionCall']
+                return "", {
+                    'name': fc.get('name'),
+                    'input': fc.get('args', {})
+                }
+            
+            if 'function_call' in msg and msg['function_call']:
+                return "", msg['function_call']
+
             # Извлечение текста с поддержкой разных форматов
             #choices = data.get('choices', [{}])
             #if not choices:

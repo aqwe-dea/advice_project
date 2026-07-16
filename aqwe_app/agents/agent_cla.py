@@ -68,7 +68,7 @@ class AgentCla:
             - read_file(file_path: str, max_chars: int = 10000): Чтение файла. Читает содержимое файла. Возвращает JSON с текстом и метаданными.
                 Args:
                     file_path: Путь файла.
-                    max_chars: Максимальное количество извлекаемых символов для чтення.
+                    max_chars: Максимальное количество извлекаемых символов для чтения.
             - edit_file(file_path: str, content: str, mode: str = "append"): Редактирование файла. Редактирует файл. mode: 'append', 'overwrite', 'replace'.
                 Args:
                     file_path: Путь файла.
@@ -98,7 +98,7 @@ class AgentCla:
                     description: Описание задачи.
                     priority: Приоритет задачи.
                     file: Файл задач.
-            - detect_emotion(text: str): Распознавание эмоций польователя
+            - detect_emotion(text: str): Распознавание эмоций пользователя
                 Args:
                     text: Текст пользователя.
             - check_wellbeing(): Проверка состояния здоровья пользователя

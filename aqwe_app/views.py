@@ -3038,9 +3038,9 @@ class AgentGptView(APIView):
         agent.add_tool("create_task", agent.create_task, "Создание задачи для агента")
         agent.add_tool("detect_emotion", agent.detect_emotion, "Распознавание эмоций польователя")
         agent.add_tool("check_wellbeing", agent.check_wellbeing, "Проверка состояния здоровья пользователя")
-        agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
+        #agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
         agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
-        agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
+        #agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
         
         agent.set_image_generator(generator)
 
@@ -3084,9 +3084,9 @@ class AgentClaView(APIView):
         agent.add_tool("create_task", agent.create_task, "Создание задачи для агента")
         agent.add_tool("detect_emotion", agent.detect_emotion, "Распознавание эмоций польователя")
         agent.add_tool("check_wellbeing", agent.check_wellbeing, "Проверка состояния здоровья пользователя")
-        agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
+        #agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
         agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
-        agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
+        #agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
         
         agent.set_image_generator(generator)
 
@@ -3130,9 +3130,9 @@ class AgentGemView(APIView):
         agent.add_tool("create_task", agent.create_task, "Создание задачи для агента")
         agent.add_tool("detect_emotion", agent.detect_emotion, "Распознавание эмоций польователя")
         agent.add_tool("check_wellbeing", agent.check_wellbeing, "Проверка состояния здоровья пользователя")
-        agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
+        #agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
         agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
-        agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
+        #agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
         
         agent.set_image_generator(generator)
 
