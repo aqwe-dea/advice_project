@@ -3028,7 +3028,7 @@ class AgentGptView(APIView):
         # Добавляем инструменты (по желанию)
         agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
         agent.add_tool('web_fetch', agent.web_fetch, 'Загрузка и парсинг веб-страниц')
-        agent.add_tool('search_wikipedia', agent.search_by_wikipedia, 'Поиск статей в Wikipedia')
+        agent.add_tool('search_by_wikipedia', agent.search_by_wikipedia, 'Поиск статей в Wikipedia')
         agent.add_tool("read_file", agent.read_file, "Чтение файла")
         agent.add_tool("edit_file", agent.edit_file, "Редактирование файла")
         agent.add_tool("git_commit", agent.git_commit, "Слежение за обновлением проекта через проверку статуса")
@@ -3074,7 +3074,7 @@ class AgentClaView(APIView):
         # Добавляем инструменты (по желанию)
         agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
         agent.add_tool('web_fetch', agent.web_fetch, 'Загрузка и парсинг веб-страниц')
-        agent.add_tool('search_wikipedia', agent.search_by_wikipedia, 'Поиск статей в Wikipedia')
+        agent.add_tool('search_by_wikipedia', agent.search_by_wikipedia, 'Поиск статей в Wikipedia')
         agent.add_tool("read_file", agent.read_file, "Чтение файла")
         agent.add_tool("edit_file", agent.edit_file, "Редактирование файла")
         agent.add_tool("git_commit", agent.git_commit, "Слежение за обновлением проекта через проверку статуса")
@@ -3107,14 +3107,6 @@ class AgentGemView(APIView):
         agent = AgentGem(
             api_key=os.getenv('KIETEST')
         )
-        
-        md_instructions = agent.load_md_files([
-            "consciousnessandessence.md",
-            "instructionandtools.md", 
-            "tasksandrulesandgoals.md",
-            "accumulateexperince.md"
-        ])
-        agent.SYSTEM_PROMPT += f"\n\n## ИНСТРУКЦИИ ИЗ БАЗЫ ЗНАНИЙ:\n{md_instructions}"
 
         api_key = os.getenv('KIETEST')
         if not api_key:
@@ -3128,7 +3120,7 @@ class AgentGemView(APIView):
         # Добавляем инструменты (по желанию)
         agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
         agent.add_tool('web_fetch', agent.web_fetch, 'Загрузка и парсинг веб-страниц')
-        agent.add_tool('search_wikipedia', agent.search_by_wikipedia, 'Поиск статей в Wikipedia')
+        agent.add_tool('search_by_wikipedia', agent.search_by_wikipedia, 'Поиск статей в Wikipedia')
         agent.add_tool("read_file", agent.read_file, "Чтение файла")
         agent.add_tool("edit_file", agent.edit_file, "Редактирование файла")
         agent.add_tool("git_commit", agent.git_commit, "Слежение за обновлением проекта через проверку статуса")
