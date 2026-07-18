@@ -2642,8 +2642,8 @@ class AgentChatView(APIView):
         # Инициализация агента (ключи из env)
         agent = SimpleAgent(
             api_key=os.getenv('KIETEST'),
-            base_url='https://api.kie.ai/gemini-3.1-pro/v1/',
-            model='gemini-3.1-pro'
+            base_url='https://api.kie.ai',
+            model='gpt-5-6-sol'
         )
         
         # Добавляем инструменты (по желанию)
@@ -2673,8 +2673,8 @@ class SmartAgentView(APIView):
         
         agent = SmartAgent(
             api_key=os.getenv('KIETEST'),
-            base_url='https://api.kie.ai/gemini-2.5-pro/v1/',
-            model='gemini-2.5-pro'
+            base_url='https://api.kie.ai',
+            model='grok-4-5'
         )
         
         agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')

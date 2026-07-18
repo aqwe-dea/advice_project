@@ -3,8 +3,9 @@ import json
 import requests
 import logging
 import re
-from typing import List, Optional, Dict
-from bs4 import BeautifulSoup
+import time
+from typing import List, Optional, Dict, Any
+from bs4 import BeautifulSoup  # ← Добавлен импорт!
 
 logger = logging.getLogger(__name__)
 
@@ -41,7 +42,8 @@ class SimpleAgent:
         self.model = model
         # ✅ Контекст инициализируется один раз с system_prompt
         self.context: List[Dict] = [
-            {"role": "system", "content": self.SYSTEM_PROMPT}
+            {"role": "system", "content": [{"type": "input_text", "text": self.SYSTEM_PROMPT}]}
+            #{"role": "system", "content": self.SYSTEM_PROMPT}
         ]
         self.tools: Dict[str, Dict] = {}
     
@@ -49,38 +51,94 @@ class SimpleAgent:
         """Добавить инструмент."""
         self.tools[name] = {'func': func, 'description': description}
     
-    def _call_llm(self, prompt: str, temperature: float = 0.7) -> str:
+    def _extract_text_or_tool(self, data: dict) -> tuple[str, Optional[Dict]]:
+        """Извлечь текст или function_call из ответа API"""
+        try:
+            output = data.get('output', [{}])[0]
+            #output = data.get('output', [{}])
+            #if not output:
+            #    return "", None
+            
+            content = output.get('content', {})
+            
+            # Проверка на function_call
+            #if 'function_call' in message:
+            #    return "", message['function_call']
+            
+            # Проверка на tool_calls (OpenAI-стиль)
+            #if 'tool_calls' in message and message['tool_calls']:
+            #    tool_call = message['tool_calls'][0]['function']
+            #    return "", {
+            #        'name': tool_call.get('name'),
+            #        'arguments': tool_call.get('arguments', '{}')
+            #    }
+            
+            # Обычный текст
+            text = content.get('text')
+            #if isinstance(outtext, list):
+            #    text = '\n'.join(item.get('text', '') for item in outtext if isinstance(item, dict))
+            #else:
+            #    text = outtext or ''
+            
+            return text
+            
+        except Exception as e:
+            logger.error(f"Ошибка извлечения: {str(e)}")
+            return "", None
+
+    def _call_llm(self, prompt: str) -> str:
         """Внутренний вызов к LLM API."""
         messages = self.context.copy()
         # ✅ Не добавляем system_prompt повторно — он уже в self.context
-        messages.append({"role": "user", "content": prompt})
-        
+        #messages.append({"role": "user", "content": prompt})
+        messages.append({"role": "user", "content": [{"type": "input_text", "text": prompt}]})
+
         try:
             response = requests.post(
-                f"{self.base_url}/chat/completions",
+                f"{self.base_url}/codex/v1/responses",
                 headers={
                     "Authorization": f"Bearer {self.api_key}",
                     "Content-Type": "application/json"
                 },
                 json={
                     "model": self.model,
+                    "input": messages,
                     "stream": False,
-                    "messages": messages,
-                    "temperature": temperature,
-                    "max_tokens": 2000
+                    "max_output_tokens": 10000,
+                    "reasoning": {
+                        "effort": "xhigh"
+                    }
                 }
             )
             response.raise_for_status()
             data = response.json()
-            logger.info(f"Ответ API: {data.get('choices', [{}])[0].get('message', {}).get('content', '')[:200]}...")
+            # Извлечение текста с поддержкой разных форматов
+            output = data.get('output', [{}])
+            if not output:
+                logger.error("Нет output в ответе API")
+                return "Ошибка: пустой ответ от API"
             
-            result = data.get('choices', [{}])[0].get('message', {}).get('content', '')
+            content = output[0].get('content', {})
             
-            # Добавляем в контекст только успешные ответы
-            self.context.append({"role": "user", "content": prompt})
-            self.context.append({"role": "assistant", "content": result})
-            
-            return result
+            #content = message.get('content')
+        
+            if isinstance(content, list):
+                text = '\n'.join(
+                    item.get('text', '') for item in content 
+                    if isinstance(item, dict) and item.get('text')
+                )
+            else:
+                text = content or ''
+            #if 'function_call' in message:
+            #    return "", message['function_call']
+            #text, tool_call = self._extract_text_or_tool(data)
+
+            if text:
+                self.context.append({"role": "user", "content": [{"type": "input_text", "text": prompt}]})
+                self.context.append({"role": "assistant", "content": [{"type": "output_text", "text": text}]})
+                return text
+                
+            return "Ошибка: не удалось получить ответ от модели"
             
         except Exception as e:
             logger.error(f"Ошибка LLM: {str(e)}")

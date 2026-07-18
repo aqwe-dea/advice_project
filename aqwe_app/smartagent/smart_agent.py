@@ -3,8 +3,9 @@ import json
 import requests
 import logging
 import re
-from typing import List, Optional, Dict
-from bs4 import BeautifulSoup
+import time
+from typing import List, Optional, Dict, Any
+from bs4 import BeautifulSoup  # ← Добавлен импорт!
 from .short_term import ShortTermMemory
 from .long_term import LongTermMemory
 from .learner import ExperienceLearner
@@ -44,7 +45,7 @@ class SmartAgent:
         self.model = model
         # ✅ Контекст инициализируется один раз с system_prompt
         self.context: List[Dict] = [
-            {"role": "system", "content": self.SYSTEM_PROMPT}
+            {"role": "system", "content": [{"type": "input_text", "text": self.SYSTEM_PROMPT}]}
         ]
         self.tools: Dict[str, Dict] = {}
         self.short_term = ShortTermMemory()
@@ -55,15 +56,31 @@ class SmartAgent:
         """Добавить инструмент."""
         self.tools[name] = {'func': func, 'description': description}
     
-    def _call_llm(self, prompt: str, temperature: float = 0.7) -> str:
+    def parse_grok_response(self, answer: dict) -> str:
+        try:
+            # 1. Берём первый блок из массива
+            text = answer[0].get("text")
+            #text = block.get("text", "")
+        
+            # 2. Если внутри лежит JSON-строка — декодируем
+            if text.startswith("{"):
+                parsed = json.loads(text)
+                return parsed.get("answer", text)
+        
+            return text
+        except Exception:
+            return str(answer[0].get("answer", answer))
+
+    def _call_llm(self, prompt: str) -> str:
         """Внутренний вызов к LLM API."""
         messages = self.context.copy()
         # ✅ Не добавляем system_prompt повторно — он уже в self.context
-        messages.append({"role": "user", "content": prompt})
-        
+        #messages.append({"role": "user", "content": prompt})
+        messages.append({"role": "user", "content": [{"type": "input_text", "text": prompt}]})
+
         try:
             response = requests.post(
-                f"{self.base_url}/chat/completions",
+                f"{self.base_url}/grok/v1/responses",
                 headers={
                     "Authorization": f"Bearer {self.api_key}",
                     "Content-Type": "application/json"
@@ -71,22 +88,53 @@ class SmartAgent:
                 json={
                     "model": self.model,
                     "stream": False,
-                    "messages": messages,
-                    "temperature": temperature,
-                    "max_tokens": 2000
+                    "input": messages,
+                    "max_output_tokens": 10000,
+                    "text": {
+                        "format": {
+                            "type": "json_schema",
+                            "name": "basic_response",
+                            "strict": True,
+                            "schema": {
+                                "type": "object",
+                                "properties": {
+                                    "answer": {
+                                        "type": "string",
+                                        "description": "Response content"
+                                    },
+                                    "mood": {
+                                        "type": "string",
+                                        "description": "Mood when responding"
+                                    }
+                                },
+                                "required": [
+                                    "answer",
+                                    "mood"
+                                ],
+                                "additionalProperties": False
+                            }
+                        }
+                    }
                 }
             )
             response.raise_for_status()
             data = response.json()
-            logger.info(f"Ответ API: {data.get('choices', [{}])[0].get('message', {}).get('content', '')[:200]}...")
             
-            result = data.get('choices', [{}])[0].get('message', {}).get('content', '')
+            output = data.get('output', [{}])
+            if output and isinstance(output, list):
+                #text = output[1].get('text') or output[1].get('content') # этот вариант полностью рабочий
+                answer = output[1].get('text') or output[1].get('content')
+            else:
+                answer = str(output)
+
+            text = self.parse_grok_response(answer)
+
+            # Обновление контекста
+            self.context.append({"role": "user", "content": [{"type": "input_text", "text": prompt}]})
+            self.context.append({"role": "assistant", "content": [{"type": "output_text", "text": text}]})
             
-            # Добавляем в контекст только успешные ответы
-            self.context.append({"role": "user", "content": prompt})
-            self.context.append({"role": "assistant", "content": result})
-            
-            return result
+            logger.info(f"✅ Ответ агента: {text[:1500]}...")
+            return text
             
         except Exception as e:
             logger.error(f"Ошибка LLM: {str(e)}")
