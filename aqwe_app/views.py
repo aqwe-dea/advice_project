@@ -2647,9 +2647,22 @@ class AgentChatView(APIView):
         )
         
         # Добавляем инструменты (по желанию)
-        agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
+
+        agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
+        agent.add_tool('web_fetch', agent.web_fetch, 'Загрузка и парсинг веб-страниц')
+        agent.add_tool('search_by_wikipedia', agent.search_by_wikipedia, 'Поиск статей в Wikipedia')
+        agent.add_tool("read_file", agent.read_file, "Чтение файла")
+        agent.add_tool("edit_file", agent.edit_file, "Редактирование файла")
+        agent.add_tool("git_commit", agent.git_commit, "Слежение за обновлением проекта через проверку статуса")
+        agent.add_tool("save_to_memory", agent.save_to_memory, "Запись в память и опыт")
+        agent.add_tool("recall_memory", agent.recall_memory, "Обращение к памяти и опыту")
+        agent.add_tool("send_email", agent.send_email, "Отправка результатов работы агента по почте")
+        agent.add_tool("create_task", agent.create_task, "Создание задачи для агента")
+        agent.add_tool("detect_emotion", agent.detect_emotion, "Распознавание эмоций польователя")
+        agent.add_tool("check_wellbeing", agent.check_wellbeing, "Проверка состояния здоровья пользователя")
+        #agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
         agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
-        agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
+        #agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
         
         # Получаем ответ
         answer = agent.ask(question)
@@ -2677,11 +2690,21 @@ class SmartAgentView(APIView):
             model='grok-4-5'
         )
         
-        agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
+        agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
+        agent.add_tool('web_fetch', agent.web_fetch, 'Загрузка и парсинг веб-страниц')
+        agent.add_tool('search_by_wikipedia', agent.search_by_wikipedia, 'Поиск статей в Wikipedia')
+        agent.add_tool("read_file", agent.read_file, "Чтение файла")
+        agent.add_tool("edit_file", agent.edit_file, "Редактирование файла")
+        agent.add_tool("git_commit", agent.git_commit, "Слежение за обновлением проекта через проверку статуса")
+        agent.add_tool("save_to_memory", agent.save_to_memory, "Запись в память и опыт")
+        agent.add_tool("recall_memory", agent.recall_memory, "Обращение к памяти и опыту")
+        agent.add_tool("send_email", agent.send_email, "Отправка результатов работы агента по почте")
+        agent.add_tool("create_task", agent.create_task, "Создание задачи для агента")
+        agent.add_tool("detect_emotion", agent.detect_emotion, "Распознавание эмоций польователя")
+        agent.add_tool("check_wellbeing", agent.check_wellbeing, "Проверка состояния здоровья пользователя")
+        #agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
         agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
-        agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
-        # Добавляем инструменты (пример)
-        # agent.add_tool('search', agent._hyperbrowse, 'Поиск в интернете')
+        #agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
         
         # Запрос к агенту
         answer = agent.ask(question, user_feedback)
