@@ -10,6 +10,7 @@ import numpy as np
 import re
 import time
 import hashlib
+import httpx
 from django.conf import settings
 from django.http import JsonResponse
 from django.core.files.base import ContentFile
@@ -18,7 +19,10 @@ from django.utils import timezone
 from datetime import timedelta, datetime
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
-from typing import Dict, List
+from typing import Dict, List, IO, TYPE_CHECKING, Any, Type, Tuple, Union, Mapping, TypeVar, Callable, Iterator, Optional, Sequence
+from uuid import UUID
+from pathlib import Path
+from abc import abstractmethod
 from .models import Advice, UserHistory
 from .serializers import AdviceSerializer, UserHistorySerializer
 from .utils import send_advice_email
@@ -72,7 +76,11 @@ from .agents.insider_agent import InsiderAgent
 from .agents.marketer_agent import MarketerAgent
 from .agents.investor_agent import InvestorAgent
 from .agents.freelancer_agent import FreelancerAgent
-
+from .analytics import log_interaction, get_stats
+from stripe.checkout._session import Session
+from stripe._request_options import RequestOptions
+from stripe._stripe_object import StripeObject
+from stripe.checkout._session_line_item_service import SessionLineItemService
 
 logger = logging.getLogger(__name__)
 @method_decorator(csrf_exempt, name='dispatch')
@@ -2636,6 +2644,10 @@ class AgentChatView(APIView):
     
     def post(self, request):
         question = request.data.get('question', '')
+        #prompt = request.data.get('prompt', '')
+        
+        user_id = request.user.id if request.user.is_authenticated else request.META.get('REMOTE_ADDR', 'anonymous')
+        
         if not question:
             return Response({'error': 'Вопрос не предоставлен'}, status=400)
         
@@ -2646,6 +2658,13 @@ class AgentChatView(APIView):
             model='gpt-5-6-sol'
         )
         
+        # Логируем вход
+        log_interaction(
+            user_id=user_id,
+            endpoint=self.__class__.__name__,
+            agent="SimpleAgent",  # или динамически
+            metadata={"question_length": len(request.data.get('question', ''))}
+        )
         # Добавляем инструменты (по желанию)
 
         agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
@@ -2664,10 +2683,15 @@ class AgentChatView(APIView):
         agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
         #agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
         
+        #audit_result = agent._call_llm(prompt)
+        audit_result = agent.audit_prompt()
         # Получаем ответ
         answer = agent.ask(question)
-        
-        return Response({'answer': answer})
+
+        return Response({
+            'answer': answer,
+            'audit': audit_result
+        })
 
 class SmartAgentView(APIView):
     """API endpoint для умного агента с памятью"""
@@ -2720,6 +2744,9 @@ class ImageGeneratorView(APIView):
     
     def post(self, request):
         prompt = request.data.get('prompt', '').strip()
+        
+        user_id = request.user.id if request.user.is_authenticated else request.META.get('REMOTE_ADDR', 'anonymous')
+        
         if not prompt:
             return Response(
                 {'error': 'Prompt обязателен'},
@@ -2742,6 +2769,14 @@ class ImageGeneratorView(APIView):
         
         result = generator.generate(prompt=prompt, **params)
         
+        # Логируем вход
+        log_interaction(
+            user_id=user_id,
+            endpoint=self.__class__.__name__,
+            agent="ImageGenerator",  # или динамически
+            metadata={"prompt_length": len(request.data.get('prompt', ''))}
+        )
+
         if result.get('success'):
             return Response({
                 'image_url': result['image_url'],
@@ -3424,6 +3459,11 @@ class FreelancerAgentView(APIView):
             #'googleSearch': googleSearch,
             #'hyperbrowse': hyperbrowse
         })
+
+class StatsView(APIView):
+    def get(self, request):
+        period = int(request.query_params.get('hours', 24))
+        return Response(get_stats(period))
 
 class AdviceViewSet(viewsets.ModelViewSet):
     queryset = Advice.objects.all()

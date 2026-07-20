@@ -3,6 +3,10 @@ import os
 import smtplib
 from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
+from typing import Dict, List, IO, TYPE_CHECKING, Any, Type, Tuple, Union, Mapping, TypeVar, Callable, Iterator, Optional, Sequence
+from uuid import UUID
+from pathlib import Path
+from abc import abstractmethod
 
 def send_email(to: str, subject: str, body: str) -> str:
     """Отправляет email через SMTP. Требует env: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS. function for send email"""

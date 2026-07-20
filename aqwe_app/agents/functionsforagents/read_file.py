@@ -1,6 +1,9 @@
 import json
 import os
 from pathlib import Path
+from typing import Dict, List, IO, TYPE_CHECKING, Any, Type, Tuple, Union, Mapping, TypeVar, Callable, Iterator, Optional, Sequence
+from uuid import UUID
+from abc import abstractmethod
 
 def read_file(file_path: str, max_chars: int = 10000) -> str:
     """Читает содержимое файла. Возвращает JSON с текстом и метаданными. function read file"""

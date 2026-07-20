@@ -1,6 +1,9 @@
 import json
 from pathlib import Path
 from datetime import datetime
+from typing import Dict, List, IO, TYPE_CHECKING, Any, Type, Tuple, Union, Mapping, TypeVar, Callable, Iterator, Optional, Sequence
+from uuid import UUID
+from abc import abstractmethod
 
 def create_task(title: str, description: str = "", priority: str = "medium", file: str = "tasksandrulesandgoals.md") -> str:
     """Создает задачу в markdown-файле. function for create task"""

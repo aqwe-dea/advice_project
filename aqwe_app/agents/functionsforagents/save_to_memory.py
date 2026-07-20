@@ -1,6 +1,9 @@
 import json
 from pathlib import Path
 from datetime import datetime
+from typing import Dict, List, IO, TYPE_CHECKING, Any, Type, Tuple, Union, Mapping, TypeVar, Callable, Iterator, Optional, Sequence
+from uuid import UUID
+from abc import abstractmethod
 
 def save_to_memory(entry: str, memory_file: str = "accumulateexperience.md") -> str:
     """Добавляет запись в файл памяти с timestamp. function for save in memory"""

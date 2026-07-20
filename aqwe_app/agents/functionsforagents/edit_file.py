@@ -2,6 +2,9 @@ import json
 import os
 from pathlib import Path
 from datetime import datetime
+from typing import Dict, List, IO, TYPE_CHECKING, Any, Type, Tuple, Union, Mapping, TypeVar, Callable, Iterator, Optional, Sequence
+from uuid import UUID
+from abc import abstractmethod
 
 def edit_file(file_path: str, content: str, mode: str = "append") -> str:
     """Редактирует файл. mode: 'append', 'overwrite', 'replace'. function edit file"""

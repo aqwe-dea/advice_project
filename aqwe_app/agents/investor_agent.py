@@ -3,7 +3,10 @@ import json
 import requests
 import logging
 import re
-from typing import List, Optional, Dict, Any
+from typing import Dict, List, IO, TYPE_CHECKING, Any, Type, Tuple, Union, Mapping, TypeVar, Callable, Iterator, Optional, Sequence
+from uuid import UUID
+from pathlib import Path
+from abc import abstractmethod
 from bs4 import BeautifulSoup
 from .web_search import web_search
 from .web_search import web_search as _web_search
@@ -309,6 +312,6 @@ class InvestorAgent:
         except:
             return "Ошибка вычисления"
 
-    def web_search(query: str, max_results: int = 5) -> str:
+    def web_search(self, query: str, max_results: int = 5) -> str:
         """Ищет информацию в интернете. Возвращает JSON с title/url/snippet."""
         return _web_search(query, max_results=max_results)

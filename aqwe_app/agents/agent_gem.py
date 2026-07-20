@@ -3,7 +3,9 @@ import json
 import requests
 import logging
 import re
-from typing import List, Optional, Dict, Any
+from typing import Dict, List, IO, TYPE_CHECKING, Any, Type, Tuple, Union, Mapping, TypeVar, Callable, Iterator, Optional, Sequence
+from uuid import UUID
+from abc import abstractmethod
 from bs4 import BeautifulSoup
 from .web_search import web_search
 from .web_search import web_search as _web_search
@@ -378,51 +380,51 @@ class AgentGem:
             logger.error(f"Ошибка генерации изображения: {str(e)}")
             return f"{text_answer}\n\n❌ Ошибка: {str(e)}"
     
-    def web_search(query: str, max_results: int = 5) -> str:
+    def web_search(self, query: str, max_results: int = 5) -> str:
         """Ищет информацию в интернете. Возвращает JSON с title/url/snippet."""
         return _web_search(query, max_results=max_results)
     
-    def web_fetch(url: str, max_length: int = 5000) -> str:
+    def web_fetch(self, url: str, max_length: int = 5000) -> str:
         """Загружает веб-страницу и извлекает основной текст. JSON-строка с заголовком, текстом и метаданными."""
         return web_fetch(url, max_length=max_length)
     
-    def search_by_wikipedia(query: str, lang: str = "ru", max_results: int = 3) -> str:
+    def search_by_wikipedia(self, query: str, lang: str = "ru", max_results: int = 3) -> str:
         """Ищет статьи в Wikipedia и возвращает результаты. JSON-строка со списком статей (заголовок, описание, url)."""
         return search_by_wikipedia(query, lang, max_results=max_results)
     
-    def read_file(file_path: str, max_chars: int = 10000) -> str:
+    def read_file(self, file_path: str, max_chars: int = 10000) -> str:
         """Читает содержимое файла. Возвращает JSON с текстом и метаданными."""
         return read_file(file_path, max_chars=max_chars)
     
-    def edit_file(file_path: str, content: str, mode: str = "append") -> str:
+    def edit_file(self, file_path: str, content: str, mode: str = "append") -> str:
         """Редактирует файл. mode: 'append', 'overwrite', 'replace'."""
         return edit_file(file_path, content, mode)
     
-    def git_commit(message: str, repo_path: str = "https://github.com/aqwe-dea/advice_project") -> str:
+    def git_commit(self, message: str, repo_path: str = "https://github.com/aqwe-dea/advice_project") -> str:
         """Делает git add . + commit + push (если настроен remote)."""
         return git_commit(message, repo_path)
     
-    def save_to_memory(entry: str, memory_file: str = "accumulateexperience.md") -> str:
+    def save_to_memory(self, entry: str, memory_file: str = "accumulateexperience.md") -> str:
         """Добавляет запись в файл памяти с timestamp."""
         return save_to_memory(entry, memory_file)
     
-    def recall_memory(query: str, memory_file: str = "accumulateexperience.md", limit: int = 3) -> str:
+    def recall_memory(self, query: str, memory_file: str = "accumulateexperience.md", limit: int = 3) -> str:
         """Ищет записи в памяти по ключевым словам."""
         return recall_memory(query, memory_file, limit=limit)
     
-    def send_email(to: str, subject: str, body: str) -> str:
+    def send_email(self, to: str, subject: str, body: str) -> str:
         """Отправляет email через SMTP. Требует env: SMTP_HOST, SMTP_PORT, SMTP_USER, SMTP_PASS."""
         return send_email(to, subject, body)
     
-    def create_task(title: str, description: str = "", priority: str = "medium", file: str = "tasksandrulesandgoals.md") -> str:
+    def create_task(self, title: str, description: str = "", priority: str = "medium", file: str = "tasksandrulesandgoals.md") -> str:
         """Создает задачу в markdown-файле."""
         return create_task(title, description, priority, file)
     
-    def detect_emotion(text: str) -> str:
+    def detect_emotion(self, text: str) -> str:
         """Простой детектор эмоций по ключевым маркерам."""
         return detect_emotion(text)
     
-    def check_wellbeing() -> str:
+    def check_wellbeing(self) -> str:
         """Возвращает шаблон проверки состояния собеседника."""
         return check_wellbeing()
 

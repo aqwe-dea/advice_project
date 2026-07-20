@@ -1,5 +1,8 @@
 import json
 from pathlib import Path
+from typing import Dict, List, IO, TYPE_CHECKING, Any, Type, Tuple, Union, Mapping, TypeVar, Callable, Iterator, Optional, Sequence
+from uuid import UUID
+from abc import abstractmethod
 
 def recall_memory(query: str, memory_file: str = "accumulateexperience.md", limit: int = 3) -> str:
     """Ищет записи в памяти по ключевым словам. function for call memory"""

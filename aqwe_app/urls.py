@@ -50,6 +50,7 @@ from .views import InsiderAgentView
 from .views import MarketerAgentView
 from .views import InvestorAgentView
 from .views import FreelancerAgentView
+from .views import StatsView
 from django.views.static import serve
 from pathlib import Path
 
@@ -101,6 +102,7 @@ urlpatterns = [
     path('agent-marketer/', MarketerAgentView.as_view(), name='agent-marketer'),
     path('agent-investor/', InvestorAgentView.as_view(), name='agent-investor'),
     path('agent-freelancer/', FreelancerAgentView.as_view(), name='agent-freelancer'),
+    path('statistic/', StatsView.as_view(), name='statistic'),
     path('create-payment-intent/', CreatePaymentIntentView.as_view(), name='create-payment-intent'),
     path('create-session/', CreateSessionView.as_view(), name='create-session'),
     path('create-checkout-session/', CreateCheckoutSessionView.as_view(), name='create-checkout-session'),
