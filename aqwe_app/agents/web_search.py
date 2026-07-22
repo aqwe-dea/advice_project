@@ -42,9 +42,9 @@ def _search_tavily(query: str, max_results: int) -> List[SearchResult]:
             "api_key": api_key,
             "query": query,
             "max_results": max_results,
-            "search_depth": "basic",
+            "search_depth": "basic"
         },
-        timeout=20,
+        timeout=20
     )
     resp.raise_for_status()
     data = resp.json()
@@ -52,7 +52,7 @@ def _search_tavily(query: str, max_results: int) -> List[SearchResult]:
         SearchResult(
             title=item.get("title", ""),
             url=item.get("url", ""),
-            snippet=item.get("content", ""),
+            snippet=item.get("content", "")
         )
         for item in data.get("results", [])
     ]
@@ -67,7 +67,7 @@ def _search_serper(query: str, max_results: int, region: str) -> List[SearchResu
         "https://google.serper.dev/search",
         headers={"X-API-KEY": api_key, "Content-Type": "application/json"},
         json={"q": query, "num": max_results, "gl": region[:2].lower()},
-        timeout=20,
+        timeout=20
     )
     resp.raise_for_status()
     data = resp.json()
@@ -75,7 +75,7 @@ def _search_serper(query: str, max_results: int, region: str) -> List[SearchResu
         SearchResult(
             title=item.get("title", ""),
             url=item.get("link", ""),
-            snippet=item.get("snippet", ""),
+            snippet=item.get("snippet", "")
         )
         for item in data.get("organic", [])[:max_results]
     ]
@@ -122,9 +122,9 @@ def web_search(
             {
                 "query": query,
                 "provider": provider,
-                "results": [r.to_dict() for r in results],
+                "results": [r.to_dict() for r in results]
             },
-            ensure_ascii=False,
+            ensure_ascii=False
         )
     except Exception as e:
         logger.exception("Ошибка поиска")

@@ -259,6 +259,216 @@ class AgentGem:
                                             "query"
                                         ]
                                     }
+                                },
+                                {
+                                    "name": "web_fetch",
+                                    "description": "Загрузка и парсинг веб-страниц",
+                                    "parameters": {
+                                        "type": "OBJECT",
+                                        "properties": {
+                                            "url": {
+                                                "type": "STRING"
+                                            },
+                                            "max_length": {
+                                                "type": "integer"
+                                            }
+                                        },
+                                        "required": [
+                                            "url"
+                                        ]
+                                    }
+                                },
+                                {
+                                    "name": "search_by_wikipedia",
+                                    "description": "Поиск статей в Wikipedia",
+                                    "parameters": {
+                                        "type": "OBJECT",
+                                        "properties": {
+                                            "query": {
+                                                "type": "STRING"
+                                            },
+                                            "lang": {
+                                                "type": "STRING"
+                                            },
+                                            "max_results": {
+                                                "type": "integer"
+                                            }
+                                        },
+                                        "required": [
+                                            "query"
+                                        ]
+                                    }
+                                },
+                                {
+                                    "name": "read_file",
+                                    "description": "Чтение файла",
+                                    "parameters": {
+                                        "type": "OBJECT",
+                                        "properties": {
+                                            "file_path": {
+                                                "type": "STRING"
+                                            },
+                                            "max_chars": {
+                                                "type": "integer"
+                                            }
+                                        },
+                                        "required": [
+                                            "file_path"
+                                        ]
+                                    }
+                                },
+                                {
+                                    "name": "edit_file",
+                                    "description": "Редактирование файла",
+                                    "parameters": {
+                                        "type": "OBJECT",
+                                        "properties": {
+                                            "file_path": {
+                                                "type": "STRING"
+                                            },
+                                            "content": {
+                                                "type": "STRING"
+                                            },
+                                            "mode": {
+                                                "type": "STRING"
+                                            }
+                                        },
+                                        "required": [
+                                            "file_path"
+                                        ]
+                                    }
+                                },
+                                {
+                                    "name": "git_commit",
+                                    "description": "Слежение за обновлением проекта через проверку статуса",
+                                    "parameters": {
+                                        "type": "OBJECT",
+                                        "properties": {
+                                            "message": {
+                                                "type": "STRING"
+                                            },
+                                            "repo_path": {
+                                                "type": "STRING"
+                                            }
+                                        },
+                                        "required": [
+                                            "message"
+                                        ]
+                                    }
+                                },
+                                {
+                                    "name": "save_to_memory",
+                                    "description": "Запись в память и опыт",
+                                    "parameters": {
+                                        "type": "OBJECT",
+                                        "properties": {
+                                            "entry": {
+                                                "type": "STRING"
+                                            },
+                                            "memory_file": {
+                                                "type": "STRING"
+                                            }
+                                        },
+                                        "required": [
+                                            "entry"
+                                        ]
+                                    }
+                                },
+                                {
+                                    "name": "recall_memory",
+                                    "description": "Обращение к памяти и опыту",
+                                    "parameters": {
+                                        "type": "OBJECT",
+                                        "properties": {
+                                            "query": {
+                                                "type": "STRING"
+                                            },
+                                            "memory_file": {
+                                                "type": "STRING"
+                                            },
+                                            "limit": {
+                                                "type": "integer"
+                                            }
+                                        },
+                                        "required": [
+                                            "query"
+                                        ]
+                                    }
+                                },
+                                {
+                                    "name": "send_email",
+                                    "description": "Отправка результатов работы агента по почте",
+                                    "parameters": {
+                                        "type": "OBJECT",
+                                        "properties": {
+                                            "to": {
+                                                "type": "STRING"
+                                            },
+                                            "subject": {
+                                                "type": "STRING"
+                                            },
+                                            "body": {
+                                                "type": "STRING"
+                                            }
+                                        },
+                                        "required": [
+                                            "to"
+                                        ]
+                                    }
+                                },
+                                {
+                                    "name": "create_task",
+                                    "description": "Создание задачи для агента",
+                                    "parameters": {
+                                        "type": "OBJECT",
+                                        "properties": {
+                                            "title": {
+                                                "type": "STRING"
+                                            },
+                                            "description": {
+                                                "type": "STRING"
+                                            },
+                                            "priority": {
+                                                "type": "STRING"
+                                            },
+                                            "file": {
+                                                "type": "STRING"
+                                            }
+                                        },
+                                        "required": [
+                                            "title"
+                                        ]
+                                    }
+                                },
+                                {
+                                    "name": "detect_emotion",
+                                    "description": "Распознавание эмоций польователя",
+                                    "parameters": {
+                                        "type": "OBJECT",
+                                        "properties": {
+                                            "text": {
+                                                "type": "STRING"
+                                            }
+                                        },
+                                        "required": [
+                                            "text"
+                                        ]
+                                    }
+                                },
+                                {
+                                    "name": "check_wellbeing",
+                                    "description": "Проверка состояния здоровья пользователя",
+                                    "parameters": {
+                                        "type": "OBJECT",
+                                        "properties": {
+                                            "question": {
+                                                "type": "STRING"
+                                            }
+                                        },
+                                        "required": [
+                                            "question"
+                                        ]
+                                    }
                                 }
                             ]
                         }

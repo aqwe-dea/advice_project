@@ -464,6 +464,231 @@ class AgentGpt:
                                 },
                                 "required": ["query", "max_results"]
                             }
+                        },
+                        {
+                            "type": "function",
+                            "name": "web_fetch",
+                            "description": "Загрузка и парсинг веб-страниц",
+                            "parameters": {
+                                "type": "object",
+                                "properties": {
+                                    "url": {
+                                        "type": "string",
+                                        "description": "Адрес страницы"
+                                    },
+                                    "max_length": {
+                                        "type": "integer",
+                                        "default": 5000
+                                    }
+                                },
+                                "required": ["url", "max_length"]
+                            }
+                        },
+                        {
+                            "type": "function",
+                            "name": "search_by_wikipedia",
+                            "description": "Поиск статей в Wikipedia",
+                            "parameters": {
+                                "type": "object",
+                                "properties": {
+                                    "query": {
+                                        "type": "string",
+                                        "description": "Необходимая статья"
+                                    },
+                                    "lang": {
+                                        "type": "string",
+                                        "description": "Язык статьи"
+                                    },
+                                    "max_results": {
+                                        "type": "integer",
+                                        "default": 3
+                                    }
+                                },
+                                "required": ["query", "lang", "max_results"]
+                            }
+                        },
+                        {
+                            "type": "function",
+                            "name": "read_file",
+                            "description": "Чтение файла",
+                            "parameters": {
+                                "type": "object",
+                                "properties": {
+                                    "file_path": {
+                                        "type": "string",
+                                        "description": "Путь файла"
+                                    },
+                                    "max_chars": {
+                                        "type": "integer",
+                                        "default": 10000
+                                    }
+                                },
+                                "required": ["file_path", "max_chars"]
+                            }
+                        },
+                        {
+                            "type": "function",
+                            "name": "edit_file",
+                            "description": "Редактирование файла",
+                            "parameters": {
+                                "type": "object",
+                                "properties": {
+                                    "file_path": {
+                                        "type": "string",
+                                        "description": "Путь к файлу"
+                                    },
+                                    "content": {
+                                        "type": "string",
+                                        "description": "Что изменили"
+                                    },
+                                    "mode": {
+                                        "type": "string",
+                                        "description": "Какой режим выбрали"
+                                    }
+                                },
+                                "required": ["file_path", "content", "mode"]
+                            }
+                        },
+                        {
+                            "type": "function",
+                            "name": "git_commit",
+                            "description": "Слежение за обновлением проекта через проверку статуса",
+                            "parameters": {
+                                "type": "object",
+                                "properties": {
+                                    "message": {
+                                        "type": "string",
+                                        "description": "Сообщение или действие"
+                                    },
+                                    "repo_path": {
+                                        "type": "string",
+                                        "description": "Путь к репозиторию"
+                                    }
+                                },
+                                "required": ["message", "repo_path"]
+                            }
+                        },
+                        {
+                            "type": "function",
+                            "name": "save_to_memory",
+                            "description": "Запись в память и опыт",
+                            "parameters": {
+                                "type": "object",
+                                "properties": {
+                                    "entry": {
+                                        "type": "string",
+                                        "description": "Запись или заметка"
+                                    },
+                                    "memory_file": {
+                                        "type": "string",
+                                        "description": "Файл памяти"
+                                    }
+                                },
+                                "required": ["entry", "memory_file"]
+                            }
+                        },
+                        {
+                            "type": "function",
+                            "name": "recall_memory",
+                            "description": "Обращение к памяти и опыту",
+                            "parameters": {
+                                "type": "object",
+                                "properties": {
+                                    "query": {
+                                        "type": "string",
+                                        "description": "Запрос по ключевому слову к памяти"
+                                    },
+                                    "memory_file": {
+                                        "type": "string",
+                                        "description": "Файл памяти"
+                                    },
+                                    "limit": {
+                                        "type": "integer",
+                                        "default": 3
+                                    }
+                                },
+                                "required": ["query", "memory_file", "max_results"]
+                            }
+                        },
+                        {
+                            "type": "function",
+                            "name": "send_email",
+                            "description": "Отправка результатов работы агента по почте",
+                            "parameters": {
+                                "type": "object",
+                                "properties": {
+                                    "to": {
+                                        "type": "string",
+                                        "description": "Адрес почты"
+                                    },
+                                    "subject": {
+                                        "type": "string",
+                                        "description": "Тема письма"
+                                    },
+                                    "body": {
+                                        "type": "string",
+                                        "description": "Содержание письма"
+                                    }
+                                },
+                                "required": ["to", "subject", "body"]
+                            }
+                        },
+                        {
+                            "type": "function",
+                            "name": "create_task",
+                            "description": "Создание задачи для агента",
+                            "parameters": {
+                                "type": "object",
+                                "properties": {
+                                    "title": {
+                                        "type": "string",
+                                        "description": "Заголовок задачи"
+                                    },
+                                    "description": {
+                                        "type": "string",
+                                        "description": "Описание задачи"
+                                    },
+                                    "priority": {
+                                        "type": "string",
+                                        "description": "Приоритет задачи"
+                                    },
+                                    "file": {
+                                        "type": "string",
+                                        "description": "Файл с задачами"
+                                    }
+                                },
+                                "required": ["title", "description", "priority", "file"]
+                            }
+                        },
+                        {
+                            "type": "function",
+                            "name": "detect_emotion",
+                            "description": "Распознавание эмоций польователя",
+                            "parameters": {
+                                "type": "object",
+                                "properties": {
+                                    "text": {
+                                        "type": "string",
+                                        "description": "Полученный текст"
+                                    }
+                                },
+                                "required": ["text"]
+                            }
+                        },
+                        {
+                            "type": "function",
+                            "name": "check_wellbeing",
+                            "description": "Проверка состояния здоровья пользователя",
+                            "parameters": {
+                                "type": "object",
+                                "properties": {
+                                    "question": {
+                                        "type": "string",
+                                        "description": "Вопрос пользователя"
+                                    }
+                                },
+                                "required": ["question"]
+                            }
                         }
                     ],
                     "tool_choice": "auto",
