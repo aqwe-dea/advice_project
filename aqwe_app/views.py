@@ -2683,14 +2683,13 @@ class AgentChatView(APIView):
         agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
         #agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
         
-        #audit_result = agent._call_llm(prompt)
-        audit_result = agent.audit_prompt()
+        #audit_result = agent.audit_prompt()
         # Получаем ответ
         answer = agent.ask(question)
 
         return Response({
-            'answer': answer,
-            'audit': audit_result
+            'answer': answer
+            #'audit': audit_result
         })
 
 class SmartAgentView(APIView):

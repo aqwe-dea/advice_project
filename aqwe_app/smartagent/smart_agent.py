@@ -192,10 +192,7 @@ class SmartAgent:
         """Извлечь текст или function_call из ответа API"""
         try:
             content = data.get('output', [{}])
-            #content = data.get('output')[0].get('content')
-            #content = output.get('content', {})
-            #content = data.get('output', [{}])[0].get('content')
-            #content = output[1].get('content')
+            #textoutput = content.get('content')[1]
 
             # Проверка на function_call
             if 'function_call' in content:
@@ -209,18 +206,25 @@ class SmartAgent:
                     'name': tc['function']['name'],
                     'input': json.loads(tc['function']['arguments'])
                 }
-            
+            #output = data.get('output', [{}])
+            if content and isinstance(content, list):
+                #text = output[1].get('text') or output[1].get('content') # этот вариант полностью рабочий
+                #text = content[1].get('text') or content[0].get('content')
+                answer = content[1].get('content') or content[0].get('summary')
+            else:
+                answer = str(content)
+
             # Обычный текст
             #output_text = content[1].get("content", [{}])
+            text = answer[0].get('text')
+            if text.startswith("{"):
+                parsed = json.loads(text)
+                return parsed.get("answer", text)
             
-            #if output_text.startswith("{"):
-            #    parsed = json.loads(output_text)
-            #    return parsed.get("answer", output_text)
-            
-            if isinstance(content, list):
-                text = '\n'.join(item.get('text', '') for item in content if isinstance(item, dict))
-            else:
-                text = content[1]
+            #if isinstance(answer, list):
+            #    text = '\n'.join(item.get('text', '') for item in answer if isinstance(item, dict))
+            #else:
+            #    text = answer
 
             return text
             

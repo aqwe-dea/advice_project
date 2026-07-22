@@ -188,8 +188,9 @@ class SimpleAgent:
     def _extract_text_or_tool(self, data: dict) -> tuple[str, Optional[Dict]]:
         """Извлечь текст или function_call из ответа API"""
         try:
-            content = data.get('output', [{}])
-            #content = output.get('content', [{}])
+            content = data.get('output', [{}])[1]
+            textoutput = content.get('content')
+            #content = output.get('content', {})
             #content = data.get('output', [{}])[0].get('content')
             #content = output[1].get('content')
 
@@ -214,10 +215,10 @@ class SimpleAgent:
                 }
             
             # Обычный текст
-            if isinstance(content, list):
-                text = '\n'.join(item.get('text', '') for item in content if isinstance(item, dict))
+            if isinstance(textoutput, list):
+                text = '\n'.join(item.get('text', '') for item in textoutput if isinstance(item, dict))
             else:
-                text = content.get('content', [{}])
+                text = content
 
             return text
             
