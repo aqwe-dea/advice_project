@@ -2704,7 +2704,7 @@ class SmartAgentView(APIView):
             )
         
         user_feedback = request.data.get('feedback')  # Опционально
-        
+        user_id = request.user.id if request.user.is_authenticated else request.META.get('REMOTE_ADDR', 'anonymous')
         # Инициализация
         
         agent = SmartAgent(
@@ -2713,6 +2713,13 @@ class SmartAgentView(APIView):
             model='grok-4-5'
         )
         
+        log_interaction(
+            user_id=user_id,
+            endpoint=self.__class__.__name__,
+            agent="SmartAgent",  # или динамически
+            metadata={"question_length": len(request.data.get('question', ''))}
+        )
+
         agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
         agent.add_tool('web_fetch', agent.web_fetch, 'Загрузка и парсинг веб-страниц')
         agent.add_tool('search_by_wikipedia', agent.search_by_wikipedia, 'Поиск статей в Wikipedia')
@@ -3068,11 +3075,20 @@ class AgentGptView(APIView):
         if not question:
             return Response({'error': 'Вопрос не предоставлен'}, status=400)
         
+        user_id = request.user.id if request.user.is_authenticated else request.META.get('REMOTE_ADDR', 'anonymous')
+
         # Инициализация агента (ключи из env)
         agent = AgentGpt(
             api_key=os.getenv('KIETEST')
         )
         
+        log_interaction(
+            user_id=user_id,
+            endpoint=self.__class__.__name__,
+            agent="AgentGpt",  # или динамически
+            metadata={"question_length": len(request.data.get('question', ''))}
+        )
+
         api_key = os.getenv('KIETEST')
         if not api_key:
             return Response(
@@ -3114,11 +3130,20 @@ class AgentClaView(APIView):
         if not question:
             return Response({'error': 'Вопрос не предоставлен'}, status=400)
         
+        user_id = request.user.id if request.user.is_authenticated else request.META.get('REMOTE_ADDR', 'anonymous')
+
         # Инициализация агента (ключи из env)
         agent = AgentCla(
             api_key=os.getenv('KIETEST')
         )
         
+        log_interaction(
+            user_id=user_id,
+            endpoint=self.__class__.__name__,
+            agent="AgentCla",  # или динамически
+            metadata={"question_length": len(request.data.get('question', ''))}
+        )
+
         api_key = os.getenv('KIETEST')
         if not api_key:
             return Response(
@@ -3160,9 +3185,18 @@ class AgentGemView(APIView):
         if not question:
             return Response({'error': 'Вопрос не предоставлен'}, status=400)
         
+        user_id = request.user.id if request.user.is_authenticated else request.META.get('REMOTE_ADDR', 'anonymous')
+
         # Инициализация агента (ключи из env)
         agent = AgentGem(
             api_key=os.getenv('KIETEST')
+        )
+
+        log_interaction(
+            user_id=user_id,
+            endpoint=self.__class__.__name__,
+            agent="AgentGem",  # или динамически
+            metadata={"question_length": len(request.data.get('question', ''))}
         )
 
         api_key = os.getenv('KIETEST')

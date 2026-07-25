@@ -303,55 +303,42 @@ class SimpleAgent:
             logger.error(f"Ошибка извлечения: {e} | Данные: {str(data)[:200]}")
             return "", None
 
-    def _extract_text_or_tooledold(self, data: dict) -> tuple[str, Optional[Dict]]:
-        """Извлечь текст или function_call из ответа API"""
-        try:
-            content = data.get('output', [{}])[1]
-            textoutput = content.get('content')
-            #content = output.get('content', {})
-            #content = data.get('output', [{}])[0].get('content')
-            #content = output[1].get('content')
+    #def _extract_text_or_tooledold(self, data: dict) -> tuple[str, Optional[Dict]]: на всякий случай
+    #    """Извлечь текст или function_call из ответа API"""
+    #    try:
+    #        content = data.get('output', [{}])[1]
+    #        textoutput = content.get('content')
 
-            # Проверка на function_call
-            if 'function_call' in content:
-                return "", content['function_call'][0]['function']
+    #        # Проверка на function_call
+    #        if 'function_call' in content:
+    #            return "", content['function_call'][0]['function']
 
-            # Проверка на tool_calls (OpenAI-стиль)
-            #if 'tool_calls' in content and content['tool_calls']:
-            #    tool_call = content['tool_calls'][0]
-            #    return "", {
-            #        'id': tool_call.get('id'),
-            #        'name': tool_call.get('name'),
-            #        'arguments': tool_call.get('arguments', '{}')
-            #    }
-            if 'tool_calls' in content and content['tool_calls']:
-                tc = content['tool_calls'][0]
-                return "", {
-                    'id': tc['id'],
-                    'name': tc['function']['name'],
-                    'input': json.loads(tc['function']['arguments'])
-                }
+    #        if 'tool_calls' in content and content['tool_calls']:
+    #            tc = content['tool_calls'][0]
+    #            return "", {
+    #                'id': tc['id'],
+    #                'name': tc['function']['name'],
+    #                'input': json.loads(tc['function']['arguments'])
+    #            }
             
-            # Обычный текст
-            if isinstance(textoutput, list):
-                text = '\n'.join(item.get('text', '') for item in textoutput if isinstance(item, dict))
-            else:
-                text = content
+    #        # Обычный текст
+    #        if isinstance(textoutput, list):
+    #            text = '\n'.join(item.get('text', '') for item in textoutput if isinstance(item, dict))
+    #        else:
+    #            text = content
 
-            return text
+    #        return text
             
-        except Exception as e:
-            logger.error(f"Ошибка извлечения: {str(e)}")
-            return "", None
+    #    except Exception as e:
+    #        logger.error(f"Ошибка извлечения: {str(e)}")
+    #        return "", None
 
     def _call_llm(self, prompt: str) -> str:
         """Внутренний вызов к LLM API."""
         messages = self.context.copy()
         # ✅ Не добавляем system_prompt повторно — он уже в self.context
-        #messages.append({"role": "user", "content": prompt})
         
         messages.append({"role": "user", "content": [{"type": "input_text", "text": prompt}]})
-        
         
         api_tools = self._build_api_tools()
 
@@ -617,7 +604,6 @@ class SimpleAgent:
                         }
                     ]
                     #"tools": api_tools if api_tools else None
-                    #"tools": tools
                     #"tool_choice": "auto"
                 },
                 timeout=300
@@ -625,22 +611,7 @@ class SimpleAgent:
             response.raise_for_status()
             data = response.json()
 
-            # Извлечение текста с поддержкой разных форматов
-            #output = data.get('output', [{}])
-            #content = data.get('output', [{}])[1].get('content')
-            #if not output:
-            #    logger.error("Нет output в ответе API")
-            #    return "Ошибка: пустой ответ от API"
-            
-            #content = output[1].get('content', {})
             text = self._extract_text_or_tool(data)
-            #if isinstance(content, list):
-            #    text = '\n'.join(
-            #        item.get('text', '') for item in content 
-            #        if isinstance(item, dict) and item.get('text')
-            #    )
-            #else:
-            #    text = content
             
             if not text:
                 logger.error(f"Пустой текст в ответе: {data}")

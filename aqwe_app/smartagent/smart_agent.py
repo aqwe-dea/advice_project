@@ -261,70 +261,60 @@ class SmartAgent:
             logger.error(f"Ошибка извлечения: {e} | Данные: {str(data)[:200]}")
             return "", None
 
-    def _extract_text_or_tooledold(self, data: dict) -> tuple[str, Optional[Dict]]:
-        """Извлечь текст или function_call из ответа API"""
-        try:
-            content = data.get('output', [{}])
-            #textoutput = content.get('content')[1]
+    #def _extract_text_or_tooledold(self, data: dict) -> tuple[str, Optional[Dict]]: на всякий случай
+    #    """Извлечь текст или function_call из ответа API"""
+    #    try:
+    #        content = data.get('output', [{}])
 
-            # Проверка на function_call
-            if 'function_call' in content:
-                return content['function_call'][0]['function']
+    #        # Проверка на function_call
+    #        if 'function_call' in content:
+    #            return content['function_call'][0]['function']
 
-            # Проверка на tool_calls (OpenAI-стиль)
-            if 'tool_calls' in content and content['tool_calls']:
-                tc = content['tool_calls'][0]
-                return {
-                    'id': tc['id'],
-                    'name': tc['function']['name'],
-                    'input': json.loads(tc['function']['arguments'])
-                }
-            #output = data.get('output', [{}])
-            if content and isinstance(content, list):
-                #text = output[1].get('text') or output[1].get('content') # этот вариант полностью рабочий
-                #text = content[1].get('text') or content[0].get('content')
-                answer = content[1].get('content') or content[0].get('summary')
-            else:
-                answer = str(content)
+    #        # Проверка на tool_calls (OpenAI-стиль)
+    #        if 'tool_calls' in content and content['tool_calls']:
+    #            tc = content['tool_calls'][0]
+    #            return {
+    #                'id': tc['id'],
+    #                'name': tc['function']['name'],
+    #                'input': json.loads(tc['function']['arguments'])
+    #            }
 
-            # Обычный текст
-            #output_text = content[1].get("content", [{}])
-            text = answer[0].get('text')
-            if text.startswith("{"):
-                parsed = json.loads(text)
-                return parsed.get("answer", text)
+    #        if content and isinstance(content, list):
+    #            #text = output[1].get('text') or output[1].get('content') # этот вариант полностью рабочий
+    #            answer = content[1].get('content') or content[0].get('summary')
+    #        else:
+    #            answer = str(content)
+
+    #        # Обычный текст
+    #        text = answer[0].get('text')
+    #        if text.startswith("{"):
+    #            parsed = json.loads(text)
+    #            return parsed.get("answer", text)
+
+    #        return text
             
-            #if isinstance(answer, list):
-            #    text = '\n'.join(item.get('text', '') for item in answer if isinstance(item, dict))
-            #else:
-            #    text = answer
-
-            return text
-            
-        except Exception as e:
-            logger.error(f"Ошибка извлечения: {str(e)}")
-            return "", None
+    #    except Exception as e:
+    #        logger.error(f"Ошибка извлечения: {str(e)}")
+    #        return "", None
         
-    def parse_grok_response(self, answer: dict) -> str:
-        try:
-            # 1. Берём первый блок из массива
-            text = answer[0].get("text")
-            #text = block.get("text", "")
+    #def parse_grok_response(self, answer: dict) -> str: тоже на всякий случай для чистого текста
+    #    try:
+    #        # 1. Берём первый блок из массива
+    #        text = answer[0].get("text")
         
-            # 2. Если внутри лежит JSON-строка — декодируем
-            if text.startswith("{"):
-                parsed = json.loads(text)
-                return parsed.get("answer", text)
+    #        # 2. Если внутри лежит JSON-строка — декодируем
+    #        if text.startswith("{"):
+    #            parsed = json.loads(text)
+    #            return parsed.get("answer", text)
         
-            return text
-        except Exception:
-            return str(answer[0].get("answer", answer))
+    #        return text
+    #    except Exception:
+    #        return str(answer[0].get("answer", answer))
 
     def _call_llm(self, prompt: str) -> str:
         """Внутренний вызов к LLM API."""
         messages = self.context.copy()
         # ✅ Не добавляем system_prompt повторно — он уже в self.context
-        #messages.append({"role": "user", "content": prompt})
         messages.append({"role": "user", "content": [{"type": "input_text", "text": prompt}]})
 
         tools = [
@@ -371,144 +361,6 @@ class SmartAgent:
                             "max_results": {"type": "integer", "default": 3},
                         },
                         "required": ["query"],
-                    },
-                },
-            },
-            {
-                "type": "function",
-                "function": {
-                    "name": "read_file",
-                    "description": "Чтение файла",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "file_path": {"type": "string"},
-                            "max_chars": {"type": "integer", "default": 10000},
-                        },
-                        "required": ["file_path"],
-                    },
-                },
-            },
-            {
-                "type": "function",
-                "function": {
-                    "name": "edit_file",
-                    "description": "Редактирование файла",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "file_path": {"type": "string"},
-                            "content": {"type": "string"},
-                            "mode": {"type": "string"},
-                        },
-                        "required": ["file_path"],
-                    },
-                },
-            },
-            {
-                "type": "function",
-                "function": {
-                    "name": "git_commit",
-                    "description": "Слежение за обновлением проекта через проверку статуса",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "message": {"type": "string"},
-                            "repo_path": {"type": "string"},
-                        },
-                        "required": ["message"],
-                    },
-                },
-            },
-            {
-                "type": "function",
-                "function": {
-                    "name": "save_to_memory",
-                    "description": "Запись в память и опыт",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "entry": {"type": "string"},
-                            "memory_file": {"type": "string"},
-                        },
-                        "required": ["entry"],
-                    },
-                },
-            },
-            {
-                "type": "function",
-                "function": {
-                    "name": "recall_memory",
-                    "description": "Обращение к памяти и опыту",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "query": {"type": "string"},
-                            "memory_file": {"type": "string"},
-                            "limit": {"type": "integer", "default": 3},
-                        },
-                        "required": ["query"],
-                    },
-                },
-            },
-            {
-                "type": "function",
-                "function": {
-                    "name": "send_email",
-                    "description": "Отправка результатов работы агента по почте",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "to": {"type": "string"},
-                            "subject": {"type": "string"},
-                            "body": {"type": "string"},
-                        },
-                        "required": ["to"],
-                    },
-                },
-            },
-            {
-                "type": "function",
-                "function": {
-                    "name": "create_task",
-                    "description": "Создание задачи для агента",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "title": {"type": "string"},
-                            "description": {"type": "string"},
-                            "priority": {"type": "string"},
-                            "file": {"type": "string"},
-                        },
-                        "required": ["title"],
-                    },
-                },
-            },
-            {
-                "type": "function",
-                "function": {
-                    "name": "detect_emotion",
-                    "description": "Распознавание эмоций польователя",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "text": {"type": "string"},
-                        },
-                        "required": ["text"],
-                    },
-                },
-            },
-            {
-                "type": "function",
-                "function": {
-                    "name": "check_wellbeing",
-                    "description": "Проверка состояния здоровья пользователя",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "question": {"type": "string"},
-                        },
-                        "required": ["question"],
                     },
                 },
             }
@@ -833,34 +685,13 @@ class SmartAgent:
                             }
                         }
                     ]
-                    #"tools": tools,
                     #"tool_choice": "auto"
                 },
                 timeout=300
             )
             response.raise_for_status()
             data = response.json()
-            #text = self._extract_text_or_tool(data)
-            #output = data.get('output', [{}])
-            #if output and isinstance(output, list):
-                #text = output[1].get('text') or output[1].get('content') # этот вариант полностью рабочий
-            #    answer = output[1].get('text') or output[1].get('content')
-            #else:
-            #    answer = str(output)
-
-            # Проверка на function_call
-            #if 'function_call' in answer:
-            #    return "", answer['function_call']
-            
-            # Проверка на tool_calls (OpenAI-стиль)
-            #if 'tool_calls' in answer and answer['tool_calls']:
-            #    tool_call = answer['tool_calls'][0]['function']
-            #    return "", {
-            #        'name': tool_call.get('name'),
-            #        'arguments': tool_call.get('arguments', '{}')
-            #    }
             text = self._extract_text_or_tool(data)
-            #text = self.parse_grok_response(answer)
             if not text:
                 logger.error(f"Пустой текст в ответе: {data}")
                 return "Ошибка: агент не получил ответ от модели нет данных в data"

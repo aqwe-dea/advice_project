@@ -274,38 +274,36 @@ class AgentGpt:
             logger.error(f"Ошибка извлечения: {e} | Данные: {str(data)[:200]}")
             return "", None
 
-    def _extract_text_or_tooledold(self, data: dict) -> tuple[str, Optional[Dict]]:
-        """Извлечь текст или function_call из ответа API"""
-        try:
-            message = data.get('choices', [{}])[0].get('message', {})
-            content = message.get('content')
-            #content = data.get('output', [{}])[0].get('content')
-            #content = output[1].get('content')
+    #def _extract_text_or_tooledold(self, data: dict) -> tuple[str, Optional[Dict]]: на всякий случай
+    #    """Извлечь текст или function_call из ответа API"""
+    #    try:
+    #        message = data.get('choices', [{}])[0].get('message', {})
+    #        content = message.get('content')
 
-            # Проверка на function_call
-            if 'function_call' in content:
-                return "", content['function_call'][0]['function']
+    #        # Проверка на function_call
+    #        if 'function_call' in content:
+    #            return "", content['function_call'][0]['function']
 
-            # Проверка на tool_calls (OpenAI-стиль)
-            if 'tool_calls' in content and content['tool_calls']:
-                tool_call = content['tool_calls'][0]
-                return "", {
-                    'id': tool_call.get('id'),
-                    'name': tool_call.get('name'),
-                    'arguments': tool_call.get('arguments', '{}')
-                }
+    #        # Проверка на tool_calls (OpenAI-стиль)
+    #        if 'tool_calls' in content and content['tool_calls']:
+    #            tool_call = content['tool_calls'][0]
+    #            return "", {
+    #                'id': tool_call.get('id'),
+    #                'name': tool_call.get('name'),
+    #                'arguments': tool_call.get('arguments', '{}')
+    #            }
             
-            # Обычный текст
-            if isinstance(content, list):
-                text = '\n'.join(item.get('text', '') for item in content if isinstance(item, dict))
-            else:
-                text = content 
+    #        # Обычный текст
+    #        if isinstance(content, list):
+    #            text = '\n'.join(item.get('text', '') for item in content if isinstance(item, dict))
+    #        else:
+    #            text = content 
 
-            return text
+    #        return text
             
-        except Exception as e:
-            logger.error(f"Ошибка извлечения: {str(e)}")
-            return "", None
+    #    except Exception as e:
+    #        logger.error(f"Ошибка извлечения: {str(e)}")
+    #        return "", None
 
     def _call_llm(self, prompt: str) -> str:
         """Внутренний вызов к LLM API."""
@@ -359,164 +357,6 @@ class AgentGpt:
                         "required": ["query"],
                     },
                 },
-            },
-            {
-                "type": "function",
-                "function": {
-                    "name": "read_file",
-                    "description": "Чтение файла",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "file_path": {"type": "string"},
-                            "max_chars": {"type": "integer", "default": 10000},
-                        },
-                        "required": ["file_path"],
-                    },
-                },
-            },
-            {
-                "type": "function",
-                "function": {
-                    "name": "edit_file",
-                    "description": "Редактирование файла",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "file_path": {"type": "string"},
-                            "content": {"type": "string"},
-                            "mode": {"type": "string"},
-                        },
-                        "required": ["file_path"],
-                    },
-                },
-            },
-            {
-                "type": "function",
-                "function": {
-                    "name": "git_commit",
-                    "description": "Слежение за обновлением проекта через проверку статуса",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "message": {"type": "string"},
-                            "repo_path": {"type": "string"},
-                        },
-                        "required": ["message"],
-                    },
-                },
-            },
-            {
-                "type": "function",
-                "function": {
-                    "name": "save_to_memory",
-                    "description": "Запись в память и опыт",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "entry": {"type": "string"},
-                            "memory_file": {"type": "string"},
-                        },
-                        "required": ["entry"],
-                    },
-                },
-            },
-            {
-                "type": "function",
-                "function": {
-                    "name": "recall_memory",
-                    "description": "Обращение к памяти и опыту",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "query": {"type": "string"},
-                            "memory_file": {"type": "string"},
-                            "limit": {"type": "integer", "default": 3},
-                        },
-                        "required": ["query"],
-                    },
-                },
-            },
-            {
-                "type": "function",
-                "function": {
-                    "name": "send_email",
-                    "description": "Отправка результатов работы агента по почте",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "to": {"type": "string"},
-                            "subject": {"type": "string"},
-                            "body": {"type": "string"},
-                        },
-                        "required": ["to"],
-                    },
-                },
-            },
-            {
-                "type": "function",
-                "function": {
-                    "name": "create_task",
-                    "description": "Создание задачи для агента",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "title": {"type": "string"},
-                            "description": {"type": "string"},
-                            "priority": {"type": "string"},
-                            "file": {"type": "string"},
-                        },
-                        "required": ["title"],
-                    },
-                },
-            },
-            {
-                "type": "function",
-                "function": {
-                    "name": "detect_emotion",
-                    "description": "Распознавание эмоций польователя",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "text": {"type": "string"},
-                        },
-                        "required": ["text"],
-                    },
-                },
-            },
-            {
-                "type": "function",
-                "function": {
-                    "name": "check_wellbeing",
-                    "description": "Проверка состояния здоровья пользователя",
-                    "parameters": {
-                        "type": "object",
-                        "properties": {
-                            "question": {"type": "string"},
-                        },
-                        "required": ["question"],
-                    },
-                },
-            },
-            {
-                "type": "function",
-                "name": "web_search",
-                "description": "Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.",
-                "parameters": {
-                    "type": "object",
-                    "properties": {
-                        "query": {
-                            "type": "string",
-                            "description": "Ваш запрос"
-                        },
-                        "max_results": {
-                            "type": "integer",
-                            "default": 5,
-                            "enum": ["fake", "lie", "forbiden"]
-                        }
-                    },
-                    "required": ["query", "max_results"]
-                }
             }
         ]
 
@@ -802,50 +642,7 @@ class AgentGpt:
             response.raise_for_status()
             data = response.json()
             text = self._extract_text_or_tool(data)
-            #msg = data.get('choices', [{}])[0].get('message', {})
-            #choices = data.get('choices', [{}])
-            ##msg = choices[0].get('message', {})
-            #content = choices[0].get('message', {}).get('content')
-            #if 'tool_calls' in msg and msg['tool_calls']:
-            #    tc = msg['tool_calls'][0]
-            #    return "", {
-            #        'id': tc['id'],
-            #        'name': tc['function']['name'],
-            #        'input': json.loads(tc['function']['arguments'])
-            #    }
-
-            #if 'functionCall' in msg and msg['functionCall']:
-            #    fc = msg['functionCall']
-            #    return "", {
-            #        'name': fc.get('name'),
-            #        'input': fc.get('args', {})
-            #    }
-            
-            #if 'function_call' in msg and msg['function_call']:
-            #    return "", msg['function_call']
-            
-            #return msg.get('content', ''), None
-            # Извлечение текста с поддержкой разных форматов
-            #choices = data.get('choices', [{}])
-            #if not choices:
-            #    logger.error("Нет choices в ответе API")
-            #    return "Ошибка: пустой ответ от API"
-            
-            #message = choices[0].get('message', {})
-            
-            #content = message.get('content')
         
-            #if isinstance(content, list):
-            #    text = '\n'.join(
-            #        item.get('text', '') for item in content 
-            #        if isinstance(item, dict) and item.get('text')
-            #    )
-            #else:
-            #    text = content or ''
-            #if 'function_call' in message:
-            #    return "", message['function_call']
-              
-
             if not text:
                 logger.error(f"Пустой текст в ответе: {data}")
                 return "Ошибка: агент не сгенерировал ответ"

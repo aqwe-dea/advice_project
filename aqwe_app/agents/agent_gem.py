@@ -251,44 +251,34 @@ class AgentGem:
             logger.error(f"Ошибка извлечения: {e} | Данные: {str(data)[:200]}")
             return "", None
 
-    def _extract_text_from_response(self, data: dict) -> str:
-        try:
-            candidates = data.get('candidates', [])
-            if candidates:
-                parts = candidates[0].get('content').get('parts')
-                if parts:
-                    first = parts[0]
-                    if isinstance(first, dict) and 'text' in first:
-                        return first['text'], None
-                    if 'functionCall' in first:
-                        fc = first['functionCall']
-                        return "", {
-                            'name': fc.get('name'),
-                            'input': fc.get('args', {})
-                        }
-            #candidates = data.get('candidates', [])
-            #if candidates and isinstance(candidates, list) and len(candidates) > 0:
-            #    candidate = candidates[0]
-            #    content = candidate.get('content', {})
-            #    parts = content.get('parts', [])
-            #    if parts and isinstance(parts, list):
-            #        first_part = parts[0]
-            #        if isinstance(first_part, dict) and 'text' in first_part:
-            #            text = first_part.get('text', '')
-            #            return text
-            
-            if 'text' in data and isinstance(data['text'], str):
-                return data['text']
-            
-            if 'error' in data:
-                logger.warning(f"API вернул ошибку: {data['error']}")
-                return f"Ошибка API: {data['error']}"
-            
-            logger.warning(f"Не удалось извлечь текст. Полный ответ: {json.dumps(data, ensure_ascii=False)[:500]}")
-            return ""
-        except Exception as e:
-            logger.error(f"Ошибка извлечения текста: {str(e)}")
-            return ""
+    #def _extract_text_from_response(self, data: dict) -> str: на всякий случай
+    #    try:
+    #        candidates = data.get('candidates', [])
+    #        if candidates:
+    #            parts = candidates[0].get('content').get('parts')
+    #            if parts:
+    #                first = parts[0]
+    #                if isinstance(first, dict) and 'text' in first:
+    #                    return first['text'], None
+    #                if 'functionCall' in first:
+    #                    fc = first['functionCall']
+    #                    return "", {
+    #                        'name': fc.get('name'),
+    #                        'input': fc.get('args', {})
+    #                    }
+    #        
+    #        if 'text' in data and isinstance(data['text'], str):
+    #            return data['text']
+    #        
+    #        if 'error' in data:
+    #            logger.warning(f"API вернул ошибку: {data['error']}")
+    #            return f"Ошибка API: {data['error']}"
+    #        
+    #        logger.warning(f"Не удалось извлечь текст. Полный ответ: {json.dumps(data, ensure_ascii=False)[:500]}")
+    #        return ""
+    #    except Exception as e:
+    #        logger.error(f"Ошибка извлечения текста: {str(e)}")
+    #        return ""
 
     def _call_llm(self, prompt: str) -> str:
         """Внутренний вызов к Gemini API через KIE.ai"""
@@ -583,29 +573,6 @@ class AgentGem:
                 self.context.append({"role": "model", "parts": [{"text": text}]})
                 logger.info(f"✅ Ответ: {text[:400]}...")
                 return text
-
-            #candidates = data.get('candidates', [])
-            #if not candidates:
-            #    return "Ошибка: нет кандидатов в ответе API"
-                
-            #candidate = candidates[0]
-            #content = candidate.get('content', {})
-            #parts = content.get('parts', [])
-                
-            #if not parts:
-            #    return "Ошибка: пустые parts в ответе"
-                
-            #first_part = parts[0]
-            #logger.info(f"✅ Gemini ответ получен")
-            
-            # ✅ СЛУЧАЙ 1: Обычный текстовый ответ
-            #if isinstance(first_part, dict) and 'text' in first_part:
-            #    text = first_part.get('text', '')
-            #    if text:
-            #        self.context.append({"role": "user", "parts": [{"text": prompt}]})
-            #        self.context.append({"role": "model", "parts": [{"text": text}]})
-            #        logger.info(f"✅ Ответ: {text[:400]}...")
-            #        return text
             
             func_call = self._extract_text_or_tool(data)
             

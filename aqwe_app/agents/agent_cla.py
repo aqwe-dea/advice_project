@@ -270,50 +270,29 @@ class AgentCla:
             logger.error(f"Ошибка извлечения: {e} | Данные: {str(data)[:200]}")
             return "", None
 
-    def _extract_text_from_response(self, data: dict) -> tuple[str, Optional[Dict]]:
-        """
-            Извлечь текст или tool_use из ответа Claude.
-            Returns: (text, tool_call_info or None)
-        """
-        try:
-            content = data.get('content', [])
-            if not content:
-                return "", None
-            first = content[0] if isinstance(content, list) else content
-            if isinstance(first, dict):
-                if first.get('type') == 'text':
-                    return first.get('text', ''), None
-                if first.get('type') == 'tool_use':
-                    return "", {
-                        'id': first.get('id'),
-                        'name': first.get('name'),
-                        'input': first.get('input', {})
-                    }
-            #content = data.get('content', [])
-            #if not content:
-            #    return "", None
-            
-            #first_block = content[0] if isinstance(content, list) else content
-            
-            # Случай 1: текстовый ответ
-            #if isinstance(first_block, dict) and first_block.get('type') == 'text':
-            #    return first_block.get('text', ''), None
-            
-            # Случай 2: tool_use
-            #if isinstance(first_block, dict) and first_block.get('type') == 'tool_use':
-            #    tool_info = {
-            #        'name': first_block.get('name'),
-            #        'input': first_block.get('input', {})
-            #    }
-            #    return "", tool_info
-            
-            # Фолбэк: попытка извлечь text напрямую
-            #text = first_block.get('text', '') if isinstance(first_block, dict) else str(first_block)
-            #return text, None
-            
-        except Exception as e:
-            logger.error(f"Ошибка извлечения: {str(e)}")
-            return "", None
+    #def _extract_text_from_response(self, data: dict) -> tuple[str, Optional[Dict]]:на всякий случай
+    #    """
+    #        Извлечь текст или tool_use из ответа Claude.
+    #        Returns: (text, tool_call_info or None)
+    #    """
+    #    try:
+    #        content = data.get('content', [])
+    #        if not content:
+    #            return "", None
+    #        first = content[0] if isinstance(content, list) else content
+    #        if isinstance(first, dict):
+    #            if first.get('type') == 'text':
+    #                return first.get('text', ''), None
+    #            if first.get('type') == 'tool_use':
+    #                return "", {
+    #                    'id': first.get('id'),
+    #                    'name': first.get('name'),
+    #                    'input': first.get('input', {})
+    #                }
+    #        
+    #    except Exception as e:
+    #        logger.error(f"Ошибка извлечения: {str(e)}")
+    #        return "", None
     
     def _call_llm(self, prompt: str, max_retries: int = 2) -> str:
         """Вызов Claude API с обработкой tool_use"""
