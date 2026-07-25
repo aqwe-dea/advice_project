@@ -79,7 +79,7 @@ def web_fetch(url: str, max_length: int = 5000) -> str:
             "title": title,
             "description": description,
             "text": text,
-            "word_count": len(text.split()),
+            "word_count": len(text.split())
         }
         
         return json.dumps(result, ensure_ascii=False)

@@ -71,7 +71,7 @@ def search_by_wikipedia(query: str, lang: str = "ru", max_results: int = 3) -> s
                 "title": item.get("title", ""),
                 "snippet": clean_snippet,
                 "url": f"https://{lang}.wikipedia.org/wiki/{item.get('title', '').replace(' ', '_')}",
-                "wordcount": item.get("wordcount", 0),
+                "wordcount": item.get("wordcount", 0)
             })
         
         return json.dumps({

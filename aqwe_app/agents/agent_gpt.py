@@ -189,8 +189,8 @@ class AgentGpt:
     def _extract_text_or_tool(self, data: dict) -> tuple[str, Optional[Dict]]:
         """Извлечь текст или function_call из ответа API"""
         try:
-            output = data.get('output')[0]
-            content = output.get('content')
+            message = data.get('choices', [{}])[0].get('message', {})
+            content = message.get('content')
             #content = data.get('output', [{}])[0].get('content')
             #content = output[1].get('content')
 
@@ -689,6 +689,21 @@ class AgentGpt:
                                 },
                                 "required": ["question"]
                             }
+                        },
+                        {
+                            "type": "function",
+                            "function": {
+                                "name": "web_search",
+                                "description": "Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.",
+                                "parameters": {
+                                    "type": "object",
+                                    "properties": {
+                                        "query": {"type": "string"},
+                                        "max_results": {"type": "integer", "default": 5}
+                                    },
+                                    "required": ["query"]
+                                }
+                            }
                         }
                     ],
                     "tool_choice": "auto",
@@ -698,11 +713,11 @@ class AgentGpt:
             )
             response.raise_for_status()
             data = response.json()
-            #text = self._extract_text_or_tool(data)
+            text = self._extract_text_or_tool(data)
             #msg = data.get('choices', [{}])[0].get('message', {})
-            choices = data.get('choices', [{}])
-            msg = choices[0].get('message', {})
-            content = choices[0].get('message', {}).get('content')
+            #choices = data.get('choices', [{}])
+            ##msg = choices[0].get('message', {})
+            #content = choices[0].get('message', {}).get('content')
             #if 'tool_calls' in msg and msg['tool_calls']:
             #    tc = msg['tool_calls'][0]
             #    return "", {
@@ -732,27 +747,83 @@ class AgentGpt:
             
             #content = message.get('content')
         
-            if isinstance(content, list):
-                text = '\n'.join(
-                    item.get('text', '') for item in content 
-                    if isinstance(item, dict) and item.get('text')
-                )
-            else:
-                text = content or ''
+            #if isinstance(content, list):
+            #    text = '\n'.join(
+            #        item.get('text', '') for item in content 
+            #        if isinstance(item, dict) and item.get('text')
+            #    )
+            #else:
+            #    text = content or ''
             #if 'function_call' in message:
             #    return "", message['function_call']
               
 
-            if not text.strip():
+            if not text:
                 logger.error(f"Пустой текст в ответе: {data}")
                 return "Ошибка: агент не сгенерировал ответ"
+            
+            if text:
+                # Обновление контекста
+                self.context.append({"role": "user", "content": [{"type": "text", "text": prompt}]})
+                self.context.append({"role": "assistant", "content": [{"type": "text", "text": text}]})
         
-            # Обновление контекста
-            self.context.append({"role": "user", "content": [{"type": "text", "text": prompt}]})
-            self.context.append({"role": "assistant", "content": [{"type": "text", "text": text}]})
-        
-            logger.info(f"✅ Ответ агента: {text[:200]}...")
-            return text
+                logger.info(f"✅ Ответ агента: {text[:200]}...")
+                return text
+            
+            tool_call = self._extract_text_or_tool(data)
+            # Если модель запросила инструмент — выполняем его
+            if tool_call:
+                func_name = tool_call.get('name')
+                # Парсим аргументы (могут быть JSON-строкой)
+                args_str = tool_call.get('arguments', '{}')
+                if isinstance(args_str, str):
+                    try:
+                        args = json.loads(args_str)
+                    except:
+                        args = {'query': args_str}
+                else:
+                   args = args_str
+                    
+                logger.info(f"🔧 Function call: {func_name}({args})")
+                    
+                if func_name in self.tools:
+                    func = self.tools[func_name]['func']
+                    try:
+                        result = func(**args)
+                        # Отправляем результат обратно в LLM для финального ответа
+                        messages.append({"role": "assistant", "content": [{"type": "text", "text": f"Calling {func_name}..."}]})
+                        messages.append({"role": "user", "content": [{"type": "text", "text": f"Result of {func_name}: {result}"}]})
+                            
+                        # Повторный запрос для получения человеческого ответа
+                        second_response = requests.post(
+                            f"{self.base_url}/gpt-5-2/v1/chat/completions",
+                            headers={
+                                "Authorization": f"Bearer {self.api_key}",
+                                "Content-Type": "application/json"
+                            },
+                            json={
+                                "model": self.model,
+                                "input": messages,
+                                "stream": False,
+                                "max_output_tokens": 10000,
+                                "reasoning": {
+                                    "effort": "xhigh"
+                                }
+                            },
+                            timeout=300
+                        )
+                        second_response.raise_for_status()
+                        second_data = second_response.json()
+                        final_text, _ = self._extract_text_or_tool(second_data)
+                        if final_text:
+                            self.context.append({"role": "user", "content": [{"type": "text", "text": prompt}]})
+                            self.context.append({"role": "assistant", "content": [{"type": "text", "text": final_text}]})
+                            return text
+                        return final_text or f"✅ {func_name} выполнен. Результат: {result}"
+                    except Exception as e:
+                        return f"❌ Ошибка выполнения {func_name}: {str(e)}"
+                else:
+                    return f"⚠️ Инструмент '{func_name}' не зарегистрирован"
         
         except requests.Timeout:
             logger.error("Таймаут запроса к API")
