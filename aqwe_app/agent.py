@@ -186,6 +186,124 @@ class SimpleAgent:
         return api_tools
     
     def _extract_text_or_tool(self, data: dict) -> tuple[str, Optional[Dict]]:
+        """
+            Безопасно извлекает текст ИЛИ информацию о вызове инструмента из ответа API.
+            Поддерживает: OpenAI/GPT/Grok (choices/output), Anthropic (content), Gemini (candidates).
+            Returns: (текст, словарь tool_call или None)
+        """
+        try:
+            # 1. OpenAI / GPT-5.x / Grok / Совместимые (структура choices)
+            choices = data.get('choices')
+            if choices and isinstance(choices, list) and len(choices) > 0:
+                msg = choices[0].get('message', {})
+            
+                # Tool calls (современный формат)
+                if 'tool_calls' in msg and msg['tool_calls']:
+                    tc = msg['tool_calls'][0]
+                    return "", {
+                        'id': tc.get('id'),
+                        'name': tc['function']['name'],
+                        'arguments': tc['function'].get('arguments', '{}')
+                    }
+                # Legacy function_call
+                if 'function_call' in msg:
+                    fc = msg['function_call']
+                    return "", {
+                        'id': None,
+                        'name': fc.get('name'),
+                        'arguments': fc.get('arguments', '{}')
+                    }
+                # Текст
+                content = msg.get('content')
+                if isinstance(content, list):
+                    text = '\n'.join(block.get('text', '') for block in content if isinstance(block, dict))
+                else:
+                    text = content or ''
+                return text.strip(), None
+
+            # 2. Anthropic / Claude (структура content-блоков)
+            content_list = data.get('content')
+            if content_list and isinstance(content_list, list):
+                first = content_list[0]
+                if isinstance(first, dict):
+                    if first.get('type') == 'tool_use':
+                        return "", {
+                            'id': first.get('id'),
+                            'name': first.get('name'),
+                            'input': first.get('input', {})
+                        }
+                    if first.get('type') == 'text':
+                        return first.get('text', '').strip(), None
+
+            # 3. Google / Gemini (структура candidates)
+            candidates = data.get('candidates')
+            if candidates and isinstance(candidates, list) and len(candidates) > 0:
+                parts = candidates[0].get('content', {}).get('parts', [])
+                if parts and isinstance(parts, list):
+                    first = parts[0]
+                    if isinstance(first, dict):
+                        if 'functionCall' in first:
+                            fc = first['functionCall']
+                            return "", {
+                                'name': fc.get('name'),
+                                'input': fc.get('args', {})
+                            }
+                        if 'text' in first:
+                            return first['text'].strip(), None
+
+            # 4. Grok / Responses API (структура output)
+            output = data.get('output')
+            if output and isinstance(output, list):
+                for item in output:
+                    if isinstance(item, dict) and item.get('type') == 'message':
+                        blocks = item.get('content', [])
+                        if isinstance(blocks, list) and blocks:
+                            first = blocks[0]
+                            if isinstance(first, dict):
+                                if first.get('type') == 'tool_use':
+                                    return "", {'name': first.get('name'), 'input': first.get('input', {})}
+                                if first.get('type') == 'text':
+                                    return first.get('text', '').strip(), None
+
+            # 5. OpenAI / GPT-5.x / Grok / Совместимые (структура output)
+            output = data.get('output')
+            if output and isinstance(output, list) and len(output) > 0:
+                msg = output[1]
+                content = msg.get('content')
+            
+                # Tool calls (современный формат)
+                if 'tool_calls' in msg and msg['tool_calls']:
+                    tc = msg['tool_calls'][0]
+                    return "", {
+                        'id': tc.get('id'),
+                        'name': tc['function']['name'],
+                        'arguments': tc['function'].get('arguments', '{}')
+                    }
+                # Legacy function_call
+                if 'function_call' in msg:
+                    fc = msg['function_call']
+                    return "", {
+                        'id': None,
+                        'name': fc.get('name'),
+                        'arguments': fc.get('arguments', '{}')
+                    }
+                # Текст
+                #content = msg.get('text')
+                if isinstance(content, list):
+                    text = '\n'.join(block.get('text', '') for block in content if isinstance(block, dict))
+                else:
+                    text = content or ''
+                return text.strip(), None
+
+            # Если ничего не подошло
+            logger.warning(f"Неизвестная структура ответа: {list(data.keys())}")
+            return "", None
+
+        except Exception as e:
+            logger.error(f"Ошибка извлечения: {e} | Данные: {str(data)[:200]}")
+            return "", None
+
+    def _extract_text_or_tooledold(self, data: dict) -> tuple[str, Optional[Dict]]:
         """Извлечь текст или function_call из ответа API"""
         try:
             content = data.get('output', [{}])[1]
