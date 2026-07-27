@@ -195,41 +195,22 @@ class SmartAgent:
             Returns: (текст, словарь tool_call или None)
         """
         try:
-            # 2. Anthropic / Claude (структура content-блоков)
-            content_list = data.get('content')
-            if content_list and isinstance(content_list, list):
-                first = content_list[0]
-                if isinstance(first, dict):
-                    if first.get('type') == 'tool_use':
-                        return "", {
-                            'id': first.get('id'),
-                            'name': first.get('name'),
-                            'input': first.get('input', {})
-                        }
-                    if first.get('type') == 'text':
-                        return first.get('text', '').strip(), None
-
-            # 4. Grok / Responses API (структура output)
-            output = data.get('output')
-            if output and isinstance(output, list):
-                for item in output:
-                    if isinstance(item, dict) and item.get('type') == 'message':
-                        blocks = item.get('content', [])
-                        if isinstance(blocks, list) and blocks:
-                            first = blocks[0]
-                            if isinstance(first, dict):
-                                if first.get('type') == 'tool_use':
-                                    return "", {'name': first.get('name'), 'input': first.get('input', {})}
-                                if first.get('type') == 'text':
-                                    return first.get('text', '').strip(), None
-
-            
             # 6. OpenAI / GPT-5.x / Grok / Совместимые (структура output content)
-            content = data.get('output', [{}])
-            
+            #content = data.get('output', [{}])
+            output = data.get('output')
+            content = output[1]
+            output_text = content.get('content')
+            message = output_text[0]
             # Проверка на function_call
+            #if 'function_call' in content:
+            #    return content['function_call'][0]['function']
             if 'function_call' in content:
-                return content['function_call'][0]['function']
+                fc = content['function_call']
+                return {
+                    'id': None,
+                    'name': fc.get('name'),
+                    'arguments': fc.get('arguments', '{}')
+                }
 
             # Проверка на tool_calls (OpenAI-стиль)
             if 'tool_calls' in content and content['tool_calls']:
@@ -240,16 +221,16 @@ class SmartAgent:
                     'input': json.loads(tc['function']['arguments'])
                 }
 
-            if content and isinstance(content, list):
-                answer = content[1].get('content') or content[0].get('summary')
+            if message and isinstance(message, list):
+                text = message[1].get('text')
             else:
-                answer = str(content)
+                text = str(message)
 
             # Обычный текст
-            text = answer[0].get('text')
-            if text.startswith("answer"):
-                parsed = json.loads(text)
-                return parsed.get("answer", text)
+            #text = answer[0].get('text')
+            #if text.startswith("{"):
+            #    parsed = json.loads(text)
+            #    return parsed.get("answer", text)
 
             return text
 
@@ -258,7 +239,7 @@ class SmartAgent:
             return "", None
 
         except Exception as e:
-            logger.error(f"Ошибка извлечения: {e} | Данные: {str(data)[:200]}")
+            logger.error(f"Ошибка извлечения: {e} | Данные: {str(data)[:2000]}")
             return "", None
 
     #def _extract_text_or_tooledold(self, data: dict) -> tuple[str, Optional[Dict]]: на всякий случай
