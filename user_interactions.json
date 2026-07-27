@@ -1,5 +1,5 @@
 {
-  "total_visits": 60,
+  "total_visits": 89,
   "unique_users": [
     "127.0.0.1"
   ],
@@ -537,6 +537,267 @@
     },
     {
       "timestamp": "2026-07-25T15:54:37.184199",
+      "user_id": "127.0.0.1",
+      "endpoint": "AgentChatView",
+      "agent": "SimpleAgent",
+      "metadata": {
+        "question_length": 15
+      }
+    },
+    {
+      "timestamp": "2026-07-26T17:00:14.338331",
+      "user_id": "127.0.0.1",
+      "endpoint": "AgentGemView",
+      "agent": "AgentGem",
+      "metadata": {
+        "question_length": 387
+      }
+    },
+    {
+      "timestamp": "2026-07-26T17:02:20.467627",
+      "user_id": "127.0.0.1",
+      "endpoint": "AgentGemView",
+      "agent": "AgentGem",
+      "metadata": {
+        "question_length": 16
+      }
+    },
+    {
+      "timestamp": "2026-07-26T17:05:36.443491",
+      "user_id": "127.0.0.1",
+      "endpoint": "AgentGemView",
+      "agent": "AgentGem",
+      "metadata": {
+        "question_length": 59
+      }
+    },
+    {
+      "timestamp": "2026-07-26T17:07:26.910202",
+      "user_id": "127.0.0.1",
+      "endpoint": "AgentGemView",
+      "agent": "AgentGem",
+      "metadata": {
+        "question_length": 43
+      }
+    },
+    {
+      "timestamp": "2026-07-26T17:09:50.871091",
+      "user_id": "127.0.0.1",
+      "endpoint": "AgentGemView",
+      "agent": "AgentGem",
+      "metadata": {
+        "question_length": 35
+      }
+    },
+    {
+      "timestamp": "2026-07-26T17:12:15.244853",
+      "user_id": "127.0.0.1",
+      "endpoint": "AgentGemView",
+      "agent": "AgentGem",
+      "metadata": {
+        "question_length": 45
+      }
+    },
+    {
+      "timestamp": "2026-07-26T17:13:38.825087",
+      "user_id": "127.0.0.1",
+      "endpoint": "AgentGemView",
+      "agent": "AgentGem",
+      "metadata": {
+        "question_length": 65
+      }
+    },
+    {
+      "timestamp": "2026-07-26T18:00:20.248062",
+      "user_id": "127.0.0.1",
+      "endpoint": "AgentGemView",
+      "agent": "AgentGem",
+      "metadata": {
+        "question_length": 47
+      }
+    },
+    {
+      "timestamp": "2026-07-26T18:04:32.692402",
+      "user_id": "127.0.0.1",
+      "endpoint": "AgentGptView",
+      "agent": "AgentGpt",
+      "metadata": {
+        "question_length": 47
+      }
+    },
+    {
+      "timestamp": "2026-07-26T20:34:26.221737",
+      "user_id": "127.0.0.1",
+      "endpoint": "AgentGptView",
+      "agent": "AgentGpt",
+      "metadata": {
+        "question_length": 82
+      }
+    },
+    {
+      "timestamp": "2026-07-26T20:41:43.882983",
+      "user_id": "127.0.0.1",
+      "endpoint": "AgentGptView",
+      "agent": "AgentGpt",
+      "metadata": {
+        "question_length": 97
+      }
+    },
+    {
+      "timestamp": "2026-07-26T20:43:48.195977",
+      "user_id": "127.0.0.1",
+      "endpoint": "AgentGptView",
+      "agent": "AgentGpt",
+      "metadata": {
+        "question_length": 55
+      }
+    },
+    {
+      "timestamp": "2026-07-26T20:46:42.170306",
+      "user_id": "127.0.0.1",
+      "endpoint": "AgentGptView",
+      "agent": "AgentGpt",
+      "metadata": {
+        "question_length": 26
+      }
+    },
+    {
+      "timestamp": "2026-07-26T20:50:18.962118",
+      "user_id": "127.0.0.1",
+      "endpoint": "AgentGptView",
+      "agent": "AgentGpt",
+      "metadata": {
+        "question_length": 19
+      }
+    },
+    {
+      "timestamp": "2026-07-26T20:53:05.806547",
+      "user_id": "127.0.0.1",
+      "endpoint": "AgentGptView",
+      "agent": "AgentGpt",
+      "metadata": {
+        "question_length": 75
+      }
+    },
+    {
+      "timestamp": "2026-07-26T21:16:41.403403",
+      "user_id": "127.0.0.1",
+      "endpoint": "AgentClaView",
+      "agent": "AgentCla",
+      "metadata": {
+        "question_length": 70
+      }
+    },
+    {
+      "timestamp": "2026-07-26T21:33:56.239696",
+      "user_id": "127.0.0.1",
+      "endpoint": "AgentGemView",
+      "agent": "AgentGem",
+      "metadata": {
+        "question_length": 78
+      }
+    },
+    {
+      "timestamp": "2026-07-26T22:28:28.356244",
+      "user_id": "127.0.0.1",
+      "endpoint": "AgentChatView",
+      "agent": "SimpleAgent",
+      "metadata": {
+        "question_length": 70
+      }
+    },
+    {
+      "timestamp": "2026-07-26T22:30:53.304105",
+      "user_id": "127.0.0.1",
+      "endpoint": "AgentChatView",
+      "agent": "SimpleAgent",
+      "metadata": {
+        "question_length": 62
+      }
+    },
+    {
+      "timestamp": "2026-07-26T22:33:20.889860",
+      "user_id": "127.0.0.1",
+      "endpoint": "SmartAgentView",
+      "agent": "SmartAgent",
+      "metadata": {
+        "question_length": 70
+      }
+    },
+    {
+      "timestamp": "2026-07-26T22:38:15.507214",
+      "user_id": "127.0.0.1",
+      "endpoint": "SmartAgentView",
+      "agent": "SmartAgent",
+      "metadata": {
+        "question_length": 70
+      }
+    },
+    {
+      "timestamp": "2026-07-26T22:40:54.828141",
+      "user_id": "127.0.0.1",
+      "endpoint": "AgentChatView",
+      "agent": "SimpleAgent",
+      "metadata": {
+        "question_length": 15
+      }
+    },
+    {
+      "timestamp": "2026-07-26T22:51:15.433710",
+      "user_id": "127.0.0.1",
+      "endpoint": "AgentChatView",
+      "agent": "SimpleAgent",
+      "metadata": {
+        "question_length": 15
+      }
+    },
+    {
+      "timestamp": "2026-07-26T22:54:46.913329",
+      "user_id": "127.0.0.1",
+      "endpoint": "SmartAgentView",
+      "agent": "SmartAgent",
+      "metadata": {
+        "question_length": 23
+      }
+    },
+    {
+      "timestamp": "2026-07-26T23:21:30.561587",
+      "user_id": "127.0.0.1",
+      "endpoint": "SmartAgentView",
+      "agent": "SmartAgent",
+      "metadata": {
+        "question_length": 15
+      }
+    },
+    {
+      "timestamp": "2026-07-26T23:26:29.318240",
+      "user_id": "127.0.0.1",
+      "endpoint": "SmartAgentView",
+      "agent": "SmartAgent",
+      "metadata": {
+        "question_length": 15
+      }
+    },
+    {
+      "timestamp": "2026-07-26T23:31:12.811521",
+      "user_id": "127.0.0.1",
+      "endpoint": "SmartAgentView",
+      "agent": "SmartAgent",
+      "metadata": {
+        "question_length": 60
+      }
+    },
+    {
+      "timestamp": "2026-07-26T23:36:44.135167",
+      "user_id": "127.0.0.1",
+      "endpoint": "SmartAgentView",
+      "agent": "SmartAgent",
+      "metadata": {
+        "question_length": 15
+      }
+    },
+    {
+      "timestamp": "2026-07-26T23:41:53.931051",
       "user_id": "127.0.0.1",
       "endpoint": "AgentChatView",
       "agent": "SimpleAgent",
