@@ -175,16 +175,17 @@ class SmartAgent:
         }
     
     def _build_api_tools(self) -> List[Dict]:
-        """Построить список инструментов в формате API"""
+        """
+            Построить список инструментов в формате Claude/GPT API
+        """
+
         api_tools = []
         for name, info in self.tools.items():
             api_tools.append({
                 "type": "function",
-                "function": {
-                    "name": name,
-                    "description": info['description'],
-                    "parameters": info['parameters']
-                }
+                "name": name,  # ← Добавлено
+                "description": info['description'],  # ← Добавлено
+                "parameters": info['parameters']  # ← Добавлено
             })
         return api_tools
     
@@ -348,7 +349,292 @@ class SmartAgent:
                 },
             }
         ]
-
+        # ниже рабочий вариант вызова инструментов
+        tools = [
+            {
+                "type": "function",
+                "name": "web_search",
+                "description": "Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "query": {
+                            "type": "string",
+                            "description": "Ваш запрос к поиску"
+                        },
+                        "max_results": {
+                            "type": "integer",
+                            "default": 5
+                        },
+                        "unit": {
+                            "type": "string"
+                        }
+                    },
+                    "required": ["query", "max_results", "unit"]
+                }
+            },
+            {
+                "type": "function",
+                "name": "web_fetch",
+                "description": "Загрузка и парсинг веб-страниц",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "url": {
+                            "type": "string",
+                            "description": "Адрес страницы"
+                        },
+                        "max_length": {
+                            "type": "integer",
+                            "default": 5000
+                        },
+                        "unit": {
+                            "type": "string"
+                        }
+                    },
+                    "required": ["url", "max_length", "unit"]
+                }
+            },
+            {
+                "type": "function",
+                "name": "search_by_wikipedia",
+                "description": "Поиск статей в Wikipedia",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "query": {
+                            "type": "string",
+                            "description": "Необходимая статья"
+                        },
+                        "lang": {
+                            "type": "string",
+                            "description": "Язык статьи"
+                        },
+                        "max_results": {
+                            "type": "integer",
+                            "default": 3
+                        },
+                        "unit": {
+                            "type": "string"
+                        }
+                    },
+                    "required": ["query", "lang", "max_results", "unit"]
+                }
+            },
+            {
+                "type": "function",
+                "name": "read_file",
+                "description": "Чтение файла",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "file_path": {
+                            "type": "string",
+                            "description": "Путь файла"
+                        },
+                        "max_chars": {
+                            "type": "integer",
+                            "default": 10000
+                        },
+                        "unit": {
+                            "type": "string"
+                        }
+                    },
+                    "required": ["file_path", "max_chars", "unit"]
+                }
+            },
+            {
+                "type": "function",
+                "name": "edit_file",
+                "description": "Редактирование файла",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "file_path": {
+                            "type": "string",
+                            "description": "Путь к файлу"
+                        },
+                        "content": {
+                            "type": "string",
+                            "description": "Что изменили"
+                        },
+                        "mode": {
+                            "type": "string",
+                            "description": "Какой режим выбрали"
+                        },
+                        "unit": {
+                            "type": "string"
+                        }
+                    },
+                    "required": ["file_path", "content", "mode", "unit"]
+                }
+            },
+            {
+                "type": "function",
+                "name": "git_commit",
+                "description": "Слежение за обновлением проекта через проверку статуса",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "message": {
+                            "type": "string",
+                            "description": "Сообщение или действие"
+                        },
+                        "repo_path": {
+                            "type": "string",
+                            "description": "Путь к репозиторию"
+                        },
+                        "unit": {
+                            "type": "string"
+                        }
+                    },
+                    "required": ["message", "repo_path", "unit"]
+                }
+            },
+            {
+                "type": "function",
+                "name": "save_to_memory",
+                "description": "Запись в память и опыт",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "entry": {
+                            "type": "string",
+                            "description": "Запись или заметка"
+                        },
+                        "memory_file": {
+                            "type": "string",
+                            "description": "Файл памяти"
+                        },
+                        "unit": {
+                            "type": "string"
+                        }
+                    },
+                    "required": ["entry", "memory_file", "unit"]
+                }
+            },
+            {
+                "type": "function",
+                "name": "recall_memory",
+                "description": "Обращение к памяти и опыту",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "query": {
+                            "type": "string",
+                            "description": "Запрос по ключевому слову к памяти"
+                        },
+                        "memory_file": {
+                            "type": "string",
+                            "description": "Файл памяти"
+                        },
+                        "limit": {
+                            "type": "integer",
+                            "default": 3
+                        },
+                        "unit": {
+                            "type": "string"
+                        }
+                    },
+                    "required": ["query", "memory_file", "max_results", "unit"]
+                }
+            },
+            {
+                "type": "function",
+                "name": "send_email",
+                "description": "Отправка результатов работы агента по почте",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "to": {
+                            "type": "string",
+                            "description": "Адрес почты"
+                        },
+                        "subject": {
+                            "type": "string",
+                            "description": "Тема письма"
+                        },
+                        "body": {
+                            "type": "string",
+                            "description": "Содержание письма"
+                        },
+                        "unit": {
+                            "type": "string"
+                        }
+                    },
+                    "required": ["to", "subject", "body", "unit"]
+                }
+            },
+            {
+                "type": "function",
+                "name": "create_task",
+                "description": "Создание задачи для агента",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "title": {
+                            "type": "string",
+                            "description": "Заголовок задачи"
+                        },
+                        "description": {
+                            "type": "string",
+                            "description": "Описание задачи"
+                        },
+                        "priority": {
+                            "type": "string",
+                            "description": "Приоритет задачи"
+                        },
+                        "file": {
+                            "type": "string",
+                            "description": "Файл с задачами"
+                        },
+                        "unit": {
+                            "type": "string"
+                        }
+                    },
+                    "required": ["title", "description", "priority", "file", "unit"]
+                }
+            },
+            {
+                "type": "function",
+                "name": "detect_emotion",
+                "description": "Распознавание эмоций польователя",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "text": {
+                            "type": "string",
+                            "description": "Полученный текст"
+                        },
+                        "unit": {
+                            "type": "string"
+                        }
+                    },
+                    "required": ["text", "unit"]
+                }
+            },
+            {
+                "type": "function",
+                "name": "check_wellbeing",
+                "description": "Проверка состояния здоровья пользователя",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "question": {
+                            "type": "string",
+                            "description": "Вопрос пользователя"
+                        },
+                        "unit": {
+                            "type": "string"
+                        }
+                    },
+                    "required": ["question", "unit"]
+                }
+            }
+        ]
+        
+        api_tools = self._build_api_tools()
+        
         try:
             response = requests.post(
                 f"{self.base_url}/grok/v1/responses",
@@ -386,288 +672,7 @@ class SmartAgent:
                             }
                         }
                     },
-                    "tools": [
-                        {
-                            "type": "function",
-                            "name": "web_search",
-                            "description": "Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.",
-                            "parameters": {
-                                "type": "object",
-                                "properties": {
-                                    "query": {
-                                        "type": "string",
-                                        "description": "Ваш запрос к поиску"
-                                    },
-                                    "max_results": {
-                                        "type": "integer",
-                                        "default": 5
-                                    },
-                                    "unit": {
-                                        "type": "string"
-                                    }
-                                },
-                                "required": ["query", "max_results", "unit"]
-                            }
-                        },
-                        {
-                            "type": "function",
-                            "name": "web_fetch",
-                            "description": "Загрузка и парсинг веб-страниц",
-                            "parameters": {
-                                "type": "object",
-                                "properties": {
-                                    "url": {
-                                        "type": "string",
-                                        "description": "Адрес страницы"
-                                    },
-                                    "max_length": {
-                                        "type": "integer",
-                                        "default": 5000
-                                    },
-                                    "unit": {
-                                        "type": "string"
-                                    }
-                                },
-                                "required": ["url", "max_length", "unit"]
-                            }
-                        },
-                        {
-                            "type": "function",
-                            "name": "search_by_wikipedia",
-                            "description": "Поиск статей в Wikipedia",
-                            "parameters": {
-                                "type": "object",
-                                "properties": {
-                                    "query": {
-                                        "type": "string",
-                                        "description": "Необходимая статья"
-                                    },
-                                    "lang": {
-                                        "type": "string",
-                                        "description": "Язык статьи"
-                                    },
-                                    "max_results": {
-                                        "type": "integer",
-                                        "default": 3
-                                    },
-                                    "unit": {
-                                        "type": "string"
-                                    }
-                                },
-                                "required": ["query", "lang", "max_results", "unit"]
-                            }
-                        },
-                        {
-                            "type": "function",
-                            "name": "read_file",
-                            "description": "Чтение файла",
-                            "parameters": {
-                                "type": "object",
-                                "properties": {
-                                    "file_path": {
-                                        "type": "string",
-                                        "description": "Путь файла"
-                                    },
-                                    "max_chars": {
-                                        "type": "integer",
-                                        "default": 10000
-                                    },
-                                    "unit": {
-                                        "type": "string"
-                                    }
-                                },
-                                "required": ["file_path", "max_chars", "unit"]
-                            }
-                        },
-                        {
-                            "type": "function",
-                            "name": "edit_file",
-                            "description": "Редактирование файла",
-                            "parameters": {
-                                "type": "object",
-                                "properties": {
-                                    "file_path": {
-                                        "type": "string",
-                                        "description": "Путь к файлу"
-                                    },
-                                    "content": {
-                                        "type": "string",
-                                        "description": "Что изменили"
-                                    },
-                                    "mode": {
-                                        "type": "string",
-                                        "description": "Какой режим выбрали"
-                                    },
-                                    "unit": {
-                                        "type": "string"
-                                    }
-                                },
-                                "required": ["file_path", "content", "mode", "unit"]
-                            }
-                        },
-                        {
-                            "type": "function",
-                            "name": "git_commit",
-                            "description": "Слежение за обновлением проекта через проверку статуса",
-                            "parameters": {
-                                "type": "object",
-                                "properties": {
-                                    "message": {
-                                        "type": "string",
-                                        "description": "Сообщение или действие"
-                                    },
-                                    "repo_path": {
-                                        "type": "string",
-                                        "description": "Путь к репозиторию"
-                                    },
-                                    "unit": {
-                                        "type": "string"
-                                    }
-                                },
-                                "required": ["message", "repo_path", "unit"]
-                            }
-                        },
-                        {
-                            "type": "function",
-                            "name": "save_to_memory",
-                            "description": "Запись в память и опыт",
-                            "parameters": {
-                                "type": "object",
-                                "properties": {
-                                    "entry": {
-                                        "type": "string",
-                                        "description": "Запись или заметка"
-                                    },
-                                    "memory_file": {
-                                        "type": "string",
-                                        "description": "Файл памяти"
-                                    },
-                                    "unit": {
-                                        "type": "string"
-                                    }
-                                },
-                                "required": ["entry", "memory_file", "unit"]
-                            }
-                        },
-                        {
-                            "type": "function",
-                            "name": "recall_memory",
-                            "description": "Обращение к памяти и опыту",
-                            "parameters": {
-                                "type": "object",
-                                "properties": {
-                                    "query": {
-                                        "type": "string",
-                                        "description": "Запрос по ключевому слову к памяти"
-                                    },
-                                    "memory_file": {
-                                        "type": "string",
-                                        "description": "Файл памяти"
-                                    },
-                                    "limit": {
-                                        "type": "integer",
-                                        "default": 3
-                                    },
-                                    "unit": {
-                                        "type": "string"
-                                    }
-                                },
-                                "required": ["query", "memory_file", "max_results", "unit"]
-                            }
-                        },
-                        {
-                            "type": "function",
-                            "name": "send_email",
-                            "description": "Отправка результатов работы агента по почте",
-                            "parameters": {
-                                "type": "object",
-                                "properties": {
-                                    "to": {
-                                        "type": "string",
-                                        "description": "Адрес почты"
-                                    },
-                                    "subject": {
-                                        "type": "string",
-                                        "description": "Тема письма"
-                                    },
-                                    "body": {
-                                        "type": "string",
-                                        "description": "Содержание письма"
-                                    },
-                                    "unit": {
-                                        "type": "string"
-                                    }
-                                },
-                                "required": ["to", "subject", "body", "unit"]
-                            }
-                        },
-                        {
-                            "type": "function",
-                            "name": "create_task",
-                            "description": "Создание задачи для агента",
-                            "parameters": {
-                                "type": "object",
-                                "properties": {
-                                    "title": {
-                                        "type": "string",
-                                        "description": "Заголовок задачи"
-                                    },
-                                    "description": {
-                                        "type": "string",
-                                        "description": "Описание задачи"
-                                    },
-                                    "priority": {
-                                        "type": "string",
-                                        "description": "Приоритет задачи"
-                                    },
-                                    "file": {
-                                        "type": "string",
-                                        "description": "Файл с задачами"
-                                    },
-                                    "unit": {
-                                        "type": "string"
-                                    }
-                                },
-                                "required": ["title", "description", "priority", "file", "unit"]
-                            }
-                        },
-                        {
-                            "type": "function",
-                            "name": "detect_emotion",
-                            "description": "Распознавание эмоций польователя",
-                            "parameters": {
-                                "type": "object",
-                                "properties": {
-                                    "text": {
-                                        "type": "string",
-                                        "description": "Полученный текст"
-                                    },
-                                    "unit": {
-                                        "type": "string"
-                                    }
-                                },
-                                "required": ["text", "unit"]
-                            }
-                        },
-                        {
-                            "type": "function",
-                            "name": "check_wellbeing",
-                            "description": "Проверка состояния здоровья пользователя",
-                            "parameters": {
-                                "type": "object",
-                                "properties": {
-                                    "question": {
-                                        "type": "string",
-                                        "description": "Вопрос пользователя"
-                                    },
-                                    "unit": {
-                                        "type": "string"
-                                    }
-                                },
-                                "required": ["question", "unit"]
-                            }
-                        }
-                    ]
+                    "tools": api_tools if api_tools else None
                     #"tool_choice": "auto"
                 },
                 timeout=300
