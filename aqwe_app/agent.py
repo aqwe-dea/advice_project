@@ -192,89 +192,17 @@ class SimpleAgent:
             Returns: (текст, словарь tool_call или None)
         """
         try:
-            # 1. OpenAI / GPT-5.x / Grok / Совместимые (структура choices)
-            choices = data.get('choices')
-            if choices and isinstance(choices, list) and len(choices) > 0:
-                msg = choices[0].get('message', {})
-            
-                # Tool calls (современный формат)
-                if 'tool_calls' in msg and msg['tool_calls']:
-                    tc = msg['tool_calls'][0]
-                    return "", {
-                        'id': tc.get('id'),
-                        'name': tc['function']['name'],
-                        'arguments': tc['function'].get('arguments', '{}')
-                    }
-                # Legacy function_call
-                if 'function_call' in msg:
-                    fc = msg['function_call']
-                    return "", {
-                        'id': None,
-                        'name': fc.get('name'),
-                        'arguments': fc.get('arguments', '{}')
-                    }
-                # Текст
-                content = msg.get('content')
-                if isinstance(content, list):
-                    text = '\n'.join(block.get('text', '') for block in content if isinstance(block, dict))
-                else:
-                    text = content or ''
-                return text.strip(), None
-
-            # 2. Anthropic / Claude (структура content-блоков)
-            content_list = data.get('content')
-            if content_list and isinstance(content_list, list):
-                first = content_list[0]
-                if isinstance(first, dict):
-                    if first.get('type') == 'tool_use':
-                        return "", {
-                            'id': first.get('id'),
-                            'name': first.get('name'),
-                            'input': first.get('input', {})
-                        }
-                    if first.get('type') == 'text':
-                        return first.get('text', '').strip(), None
-
-            # 3. Google / Gemini (структура candidates)
-            candidates = data.get('candidates')
-            if candidates and isinstance(candidates, list) and len(candidates) > 0:
-                parts = candidates[0].get('content', {}).get('parts', [])
-                if parts and isinstance(parts, list):
-                    first = parts[0]
-                    if isinstance(first, dict):
-                        if 'functionCall' in first:
-                            fc = first['functionCall']
-                            return "", {
-                                'name': fc.get('name'),
-                                'input': fc.get('args', {})
-                            }
-                        if 'text' in first:
-                            return first['text'].strip(), None
-
-            # 4. Grok / Responses API (структура output)
-            output = data.get('output')
-            if output and isinstance(output, list):
-                for item in output:
-                    if isinstance(item, dict) and item.get('type') == 'message':
-                        blocks = item.get('content', [])
-                        if isinstance(blocks, list) and blocks:
-                            first = blocks[0]
-                            if isinstance(first, dict):
-                                if first.get('type') == 'tool_use':
-                                    return "", {'name': first.get('name'), 'input': first.get('input', {})}
-                                if first.get('type') == 'text':
-                                    return first.get('text', '').strip(), None
-
             # 5. OpenAI / GPT-5.x / Grok / Совместимые (структура output)
             output = data.get('output')
             if output and isinstance(output, list) and len(output) > 0:
                 msg = output[1]
-                content = msg.get('content')
+                message = msg.get('content')
+                content = message[0]
             
                 # Tool calls (современный формат)
                 if 'tool_calls' in msg and msg['tool_calls']:
                     tc = msg['tool_calls'][0]
-                    return "", {
+                    return {
                         'id': tc.get('id'),
                         'name': tc['function']['name'],
                         'arguments': tc['function'].get('arguments', '{}')
@@ -282,25 +210,70 @@ class SimpleAgent:
                 # Legacy function_call
                 if 'function_call' in msg:
                     fc = msg['function_call']
-                    return "", {
+                    return {
                         'id': None,
                         'name': fc.get('name'),
                         'arguments': fc.get('arguments', '{}')
                     }
                 # Текст
-                #content = msg.get('text')
-                if isinstance(content, list):
-                    text = '\n'.join(block.get('text', '') for block in content if isinstance(block, dict))
-                else:
-                    text = content or ''
-                return text.strip(), None
+                text = content.get('text', '')
+                #if isinstance(content, list):
+                #    text = '\n'.join(block.get('text', '') for block in content if isinstance(block, dict))
+                #else:
+                    #text = content or ''
+                #    text = str(content)
+                return text
+
+            # 2. Anthropic / Claude (структура content-блоков) попробовать тут и у грока
+            #output = data.get('output')
+            #if output and isinstance(output, list):
+            #    content = output[1]
+            #    if isinstance(content, dict):
+            #        if content.get('type') == 'function_call':
+            #            return {
+            #                'id': None,
+            #                'name': content.get('name'),
+            #                'arguments': content.get('arguments', '{}')
+            #            }
+            #        if content.get('type') == 'tool_call':
+            #            return {
+            #                'id': content.get('id'),
+            #                'name': content['function']['name'],
+            #                'arguments': content['function'].get('arguments', '{}')
+            #            }
+            #        if content.get('type') == 'message':
+            #            return content.get('text', '').strip(), None
+
+            #этот вариант ниже тоже попробовать
+            #output = data.get('output')
+            #if output and isinstance(output, list):
+            #    for message in output:
+            #        if isinstance(message, dict) and message.get('type') == 'message':
+            #            content = message.get('content', [])
+            #            if isinstance(content, list) and content:
+            #                first = content[0]
+            #                if isinstance(first, dict):
+            #                    if first.get('type') == 'function_call':
+            #                        return {
+            #                            'id': None,
+            #                            'name': first.get('name'),
+            #                            'arguments': first.get('arguments', '{}')
+            #                        }
+            #                    if first.get('type') == 'tool_call':
+            #                        return {
+            #                            'id': first.get('id'),
+            #                            'name': first['function']['name'],
+            #                            'arguments': first['function'].get('arguments', '{}')
+            #                        }
+            #                    if first.get('type') == 'output_text':
+            #                        return first.get('text', '').strip(), None
 
             # Если ничего не подошло
             logger.warning(f"Неизвестная структура ответа: {list(data.keys())}")
             return "", None
 
         except Exception as e:
-            logger.error(f"Ошибка извлечения: {e} | Данные: {str(data)[:200]}")
+            logger.error(f"Ошибка извлечения: {e} | Данные: {str(data)[:2000]}")
             return "", None
 
     #def _extract_text_or_tooledold(self, data: dict) -> tuple[str, Optional[Dict]]: на всякий случай

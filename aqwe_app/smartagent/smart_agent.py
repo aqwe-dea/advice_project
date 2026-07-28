@@ -221,10 +221,12 @@ class SmartAgent:
                     'input': json.loads(tc['function']['arguments'])
                 }
 
-            if message and isinstance(message, list):
-                text = message[1].get('text')
-            else:
-                text = str(message)
+            text = message.get('text', '')
+            #if message and isinstance(message, list):
+                #text = message[1].get('text')
+            #    text = '\n'.join(block.get('text', '') for block in message if isinstance(block, dict))
+            #else:
+            #    text = str(message)
 
             # Обычный текст
             #text = answer[0].get('text')
