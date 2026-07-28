@@ -115,7 +115,21 @@ class MarketerAgent:
             messages.append({"role": "user", "content": prompt.strip()})
             
             claude_tools = self._build_claude_tools()
-            
+            tools = [
+                {
+                    "name": "web_search",
+                    "description": "Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.",
+                    "input_schema": {
+                        "type": "object",
+                        "properties": {
+                            "query": {"type": "string", "description": "Поисковый запрос"},
+                            "max_results": {"type": "integer", "default": 5},
+                        },
+                        "required": ["query"],
+                    }
+                }
+            ]
+
             try:
                 response = requests.post(
                     f"{self.base_url}/claude/v1/messages",
@@ -127,21 +141,7 @@ class MarketerAgent:
                     json={
                         "model": "claude-opus-4-7",
                         "messages": messages,
-                        #"tools": claude_tools if claude_tools else None,
-                        "tools": [
-                            {
-                                "name": "web_search",
-                                "description": "Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.",
-                                "input_schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "query": {"type": "string", "description": "Поисковый запрос"},
-                                        "max_results": {"type": "integer", "default": 5},
-                                    },
-                                    "required": ["query"],
-                                }
-                            }
-                        ],
+                        "tools": claude_tools if claude_tools else None,
                         "thinkingFlag": False,
                         "stream": False,
                         "max_tokens": 10000

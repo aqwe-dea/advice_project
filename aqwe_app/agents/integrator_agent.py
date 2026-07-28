@@ -44,16 +44,32 @@ class IntegratorAgent:
     def add_tool(self, name: str, func: callable, description: str):
         self.tools[name] = {'func': func, 'description': description}
     
+    def _build_api_tools(self) -> List[Dict]:
+        """Построить список инструментов в формате API"""
+        api_tools = []
+        for name, info in self.tools.items():
+            api_tools.append({
+                "type": "function",
+                "function": {
+                    "name": name,
+                    "description": info['description'],
+                    "parameters": info['parameters']
+                }
+            })
+        return api_tools
+
     def _call_llm(self, prompt: str, temperature: float = 0.2) -> str:
         messages = self.context.copy()
         messages.append({"role": "user", "content": [{"type": "text", "text": prompt}]})
         
+        api_tools = self._build_api_tools()
+
         try:
             response = requests.post(
                 f"{self.base_url}/v1/chat/completions",
                 headers={"Authorization": f"Bearer {self.api_key}", "Content-Type": "application/json"},
-                json={"messages": messages, "temperature": temperature, "max_tokens": 4000},
-                timeout=90
+                json={"messages": messages, "temperature": temperature, "max_tokens": 4000, "tools": api_tools if api_tools else None},
+                timeout=300
             )
             response.raise_for_status()
             data = response.json()

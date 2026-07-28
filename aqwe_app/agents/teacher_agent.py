@@ -46,6 +46,20 @@ class TeacherAgent:
     def add_tool(self, name: str, func: callable, description: str):
         self.tools[name] = {'func': func, 'description': description}
     
+    def _build_api_tools(self) -> List[Dict]:
+        """Построить список инструментов в формате API"""
+        api_tools = []
+        for name, info in self.tools.items():
+            api_tools.append({
+                "type": "function",
+                "function": {
+                    "name": name,
+                    "description": info['description'],
+                    "parameters": info['parameters']
+                }
+            })
+        return api_tools
+
     def load_knowledge(self, topic: str, content: str):
         """Загрузить справочный материал в базу знаний агента"""
         self.knowledge_base[topic] = content
@@ -56,6 +70,8 @@ class TeacherAgent:
         messages = self.context.copy()
         messages.append({"role": "user", "content": [{"type": "text", "text": prompt}]})
         
+        api_tools = self._build_api_tools()
+
         try:
             response = requests.post(
                 f"{self.base_url}/v1/chat/completions",
@@ -65,15 +81,11 @@ class TeacherAgent:
                 },
                 json={
                     "messages": messages,
-                    "tools": [
-                        {"type": "function", "function": {"name": "web_search"}},
-                        {"type": "function", "function": {"name": "hyperbrowse"}},
-                        {"type": "function", "function": {"name": "googleSearch"}}
-                    ],
+                    "tools": api_tools if api_tools else None,
                     "temperature": temperature,
-                    "max_tokens": 3000
+                    "max_tokens": 10000
                 },
-                timeout=90
+                timeout=300
             )
             response.raise_for_status()
             data = response.json()

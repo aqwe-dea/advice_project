@@ -131,7 +131,7 @@ class ToolManagerAgent:
                         "temperature": 0.3,
                         "max_tokens": 10000
                     },
-                    timeout=120
+                    timeout=300
                 )
                 response.raise_for_status()
                 data = response.json()

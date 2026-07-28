@@ -159,6 +159,45 @@ class FreelancerAgent:
             messages.append({"role": "user", "content": prompt.strip()})
             
             claude_tools = self._build_claude_tools()
+            tools = [
+                {
+                    "name": "web_search",
+                    "description": "Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.",
+                    "input_schema": {
+                        "type": "object",
+                        "properties": {
+                            "query": {"type": "string", "description": "Поисковый запрос"},
+                            "max_results": {"type": "integer", "default": 5},
+                        },
+                        "required": ["query"],
+                    }
+                },
+                {
+                    "name": "web_fetch",
+                    "description": "Загружает веб-страницу и извлекает основной текст.",
+                    "input_schema": {
+                        "type": "object",
+                        "properties": {
+                            "url": {"type": "string", "description": "Адрес страницы"},
+                            "max_length": {"type": "integer", "default": 5000},
+                        },
+                        "required": ["url"],
+                    }
+                },
+                {
+                    "name": "search_by_wikipedia",
+                    "description": "Ищет статьи в Wikipedia и возвращает результаты.",
+                    "input_schema": {
+                        "type": "object",
+                        "properties": {
+                            "query": {"type": "string", "description": "Поисковый запрос"},
+                            "lang": {"type": "string", "description": "Язык Wikipedia"},
+                            "max_results": {"type": "integer", "default": 3},
+                        },
+                        "required": ["query"],
+                    }
+                }
+            ]
 
             try:
                 response = requests.post(
@@ -174,47 +213,8 @@ class FreelancerAgent:
                         "thinkingFlag": False,
                         "stream": False,
                         "max_tokens": 10000,
-                        "tools": [
-                            {
-                                "name": "web_search",
-                                "description": "Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.",
-                                "input_schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "query": {"type": "string", "description": "Поисковый запрос"},
-                                        "max_results": {"type": "integer", "default": 5},
-                                    },
-                                    "required": ["query"],
-                                }
-                            },
-                            {
-                                "name": "web_fetch",
-                                "description": "Загружает веб-страницу и извлекает основной текст.",
-                                "input_schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "url": {"type": "string", "description": "Адрес страницы"},
-                                        "max_length": {"type": "integer", "default": 5000},
-                                    },
-                                    "required": ["url"],
-                                }
-                            },
-                            {
-                                "name": "search_by_wikipedia",
-                                "description": "Ищет статьи в Wikipedia и возвращает результаты.",
-                                "input_schema": {
-                                    "type": "object",
-                                    "properties": {
-                                        "query": {"type": "string", "description": "Поисковый запрос"},
-                                        "lang": {"type": "string", "description": "Язык Wikipedia"},
-                                        "max_results": {"type": "integer", "default": 3},
-                                    },
-                                    "required": ["query"],
-                                }
-                            }
-                        ],
-                        "tool_choice": {"type": "auto"}  # ← Принудить использование инструментов
-                        #"tools": claude_tools,
+                        "tool_choice": {"type": "auto"},  # ← Принудить использование инструментов
+                        "tools": claude_tools
                     }
                 )
                 response.raise_for_status()
