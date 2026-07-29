@@ -13,12 +13,14 @@ import hashlib
 import httpx
 from django.conf import settings
 from django.http import JsonResponse
+from django.http import HttpResponse
 from django.core.files.base import ContentFile
 from django.core.files.storage import default_storage
 from django.utils import timezone
 from datetime import timedelta, datetime
 from django.utils.decorators import method_decorator
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_GET
 from typing import Dict, List, IO, TYPE_CHECKING, Any, Type, Tuple, Union, Mapping, TypeVar, Callable, Iterator, Optional, Sequence
 from uuid import UUID
 from pathlib import Path
@@ -3659,6 +3661,18 @@ class StatsView(APIView):
     def get(self, request):
         period = int(request.query_params.get('hours', 24))
         return Response(get_stats(period))
+
+@require_GET
+def sitemap_view(request):
+    """Отдаёт sitemap.xml как текстовый контент"""
+    with open('frontend/public/sitemap.xml', 'r', encoding='utf-8') as f:
+        return HttpResponse(f.read(), content_type='application/xml')
+
+@require_GET
+def robots_view(request):
+    """Отдаёт robots.txt"""
+    with open('frontend/public/robots.txt', 'r', encoding='utf-8') as f:
+        return HttpResponse(f.read(), content_type='text/plain')
 
 class AdviceViewSet(viewsets.ModelViewSet):
     queryset = Advice.objects.all()
