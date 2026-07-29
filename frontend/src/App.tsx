@@ -8,6 +8,7 @@ import Home from './components/Home';
 import About from './components/About';
 import BookCoExperience from './components/BookCoExperience';
 import PortfolioView from './components/PortfolioView';
+import Blog from './components/Blog';
 import Sovet from './components/Sovet';
 import DetailedAdviceForm from './components/DetailedAdviceForm';
 import AdviceList from './components/AdviceList';
@@ -54,6 +55,9 @@ import AgentFreelancer from "./agents/AgentFreelancer";
 import SessionPurchase from './components/SessionPurchase';
 import PaymentSuccess from './components/PaymentSuccess';
 import GeneratorsAgents from './components/GeneratorsAgents';
+import SymbiosisHumanAi from "./blog/SymbiosisHumanAi";
+import ServicesOverview from "./blog/ServicesOverview";
+import AiAgentsConsulting from "./blog/AiAgentsConsulting";
 
 function AppContent() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -358,6 +362,7 @@ function AppContent() {
           <Route path="/about" element={<About />} />
           <Route path="/book-co-experience" element={<BookCoExperience />} />
           <Route path="/portfolio" element={<PortfolioView />} />
+          <Route path="/blog" element={<Blog />} />
           <Route path="/sovet" element={<Sovet />} />
           <Route path="/detailed-advice" element={<DetailedAdviceForm />} />
           <Route path="/chat" element={<Chat />} />
@@ -401,6 +406,9 @@ function AppContent() {
           <Route path="/generators-agents" element={<GeneratorsAgents />} />
           <Route path="/purchase-session" element={<SessionPurchase />} />
           <Route path="/payment-success" element={<PaymentSuccess />} />
+          <Route path="/symbiosis-human-ai" element={<SymbiosisHumanAi />} />
+          <Route path="/services-overview" element={<ServicesOverview />} />
+          <Route path="/ai-agents-consulting" element={<AiAgentsConsulting />} />
         </Routes>
         <AdviceForm />
         <AdviceList />

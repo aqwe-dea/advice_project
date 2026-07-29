@@ -151,6 +151,16 @@ const Agent: React.FC<AgentProps> = ({
           <p style={{whiteSpace: 'pre-wrap'}}>{answer}</p>
         </div>
       )}
+      <div className="share-section">
+        <p>Понравился ответ?</p>
+        <button onClick={() => navigator.share({
+          title: 'Советница АКВИ',
+          text: answer,
+          url: window.location.href
+        })}>
+          Поделиться
+        </button>
+      </div>
     </div>
   );
 };

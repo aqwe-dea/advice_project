@@ -1,3 +1,7 @@
-# https://www.robotstxt.org/robotstxt.html
 User-agent: *
-Disallow:
+Allow: /
+Sitemap: https://advice-project.onrender.com/sitemap.xml
+
+# Запрет индексации служебных путей
+Disallow: /login/
+Disallow: /administrator/
