@@ -9,14 +9,16 @@ from uuid import UUID
 from pathlib import Path
 from abc import abstractmethod
 from bs4 import BeautifulSoup
+from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
 
+@dataclass
 class FindedPage:
     """
-    wikipedia_search.py — инструмент для поиска в Wikipedia.
+        wikipedia_search.py — инструмент для поиска в Wikipedia.
 
-    Возвращает заголовок, краткое описание и ссылку на статью.
+        Возвращает заголовок, краткое описание и ссылку на статью.
     """
     title: str
     snippet: str
@@ -27,16 +29,16 @@ class FindedPage:
 
 def search_by_wikipedia(query: str, lang: str = "ru", max_results: int = 3) -> str:
     """
-    Ищет статьи в Wikipedia и возвращает результаты.
+        Ищет статьи в Wikipedia и возвращает результаты.
     
-    Args:
-        query: Поисковый запрос (обязателен)
-        lang: Язык Wikipedia ('ru', 'en', 'de' и т.д.)
-        max_results: Максимальное количество результатов (1-10)
+        Args:
+            query: Поисковый запрос (обязателен)
+            lang: Язык Wikipedia ('ru', 'en', 'de' и т.д.)
+            max_results: Максимальное количество результатов (1-10)
     
-    Returns:
-        JSON-строка со списком статей (заголовок, описание, url).
-        При ошибке возвращает JSON с полем "error".
+        Returns:
+            JSON-строка со списком статей (заголовок, описание, url).
+            При ошибке возвращает JSON с полем "error".
     """
     
     if not query or not query.strip():
@@ -45,18 +47,19 @@ def search_by_wikipedia(query: str, lang: str = "ru", max_results: int = 3) -> s
     max_results = max(1, min(int(max_results), 10))
     
     # Wikipedia API endpoint
-    endpoint = f"https://{lang}.wikipedia.org/w/api.php"
-    
-    params = {
-        "action": "query",
-        "list": "search",
-        "srsearch": query,
-        "srlimit": max_results,
-        "format": "json"
-    }
     
     try:
-        response = requests.get(endpoint, params=params, timeout=10)
+        response = requests.get(
+            url=f"https://{lang}.wikipedia.org/w/api.php", 
+            params={
+                "action": "query",
+                "list": "search",
+                "srsearch": query,
+                "srlimit": max_results,
+                "format": "json"
+            }, 
+            timeout=300
+        )
         response.raise_for_status()
         data = response.json()
         

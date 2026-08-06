@@ -9,25 +9,27 @@ from typing import Dict, List, Literal, IO, TYPE_CHECKING, Any, Type, Tuple, Uni
 from uuid import UUID
 from pathlib import Path
 from abc import abstractmethod
+from dataclasses import dataclass, asdict
 
 logger = logging.getLogger(__name__)
 
 Provider = Literal["tavily", "serper"]
 
+@dataclass
 class SearchResult:
     """
-    web_search.py — универсальный инструмент веб-поиска для Python-агентов.
+        web_search.py — универсальный инструмент веб-поиска для Python-агентов.
 
-    Поддерживает несколько провайдеров:
-    - "tavily"  : Tavily API (нужен TAVILY_API_KEY)
-    - "serper"  : Serper.dev / Google (нужен SERPER_API_KEY)
+        Поддерживает несколько провайдеров:
+            - "tavily"  : Tavily API (нужен TAVILY_API_KEY)
+            - "serper"  : Serper.dev / Google (нужен SERPER_API_KEY)
     """
     title: str
     url: str
     snippet: str
 
     def to_dict(self) -> dict:
-        return Dict(self)
+        return asdict(self)
 
 
 # ---------- Провайдеры ----------
@@ -38,16 +40,20 @@ def _search_tavily(query: str, max_results: int) -> List[SearchResult]:
 
     resp = requests.post(
         "https://api.tavily.com/search",
+        headers={
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json"
+        },
         json={
-            "api_key": api_key,
             "query": query,
             "max_results": max_results,
             "search_depth": "basic"
         },
-        timeout=20
+        timeout=300
     )
     resp.raise_for_status()
     data = resp.json()
+
     return [
         SearchResult(
             title=item.get("title", ""),
@@ -65,12 +71,20 @@ def _search_serper(query: str, max_results: int, region: str) -> List[SearchResu
 
     resp = requests.post(
         "https://google.serper.dev/search",
-        headers={"X-API-KEY": api_key, "Content-Type": "application/json"},
-        json={"q": query, "num": max_results, "gl": region[:2].lower()},
-        timeout=20
+        headers={
+            "X-API-KEY": api_key, 
+            "Content-Type": "application/json"
+        },
+        json={
+            "q": query, 
+            "num": max_results, 
+            "gl": region[:2].lower()
+        },
+        timeout=300
     )
     resp.raise_for_status()
     data = resp.json()
+
     return [
         SearchResult(
             title=item.get("title", ""),
@@ -86,24 +100,23 @@ def _search_serper(query: str, max_results: int, region: str) -> List[SearchResu
 def web_search(
     query: str,
     max_results: int = 5,
-    provider: Provider = "tavily",
-    region: str = "ru-ru",
+    provider: Provider = "serper",
+    region: str = "ru-ru"
 ) -> str:
     """
-    Ищет информацию в интернете и возвращает результаты в виде JSON-строки.
+        Ищет информацию в интернете и возвращает результаты в виде JSON-строки.
 
-    Args:
-        query: Поисковый запрос (обязателен, непустой).
-        max_results: Сколько результатов вернуть (1..20).
-        provider: "tavily" | "serper".
-        region: Регион поиска (например, "ru-ru", "us-en", "wt-wt").
+        Args:
+            query: Поисковый запрос (обязателен, непустой).
+            max_results: Сколько результатов вернуть (1..20).
+            provider: "tavily" | "serper".
+            region: Регион поиска (например, "ru-ru", "us-en", "wt-wt").
 
-    Returns:
-        JSON-строка вида:
-        {"query": "...", "provider": "...", "results": [{"title","url","snippet"}, ...]}
+        Returns:
+            JSON-строка вида:
+            {"query": "...", "provider": "...", "results": [{"title","url","snippet"}, ...]}
 
-        При ошибке возвращает JSON с полем "error" — это удобно для агента,
-        который парсит ответ инструмента.
+        При ошибке возвращает JSON с полем "error" — это удобно для агента, который парсит ответ инструмента.
     """
     if not query or not query.strip():
         return json.dumps({"error": "Пустой запрос"}, ensure_ascii=False)
@@ -111,10 +124,10 @@ def web_search(
     max_results = max(1, min(int(max_results), 20))
 
     try:
-        if provider == "tavily":
-            results = _search_tavily(query, max_results)
-        elif provider == "serper":
+        if provider == "serper":
             results = _search_serper(query, max_results, region)
+        elif provider == "tavily":
+            results = _search_tavily(query, max_results)
         else:
             return json.dumps({"error": f"Неизвестный провайдер: {provider}"}, ensure_ascii=False)
 

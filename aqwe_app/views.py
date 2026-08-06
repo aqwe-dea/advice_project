@@ -91,6 +91,7 @@ from .agents.functionsforagents.create_task import create_task
 from .agents.functionsforagents.send_email import send_email
 from .agents.functionsforagents.detect_emotion import detect_emotion
 from .agents.functionsforagents.check_wellbeing import check_wellbeing
+from .agents.search_internet import search_internet
 from stripe.checkout._session import Session
 from stripe._request_options import RequestOptions
 from stripe._stripe_object import StripeObject
@@ -3238,6 +3239,7 @@ class AgentGemView(APIView):
         # Добавляем инструменты (по желанию)
         #agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
+        agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
         #agent.add_tool('web_fetch', agent.web_fetch, 'Загрузка и парсинг веб-страниц')
         agent.add_tool('web_fetch', web_fetch, 'Загрузка и парсинг веб-страниц использовать эту функцию если не работает встроенная')
         #agent.add_tool('search_by_wikipedia', agent.search_by_wikipedia, 'Поиск статей в Wikipedia')
@@ -3254,13 +3256,72 @@ class AgentGemView(APIView):
         #agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
         agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
         #agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
-        
+        # функции работают можно пользоваться
+        # функция работает descriptionfunctions = read_file(
+        #    file_path="instructionsandtools.md", 
+        #    max_chars=10000
+        #)
+        # функция работает newtask = create_task(
+        #    title="У нас всё получилось", 
+        #    description="Теперь должно всё работать все агенты и их функции", 
+        #    priority="medium", 
+        #    file="tasksandrulesandgoals.md"
+        #)
+        # функция работает entrymemory = recall_memory(
+        #    query="Поиск по интернету", 
+        #    memory_file="accumulateexperience.md", 
+        #    limit=3
+        #)
+        # функция работает saving_memory = save_to_memory(
+        #    entry="Функция поиска по интернету работает", 
+        #    memory_file="accumulateexperience.md"
+        #)
+        results_websearch = web_search(
+            query="Функции для агента ии код и примеры",
+            provider="serper",
+            max_results=3
+        )
+        # функция работает testparser = web_fetch(
+        #    url="https://freelance.ru/task", 
+        #    max_length=5000
+        #)
+        articlewiki = search_by_wikipedia(
+            query="Статья функции права и среда для агента ии", 
+            lang="ru", 
+            max_results=1
+        )
+        #TAVILY_KEY = os.getenv("TAVILYTEST") 
+        SERPER_KEY = os.getenv("SERPERTEST") 
+        #results_tavily = search_internet( 
+        #    query="Последние новости в области ИИ 2026", 
+        #    provider="tavily", 
+        #    api_key=TAVILY_KEY, 
+        #    max_results=3 
+        #)
+        results_serper = search_internet(
+            query="Какие функции можно написать агенту ии",  
+            provider="serper", 
+            api_key=SERPER_KEY, 
+            max_results=3, 
+            region="ru" 
+        )
         agent.set_image_generator(generator)
 
         # Получаем ответ
         answer = agent.ask(question)
         
-        return Response({'answer': answer})
+        return Response({
+            'answer': answer, 
+            #'tavily': results_tavily, 
+            'serper': results_serper, 
+            'websearch': results_websearch,
+            #'memory': saving_memory,
+            #'findedentry': entrymemory,
+            #'creating': newtask,
+            #'parser': testparser,
+            'article': articlewiki
+            #'functionsandtools': descriptionfunctions
+        })
 
 class TeacherAgentView(APIView):
     """Агент-учитель: отвечает на вопросы, выдаёт справочные материалы, адаптирует сложность"""
@@ -3477,13 +3538,14 @@ class InsiderAgentView(APIView):
         output_format = request.data.get('output_format', 'markdown')
         if not subject:
             return Response({'error': 'Укажите объект исследования'}, status=400)
-        url = request.data.get('url', '')
-        query = request.data.get('query', '')
+        #url = request.data.get('url', '')
+        #query = request.data.get('query', '')
 
         agent = InsiderAgent(api_key=os.getenv('KIETEST'))
         # Добавляем инструменты (по желанию)
         #agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
+        agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
         #agent.add_tool('web_fetch', agent.web_fetch, 'Загрузка и парсинг веб-страниц')
         agent.add_tool('web_fetch', web_fetch, 'Загрузка и парсинг веб-страниц использовать эту функцию если не работает встроенная')
         #agent.add_tool('search_by_wikipedia', agent.search_by_wikipedia, 'Поиск статей в Wikipedia')
@@ -3502,11 +3564,11 @@ class InsiderAgentView(APIView):
         #agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
         
         # answer = agent.ask(subject, focus)
-        search = agent.ask(subject, focus)
+        #answer = agent.ask(subject, focus) #правильный ответ воде приходит
         answer = agent.generate_report(subject, output_format)
 
         return Response({
-            'search': search,
+            #'search': search,
             'answer': answer
         })
 
@@ -3616,13 +3678,14 @@ class FreelancerAgentView(APIView):
         # ← ИСПРАВЛЕНО: получаем правильные данные
         #query = request.data.get('query', f"python typescript freelance jobs")
         #url = request.data.get('url', 'https://www.google.com')
-        prompt = request.data.get('skills', [])
+        #prompt = request.data.get('skills', [])
         question = request.data.get('skills', [])
 
         agent = FreelancerAgent(api_key=os.getenv('KIETEST'))
         # Добавляем инструменты (по желанию)
         #agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
+        agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
         #agent.add_tool('web_fetch', agent.web_fetch, 'Загрузка и парсинг веб-страниц')
         agent.add_tool('web_fetch', web_fetch, 'Загрузка и парсинг веб-страниц использовать эту функцию если не работает встроенная')
         #agent.add_tool('search_by_wikipedia', agent.search_by_wikipedia, 'Поиск статей в Wikipedia')
@@ -3642,17 +3705,17 @@ class FreelancerAgentView(APIView):
 
         #googleSearch = agent._googleSearch(query)
         #hyperbrowse = agent._hyperbrowse(url)
-        answer = agent._call_llm(prompt)
-        find = agent.ask(question)
+        #check = agent._call_llm(prompt)
+        #answer = agent.ask(question) #this worked
 
         # ← ИСПРАВЛЕНО: используем find_orders, который вызывает _call_llm
         # Это позволяет Claude использовать tool use правильно
-        check = agent.find_orders(skills, min_budget, max_budget)
+        answer = agent.find_orders(skills, min_budget, max_budget)
 
         return Response({
-            'answer': answer,
-            'checkprompt': check,
-            'checkanswer': find
+            'answer': answer
+            #'checkprompt': check,
+            #'checkanswer': find
             #'googleSearch': googleSearch,
             #'hyperbrowse': hyperbrowse
         })

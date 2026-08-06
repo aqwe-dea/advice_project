@@ -8,6 +8,7 @@ from uuid import UUID
 from pathlib import Path
 from abc import abstractmethod
 from bs4 import BeautifulSoup
+from .wikipedia_search import search_by_wikipedia
 
 logger = logging.getLogger(__name__)
 
@@ -166,6 +167,45 @@ class TeacherAgent:
     def clear_context(self):
         self.context = [{"role": "system", "content": [{"type": "text", "text": self.SYSTEM_PROMPT}]}]
     
+    def search_by_wikipedia(self, query: str, lang: str = "ru", max_results: int = 3) -> str:
+        """Ищет статьи в Wikipedia и возвращает результаты. JSON-строка со списком статей (заголовок, описание, url)."""
+        max_results = max(1, min(int(max_results), 10))
+        
+        response = requests.get(
+            url=f"https://{lang}.wikipedia.org/w/api.php", 
+            params={
+                "action": "query",
+                "list": "search",
+                "srsearch": query,
+                "srlimit": max_results,
+                "format": "json"
+            }, 
+            timeout=10
+        )
+        response.raise_for_status()
+        data = response.json()
+        
+        results = []
+        for item in data.get("query", {}).get("search", []):
+            # Извлекаем краткое описание (snippet) без HTML-тегов
+            snippet = item.get("snippet", "")
+            # Удаляем HTML-теги из сниппета
+            clean_snippet = BeautifulSoup(snippet, 'html.parser').get_text()
+            
+            results.append({
+                "title": item.get("title", ""),
+                "snippet": clean_snippet,
+                "url": f"https://{lang}.wikipedia.org/wiki/{item.get('title', '').replace(' ', '_')}",
+                "wordcount": item.get("wordcount", 0)
+            })
+        
+        return json.dumps({
+            "query": query,
+            "language": lang,
+            "results": results,
+            "count": len(results)
+        }, ensure_ascii=False)
+
     def _hyperbrowse(self, url: str, query: str = None) -> str:
         """Инструмент: посещение веб-страницы."""
         try:

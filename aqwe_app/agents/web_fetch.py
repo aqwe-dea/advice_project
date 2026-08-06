@@ -9,15 +9,16 @@ from uuid import UUID
 from pathlib import Path
 from abc import abstractmethod
 from bs4 import BeautifulSoup
+from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
 
+@dataclass
 class FetchResult:
     """
-    web_fetch.py — инструмент для загрузки и парсинга веб-страниц.
+        web_fetch.py — инструмент для загрузки и парсинга веб-страниц.
 
-    Извлекает основной контент, очищает от рекламы/навигации,
-    возвращает заголовок, текст и метаданные.
+        Извлекает основной контент, очищает от рекламы/навигации, возвращает заголовок, текст и метаданные.
     """
     title: str
     text: str
@@ -29,15 +30,15 @@ class FetchResult:
 
 def web_fetch(url: str, max_length: int = 5000) -> str:
     """
-    Загружает веб-страницу и извлекает основной текст.
+        Загружает веб-страницу и извлекает основной текст.
     
-    Args:
-        url: Адрес страницы (обязателен, должен начинаться с http:// или https://)
-        max_length: Максимальная длина возвращаемого текста (по умолчанию 5000)
+        Args:
+            url: Адрес страницы (обязателен, должен начинаться с http:// или https://)
+            max_length: Максимальная длина возвращаемого текста (по умолчанию 5000)
     
-    Returns:
-        JSON-строка с заголовком, текстом и метаданными.
-        При ошибке возвращает JSON с полем "error".
+        Returns:
+            JSON-строка с заголовком, текстом и метаданными.
+            При ошибке возвращает JSON с полем "error".
     """
     
     if not url or not url.strip():
@@ -51,7 +52,7 @@ def web_fetch(url: str, max_length: int = 5000) -> str:
     }
     
     try:
-        response = requests.get(url, headers=headers, timeout=15)
+        response = requests.get(url, headers=headers, timeout=300)
         response.raise_for_status()
         
         soup = BeautifulSoup(response.text, 'html.parser')

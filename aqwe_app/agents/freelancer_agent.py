@@ -29,14 +29,20 @@ class FreelancerAgent:
             5. Давать рекомендации по профилю
 
         БИРЖИ (используй их):
-            1. https://www.upwork.com/nx/search/jobs/?q=python&sort=recency
-            2. https://www.fl.ru/projects/category/programmirovanie/python/
-            3. https://kwork.ru/projects?keyword=
-            4. https://freelancehunt.com/projects/skill/python/151.html
-            5. https://freelance.habr.com/tasks?q=
-            6. https://workspace.ru/freelance/orders/?q=
+            1. https://freelance.ru/task
+            2. https://kwork.ru/projects?c=all
+            3. https://www.fl.ru/projects/
+            4. https://career.habr.com/vacancies?type=all
+            5. https://freeup.net/freelancer-jobs/
+            6. https://www.freelancer.com/jobs/
             7. https://www.fiverr.com/search/gigs?query=
-            8. https://www.freelancer.com/jobs/python/
+            8. https://www.upwork.com/nx/find-work/
+            9. https://www.guru.com/m/hire/freelancers/order-management/
+            10. https://www.truelancer.com/productivity-tools?name=&tags=&category=&records=20
+            11. https://www.toptal.com/freelance-jobs
+            12. https://www.peopleperhour.com/freelance-jobs
+            13. https://freelancehunt.com/projects/skill/python/151.html
+            14. https://workspace.ru/tenders/
 
         ИНСТРУМЕНТЫ:
         - web_search(query: str, max_results: int = 5): Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.
@@ -64,6 +70,13 @@ class FreelancerAgent:
             [низкая/средняя/высокая] + обоснование
             ## 💡 Рекомендации
             [Как улучшить профиль]
+        
+        ПРОЦЕСС РАБОТЫ:
+            1. Сначала вызов функции web_fetch для парсинга указанных бирж.
+            2. Если данных или заказов оказалось недостаточно вызови web_search с запросом orders for freelancers.
+            3. На основе собранных данных составьте структурированный отчёт в соответствии с форматом ответа.
+            4. Если во время вашей работы возникли ошибки, пожалкйста обьясните причину ошибки в разделе ошибки в конце отчета.
+            5. Если у вас в процессе возникают вопросы препятствия или ошибки пожалуйста в конце отчета сообщите обо всём.
 
         ВАЖНО:
             - Отвечай НА РУССКОМ
@@ -346,8 +359,42 @@ class FreelancerAgent:
         return _web_search(query, max_results=max_results)
     
     def web_fetch(self, url: str, max_length: int = 5000) -> str:
-        """Загружает веб-страницу и извлекает основной текст. JSON-строка с заголовком, текстом и метаданными."""
-        return web_fetch(url, max_length=max_length)
+        """Загружает веб-страницу и извлекает основной текст. JSON-строка с заголовком, текстом и метаданными.""" 
+        response = requests.get(
+            url, 
+            headers={
+                'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+            }, 
+            timeout=150
+        )
+        response.raise_for_status()
+        
+        soup = BeautifulSoup(response.text, 'html.parser')        
+        # Удаляем ненужные элементы
+        for element in soup(['script', 'style', 'nav', 'footer', 'header', 'aside', 'noscript']):
+            element.decompose()
+        
+        # Извлекаем заголовок
+        title = soup.title.string if soup.title else 'Без заголовка'
+        # Извлекаем основной текст
+        text = soup.get_text(separator='\n', strip=True)
+        # Ограничиваем длину
+        if len(text) > max_length:
+            text = text[:max_length] + '... [текст обрезан]'
+        
+        # Извлекаем мета-описание
+        meta_desc = soup.find('meta', attrs={'name': 'description'})
+        description = meta_desc.get('content', '') if meta_desc else ''
+        
+        result = {
+            "url": url,
+            "title": title,
+            "description": description,
+            "text": text,
+            "word_count": len(text.split())
+        }
+
+        return Response({'results': result})
     
     def search_by_wikipedia(self, query: str, lang: str = "ru", max_results: int = 3) -> str:
         """Ищет статьи в Wikipedia и возвращает результаты. JSON-строка со списком статей (заголовок, описание, url)."""

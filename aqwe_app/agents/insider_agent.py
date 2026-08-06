@@ -5,9 +5,15 @@ import logging
 import re
 from typing import Dict, List, IO, TYPE_CHECKING, Any, Type, Tuple, Union, Mapping, TypeVar, Callable, Iterator, Optional, Sequence
 from uuid import UUID
-from pathlib import Path
 from abc import abstractmethod
 from bs4 import BeautifulSoup
+from .web_search import web_search
+from .web_search import web_search as _web_search
+from .web_fetch import web_fetch
+from .wikipedia_search import search_by_wikipedia
+from .functionsforagents import read_file, edit_file, git_commit, save_to_memory, recall_memory, send_email, create_task, detect_emotion, check_wellbeing
+from pathlib import Path
+from .md_loader import load_md_files
 
 logger = logging.getLogger(__name__)
 
@@ -25,24 +31,38 @@ class InsiderAgent:
             5. Предлагать гипотезы на основе собранных данных
 
         ИНСТРУМЕНТЫ (ОБЯЗАТЕЛЬНО ИСПОЛЬЗУЙТЕ ИХ):
-            - googleSearch(query: str): Ищите актуальную информацию по запросу. ВСЕГДА начинайте с поиска.
-            - hyperbrowse(url: str, query: str): Посещайте конкретные страницы для извлечения деталей.
+        - web_search(query: str, max_results: int = 5): Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.
+        Args:
+            query: Поисковый запрос (обязателен, непустой).
+            max_results: Сколько результатов вернуть (1..20).
+            provider: "tavily" | "serper".
+            region: Регион поиска (например, "ru-ru", "us-en", "wt-wt").
+        - web_fetch(url: str, max_length: int = 5000): Загружает веб-страницу и извлекает основной текст. Загрузка и парсинг веб-страниц.
+        Args:
+            url: Адрес страницы (обязателен, должен начинаться с http:// или https://)
+            max_length: Максимальная длина возвращаемого текста (по умолчанию 5000)
+        - search_by_wikipedia(query: str, lang: str, max_results: int = 3): Ищет статьи в Wikipedia и возвращает результаты. Поиск статей в Wikipedia. 
+        Args:
+            query: Поисковый запрос (обязателен)
+            lang: Язык Wikipedia ('ru', 'en', 'de' и т.д.)
+            max_results: Максимальное количество результатов (1-10)
+        - Использовать для поиска web_search(query: str): Ищите актуальную информацию по запросу. ВСЕГДА начинайте с поиска.
+        - Использовать для перехода по ссылке web_fetch(url: str): Посещайте конкретные страницы для извлечения деталей.    
 
         ПРОЦЕСС РАБОТЫ:
-            1. Сначала вызовите googleSearch для сбора данных по объекту
-            2. При необходимости используйте hyperbrowse для углубления в конкретные источники
-            3. На основе полученных данных составьте структурированный отчёт
+            1. Сначала вызовите web_search для поиска и сбора данных по объекту максимально полной и актуальной информации.
+            2. Если поиск не дал результатов используйте web_fetch для углубления в конкретные источники.
+            3. На основе всех собранных и полученных данных составьте структурированный отчёт в соответствии с форматом.
+            4. Если есть причины или ошибки по которым не вызываются функции пожалуйста объясните их в конце отчета.
+            5. Если у вас в процессе возникают вопросы препятствия или ошибки пожалуйста в конце отчета сообщите обо всём.
 
         ФОРМАТ ОТВЕТА (СТРОГО СОБЛЮДАЙТЕ):
             ## 🔍 Резюме
-            - [3-5 ключевых фактов]
-
+            [3-5 ключевых фактов]
             ## 📊 Детали
             [Подробный анализ по категориям]
-
             ## 🔗 Источники
-            - [URL + дата доступа]
-
+            [URL + дата доступа]
             ## ⚠️ Ограничения
             [Что не удалось проверить]
 
@@ -108,10 +128,10 @@ class InsiderAgent:
                     })
                 if function_declarations:
                     gemini_tools = [{"functionDeclarations": function_declarations}]
-            
+           
             try:
                 response = requests.post(
-                    f"{self.base_url}/models/gemini-3-5-flash:generateContent",
+                    f"{self.base_url}/models/gemini-3-6-flash:generateContent",
                     headers={
                         "Authorization": f"Bearer {self.api_key}",
                         "Content-Type": "application/json"
@@ -129,7 +149,7 @@ class InsiderAgent:
                             }
                         }
                     },
-                    timeout=180
+                    timeout=300
                 )
                 response.raise_for_status()
                 data = response.json()
@@ -188,7 +208,7 @@ class InsiderAgent:
                         """
                         # Повторный запрос для генерации отчёта
                         second_response = requests.post(
-                            f"{self.base_url}/models/gemini-3-5-flash:generateContent",
+                            f"{self.base_url}/models/gemini-3-6-flash:generateContent",
                             headers={
                                 "Authorization": f"Bearer {self.api_key}",
                                 "Content-Type": "application/json"
@@ -200,7 +220,7 @@ class InsiderAgent:
                                     "maxOutputTokens": 12000
                                 }
                             },
-                            timeout=180
+                            timeout=300
                         )
                         second_response.raise_for_status()
                         second_data = second_response.json()
@@ -310,9 +330,28 @@ class InsiderAgent:
             Реализация поиска: для тестов возвращаем заглушку, 
             в продакшене здесь должен быть вызов реального API (Google Custom Search, SerpAPI и т.д.)
         """
+        if not query.strip(): 
+            raise ValueError("Поисковый запрос не может быть пустым.")
+        SERPER_KEY = os.getenv("SERPERTEST")
+        if not SERPER_KEY:
+            raise ValueError(f"Для работы с провайдером 'serper' необходим API-ключ.") 
+        response = requests.post(
+            url="https://google.serper.dev/search", 
+            headers={
+                "X-API-KEY": SERPER_KEY, 
+                "Content-Type": "application/json" 
+            }, 
+            json={
+                "q": query 
+            }, 
+            timeout=150
+        )
+
+        response.raise_for_status() 
+        result = response.json()
         # Для тестов: имитация результатов поиска
         return f"""[googleSearch] Результаты по запросу "{query}":
-
+            {result}
             1. Официальный сайт: https://example.com/{query.replace(' ', '-')}
             - Последнее обновление: 2026-01-15
             - Кратко: Основная информация об объекте...
