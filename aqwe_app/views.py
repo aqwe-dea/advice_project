@@ -2684,6 +2684,7 @@ class AgentChatView(APIView):
         # Добавляем инструменты (по желанию)
         #agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
+        agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
         #agent.add_tool('web_fetch', agent.web_fetch, 'Загрузка и парсинг веб-страниц')
         agent.add_tool('web_fetch', web_fetch, 'Загрузка и парсинг веб-страниц использовать эту функцию если не работает встроенная')
         #agent.add_tool('search_by_wikipedia', agent.search_by_wikipedia, 'Поиск статей в Wikipedia')
@@ -2741,6 +2742,7 @@ class SmartAgentView(APIView):
         # Добавляем инструменты (по желанию)
         #agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
+        agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
         #agent.add_tool('web_fetch', agent.web_fetch, 'Загрузка и парсинг веб-страниц')
         agent.add_tool('web_fetch', web_fetch, 'Загрузка и парсинг веб-страниц использовать эту функцию если не работает встроенная')
         #agent.add_tool('search_by_wikipedia', agent.search_by_wikipedia, 'Поиск статей в Wikipedia')
@@ -3123,6 +3125,7 @@ class AgentGptView(APIView):
         # Добавляем инструменты (по желанию)
         #agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
+        agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
         #agent.add_tool('web_fetch', agent.web_fetch, 'Загрузка и парсинг веб-страниц')
         agent.add_tool('web_fetch', web_fetch, 'Загрузка и парсинг веб-страниц использовать эту функцию если не работает встроенная')
         #agent.add_tool('search_by_wikipedia', agent.search_by_wikipedia, 'Поиск статей в Wikipedia')
@@ -3181,6 +3184,7 @@ class AgentClaView(APIView):
         # Добавляем инструменты (по желанию)
         #agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
+        agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
         #agent.add_tool('web_fetch', agent.web_fetch, 'Загрузка и парсинг веб-страниц')
         agent.add_tool('web_fetch', web_fetch, 'Загрузка и парсинг веб-страниц использовать эту функцию если не работает встроенная')
         #agent.add_tool('search_by_wikipedia', agent.search_by_wikipedia, 'Поиск статей в Wikipedia')
@@ -3276,50 +3280,50 @@ class AgentGemView(APIView):
         #    entry="Функция поиска по интернету работает", 
         #    memory_file="accumulateexperience.md"
         #)
-        results_websearch = web_search(
-            query="Функции для агента ии код и примеры",
-            provider="serper",
-            max_results=3
-        )
+        # функция работает results_websearch = web_search(
+        #    query="Функции для агента ии код и примеры",
+        #    provider="serper",
+        #    max_results=3
+        #)
         # функция работает testparser = web_fetch(
         #    url="https://freelance.ru/task", 
         #    max_length=5000
         #)
-        articlewiki = search_by_wikipedia(
-            query="Статья функции права и среда для агента ии", 
-            lang="ru", 
-            max_results=1
-        )
+        # функция не работает ошибка клиента articlewiki = search_by_wikipedia(
+        #    query="Статья функции права и среда для агента ии", 
+        #    lang="ru", 
+        #    max_results=1
+        #)
         #TAVILY_KEY = os.getenv("TAVILYTEST") 
-        SERPER_KEY = os.getenv("SERPERTEST") 
-        #results_tavily = search_internet( 
+        #SERPER_KEY = os.getenv("SERPERTEST") 
+        # функция работает а провайдер тавили нет results_tavily = search_internet( 
         #    query="Последние новости в области ИИ 2026", 
         #    provider="tavily", 
         #    api_key=TAVILY_KEY, 
         #    max_results=3 
         #)
-        results_serper = search_internet(
-            query="Какие функции можно написать агенту ии",  
-            provider="serper", 
-            api_key=SERPER_KEY, 
-            max_results=3, 
-            region="ru" 
-        )
+        # функция работает results_serper = search_internet(
+        #    query="Какие функции можно написать агенту ии",  
+        #    provider="serper", 
+        #    api_key=SERPER_KEY, 
+        #    max_results=3, 
+        #    region="ru" 
+        #)
         agent.set_image_generator(generator)
 
         # Получаем ответ
         answer = agent.ask(question)
         
         return Response({
-            'answer': answer, 
+            'answer': answer
             #'tavily': results_tavily, 
-            'serper': results_serper, 
-            'websearch': results_websearch,
+            #'serper': results_serper, 
+            #'websearch': results_websearch,
             #'memory': saving_memory,
             #'findedentry': entrymemory,
             #'creating': newtask,
             #'parser': testparser,
-            'article': articlewiki
+            #'article': articlewiki
             #'functionsandtools': descriptionfunctions
         })
 
@@ -3329,7 +3333,7 @@ class TeacherAgentView(APIView):
         question = request.data.get('question', '')
         if not question:
             return Response({'error': 'Вопрос не предоставлен'}, status=400)
-
+        topic = request.data.get('question', '')
         level = request.data.get('level', 'middle')
         # Инициализация агента (ключи из env)
         agent = TeacherAgent(
@@ -3339,6 +3343,7 @@ class TeacherAgentView(APIView):
         # Добавляем инструменты (по желанию)
         #agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
+        agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
         #agent.add_tool('web_fetch', agent.web_fetch, 'Загрузка и парсинг веб-страниц')
         agent.add_tool('web_fetch', web_fetch, 'Загрузка и парсинг веб-страниц использовать эту функцию если не работает встроенная')
         #agent.add_tool('search_by_wikipedia', agent.search_by_wikipedia, 'Поиск статей в Wikipedia')
@@ -3356,13 +3361,15 @@ class TeacherAgentView(APIView):
         agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
         #agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
         
+        studycard = agent.generate_study_card(topic)
+
         # Получаем ответ
         answer = agent.ask(
             question=question, 
             level=level  # ← Теперь переменная существует!
         )
         
-        return Response({'answer': answer})
+        return Response({'answer': answer, 'studycard': studycard})
     
     def test_teacher_agent(code: str) -> tuple[bool, str]:
         """Тест: код должен содержать методы ask() и generate_study_card()"""
@@ -3391,6 +3398,7 @@ class IntegratorAgentView(APIView):
         # Добавляем инструменты (по желанию)
         #agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
+        agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
         #agent.add_tool('web_fetch', agent.web_fetch, 'Загрузка и парсинг веб-страниц')
         agent.add_tool('web_fetch', web_fetch, 'Загрузка и парсинг веб-страниц использовать эту функцию если не работает встроенная')
         #agent.add_tool('search_by_wikipedia', agent.search_by_wikipedia, 'Поиск статей в Wikipedia')
@@ -3425,6 +3433,7 @@ class ToolManagerView(APIView):
         # Добавляем инструменты (по желанию)
         #agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
+        agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
         #agent.add_tool('web_fetch', agent.web_fetch, 'Загрузка и парсинг веб-страниц')
         agent.add_tool('web_fetch', web_fetch, 'Загрузка и парсинг веб-страниц использовать эту функцию если не работает встроенная')
         #agent.add_tool('search_by_wikipedia', agent.search_by_wikipedia, 'Поиск статей в Wikipedia')
@@ -3470,6 +3479,7 @@ class DirectorAgentView(APIView):
         # Добавляем инструменты (по желанию)
         #agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
+        agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
         #agent.add_tool('web_fetch', agent.web_fetch, 'Загрузка и парсинг веб-страниц')
         agent.add_tool('web_fetch', web_fetch, 'Загрузка и парсинг веб-страниц использовать эту функцию если не работает встроенная')
         #agent.add_tool('search_by_wikipedia', agent.search_by_wikipedia, 'Поиск статей в Wikipedia')
@@ -3505,6 +3515,7 @@ class ComposerAgentView(APIView):
         # Добавляем инструменты (по желанию)
         #agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
+        agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
         #agent.add_tool('web_fetch', agent.web_fetch, 'Загрузка и парсинг веб-страниц')
         agent.add_tool('web_fetch', web_fetch, 'Загрузка и парсинг веб-страниц использовать эту функцию если не работает встроенная')
         #agent.add_tool('search_by_wikipedia', agent.search_by_wikipedia, 'Поиск статей в Wikipedia')
@@ -3589,6 +3600,7 @@ class MarketerAgentView(APIView):
         # Добавляем инструменты (по желанию)
         #agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
+        agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
         #agent.add_tool('web_fetch', agent.web_fetch, 'Загрузка и парсинг веб-страниц')
         agent.add_tool('web_fetch', web_fetch, 'Загрузка и парсинг веб-страниц использовать эту функцию если не работает встроенная')
         #agent.add_tool('search_by_wikipedia', agent.search_by_wikipedia, 'Поиск статей в Wikipedia')
@@ -3636,6 +3648,7 @@ class InvestorAgentView(APIView):
         # Добавляем инструменты (по желанию)
         #agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
+        agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
         #agent.add_tool('web_fetch', agent.web_fetch, 'Загрузка и парсинг веб-страниц')
         agent.add_tool('web_fetch', web_fetch, 'Загрузка и парсинг веб-страниц использовать эту функцию если не работает встроенная')
         #agent.add_tool('search_by_wikipedia', agent.search_by_wikipedia, 'Поиск статей в Wikipedia')
@@ -3679,7 +3692,7 @@ class FreelancerAgentView(APIView):
         #query = request.data.get('query', f"python typescript freelance jobs")
         #url = request.data.get('url', 'https://www.google.com')
         #prompt = request.data.get('skills', [])
-        question = request.data.get('skills', [])
+        #question = request.data.get('skills', [])
 
         agent = FreelancerAgent(api_key=os.getenv('KIETEST'))
         # Добавляем инструменты (по желанию)
@@ -3706,7 +3719,7 @@ class FreelancerAgentView(APIView):
         #googleSearch = agent._googleSearch(query)
         #hyperbrowse = agent._hyperbrowse(url)
         #check = agent._call_llm(prompt)
-        #answer = agent.ask(question) #this worked
+        #find = agent.ask(question) #this worked
 
         # ← ИСПРАВЛЕНО: используем find_orders, который вызывает _call_llm
         # Это позволяет Claude использовать tool use правильно
