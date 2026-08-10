@@ -50,7 +50,11 @@ def search_by_wikipedia(query: str, lang: str = "ru", max_results: int = 3) -> s
     
     try:
         response = requests.get(
-            url=f"https://{lang}.wikipedia.org/w/api.php", 
+            url=f"https://{lang}.wikipedia.org/w/api.php",
+            headers={
+                #'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+                'User-Agent': 'AQWE-AKVI-Platform/1.0 (https://advice-project.onrender.com)'
+            },
             params={
                 "action": "query",
                 "list": "search",

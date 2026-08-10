@@ -44,8 +44,17 @@ class TeacherAgent:
         self.tools: Dict[str, Dict] = {}
         self.knowledge_base: Dict[str, str] = {}  # Можно загрузить справочники
     
-    def add_tool(self, name: str, func: callable, description: str):
-        self.tools[name] = {'func': func, 'description': description}
+    def add_tool(self, name: str, func: callable, description: str, parameters: Dict = None):
+        """Добавить инструмент."""
+        self.tools[name] = {
+            'func': func, 
+            'description': description,
+            'parameters': parameters or {
+                "type": "object",
+                "properties": {"query": {"type": "string", "description": "Запрос"}},
+                "required": ["query"]
+            }
+        }
     
     def _build_api_tools(self) -> List[Dict]:
         """Построить список инструментов в формате API"""

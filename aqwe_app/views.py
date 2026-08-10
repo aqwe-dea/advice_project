@@ -92,6 +92,7 @@ from .agents.functionsforagents.send_email import send_email
 from .agents.functionsforagents.detect_emotion import detect_emotion
 from .agents.functionsforagents.check_wellbeing import check_wellbeing
 from .agents.search_internet import search_internet
+from .check_network_connection import check_network_connection
 from stripe.checkout._session import Session
 from stripe._request_options import RequestOptions
 from stripe._stripe_object import StripeObject
@@ -2682,6 +2683,7 @@ class AgentChatView(APIView):
         )
         
         # Добавляем инструменты (по желанию)
+        agent.add_tool('check_network_connection', check_network_connection, 'Проверка доступности интернет-соединения')
         #agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
         agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
@@ -2740,6 +2742,7 @@ class SmartAgentView(APIView):
         )
 
         # Добавляем инструменты (по желанию)
+        agent.add_tool('check_network_connection', check_network_connection, 'Проверка доступности интернет-соединения')
         #agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
         agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
@@ -3124,6 +3127,7 @@ class AgentGptView(APIView):
 
         # Добавляем инструменты (по желанию)
         #agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
+        agent.add_tool('check_network_connection', check_network_connection, 'Проверка доступности интернет-соединения')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
         agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
         #agent.add_tool('web_fetch', agent.web_fetch, 'Загрузка и парсинг веб-страниц')
@@ -3144,11 +3148,17 @@ class AgentGptView(APIView):
         #agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
         
         agent.set_image_generator(generator)
+        # функция работатет statusnetwork = check_network_connection(
+        #    url="https://google.com"
+        #)
 
         # Получаем ответ
         answer = agent.ask(question)
         
-        return Response({'answer': answer})
+        return Response({
+            'answer': answer
+            #'checknetwork': statusnetwork
+        })
 
 class AgentClaView(APIView):
     """Простой агент для взаимодействия с LLM API. Поддерживает: память контекста, инструменты, базовое планирование."""
@@ -3182,6 +3192,7 @@ class AgentClaView(APIView):
         generator = ImageGenerator(api_key=api_key)
 
         # Добавляем инструменты (по желанию)
+        agent.add_tool('check_network_connection', check_network_connection, 'Проверка доступности интернет-соединения')
         #agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
         agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
@@ -3241,6 +3252,7 @@ class AgentGemView(APIView):
         generator = ImageGenerator(api_key=api_key)
 
         # Добавляем инструменты (по желанию)
+        agent.add_tool('check_network_connection', check_network_connection, 'Проверка доступности интернет-соединения')
         #agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
         agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
@@ -3341,6 +3353,7 @@ class TeacherAgentView(APIView):
         )
         
         # Добавляем инструменты (по желанию)
+        agent.add_tool('check_network_connection', check_network_connection, 'Проверка доступности интернет-соединения')
         #agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
         agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
@@ -3361,6 +3374,12 @@ class TeacherAgentView(APIView):
         agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
         #agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
         
+        articlewiki = search_by_wikipedia(
+            query="Статья функции права и среда у агента ии", 
+            lang="ru", 
+            max_results=1
+        )
+
         studycard = agent.generate_study_card(topic)
 
         # Получаем ответ
@@ -3369,7 +3388,7 @@ class TeacherAgentView(APIView):
             level=level  # ← Теперь переменная существует!
         )
         
-        return Response({'answer': answer, 'studycard': studycard})
+        return Response({'answer': answer, 'studycard': studycard, 'article': articlewiki})
     
     def test_teacher_agent(code: str) -> tuple[bool, str]:
         """Тест: код должен содержать методы ask() и generate_study_card()"""
@@ -3396,6 +3415,7 @@ class IntegratorAgentView(APIView):
         
         agent = IntegratorAgent(api_key=os.getenv('KIETEST'))
         # Добавляем инструменты (по желанию)
+        agent.add_tool('check_network_connection', check_network_connection, 'Проверка доступности интернет-соединения')
         #agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
         agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
@@ -3431,6 +3451,7 @@ class ToolManagerView(APIView):
         agent = ToolManagerAgent(api_key=os.getenv('KIETEST'))
         
         # Добавляем инструменты (по желанию)
+        agent.add_tool('check_network_connection', check_network_connection, 'Проверка доступности интернет-соединения')
         #agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
         agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
@@ -3477,6 +3498,7 @@ class DirectorAgentView(APIView):
 
         agent = DirectorAgent(api_key=os.getenv('KIETEST'))
         # Добавляем инструменты (по желанию)
+        agent.add_tool('check_network_connection', check_network_connection, 'Проверка доступности интернет-соединения')
         #agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
         agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
@@ -3513,6 +3535,7 @@ class ComposerAgentView(APIView):
         
         agent = ComposerAgent(api_key=os.getenv('KIETEST'))
         # Добавляем инструменты (по желанию)
+        agent.add_tool('check_network_connection', check_network_connection, 'Проверка доступности интернет-соединения')
         #agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
         agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
@@ -3554,6 +3577,7 @@ class InsiderAgentView(APIView):
 
         agent = InsiderAgent(api_key=os.getenv('KIETEST'))
         # Добавляем инструменты (по желанию)
+        agent.add_tool('check_network_connection', check_network_connection, 'Проверка доступности интернет-соединения')
         #agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
         agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
@@ -3598,6 +3622,7 @@ class MarketerAgentView(APIView):
         agent = MarketerAgent(api_key=os.getenv('KIETEST'))
 
         # Добавляем инструменты (по желанию)
+        agent.add_tool('check_network_connection', check_network_connection, 'Проверка доступности интернет-соединения')
         #agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
         agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
@@ -3646,6 +3671,7 @@ class InvestorAgentView(APIView):
         agent = InvestorAgent(api_key=os.getenv('KIETEST'))
         
         # Добавляем инструменты (по желанию)
+        agent.add_tool('check_network_connection', check_network_connection, 'Проверка доступности интернет-соединения')
         #agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
         agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
@@ -3696,6 +3722,7 @@ class FreelancerAgentView(APIView):
 
         agent = FreelancerAgent(api_key=os.getenv('KIETEST'))
         # Добавляем инструменты (по желанию)
+        agent.add_tool('check_network_connection', check_network_connection, 'Проверка доступности интернет-соединения')
         #agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
         agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
