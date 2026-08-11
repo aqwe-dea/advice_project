@@ -3301,7 +3301,7 @@ class AgentGemView(APIView):
         #    url="https://freelance.ru/task", 
         #    max_length=5000
         #)
-        # функция не работает ошибка клиента articlewiki = search_by_wikipedia(
+        # функция работает articlewiki = search_by_wikipedia(
         #    query="Статья функции права и среда для агента ии", 
         #    lang="ru", 
         #    max_results=1
@@ -3374,11 +3374,11 @@ class TeacherAgentView(APIView):
         agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
         #agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
         
-        articlewiki = search_by_wikipedia(
-            query="Статья функции права и среда у агента ии", 
-            lang="ru", 
-            max_results=1
-        )
+        # функция работает можно пользоваться articlewiki = search_by_wikipedia(
+        #    query="Статья функции права и среда у агента ии", 
+        #    lang="ru", 
+        #    max_results=1
+        #)
 
         studycard = agent.generate_study_card(topic)
 
