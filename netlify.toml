@@ -1,0 +1,8 @@
+[build]
+  command = "pip install -r requirements.txt"
+  publish = "frontend/build"
+
+[[redirects]]
+  from = "/*"
+  to = "/manage.py"
+  status = 200

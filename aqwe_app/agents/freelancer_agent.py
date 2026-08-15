@@ -221,7 +221,7 @@ class FreelancerAgent:
                         "anthropic-version": "2023-06-01"
                     },
                     json={
-                        "model": "claude-opus-5",
+                        "model": "claude-sonnet-5",
                         "messages": messages,
                         "thinkingFlag": False,
                         "stream": False,

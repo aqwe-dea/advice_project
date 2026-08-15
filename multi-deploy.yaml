@@ -1,0 +1,33 @@
+# render.yaml (основной)
+services:
+  - type: web
+    name: advice-project
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: python manage.py runserver 0.0.0.0:$PORT
+    domains:
+      - advice-project.onrender.com  # основной
+
+# vercel.json (резерв 1)
+{
+  "version": 2,
+  "builds": [{"src": "manage.py", "use": "@vercel/python"}],
+  "routes": [{"src": "/(.*)", "dest": "manage.py"}]
+}
+
+# railway.toml (резерв 2)
+[build]
+builder = "nixpacks"
+
+[deploy]
+startCommand = "python manage.py runserver 0.0.0.0:$PORT"
+
+# netlify.toml (резерв 3)
+[build]
+  command = "pip install -r requirements.txt"
+  publish = "frontend/build"
+
+[[redirects]]
+  from = "/*"
+  to = "/manage.py"
+  status = 200

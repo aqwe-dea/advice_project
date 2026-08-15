@@ -131,7 +131,7 @@ class InsiderAgent:
            
             try:
                 response = requests.post(
-                    f"{self.base_url}/models/gemini-3-6-flash:generateContent",
+                    f"{self.base_url}/models/gemini-3-7-flash:generateContent",
                     headers={
                         "Authorization": f"Bearer {self.api_key}",
                         "Content-Type": "application/json"
@@ -208,7 +208,7 @@ class InsiderAgent:
                         """
                         # Повторный запрос для генерации отчёта
                         second_response = requests.post(
-                            f"{self.base_url}/models/gemini-3-6-flash:generateContent",
+                            f"{self.base_url}/models/gemini-3-7-flash:generateContent",
                             headers={
                                 "Authorization": f"Bearer {self.api_key}",
                                 "Content-Type": "application/json"
