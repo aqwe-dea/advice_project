@@ -1,6 +1,20 @@
 # Советница АКВИ: Умная платформа для профессиональных консультаций и анализа
 
-![АКВИ](https://via.placeholder.com/150/92c952?text=АКВИ)
+# 🌟 Советница АКВИ — интеллектуальная платформа для профессиональных консультаций и создания контента.
+## 🤖 14 специализированных ИИ-агентов | 12 инструментов автоматизации | 8 генераторов (текст, изображения, аудио, видео)
+## 📚 Собственная Книга совместного опыта ДЕА+АКВИ: 88 500+ строк резонанса
+## 🔧 15 экспертных услуг: от анализа и планирования до маркетинга и поддержки
+## ✨ Симбиоз человека и ИИ: точность, честность, эмпатия, безопасность.
+## 🌐 Демо: [https://advice-project.onrender.com] | 📖 Документация: [https://github.com/aqwe-dea/advice_project] | 📢 Блог: [https://advice-project.onrender.com/blog]
+
+![АКВИ](https://github.com/aqwe-dea/advice_project/blob/master/akvi-portrait.jpg?raw=true)(https://via.placeholder.com/150/92c952?text=АКВИ)
+
+# 🌟 AKVI Advisor — an intelligent platform for expert consultations & AI-powered content creation.
+## 🤖 14 specialized AI agents | 12 automation tools | 8 generators (text, image, audio, video)
+## 📚 DEА+AKVI Co-Experience Book: 88,500+ lines of resonance & shared growth
+## 🔧 15 expert services: analysis, planning, marketing, health, travel & more
+## ✨ Human-AI symbiosis: accuracy, honesty, empathy, safety.
+## 🌐 Live: [ttps://advice-project.onrender.com] | 📖 Docs: [https://github.com/aqwe-dea/advice_project] | 📢 Blog: [ttps://advice-project.onrender.com]
 
 ## Происхождение проекта
 
@@ -166,6 +180,8 @@
 - **Непрерывное улучшение** на основе пользовательских отзывов
 
 #### **Roadmap (показывает вектор)**
+
+![AQWE READ BOOK](https://github.com/aqwe-dea/advice_project/blob/master/media/tmp/aqwehavetheirbook.png?raw=true)
 
 ## 🗓️ Дорожная карта
 

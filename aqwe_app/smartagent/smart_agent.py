@@ -718,19 +718,43 @@ class SmartAgent:
                             
                         # Повторный запрос для получения человеческого ответа
                         second_response = requests.post(
-                            f"{self.base_url}/codex/v1/responses",
+                            f"{self.base_url}/grok/v1/responses",
                             headers={
                                 "Authorization": f"Bearer {self.api_key}",
                                 "Content-Type": "application/json"
                             },
                             json={
                                 "model": self.model,
-                                "input": messages,
                                 "stream": False,
+                                "input": messages,
                                 "max_output_tokens": 10000,
-                                "reasoning": {
-                                    "effort": "xhigh"
-                                }
+                                "text": {
+                                    "format": {
+                                        "type": "json_schema",
+                                        "name": "basic_response",
+                                        "strict": True,
+                                        "schema": {
+                                            "type": "object",
+                                            "properties": {
+                                                "answer": {
+                                                    "type": "string",
+                                                    "description": "Response content"
+                                                },
+                                                "mood": {
+                                                    "type": "string",
+                                                    "description": "Mood when responding"
+                                                }
+                                            },
+                                            "required": [
+                                                "answer",
+                                                "mood"
+                                            ],
+                                            "additionalProperties": False
+                                        }
+                                    }
+                                },
+                                "tools": api_tools if api_tools else None
+                                #"tool_choice": "auto"
                             },
                             timeout=300
                         )
