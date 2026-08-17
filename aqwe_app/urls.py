@@ -50,6 +50,7 @@ from .views import InsiderAgentView
 from .views import MarketerAgentView
 from .views import InvestorAgentView
 from .views import FreelancerAgentView
+from .views import JournalistAgentView
 from .views import StatsView
 from .views import sitemap_view, robots_view
 from django.views.static import serve
@@ -103,6 +104,7 @@ urlpatterns = [
     path('agent-marketer/', MarketerAgentView.as_view(), name='agent-marketer'),
     path('agent-investor/', InvestorAgentView.as_view(), name='agent-investor'),
     path('agent-freelancer/', FreelancerAgentView.as_view(), name='agent-freelancer'),
+    path('journalist/', JournalistAgentView.as_view(), name='journalist_agent'),
     path('statistic/', StatsView.as_view(), name='statistic'),
     path('sitemap.xml', sitemap_view),
     path('robots.txt', robots_view),

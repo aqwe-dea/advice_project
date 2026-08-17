@@ -144,6 +144,23 @@ REST_FRAMEWORK = {
 
 ROOT_URLCONF = 'backend.urls'
 
+LOGGING = {
+    'version': 1,
+    'disable_existing_loggers': False,
+    'formatters': {'verbose': {'format': '{levelname} {asctime} {module} {message}', 'style': '{'}},
+    'handlers': {
+        'file': {
+            'level': 'INFO',
+            'class': 'logging.handlers.RotatingFileHandler',
+            'filename': os.path.join(BASE_DIR, 'logs', 'aqwe_platform.log'),
+            'maxBytes': 10*1024*1024,  # 10 МБ
+            'backupCount': 5,           # Хранит 5 старых файлов
+            'formatter': 'verbose',
+        },
+    },
+    'root': {'handlers': ['file'], 'level': 'INFO'},
+}
+
 TEMPLATES = [
     {
         'BACKEND': 'django.template.backends.django.DjangoTemplates',

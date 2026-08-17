@@ -92,6 +92,7 @@ from .agents.functionsforagents.send_email import send_email
 from .agents.functionsforagents.detect_emotion import detect_emotion
 from .agents.functionsforagents.check_wellbeing import check_wellbeing
 from .agents.search_internet import search_internet
+from .agents.journalist_agent import JournalistAgent
 from .check_network_connection import check_network_connection
 from stripe.checkout._session import Session
 from stripe._request_options import RequestOptions
@@ -3759,6 +3760,21 @@ class FreelancerAgentView(APIView):
             #'googleSearch': googleSearch,
             #'hyperbrowse': hyperbrowse
         })
+
+class JournalistAgentView(APIView):
+    def post(self, request):
+        topic = request.data.get('topic', '')
+        if not topic:
+            return Response({'error': 'Укажите тему новости или события'}, status=400)
+        
+        platforms = request.data.get('platforms', [
+            'google_news', 'yandex_news', 'telegram', 'vk', 'reddit', 'habr'
+        ])
+        
+        agent = JournalistAgent(api_key=os.getenv('KIETEST'))
+        report = agent.publish_cycle(topic, platforms)
+        
+        return Response({'report': report})
 
 class StatsView(APIView):
     def get(self, request):

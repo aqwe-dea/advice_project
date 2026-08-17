@@ -294,6 +294,14 @@ advice_project/
 **Советница АКВИ** — ваш надежный партнер в мире профессиональных услуг и экспертных рекомендаций.  
 Создано с ❤️ и помощью передовых технологий ИИ.
 
+## 🌐 Доступность платформы
+| Сервис | Статус | Ссылка |
+|--------|--------|--------|
+| Render (основной) | 🟡 Обслуживание | `https://advice-project.onrender.com` |
+| Netlify (резерв 1) | 🟢 Онлайн | `*.netlify.app` |
+| Railway (резерв 2) | ⬜ Скоро | `*.up.railway.app` |
+| Vercel (резерв 3) | ⬜ Скоро | `*.vercel.app` |
+
 [![Посмотреть демо](https://img.shields.io/badge/Посмотреть_демо-Советница_AKVI-brightgreen)](https://advice-project.onrender.com)
 [![GitHub repo size](https://img.shields.io/github/repo-size/aqwe-dea/advice_project?logo=github)](https://github.com/aqwe-dea/advice_project)
 [![GitHub last commit](https://img.shields.io/github/last-commit/aqwe-dea/advice_project?logo=github)](https://github.com/aqwe-dea/advice_project)
