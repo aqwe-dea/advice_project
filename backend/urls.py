@@ -57,6 +57,7 @@ from aqwe_app.views import FreelancerAgentView
 from aqwe_app.views import JournalistAgentView
 from aqwe_app.views import StatsView
 from aqwe_app.views import sitemap_view, robots_view
+from aqwe_app.views import SmartView
 from drf_yasg.views import get_schema_view
 from drf_yasg import openapi
 from drf_yasg.openapi import Swagger
@@ -120,6 +121,7 @@ urlpatterns = [
     path('statistic/', StatsView.as_view(), name='statistic'),
     path('sitemap.xml', sitemap_view),
     path('robots.txt', robots_view),
+    path('routing/', SmartView.as_view(), name='router-agents'),
     path('stripe/', include('djstripe.urls', namespace='djstripe')),
     path('api/schema/', SpectacularAPIView.as_view(), name='schema'),
     path('api/docs/', SpectacularSwaggerView.as_view(url_name='schema'), name='docs'),

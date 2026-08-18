@@ -94,6 +94,8 @@ from .agents.functionsforagents.check_wellbeing import check_wellbeing
 from .agents.search_internet import search_internet
 from .agents.journalist_agent import JournalistAgent
 from .check_network_connection import check_network_connection
+from .api_client import APIClient
+from .cycle_manager import CycleManager
 from stripe.checkout._session import Session
 from stripe._request_options import RequestOptions
 from stripe._stripe_object import StripeObject
@@ -3821,6 +3823,28 @@ def robots_view(request):
     """Отдаёт robots.txt"""
     with open('frontend/public/robots.txt', 'r', encoding='utf-8') as f:
         return HttpResponse(f.read(), content_type='text/plain')
+
+class SmartView(APIView):
+    def post(self, request):
+        # 1. Инициализируем клиент (единая точка для всех внешних вызовов)
+        client = APIClient(api_key=os.getenv('KIETEST'))
+        
+        # 2. Инициализируем маршрутизатор с реестром агентов
+        agents = {
+            "main_advisor": AgentGem(os.getenv('KIETEST')),
+            "journalist": JournalistAgent(os.getenv('KIETEST')),
+            "freelancer": FreelancerAgent(os.getenv('KIETEST')),
+            # ... остальные агенты
+        }
+        manager = CycleManager(agents)
+        
+        # 3. Маршрутизируем запрос → менеджер сам решит, какому агенту отдать
+        response = manager.route_request(request.data)
+        
+        # 4. (Опционально) Если нужен прямой вызов API через наш клиент:
+        # result = client.request('POST', 'agents/teacher/', json={'question': '...'})
+        
+        return Response(response)
 
 class AdviceViewSet(viewsets.ModelViewSet):
     queryset = Advice.objects.all()

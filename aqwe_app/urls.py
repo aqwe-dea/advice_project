@@ -53,6 +53,7 @@ from .views import FreelancerAgentView
 from .views import JournalistAgentView
 from .views import StatsView
 from .views import sitemap_view, robots_view
+from .views import SmartView
 from django.views.static import serve
 from pathlib import Path
 
@@ -108,6 +109,7 @@ urlpatterns = [
     path('statistic/', StatsView.as_view(), name='statistic'),
     path('sitemap.xml', sitemap_view),
     path('robots.txt', robots_view),
+    path('routing/', SmartView.as_view(), name='router-agents'),
     path('create-payment-intent/', CreatePaymentIntentView.as_view(), name='create-payment-intent'),
     path('create-session/', CreateSessionView.as_view(), name='create-session'),
     path('create-checkout-session/', CreateCheckoutSessionView.as_view(), name='create-checkout-session'),
