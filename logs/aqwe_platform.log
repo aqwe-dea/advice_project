@@ -1,0 +1,4 @@
+INFO 2026-08-18 19:17:15,591 autoreload Watching for file changes with StatReloader
+INFO 2026-08-18 19:25:17,252 autoreload Watching for file changes with StatReloader
+WARNING 2026-08-18 19:27:44,533 log Method Not Allowed: /journalist/
+ERROR 2026-08-18 19:41:14,285 freelancer_agent Ошибка LLM (попытка 1): 500 Server Error: Internal Server Error for url: https://api.kie.ai/claude/v1/messages

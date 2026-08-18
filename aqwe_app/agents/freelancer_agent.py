@@ -221,7 +221,7 @@ class FreelancerAgent:
                         "anthropic-version": "2023-06-01"
                     },
                     json={
-                        "model": "claude-sonnet-5",
+                        "model": "claude-opus-5",
                         "messages": messages,
                         "thinkingFlag": False,
                         "stream": False,
@@ -289,7 +289,7 @@ class FreelancerAgent:
                             "anthropic-version": "2023-06-01"
                         },
                         json={
-                            "model": "claude-opus-4-7",
+                            "model": "claude-opus-5",
                             "messages": messages,
                             "tool_choice": {"type": "auto"},
                             "thinkingFlag": False,
@@ -346,6 +346,22 @@ class FreelancerAgent:
     
         return self._call_llm(prompt)
     
+    def analyze_freelance_orders(self, orders: list[dict]) -> str:
+        """Агент-Фрилансер анализирует 2-3 заказа и даёт стратегию"""
+        prompt = f"""
+            "Проанализируй эти заказы:\n{json.dumps(orders, ensure_ascii=False)}\n\n" \
+            "Верни: 1) Сложность (низкая/средняя/высокая) 2) Реалистичный срок 3) Риск-факторы " \
+            "4) Шаблон отклика до 280 символов 5) Рекомендацию по портфолио."
+        """
+        return self._call_llm(prompt)
+
+        # Пример использования:
+        orders = [
+            {"title": "Telegram бот на Python + CRM", "budget": "15-30k ₽", "tech": ["aiogram", "postgres"]},
+            {"title": "Парсер цен с маркетплейсов", "budget": "10k ₽", "tech": ["requests", "bs4"]}
+        ]
+        print(analyze_freelance_orders(orders))
+
     def ask(self, question: str) -> str:
         for tool_name, tool_info in self.tools.items():
             if tool_name.lower() in question.lower():

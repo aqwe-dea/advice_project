@@ -54,6 +54,7 @@ from aqwe_app.views import InsiderAgentView
 from aqwe_app.views import MarketerAgentView
 from aqwe_app.views import InvestorAgentView
 from aqwe_app.views import FreelancerAgentView
+from aqwe_app.views import JournalistAgentView
 from aqwe_app.views import StatsView
 from aqwe_app.views import sitemap_view, robots_view
 from drf_yasg.views import get_schema_view
@@ -115,6 +116,7 @@ urlpatterns = [
     path('agent-marketer/', MarketerAgentView.as_view(), name='agent-marketer'),
     path('agent-investor/', InvestorAgentView.as_view(), name='agent-investor'),
     path('agent-freelancer/', FreelancerAgentView.as_view(), name='agent-freelancer'),
+    path('journalist/', JournalistAgentView.as_view(), name='journalist_agent'),
     path('statistic/', StatsView.as_view(), name='statistic'),
     path('sitemap.xml', sitemap_view),
     path('robots.txt', robots_view),

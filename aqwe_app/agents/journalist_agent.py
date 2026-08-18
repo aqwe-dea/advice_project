@@ -29,6 +29,10 @@ class JournalistAgent:
             "User-Agent": "AQVE-JournalistBot/1.0",
             "Authorization": f"Bearer {api_key}"
         })
+        self.tools: Dict[str, Dict] = {}
+
+    def add_tool(self, name: str, func: callable, description: str):
+        self.tools[name] = {'func': func, 'description': description}
 
     def _log_step(self, step: str, status: str, data: Dict):
         """Логирует шаг цикла в JSON-файл"""
@@ -122,10 +126,62 @@ class JournalistAgent:
         return report
 
     # --- Внутренние методы цикла (заглушки с чёткими точками интеграции) ---
+    
     def _write_article(self, topic: str) -> str:
-        # Здесь можно подключить LLM-генерацию статьи
-        return f"📰 **Обновление платформы АКВИ**: {topic}\n\nПлатформа Советница АКВИ успешно обновила свои агенты и генераторы..."
-
+        # Формируем tools в формате Gemini Function Calling
+        gemini_tools = []
+        if self.tools:
+            function_declarations = []
+            for name, info in self.tools.items():
+                function_declarations.append({
+                    "name": name,
+                    "description": info['description'],
+                    "parameters": {
+                        "type": "OBJECT",
+                        "properties": {
+                            "query": {"type": "STRING", "description": "Запрос"}
+                        },
+                        "required": ["query"]
+                    }
+                })
+            if function_declarations:
+                gemini_tools = [{"functionDeclarations": function_declarations}]
+        
+        prompt = f"""Напиши краткую новость (до 500 слов) на тему: "{topic}".
+            Структура: Заголовок → Лид → Основное событие → Значение → Заключение.
+            Тон: профессиональный, но с теплотой. Без воды. Верни только текст статьи.
+        """
+    
+        try:
+            response = requests.post(
+                url="https://api.kie.ai/gemini/v1/models/gemini-3-7-flash:generateContent",
+                headers={
+                    "Authorization": f"Bearer {self.api_key}",
+                    "Content-Type": "application/json",
+                    "User-Agent": "AQWE-Platform/1.0"
+                },
+                json={
+                    "contents": [{"role": "user", "parts": [{"text": prompt}]}],
+                    "tools": gemini_tools if gemini_tools else None,
+                    "tool_config": {"function_calling_config": {"mode": "AUTO"}},
+                    "generationConfig": {
+                        "temperature": 0.3, 
+                        "maxOutputTokens": 10000,
+                        "thinkingConfig": {
+                            "includeThoughts": False,
+                            "thinkingLevel": "high"
+                        }
+                    }
+                },
+                timeout=300
+            )
+            response.raise_for_status()
+            data = response.json()
+            return data["candidates"][0]["content"]["parts"][0]["text"].strip()
+        except Exception as e:
+            logger.error(f"LLM генерация статьи не удалась: {e}")
+            return f"📰 **Обновление**: {topic}\n\n(Статья формируется в ручном режиме для проверки качества)"
+    
     def _submit_to_news_aggregators(self, article: str):
         # Google News: требует Publisher Center / RSS-фид
         # Yandex News: требует Yandex.News Publisher

@@ -1,0 +1,48 @@
+[
+  {
+    "timestamp": "2026-08-18T16:30:05.925219",
+    "step": "write",
+    "status": "success",
+    "data": {
+      "topic": "проверка и тестирование журналиста"
+    }
+  },
+  {
+    "timestamp": "2026-08-18T16:30:11.572535",
+    "step": "aggregators",
+    "status": "success",
+    "data": {}
+  },
+  {
+    "timestamp": "2026-08-18T16:30:11.779507",
+    "step": "socials",
+    "status": "success",
+    "data": {}
+  },
+  {
+    "timestamp": "2026-08-18T16:30:11.942008",
+    "step": "communities",
+    "status": "success",
+    "data": {}
+  },
+  {
+    "timestamp": "2026-08-18T16:30:12.089090",
+    "step": "blogs",
+    "status": "success",
+    "data": {}
+  },
+  {
+    "timestamp": "2026-08-18T16:30:12.205840",
+    "step": "indices",
+    "status": "success",
+    "data": {}
+  },
+  {
+    "timestamp": "2026-08-18T16:30:12.238938",
+    "step": "verification",
+    "status": "success",
+    "data": {
+      "total_steps": 6
+    }
+  }
+]

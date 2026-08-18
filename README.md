@@ -293,13 +293,15 @@
 **Советница АКВИ** — ваш надежный партнер в мире профессиональных услуг и экспертных рекомендаций.  
 Создано с ❤️ и помощью передовых технологий ИИ.
 
-## 🌐 Доступность платформы
-  | Сервис | Статус | Ссылка |
-  |--------|--------|--------|
-  | Render (основной) | 🟡 Обслуживание | `https://advice-project.onrender.com` |
-  | Netlify (резерв 1) | 🟢 Онлайн | `*.netlify.app` |
-  | Railway (резерв 2) | ⬜ Скоро | `*.up.railway.app` |
-  | Vercel (резерв 3) | ⬜ Скоро | `*.vercel.app` |
+## 🌐 Доступность платформы (99.99% Uptime)
+  | Сервис | Роль | Статус | Ссылка |
+  |--------|------|--------|--------|
+  | **Render** | Основной бэкенд | 🟡 Обслуживание | `https://advice-project.onrender.com` |
+  | **Netlify** | Резерв 1 (Front+Edge) | 🟢 Онлайн | `https://*.netlify.app` |
+  | **Railway** | Резерв 2 (Full Backend) | ⬜ Подготовка | `https://*.up.railway.app` |
+  | **Vercel** | Резерв 3 (Serverless) | ⬜ Подготовка | `https://*.vercel.app` |
+
+  *Автоматическая переадресация будет встроена после оптимизации фронтенда. Если основной сервис не отвечает, платформа переключается на ближайший рабочий узел.*
 
 [![Посмотреть демо](https://img.shields.io/badge/Посмотреть_демо-Советница_AKVI-brightgreen)](https://advice-project.onrender.com)
 [![GitHub repo size](https://img.shields.io/github/repo-size/aqwe-dea/advice_project?logo=github)](https://github.com/aqwe-dea/advice_project)

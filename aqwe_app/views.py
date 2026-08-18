@@ -3712,6 +3712,7 @@ class FreelancerAgentView(APIView):
         skills = request.data.get('skills', [])
         min_budget = request.data.get('min_budget', 0)
         max_budget = request.data.get('max_budget')
+        orders = request.data.get('skills', [])
         #if not skills:
         #    return Response({'error': 'Укажите навыки'}, status=400)
 
@@ -3752,9 +3753,11 @@ class FreelancerAgentView(APIView):
         # ← ИСПРАВЛЕНО: используем find_orders, который вызывает _call_llm
         # Это позволяет Claude использовать tool use правильно
         answer = agent.find_orders(skills, min_budget, max_budget)
+        analyse = agent.analyze_freelance_orders(orders)
 
         return Response({
-            'answer': answer
+            'answer': answer,
+            'orders': analyse
             #'checkprompt': check,
             #'checkanswer': find
             #'googleSearch': googleSearch,
@@ -3771,7 +3774,33 @@ class JournalistAgentView(APIView):
             'google_news', 'yandex_news', 'telegram', 'vk', 'reddit', 'habr'
         ])
         
+        user_id = request.user.id if request.user.is_authenticated else request.META.get('REMOTE_ADDR', 'anonymous')
+
         agent = JournalistAgent(api_key=os.getenv('KIETEST'))
+
+        log_interaction(
+            user_id=user_id,
+            endpoint=self.__class__.__name__,
+            agent="JournalistAgent",  # или динамически
+            metadata={"topic_length": len(request.data.get('topic', ''))}
+        )
+
+        # Добавляем инструменты (по желанию)
+        agent.add_tool('check_network_connection', check_network_connection, 'Проверка доступности интернет-соединения')
+        agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
+        agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
+        agent.add_tool('web_fetch', web_fetch, 'Загрузка и парсинг веб-страниц использовать эту функцию если не работает встроенная')
+        agent.add_tool('search_by_wikipedia', search_by_wikipedia, 'Поиск статей в Wikipedia')
+        agent.add_tool("read_file", read_file, "Чтение файла")
+        agent.add_tool("edit_file", edit_file, "Редактирование файла")
+        agent.add_tool("git_commit", git_commit, "Слежение за обновлением проекта через проверку статуса")
+        agent.add_tool("save_to_memory", save_to_memory, "Запись в память и опыт")
+        agent.add_tool("recall_memory", recall_memory, "Обращение к памяти и опыту")
+        agent.add_tool("send_email", send_email, "Отправка результатов работы агента по почте")
+        agent.add_tool("create_task", create_task, "Создание задачи для агента")
+        agent.add_tool("detect_emotion", detect_emotion, "Распознавание эмоций польователя")
+        agent.add_tool("check_wellbeing", check_wellbeing, "Проверка состояния здоровья пользователя")
+
         report = agent.publish_cycle(topic, platforms)
         
         return Response({'report': report})
