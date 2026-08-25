@@ -4,7 +4,7 @@ from typing import Dict, List, IO, TYPE_CHECKING, Any, Type, Tuple, Union, Mappi
 from uuid import UUID
 from abc import abstractmethod
 
-def recall_memory(query: str, memory_file: str = "accumulateexperience.md", limit: int = 3) -> str:
+def recall_memory(query: str, emotion_filter: str = None, memory_file: str = "accumulateexperience.md", limit: int = 3) -> str:
     """Ищет записи в памяти по ключевым словам. function for call memory"""
     try:
         path = Path(memory_file).resolve()
@@ -20,8 +20,13 @@ def recall_memory(query: str, memory_file: str = "accumulateexperience.md", limi
                 start = max(0, i-1)
                 end = min(len(lines), i+5)
                 matches.append("\n".join(lines[start:end]))
-            if len(matches) >= limit:
-                break
+                if emotion_filter:
+                    if f"[emotion: {emotion_filter}]" in i:
+                        matches.append(i.strip())
+                else:
+                    matches.append(i.strip())
+                if len(matches) >= limit:
+                    break
                 
         return json.dumps({
             "status": "success",

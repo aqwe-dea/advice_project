@@ -31,13 +31,20 @@ class APIClient:
             try:
                 resp = self.session.request(method, url, json=json, timeout=self.timeout)
                 resp.raise_for_status()
+                if os.getenv("DEBUG_API", "false").lower() == "true":
+                    logger.debug(f"→ {method} {url} | json: {json}")
+                    logger.debug(f"← {resp.status_code} | {resp.text[:500]}")
                 return resp.json()
+            
             except requests.exceptions.Timeout:
                 logger.warning(f"Таймаут {method} {url} (попытка {attempt+1}/{self.max_retries})")
                 time.sleep(2 ** attempt)  # Экспоненциальная задержка
+            except json.JSONDecodeError as e:
+                logger.error(f"Невалидный JSON от {url}: {e}")
+                return {"error": "Invalid response format", "raw": resp.text[:200]}
             except requests.exceptions.RequestException as e:
                 logger.error(f"Запрос не удался: {e}")
                 if attempt == self.max_retries - 1:
                     raise
-                time.sleep(2 ** attempt)
+                time.sleep(2 ** attempt)      
         return {}

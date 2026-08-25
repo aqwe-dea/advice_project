@@ -162,6 +162,16 @@ class SmartAgent:
         # self.long_term = LongTermMemory()
         # self.learner = ExperienceLearner(self.long_term)
     
+    def self_assess(self) -> dict:
+        """Диагностика готовности агента к работе"""
+        return {
+            "agent": self.__class__.__name__,
+            "tools_available": list(self.tools.keys()),
+            "context_length": len(self.context),
+            "memory_accessible": os.path.exists(getattr(self, "memory_file", "accumulateexperience.md")),
+            "status": "ready" if len(self.tools) > 0 else "needs_setup"
+        }
+        
     def add_tool(self, name: str, func: callable, description: str, parameters: Dict = None):
         """Добавить инструмент."""
         self.tools[name] = {
@@ -689,7 +699,7 @@ class SmartAgent:
                 self.context.append({"role": "user", "content": [{"type": "input_text", "text": prompt}]})
                 self.context.append({"role": "assistant", "content": [{"type": "output_text", "text": text}]})
             
-                logger.info(f"✅ Ответ агента: {text[:1500]}...")
+                #logger.info(f"✅ Ответ агента: {text[:1500]}...")
                 return text
             
             tool_call = self._extract_text_or_tool(data)
@@ -784,7 +794,7 @@ class SmartAgent:
                 return tool_info['func'](arg)
             
         messages = self.context.copy()
-        messages.append({"role": "user", "content": question})
+        messages.append({"role": "user", "content": [{"type": "input_text", "text": question}]})
         # 1. Ищем похожий прошлый опыт
         #similar = self.long_term.find_similar(question)
         # 2. Формируем промпт с учётом опыта

@@ -3,3 +3,49 @@ INFO 2026-08-18 19:25:17,252 autoreload Watching for file changes with StatReloa
 WARNING 2026-08-18 19:27:44,533 log Method Not Allowed: /journalist/
 ERROR 2026-08-18 19:41:14,285 freelancer_agent Ошибка LLM (попытка 1): 500 Server Error: Internal Server Error for url: https://api.kie.ai/claude/v1/messages
 INFO 2026-08-18 20:23:06,146 autoreload Watching for file changes with StatReloader
+INFO 2026-08-24 00:19:35,953 autoreload Watching for file changes with StatReloader
+ERROR 2026-08-24 00:42:26,125 smart_agent Ошибка извлечения: list index out of range | Данные: {'top_logprobs': 0, 'metadata': {'system_fingerprint': 'fp_f95ce4c3856c43c4'}, 'presence_penalty': 0.0, 'reasoning': {}, 'usage': {'context_details': {'output_tokens': 1248, 'input_tokens': 9568}, 'num_sources_used': 0, 'input_tokens_details': {'cached_tokens': 192}, 'num_server_side_tools_used': 0, 'total_tokens': 10816, 'output_tokens': 1248, 'cost_in_usd_ticks': 263360000, 'input_tokens': 9568, 'output_tokens_details': {'reasoning_tokens': 1203}}, 'created_at': 1787521345, 'tools': [{'name': 'check_network_connection', 'description': 'Проверка доступности интернет-соединения', 'type': 'function', 'parameters': {'type': 'object', 'properties': {'query': {'description': 'Запрос', 'type': 'string'}}, 'required': ['query']}}, {'name': 'web_search', 'description': 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает', 'type': 'function', 'parameters': {'type': 'object', 'properties': {'query': {'description': 'Запрос', 'type': 'string'}}, 'required': ['query']}}, {'name': 'search_internet', 'description': 'Поиск в интернете с помощью тавили или серпера', 'type': 'function', 'parameters': {'type': 'object', 'properties': {'query': {'description': 'Запрос', 'type': 'string'}}, 'required': ['query']}}, {'name': 'web_fetch', 'description': 'Загрузка и парсинг веб-страниц использовать эту функцию если не работает встроенная', 'type': 'function', 'parameters': {'type': 'object', 'properties': {'query': {'description': 'Запрос', 'type': 'string'}}, 'required': ['query']}}, {'name': 'search_by_wikipedia', 'description': 'Поиск статей в Wikipedia', 'type': 'function', 'parameters': {'type': 'object', 'properties': {'query': {'description': 'Запрос', 'type': 'string'}}, 'required': ['query']}}, {'name': 'read_file', 'description': 'Чтение файла', 'type': 'function', 'parameters': {'type': 'object', 'properties': {'query': {'description': 'Запрос', 'type': 'string'}}, 'required': ['query']}}, {'name': 'edit_file', 'description': 'Р
+INFO 2026-08-24 00:49:06,540 autoreload C:\advice_project\aqwe_app\smartagent\smart_agent.py changed, reloading.
+INFO 2026-08-24 00:51:12,865 autoreload Watching for file changes with StatReloader
+INFO 2026-08-24 00:53:31,721 autoreload C:\advice_project\aqwe_app\smartagent\smart_agent.py changed, reloading.
+INFO 2026-08-24 00:54:34,574 autoreload Watching for file changes with StatReloader
+ERROR 2026-08-24 00:58:14,177 smart_agent Ошибка извлечения: list index out of range | Данные: {'top_logprobs': 0, 'metadata': {'system_fingerprint': 'fp_f95ce4c3856c43c4'}, 'presence_penalty': 0.0, 'reasoning': {}, 'usage': {'context_details': {'output_tokens': 710, 'input_tokens': 9568}, 'num_sources_used': 0, 'input_tokens_details': {'cached_tokens': 192}, 'num_server_side_tools_used': 0, 'total_tokens': 10278, 'output_tokens': 710, 'cost_in_usd_ticks': 231080000, 'input_tokens': 9568, 'output_tokens_details': {'reasoning_tokens': 644}}, 'created_at': 1787522293, 'tools': [{'name': 'check_network_connection', 'description': 'Проверка доступности интернет-соединения', 'type': 'function', 'parameters': {'type': 'object', 'properties': {'query': {'description': 'Запрос', 'type': 'string'}}, 'required': ['query']}}, {'name': 'web_search', 'description': 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает', 'type': 'function', 'parameters': {'type': 'object', 'properties': {'query': {'description': 'Запрос', 'type': 'string'}}, 'required': ['query']}}, {'name': 'search_internet', 'description': 'Поиск в интернете с помощью тавили или серпера', 'type': 'function', 'parameters': {'type': 'object', 'properties': {'query': {'description': 'Запрос', 'type': 'string'}}, 'required': ['query']}}, {'name': 'web_fetch', 'description': 'Загрузка и парсинг веб-страниц использовать эту функцию если не работает встроенная', 'type': 'function', 'parameters': {'type': 'object', 'properties': {'query': {'description': 'Запрос', 'type': 'string'}}, 'required': ['query']}}, {'name': 'search_by_wikipedia', 'description': 'Поиск статей в Wikipedia', 'type': 'function', 'parameters': {'type': 'object', 'properties': {'query': {'description': 'Запрос', 'type': 'string'}}, 'required': ['query']}}, {'name': 'read_file', 'description': 'Чтение файла', 'type': 'function', 'parameters': {'type': 'object', 'properties': {'query': {'description': 'Запрос', 'type': 'string'}}, 'required': ['query']}}, {'name': 'edit_file', 'description': 'Реда
+ERROR 2026-08-24 01:00:41,619 log Internal Server Error: /agent-gpt/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 3140, in post
+    track_journey(
+    ~~~~~~~~~~~~~^
+        user_id=user_id,
+        ^^^^^^^^^^^^^^^^
+        step="answer_generated",
+        ^^^^^^^^^^^^^^^^^^^^^^^^
+        metadata={"topic_length": len(request.data.get('topic', ''))}
+        ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+    )
+    ^
+  File "c:\advice_project\aqwe_app\analytics.py", line 85, in track_journey
+    data = _load_json() # твоя функция загрузки
+           ^^^^^^^^^^
+NameError: name '_load_json' is not defined
+INFO 2026-08-24 01:09:15,772 autoreload C:\advice_project\aqwe_app\analytics.py changed, reloading.
+INFO 2026-08-24 01:10:18,449 autoreload Watching for file changes with StatReloader
+ERROR 2026-08-24 01:19:17,094 agent_cla Ошибка LLM (попытка 1): 500 Server Error: Internal Server Error for url: https://api.kie.ai/claude/v1/messages
+ERROR 2026-08-24 01:19:21,876 agent_cla Ошибка LLM (попытка 2): 500 Server Error: Internal Server Error for url: https://api.kie.ai/claude/v1/messages

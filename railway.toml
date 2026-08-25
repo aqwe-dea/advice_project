@@ -2,4 +2,11 @@
 builder = "nixpacks"
 
 [deploy]
-startCommand = "python manage.py runserver 0.0.0.0:$PORT"
+startCommand = "python manage.py migrate && python manage.py runserver 0.0.0.0:$PORT"
+healthcheckPath = "/health"
+healthcheckTimeout = 100
+
+[variables]
+PYTHON_VERSION = "3.12"
+DJANGO_SETTINGS_MODULE = "aqwe_app.settings"
+STATIC_URL = "/static/"

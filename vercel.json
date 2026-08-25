@@ -1,5 +1,16 @@
 {
     "version": 2,
-    "builds": [{"src": "manage.py", "use": "@vercel/python"}],
-    "routes": [{"src": "/(.*)", "dest": "manage.py"}]
+    "builds": [
+      { "src": "frontend/package.json", "use": "@vercel/next" },
+      { "src": "aqwe_app/wsgi.py", "use": "@vercel/python" }
+    ],
+    "routes": [
+      { "src": "/api/(.*)", "dest": "aqwe_app/wsgi.py" },
+      { "src": "/(.*)", "dest": "frontend/$1" }
+    ],
+    "env": {
+      "PYTHON_VERSION": "3.12",
+      "DJANGO_SETTINGS_MODULE": "aqwe_app.settings",
+      "KIETEST": "@kietest_secret"
+    }
 }

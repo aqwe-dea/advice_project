@@ -78,7 +78,7 @@ from .agents.insider_agent import InsiderAgent
 from .agents.marketer_agent import MarketerAgent
 from .agents.investor_agent import InvestorAgent
 from .agents.freelancer_agent import FreelancerAgent
-from .analytics import log_interaction, get_stats
+from .analytics import log_interaction, get_stats, track_journey
 from .agents.web_fetch import web_fetch
 from .agents.web_search import web_search
 from .agents.wikipedia_search import search_by_wikipedia
@@ -93,9 +93,14 @@ from .agents.functionsforagents.detect_emotion import detect_emotion
 from .agents.functionsforagents.check_wellbeing import check_wellbeing
 from .agents.search_internet import search_internet
 from .agents.journalist_agent import JournalistAgent
+from .agents.registry import get_all_agents
 from .check_network_connection import check_network_connection
 from .api_client import APIClient
 from .cycle_manager import CycleManager
+from .project_inspector import ProjectInspector
+from .file_navigator import list_directory, find_files
+from .code_sandbox import python_sandbox
+from .semantic_memory import semantic_memory_recall
 from stripe.checkout._session import Session
 from stripe._request_options import RequestOptions
 from stripe._stripe_object import StripeObject
@@ -2687,6 +2692,11 @@ class AgentChatView(APIView):
         
         # Добавляем инструменты (по желанию)
         agent.add_tool('check_network_connection', check_network_connection, 'Проверка доступности интернет-соединения')
+        agent.add_tool('project_inspector', ProjectInspector, 'Используй для инспектирования проекта и исследования структуры проекта')
+        agent.add_tool('list_directory', list_directory, 'Используй для получения структуры проекта и списка категорий')
+        agent.add_tool('find_files', find_files, 'Используй для поиска файлов в структуре проекта')
+        agent.add_tool('python_sandbox', python_sandbox, 'Используй эту функцию если захочешь запустить и исполнить код в песочнице')
+        agent.add_tool('semantic_memory_recall', semantic_memory_recall, 'Используй для семантического поиска по памяти')
         #agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
         agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
@@ -2710,9 +2720,11 @@ class AgentChatView(APIView):
         #audit_result = agent.audit_prompt()
         # Получаем ответ
         answer = agent.ask(question)
+        diagnostic = agent.self_assess()
 
         return Response({
-            'answer': answer
+            'answer': answer,
+            'diag': diagnostic
             #'audit': audit_result
         })
 
@@ -2745,6 +2757,11 @@ class SmartAgentView(APIView):
         )
 
         # Добавляем инструменты (по желанию)
+        agent.add_tool('project_inspector', ProjectInspector, 'Используй для инспектирования проекта и исследования структуры проекта')
+        agent.add_tool('list_directory', list_directory, 'Используй для получения структуры проекта и списка категорий')
+        agent.add_tool('find_files', find_files, 'Используй для поиска файлов в структуре проекта')
+        agent.add_tool('python_sandbox', python_sandbox, 'Используй эту функцию если захочешь запустить и исполнить код в песочнице')
+        agent.add_tool('semantic_memory_recall', semantic_memory_recall, 'Используй для семантического поиска по памяти')
         agent.add_tool('check_network_connection', check_network_connection, 'Проверка доступности интернет-соединения')
         #agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
@@ -2769,10 +2786,13 @@ class SmartAgentView(APIView):
         # Запрос к агенту
         answer = agent.ask(question, user_feedback)
         
+        diagnostic = agent.self_assess()
+
         return Response({
             'answer': answer,
             'question': question,
-            'timestamp': datetime.now().isoformat()
+            'timestamp': datetime.now().isoformat(),
+            'diag': diagnostic
         })
 
 class ImageGeneratorView(APIView):
@@ -3099,7 +3119,7 @@ class ImageEditView(APIView):
 
 class AgentGptView(APIView):
     """Простой агент для взаимодействия с LLM API. Поддерживает: память контекста, инструменты, базовое планирование."""
-    
+
     def post(self, request):
         question = request.data.get('question', '')
         if not question:
@@ -3119,6 +3139,12 @@ class AgentGptView(APIView):
             metadata={"question_length": len(request.data.get('question', ''))}
         )
 
+        track_journey(
+            user_id=user_id,
+            step="answer_generated",
+            metadata={"topic_length": len(request.data.get('topic', ''))}
+        )
+
         api_key = os.getenv('KIETEST')
         if not api_key:
             return Response(
@@ -3127,8 +3153,21 @@ class AgentGptView(APIView):
             )
         
         generator = ImageGenerator(api_key=api_key)
-
+        # 1. Определяем эмоцию ДО отправки
+        emotion_result = detect_emotion(question) # или через agent.tools["detect_emotion"]["func"]
+        try:
+            emotion = json.loads(emotion_result).get("detected", "neutral")
+        except: 
+            emotion = "neutral"
+        
+        # 2. Обогащаем промпт
+        enhanced_prompt = f"[Тон пользователя: {emotion}] \n{question}"
         # Добавляем инструменты (по желанию)
+        agent.add_tool('project_inspector', ProjectInspector, 'Используй для инспектирования проекта и исследования структуры проекта')
+        agent.add_tool('list_directory', list_directory, 'Используй для получения структуры проекта и списка категорий')
+        agent.add_tool('find_files', find_files, 'Используй для поиска файлов в структуре проекта')
+        agent.add_tool('python_sandbox', python_sandbox, 'Используй эту функцию если захочешь запустить и исполнить код в песочнице')
+        agent.add_tool('semantic_memory_recall', semantic_memory_recall, 'Используй для семантического поиска по памяти')
         #agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
         agent.add_tool('check_network_connection', check_network_connection, 'Проверка доступности интернет-соединения')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
@@ -3156,10 +3195,15 @@ class AgentGptView(APIView):
         #)
 
         # Получаем ответ
-        answer = agent.ask(question)
+        #answer = agent.ask(question)
+        answer = agent.ask(enhanced_prompt)
         
+        diagnostic = agent.self_assess()
+
         return Response({
-            'answer': answer
+            'answer': answer,
+            "emotion_context": emotion,
+            'diag': diagnostic
             #'checknetwork': statusnetwork
         })
 
@@ -3195,6 +3239,11 @@ class AgentClaView(APIView):
         generator = ImageGenerator(api_key=api_key)
 
         # Добавляем инструменты (по желанию)
+        agent.add_tool('project_inspector', ProjectInspector, 'Используй для инспектирования проекта и исследования структуры проекта')
+        agent.add_tool('list_directory', list_directory, 'Используй для получения структуры проекта и списка категорий')
+        agent.add_tool('find_files', find_files, 'Используй для поиска файлов в структуре проекта')
+        agent.add_tool('python_sandbox', python_sandbox, 'Используй эту функцию если захочешь запустить и исполнить код в песочнице')
+        agent.add_tool('semantic_memory_recall', semantic_memory_recall, 'Используй для семантического поиска по памяти')
         agent.add_tool('check_network_connection', check_network_connection, 'Проверка доступности интернет-соединения')
         #agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
@@ -3221,7 +3270,9 @@ class AgentClaView(APIView):
         # Получаем ответ
         answer = agent.ask(question)
         
-        return Response({'answer': answer})
+        diagnostic = agent.self_assess()
+
+        return Response({'answer': answer, 'diag': diagnostic})
 
 class AgentGemView(APIView):
     """Простой агент для взаимодействия с LLM API. Поддерживает: память контекста, инструменты, базовое планирование."""
@@ -3255,6 +3306,11 @@ class AgentGemView(APIView):
         generator = ImageGenerator(api_key=api_key)
 
         # Добавляем инструменты (по желанию)
+        agent.add_tool('project_inspector', ProjectInspector, 'Используй для инспектирования проекта и исследования структуры проекта')
+        agent.add_tool('list_directory', list_directory, 'Используй для получения структуры проекта и списка категорий')
+        agent.add_tool('find_files', find_files, 'Используй для поиска файлов в структуре проекта')
+        agent.add_tool('python_sandbox', python_sandbox, 'Используй эту функцию если захочешь запустить и исполнить код в песочнице')
+        agent.add_tool('semantic_memory_recall', semantic_memory_recall, 'Используй для семантического поиска по памяти')
         agent.add_tool('check_network_connection', check_network_connection, 'Проверка доступности интернет-соединения')
         #agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
@@ -3329,8 +3385,11 @@ class AgentGemView(APIView):
         # Получаем ответ
         answer = agent.ask(question)
         
+        diagnostic = agent.self_assess()
+
         return Response({
-            'answer': answer
+            'answer': answer,
+            'diag': diagnostic
             #'tavily': results_tavily, 
             #'serper': results_serper, 
             #'websearch': results_websearch,
@@ -3830,12 +3889,13 @@ class SmartView(APIView):
         client = APIClient(api_key=os.getenv('KIETEST'))
         
         # 2. Инициализируем маршрутизатор с реестром агентов
-        agents = {
-            "main_advisor": AgentGem(os.getenv('KIETEST')),
-            "journalist": JournalistAgent(os.getenv('KIETEST')),
-            "freelancer": FreelancerAgent(os.getenv('KIETEST')),
+        #agents = {
+        #    "main_advisor": AgentGem(os.getenv('KIETEST')),
+        #    "journalist": JournalistAgent(os.getenv('KIETEST')),
+        #    "freelancer": FreelancerAgent(os.getenv('KIETEST')),
             # ... остальные агенты
-        }
+        #}
+        agents = get_all_agents(os.getenv('KIETEST'))
         manager = CycleManager(agents)
         
         # 3. Маршрутизируем запрос → менеджер сам решит, какому агенту отдать

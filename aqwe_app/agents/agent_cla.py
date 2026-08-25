@@ -154,6 +154,16 @@ class AgentCla:
         self.tools: Dict[str, Dict] = {}
         self.image_generator = None  # ← Будет установлен при интеграции
     
+    def self_assess(self) -> dict:
+        """Диагностика готовности агента к работе"""
+        return {
+            "agent": self.__class__.__name__,
+            "tools_available": list(self.tools.keys()),
+            "context_length": len(self.context),
+            "memory_accessible": os.path.exists(getattr(self, "memory_file", "accumulateexperience.md")),
+            "status": "ready" if len(self.tools) > 0 else "needs_setup"
+        }
+        
     def set_image_generator(self, generator):
         """Установить генератор изображений для pipeline"""
         self.image_generator = generator
