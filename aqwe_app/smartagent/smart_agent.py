@@ -201,38 +201,89 @@ class SmartAgent:
     
     def _extract_text_or_tool(self, data: dict) -> tuple[str, Optional[Dict]]:
         """
-            Безопасно извлекает текст ИЛИ информацию о вызове инструмента из ответа API.
-            Поддерживает: OpenAI/GPT/Grok (choices/output), Anthropic (content), Gemini (candidates).
-            Returns: (текст, словарь tool_call или None)
+            Извлекает текст или tool_call из ответа Grok v1/responses с JSON Schema.
+            Returns: (текст_ответа, tool_call_инфо_или_None)
         """
         try:
-            # 6. OpenAI / GPT-5.x / Grok / Совместимые (структура output content)
-            #content = data.get('output', [{}])
-            output = data.get('output')
-            content = output[1]
-            output_text = content.get('content')
-            message = output_text[0]
-            # Проверка на function_call
-            #if 'function_call' in content:
-            #    return content['function_call'][0]['function']
-            if 'function_call' in content:
-                fc = content['function_call']
-                return {
-                    'id': None,
-                    'name': fc.get('name'),
-                    'arguments': fc.get('arguments', '{}')
+            # Grok возвращает: data["output"][0]["content"][0]
+            output_list = data.get("output", [])
+            if not output_list or not isinstance(output_list, list):
+                logger.warning(f"Пустой или неверный output: {data.keys()}")
+                return "", None
+        
+            first_message = output_list[0]
+            content_list = first_message.get("content", [])
+            if not content_list or not isinstance(content_list, list):
+                return "", None
+        
+            first_block = content_list[0]
+            block_type = first_block.get("type")
+        
+            # 🎯 Если это tool_call
+            if block_type == "tool_call":
+                tool_info = first_block.get("tool_call", {})
+                return "", {
+                    "id": tool_info.get("id"),
+                    "name": tool_info.get("name"),
+                    "arguments": tool_info.get("arguments", "{}")
                 }
+        
+            # 🎯 Если это текст в JSON Schema формате
+            if block_type == "output_text":
+                raw_text = first_block.get("text", "")
+            
+                # Если внутри JSON с полями answer/mood — извлекаем answer
+                if raw_text.strip().startswith("{"):
+                    try:
+                        parsed = json.loads(raw_text)
+                        return parsed.get("answer", raw_text), None
+                    except json.JSONDecodeError:
+                        pass
+            
+                return raw_text, None
+        
+            # Fallback
+            logger.warning(f"Неизвестный тип блока: {block_type}")
+            return "", None
+        
+        except Exception as e:
+            logger.error(f"Ошибка извлечения: {e} | Данные: {str(data)[:500]}")
+            return "", None
 
-            # Проверка на tool_calls (OpenAI-стиль)
-            if 'tool_calls' in content and content['tool_calls']:
-                tc = content['tool_calls'][0]
-                return {
-                    'id': tc['id'],
-                    'name': tc['function']['name'],
-                    'input': json.loads(tc['function']['arguments'])
-                }
+    #def _extract_text_or_tool(self, data: dict) -> tuple[str, Optional[Dict]]:
+    #    """
+    #        Безопасно извлекает текст ИЛИ информацию о вызове инструмента из ответа API.
+    #        Поддерживает: OpenAI/GPT/Grok (choices/output), Anthropic (content), Gemini (candidates).
+    #        Returns: (текст, словарь tool_call или None)
+    #    """
+    #    try:
+    #        # 6. OpenAI / GPT-5.x / Grok / Совместимые (структура output content)
+    #        #content = data.get('output', [{}])
+    #        output = data.get('output')
+    #        content = output[1]
+    #        output_text = content.get('content')
+    #        message = output_text[0]
+    #        # Проверка на function_call
+    #        #if 'function_call' in content:
+    #        #    return content['function_call'][0]['function']
+    #        if 'function_call' in content:
+    #            fc = content['function_call']
+    #            return {
+    #                'id': None,
+    #                'name': fc.get('name'),
+    #                'arguments': fc.get('arguments', '{}')
+    #            }
 
-            text = message.get('text', '')
+    #        # Проверка на tool_calls (OpenAI-стиль)
+    #        if 'tool_calls' in content and content['tool_calls']:
+    #            tc = content['tool_calls'][0]
+    #            return {
+    #                'id': tc['id'],
+    #                'name': tc['function']['name'],
+    #                'input': json.loads(tc['function']['arguments'])
+    #            }
+
+    #        text = message.get('text', '')
             #if message and isinstance(message, list):
                 #text = message[1].get('text')
             #    text = '\n'.join(block.get('text', '') for block in message if isinstance(block, dict))
@@ -245,15 +296,15 @@ class SmartAgent:
             #    parsed = json.loads(text)
             #    return parsed.get("answer", text)
 
-            return text
+    #        return text
 
             # Если ничего не подошло
-            logger.warning(f"Неизвестная структура ответа: {list(data.keys())}")
-            return "", None
+    #        logger.warning(f"Неизвестная структура ответа: {list(data.keys())}")
+    #        return "", None
 
-        except Exception as e:
-            logger.error(f"Ошибка извлечения: {e} | Данные: {str(data)[:2000]}")
-            return "", None
+    #    except Exception as e:
+    #        logger.error(f"Ошибка извлечения: {e} | Данные: {str(data)[:2000]}")
+    #        return "", None
 
     #def _extract_text_or_tooledold(self, data: dict) -> tuple[str, Optional[Dict]]: на всякий случай
     #    """Извлечь текст или function_call из ответа API"""
@@ -375,12 +426,9 @@ class SmartAgent:
                         "max_results": {
                             "type": "integer",
                             "default": 5
-                        },
-                        "unit": {
-                            "type": "string"
                         }
                     },
-                    "required": ["query", "max_results", "unit"]
+                    "required": ["query", "max_results"]
                 }
             },
             {
@@ -397,12 +445,9 @@ class SmartAgent:
                         "max_length": {
                             "type": "integer",
                             "default": 5000
-                        },
-                        "unit": {
-                            "type": "string"
                         }
                     },
-                    "required": ["url", "max_length", "unit"]
+                    "required": ["url", "max_length"]
                 }
             },
             {
@@ -423,12 +468,9 @@ class SmartAgent:
                         "max_results": {
                             "type": "integer",
                             "default": 3
-                        },
-                        "unit": {
-                            "type": "string"
                         }
                     },
-                    "required": ["query", "lang", "max_results", "unit"]
+                    "required": ["query", "lang", "max_results"]
                 }
             },
             {
@@ -445,12 +487,9 @@ class SmartAgent:
                         "max_chars": {
                             "type": "integer",
                             "default": 10000
-                        },
-                        "unit": {
-                            "type": "string"
                         }
                     },
-                    "required": ["file_path", "max_chars", "unit"]
+                    "required": ["file_path", "max_chars"]
                 }
             },
             {
@@ -471,12 +510,9 @@ class SmartAgent:
                         "mode": {
                             "type": "string",
                             "description": "Какой режим выбрали"
-                        },
-                        "unit": {
-                            "type": "string"
                         }
                     },
-                    "required": ["file_path", "content", "mode", "unit"]
+                    "required": ["file_path", "content", "mode"]
                 }
             },
             {
@@ -493,12 +529,9 @@ class SmartAgent:
                         "repo_path": {
                             "type": "string",
                             "description": "Путь к репозиторию"
-                        },
-                        "unit": {
-                            "type": "string"
                         }
                     },
-                    "required": ["message", "repo_path", "unit"]
+                    "required": ["message", "repo_path"]
                 }
             },
             {
@@ -515,12 +548,9 @@ class SmartAgent:
                         "memory_file": {
                             "type": "string",
                             "description": "Файл памяти"
-                        },
-                        "unit": {
-                            "type": "string"
                         }
                     },
-                    "required": ["entry", "memory_file", "unit"]
+                    "required": ["entry", "memory_file"]
                 }
             },
             {
@@ -530,23 +560,11 @@ class SmartAgent:
                 "parameters": {
                     "type": "object",
                     "properties": {
-                        "query": {
-                            "type": "string",
-                            "description": "Запрос по ключевому слову к памяти"
-                        },
-                        "memory_file": {
-                            "type": "string",
-                            "description": "Файл памяти"
-                        },
-                        "limit": {
-                            "type": "integer",
-                            "default": 3
-                        },
-                        "unit": {
-                            "type": "string"
-                        }
+                        "query": {"type": "string", "description": "Запрос по ключевому слову"},
+                        "memory_file": {"type": "string", "default": "accumulateexperience.md"},
+                        "limit": {"type": "integer", "default": 3}
                     },
-                    "required": ["query", "memory_file", "max_results", "unit"]
+                    "required": ["query"]  # ← только query обязателен
                 }
             },
             {
@@ -567,12 +585,9 @@ class SmartAgent:
                         "body": {
                             "type": "string",
                             "description": "Содержание письма"
-                        },
-                        "unit": {
-                            "type": "string"
                         }
                     },
-                    "required": ["to", "subject", "body", "unit"]
+                    "required": ["to", "subject", "body"]
                 }
             },
             {
@@ -597,12 +612,9 @@ class SmartAgent:
                         "file": {
                             "type": "string",
                             "description": "Файл с задачами"
-                        },
-                        "unit": {
-                            "type": "string"
                         }
                     },
-                    "required": ["title", "description", "priority", "file", "unit"]
+                    "required": ["title", "description", "priority", "file"]
                 }
             },
             {
@@ -615,12 +627,9 @@ class SmartAgent:
                         "text": {
                             "type": "string",
                             "description": "Полученный текст"
-                        },
-                        "unit": {
-                            "type": "string"
                         }
                     },
-                    "required": ["text", "unit"]
+                    "required": ["text"]
                 }
             },
             {
@@ -633,12 +642,9 @@ class SmartAgent:
                         "question": {
                             "type": "string",
                             "description": "Вопрос пользователя"
-                        },
-                        "unit": {
-                            "type": "string"
                         }
                     },
-                    "required": ["question", "unit"]
+                    "required": ["question"]
                 }
             }
         ]
@@ -646,6 +652,7 @@ class SmartAgent:
         api_tools = self._build_api_tools()
         
         try:
+            logger.info(f"📤 Запрос к Grok: {prompt[:200]}...")
             response = requests.post(
                 f"{self.base_url}/grok/v1/responses",
                 headers={
@@ -690,6 +697,7 @@ class SmartAgent:
             response.raise_for_status()
             data = response.json()
             text = self._extract_text_or_tool(data)
+            logger.info(f"📥 Ответ от Grok: {text[:200]}...")
             if not text:
                 logger.error(f"Пустой текст в ответе: {data}")
                 return "Ошибка: агент не получил ответ от модели нет данных в data"
@@ -771,11 +779,14 @@ class SmartAgent:
                         second_response.raise_for_status()
                         second_data = second_response.json()
                         final_text, _ = self._extract_text_or_tool(second_data)
+                        #if final_text:
+                        #    self.context.append({"role": "user", "content": [{"type": "input_text", "text": prompt}]})
+                        #    self.context.append({"role": "assistant", "content": [{"type": "output_text", "text": final_text}]})
+                        #    return text
+                        #return final_text or f"✅ {func_name} выполнен. Результат: {result}"
                         if final_text:
-                            self.context.append({"role": "user", "content": [{"type": "input_text", "text": prompt}]})
                             self.context.append({"role": "assistant", "content": [{"type": "output_text", "text": final_text}]})
-                            return text
-                        return final_text or f"✅ {func_name} выполнен. Результат: {result}"
+                            return final_text  # ✅ Возвращаем финальный, осмысленный ответ
                     except Exception as e:
                         return f"❌ Ошибка выполнения {func_name}: {str(e)}"
                 else:

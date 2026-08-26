@@ -1,5 +1,5 @@
 {
-  "total_visits": 184,
+  "total_visits": 186,
   "unique_users": [
     "127.0.0.1"
   ],
@@ -1656,6 +1656,24 @@
       "user_id": "127.0.0.1",
       "endpoint": "AgentGemView",
       "agent": "AgentGem",
+      "metadata": {
+        "question_length": 318
+      }
+    },
+    {
+      "timestamp": "2026-08-26T20:04:36.266990+00:00",
+      "user_id": "127.0.0.1",
+      "endpoint": "SmartAgentView",
+      "agent": "SmartAgent",
+      "metadata": {
+        "question_length": 11
+      }
+    },
+    {
+      "timestamp": "2026-08-26T20:08:07.732466+00:00",
+      "user_id": "127.0.0.1",
+      "endpoint": "SmartAgentView",
+      "agent": "SmartAgent",
       "metadata": {
         "question_length": 318
       }

@@ -49,3 +49,4 @@ INFO 2026-08-24 01:09:15,772 autoreload C:\advice_project\aqwe_app\analytics.py 
 INFO 2026-08-24 01:10:18,449 autoreload Watching for file changes with StatReloader
 ERROR 2026-08-24 01:19:17,094 agent_cla Ошибка LLM (попытка 1): 500 Server Error: Internal Server Error for url: https://api.kie.ai/claude/v1/messages
 ERROR 2026-08-24 01:19:21,876 agent_cla Ошибка LLM (попытка 2): 500 Server Error: Internal Server Error for url: https://api.kie.ai/claude/v1/messages
+INFO 2026-08-26 22:35:35,311 autoreload Watching for file changes with StatReloader
