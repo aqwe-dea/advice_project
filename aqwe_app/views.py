@@ -101,6 +101,7 @@ from .project_inspector import ProjectInspector
 from .file_navigator import list_directory, find_files
 from .code_sandbox import python_sandbox
 from .semantic_memory import semantic_memory_recall
+from .live_canvas import LiveMultimodalWorkspace
 from stripe.checkout._session import Session
 from stripe._request_options import RequestOptions
 from stripe._stripe_object import StripeObject
@@ -3381,6 +3382,9 @@ class AgentGemView(APIView):
         #    region="ru" 
         #)
         agent.set_image_generator(generator)
+        # В любом агенте, который работает с творчеством:
+        canvas = LiveMultimodalWorkspace(session_id=request.session.session_key)
+        creativy = canvas.create_artifact("image", "кристалл любви в фиолетовых тонах", "ImageGenerator")
 
         # Получаем ответ
         answer = agent.ask(question)
@@ -3389,7 +3393,9 @@ class AgentGemView(APIView):
 
         return Response({
             'answer': answer,
-            'diag': diagnostic
+            'diag': diagnostic,
+            "canvas": json.loads(canvas.render_canvas()),
+            "result_creativy": creativy
             #'tavily': results_tavily, 
             #'serper': results_serper, 
             #'websearch': results_websearch,

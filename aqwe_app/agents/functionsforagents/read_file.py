@@ -14,6 +14,10 @@ def read_file(file_path: str, max_chars: int = 10000) -> str:
         if not path.is_file():
             return json.dumps({"error": f"Путь не является файлом: {file_path}"}, ensure_ascii=False)
         
+        # Проверка на бинарный файл
+        if path.suffix in ['.png', '.jpg', '.pdf', '.exe', '.zip']:
+            return json.dumps({"error": f"Бинарный файл не поддерживается: {path.suffix}"}, ensure_ascii=False)
+
         text = path.read_text(encoding="utf-8")
         if len(text) > max_chars:
             text = text[:max_chars] + f"\n\n[Файл обрезан. Всего символов: {len(text)}]"

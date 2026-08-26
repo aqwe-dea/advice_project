@@ -15,12 +15,25 @@ def edit_file(file_path: str, content: str, mode: str = "append") -> str:
         if mode == "append":
             with open(path, "a", encoding="utf-8") as f:
                 f.write(f"\n--- {datetime.now().isoformat()} ---\n{content}\n")
+
         elif mode == "overwrite":
             path.write_text(content, encoding="utf-8")
+
         elif mode == "replace":
             if not path.exists():
                 return json.dumps({"error": "Файл не существует для замены"}, ensure_ascii=False)
             path.write_text(content, encoding="utf-8")
+
+        elif mode == "diff":
+        # Ожидает формат: "OLD_TEXT>>>NEW_TEXT"
+            if ">>>" not in content:
+                return json.dumps({"error": "diff-режим требует формат 'OLD>>>NEW'"}, ensure_ascii=False)
+            old, new = content.split(">>>", 1)
+            current = path.read_text(encoding="utf-8")
+            if old not in current:
+                return json.dumps({"warning": "Старый текст не найден, файл не изменён"}, ensure_ascii=False)
+            path.write_text(current.replace(old, new), encoding="utf-8")
+
         else:
             return json.dumps({"error": f"Неизвестный режим: {mode}. Доступны: append, overwrite, replace"}, ensure_ascii=False)
             
