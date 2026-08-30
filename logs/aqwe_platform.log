@@ -50,3 +50,198 @@ INFO 2026-08-24 01:10:18,449 autoreload Watching for file changes with StatReloa
 ERROR 2026-08-24 01:19:17,094 agent_cla Ошибка LLM (попытка 1): 500 Server Error: Internal Server Error for url: https://api.kie.ai/claude/v1/messages
 ERROR 2026-08-24 01:19:21,876 agent_cla Ошибка LLM (попытка 2): 500 Server Error: Internal Server Error for url: https://api.kie.ai/claude/v1/messages
 INFO 2026-08-26 22:35:35,311 autoreload Watching for file changes with StatReloader
+INFO 2026-08-30 01:31:29,974 autoreload Watching for file changes with StatReloader
+ERROR 2026-08-30 01:39:49,097 log Internal Server Error: /agent-gem/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 3387, in post
+    creativy = canvas.create_artifact("image", "кристалл любви в фиолетовых тонах", "ImageGenerator")
+               ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: LiveMultimodalWorkspace.create_artifact() missing 6 required positional arguments: 'language', 'include_comments', 'text', 'image_url', 'audio_url', and 'input_urls'
+INFO 2026-08-30 02:01:12,019 autoreload Watching for file changes with StatReloader
+ERROR 2026-08-30 02:05:44,725 log Internal Server Error: /agent-gem/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 3394, in post
+    canvas = LiveMultimodalWorkspace(
+        session_id=request.session.session_key,
+    ...<5 lines>...
+        input_urls=input_urls
+    )
+TypeError: LiveMultimodalWorkspace.__init__() got an unexpected keyword argument 'language'
+INFO 2026-08-30 02:08:19,964 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-08-30 02:10:05,453 autoreload Watching for file changes with StatReloader
+INFO 2026-08-30 02:11:04,250 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-08-30 02:11:44,677 autoreload Watching for file changes with StatReloader
+ERROR 2026-08-30 02:15:24,474 log Internal Server Error: /agent-gem/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 3395, in post
+    creativy = canvas.create_artifact("image", "кристалл любви в фиолетовых тонах", "ImageGenerator")
+               ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: LiveMultimodalWorkspace.create_artifact() missing 6 required positional arguments: 'language', 'include_comments', 'text', 'image_url', 'audio_url', and 'input_urls'
+INFO 2026-08-30 02:16:53,284 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-08-30 02:19:01,380 autoreload Watching for file changes with StatReloader
+ERROR 2026-08-30 02:23:17,310 log Internal Server Error: /agent-gem/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 3396, in post
+    canvas.create_artifact("image", "кристалл любви в фиолетовых тонах", "ImageGenerator")
+    ~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+TypeError: LiveMultimodalWorkspace.create_artifact() missing 6 required positional arguments: 'language', 'include_comments', 'text', 'image_url', 'audio_url', and 'input_urls'
+INFO 2026-08-30 02:24:36,103 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-08-30 02:26:08,614 autoreload Watching for file changes with StatReloader
+WARNING 2026-08-30 02:31:32,620 agent_gem Неизвестная структура ответа: ['code', 'msg']
+ERROR 2026-08-30 02:31:33,815 log Internal Server Error: /agent-gem/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 3406, in post
+    "canvas": json.loads(canvas.render_canvas())
+                         ~~~~~~~~~~~~~~~~~~~~^^
+  File "c:\advice_project\aqwe_app\live_canvas.py", line 77, in render_canvas
+    "timestamp": datetime.utcnow().isoformat()
+                 ^^^^^^^^
+NameError: name 'datetime' is not defined. Did you forget to import 'datetime'?
+INFO 2026-08-30 02:36:42,513 autoreload C:\advice_project\aqwe_app\live_canvas.py changed, reloading.
+INFO 2026-08-30 02:37:41,458 autoreload Watching for file changes with StatReloader
+WARNING 2026-08-30 02:48:39,407 agent_gem Неизвестная структура ответа: ['code', 'msg']
+INFO 2026-08-30 02:52:55,888 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-08-30 02:54:02,198 autoreload Watching for file changes with StatReloader
+WARNING 2026-08-30 03:03:39,800 agent_gem Неизвестная структура ответа: ['code', 'msg']
+WARNING 2026-08-30 03:05:47,989 agent_gem Неизвестная структура ответа: ['code', 'msg']
+INFO 2026-08-30 03:07:43,690 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-08-30 03:08:42,923 autoreload Watching for file changes with StatReloader
+WARNING 2026-08-30 03:10:42,953 agent_gem Неизвестная структура ответа: ['code', 'msg']
+INFO 2026-08-30 03:12:02,536 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-08-30 03:12:44,030 autoreload Watching for file changes with StatReloader
+WARNING 2026-08-30 03:15:20,788 agent_gem Неизвестная структура ответа: ['code', 'msg']
+WARNING 2026-08-30 03:17:31,067 agent_gem Неизвестная структура ответа: ['candidates']
+INFO 2026-08-30 03:18:22,156 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-08-30 03:19:04,365 autoreload Watching for file changes with StatReloader
+WARNING 2026-08-30 03:22:48,542 agent_gem Неизвестная структура ответа: ['code', 'msg']
+WARNING 2026-08-30 03:25:13,776 agent_gem Неизвестная структура ответа: ['code', 'msg']
+INFO 2026-08-30 03:27:17,029 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-08-30 03:28:05,514 autoreload Watching for file changes with StatReloader
+WARNING 2026-08-30 03:35:46,479 agent_gem Неизвестная структура ответа: ['code', 'msg']
+WARNING 2026-08-30 03:36:23,483 agent_gem Неизвестная структура ответа: ['code', 'msg']
+WARNING 2026-08-30 03:38:01,761 agent_gem Неизвестная структура ответа: ['code', 'msg']
+INFO 2026-08-30 03:50:50,444 autoreload Watching for file changes with StatReloader
+WARNING 2026-08-30 03:53:38,954 agent_gem Неизвестная структура ответа: ['candidates']
+INFO 2026-08-30 03:56:53,191 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-08-30 03:59:08,592 autoreload Watching for file changes with StatReloader
+WARNING 2026-08-30 04:06:51,590 agent_gem Неизвестная структура ответа: ['candidates']
+INFO 2026-08-30 04:09:21,983 autoreload C:\advice_project\aqwe_app\agents\agent_gem.py changed, reloading.
+INFO 2026-08-30 04:12:15,105 autoreload Watching for file changes with StatReloader
+WARNING 2026-08-30 04:15:52,877 agent_gem Неизвестная структура ответа: ['candidates']
+ERROR 2026-08-30 04:15:52,920 agent_gem Ошибка LLM: name 'first_part' is not defined
+INFO 2026-08-30 04:20:31,581 autoreload C:\advice_project\aqwe_app\agents\agent_gem.py changed, reloading.
+INFO 2026-08-30 04:21:43,153 autoreload Watching for file changes with StatReloader
+ERROR 2026-08-30 04:28:15,599 agent_gem Ошибка LLM: HTTPSConnectionPool(host='api.kie.ai', port=443): Max retries exceeded with url: /gemini/v1/models/gemini-3-7-flash:generateContent (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)')))
+INFO 2026-08-30 04:29:32,450 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-08-30 04:31:57,572 autoreload Watching for file changes with StatReloader
+WARNING 2026-08-30 04:39:25,907 agent_gem Неизвестная структура ответа: ['code', 'msg']
+WARNING 2026-08-30 04:39:25,907 agent_gem Неизвестная структура ответа: ['code', 'msg']
+ERROR 2026-08-30 04:39:25,908 agent_gem Ошибка LLM: name 'first_part' is not defined
+INFO 2026-08-30 04:41:47,878 autoreload C:\advice_project\aqwe_app\agents\agent_gem.py changed, reloading.
+INFO 2026-08-30 04:43:05,548 autoreload Watching for file changes with StatReloader
+INFO 2026-08-30 04:45:15,983 autoreload C:\advice_project\aqwe_app\agents\agent_gem.py changed, reloading.
+INFO 2026-08-30 04:46:03,900 autoreload Watching for file changes with StatReloader
+WARNING 2026-08-30 04:47:57,239 agent_gem Неизвестная структура ответа: ['code', 'msg']
+WARNING 2026-08-30 04:50:43,277 agent_gem Неизвестная структура ответа: ['code', 'msg']
+INFO 2026-08-30 04:51:22,143 autoreload C:\advice_project\aqwe_app\agents\agent_gem.py changed, reloading.
+INFO 2026-08-30 04:52:38,442 autoreload Watching for file changes with StatReloader
+INFO 2026-08-30 05:08:54,499 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-08-30 05:09:33,894 autoreload Watching for file changes with StatReloader
+WARNING 2026-08-30 05:14:13,471 agent_gem Неизвестная структура ответа: ['code', 'msg']
+WARNING 2026-08-30 05:15:01,089 agent_gem Неизвестная структура ответа: ['code', 'msg']
+INFO 2026-08-30 16:29:34,189 autoreload Watching for file changes with StatReloader
+WARNING 2026-08-30 16:38:21,044 agent_gem Неизвестная структура ответа: ['code', 'msg']
+INFO 2026-08-30 16:43:32,082 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-08-30 16:44:39,069 autoreload Watching for file changes with StatReloader
+WARNING 2026-08-30 16:50:33,751 agent_gem Неизвестная структура ответа: ['code', 'msg']
+INFO 2026-08-30 20:07:48,098 autoreload Watching for file changes with StatReloader

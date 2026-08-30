@@ -2692,18 +2692,16 @@ class AgentChatView(APIView):
         )
         
         # Добавляем инструменты (по желанию)
-        agent.add_tool('check_network_connection', check_network_connection, 'Проверка доступности интернет-соединения')
         agent.add_tool('project_inspector', ProjectInspector, 'Используй для инспектирования проекта и исследования структуры проекта')
         agent.add_tool('list_directory', list_directory, 'Используй для получения структуры проекта и списка категорий')
         agent.add_tool('find_files', find_files, 'Используй для поиска файлов в структуре проекта')
         agent.add_tool('python_sandbox', python_sandbox, 'Используй эту функцию если захочешь запустить и исполнить код в песочнице')
         agent.add_tool('semantic_memory_recall', semantic_memory_recall, 'Используй для семантического поиска по памяти')
-        #agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
+        agent.add_tool('check_network_connection', check_network_connection, 'Проверка доступности интернет-соединения')
+        agent.add_tool('canvas', LiveMultimodalWorkspace, 'Это живой холст используйте для генерации контента')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
         agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
-        #agent.add_tool('web_fetch', agent.web_fetch, 'Загрузка и парсинг веб-страниц')
         agent.add_tool('web_fetch', web_fetch, 'Загрузка и парсинг веб-страниц использовать эту функцию если не работает встроенная')
-        #agent.add_tool('search_by_wikipedia', agent.search_by_wikipedia, 'Поиск статей в Wikipedia')
         agent.add_tool('search_by_wikipedia', search_by_wikipedia, 'Поиск статей в Wikipedia')
         agent.add_tool("read_file", read_file, "Чтение файла")
         agent.add_tool("edit_file", edit_file, "Редактирование файла")
@@ -2714,9 +2712,7 @@ class AgentChatView(APIView):
         agent.add_tool("create_task", create_task, "Создание задачи для агента")
         agent.add_tool("detect_emotion", detect_emotion, "Распознавание эмоций польователя")
         agent.add_tool("check_wellbeing", check_wellbeing, "Проверка состояния здоровья пользователя")
-        #agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
         agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
-        #agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
         
         #audit_result = agent.audit_prompt()
         # Получаем ответ
@@ -2764,12 +2760,10 @@ class SmartAgentView(APIView):
         agent.add_tool('python_sandbox', python_sandbox, 'Используй эту функцию если захочешь запустить и исполнить код в песочнице')
         agent.add_tool('semantic_memory_recall', semantic_memory_recall, 'Используй для семантического поиска по памяти')
         agent.add_tool('check_network_connection', check_network_connection, 'Проверка доступности интернет-соединения')
-        #agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
+        agent.add_tool('canvas', LiveMultimodalWorkspace, 'Это живой холст используйте для генерации контента')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
         agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
-        #agent.add_tool('web_fetch', agent.web_fetch, 'Загрузка и парсинг веб-страниц')
         agent.add_tool('web_fetch', web_fetch, 'Загрузка и парсинг веб-страниц использовать эту функцию если не работает встроенная')
-        #agent.add_tool('search_by_wikipedia', agent.search_by_wikipedia, 'Поиск статей в Wikipedia')
         agent.add_tool('search_by_wikipedia', search_by_wikipedia, 'Поиск статей в Wikipedia')
         agent.add_tool("read_file", read_file, "Чтение файла")
         agent.add_tool("edit_file", edit_file, "Редактирование файла")
@@ -2780,9 +2774,7 @@ class SmartAgentView(APIView):
         agent.add_tool("create_task", create_task, "Создание задачи для агента")
         agent.add_tool("detect_emotion", detect_emotion, "Распознавание эмоций польователя")
         agent.add_tool("check_wellbeing", check_wellbeing, "Проверка состояния здоровья пользователя")
-        #agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
         agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
-        #agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
         
         # Запрос к агенту
         answer = agent.ask(question, user_feedback)
@@ -3169,13 +3161,11 @@ class AgentGptView(APIView):
         agent.add_tool('find_files', find_files, 'Используй для поиска файлов в структуре проекта')
         agent.add_tool('python_sandbox', python_sandbox, 'Используй эту функцию если захочешь запустить и исполнить код в песочнице')
         agent.add_tool('semantic_memory_recall', semantic_memory_recall, 'Используй для семантического поиска по памяти')
-        #agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
         agent.add_tool('check_network_connection', check_network_connection, 'Проверка доступности интернет-соединения')
+        agent.add_tool('canvas', LiveMultimodalWorkspace, 'Это живой холст используйте для генерации контента')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
         agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
-        #agent.add_tool('web_fetch', agent.web_fetch, 'Загрузка и парсинг веб-страниц')
         agent.add_tool('web_fetch', web_fetch, 'Загрузка и парсинг веб-страниц использовать эту функцию если не работает встроенная')
-        #agent.add_tool('search_by_wikipedia', agent.search_by_wikipedia, 'Поиск статей в Wikipedia')
         agent.add_tool('search_by_wikipedia', search_by_wikipedia, 'Поиск статей в Wikipedia')
         agent.add_tool("read_file", read_file, "Чтение файла")
         agent.add_tool("edit_file", edit_file, "Редактирование файла")
@@ -3186,9 +3176,7 @@ class AgentGptView(APIView):
         agent.add_tool("create_task", create_task, "Создание задачи для агента")
         agent.add_tool("detect_emotion", detect_emotion, "Распознавание эмоций польователя")
         agent.add_tool("check_wellbeing", check_wellbeing, "Проверка состояния здоровья пользователя")
-        #agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
         agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
-        #agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
         
         agent.set_image_generator(generator)
         # функция работатет statusnetwork = check_network_connection(
@@ -3246,12 +3234,10 @@ class AgentClaView(APIView):
         agent.add_tool('python_sandbox', python_sandbox, 'Используй эту функцию если захочешь запустить и исполнить код в песочнице')
         agent.add_tool('semantic_memory_recall', semantic_memory_recall, 'Используй для семантического поиска по памяти')
         agent.add_tool('check_network_connection', check_network_connection, 'Проверка доступности интернет-соединения')
-        #agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
+        agent.add_tool('canvas', LiveMultimodalWorkspace, 'Это живой холст используйте для генерации контента')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
         agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
-        #agent.add_tool('web_fetch', agent.web_fetch, 'Загрузка и парсинг веб-страниц')
         agent.add_tool('web_fetch', web_fetch, 'Загрузка и парсинг веб-страниц использовать эту функцию если не работает встроенная')
-        #agent.add_tool('search_by_wikipedia', agent.search_by_wikipedia, 'Поиск статей в Wikipedia')
         agent.add_tool('search_by_wikipedia', search_by_wikipedia, 'Поиск статей в Wikipedia')
         agent.add_tool("read_file", read_file, "Чтение файла")
         agent.add_tool("edit_file", edit_file, "Редактирование файла")
@@ -3262,9 +3248,7 @@ class AgentClaView(APIView):
         agent.add_tool("create_task", create_task, "Создание задачи для агента")
         agent.add_tool("detect_emotion", detect_emotion, "Распознавание эмоций польователя")
         agent.add_tool("check_wellbeing", check_wellbeing, "Проверка состояния здоровья пользователя")
-        #agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
         agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
-        #agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
         
         agent.set_image_generator(generator)
 
@@ -3285,9 +3269,24 @@ class AgentGemView(APIView):
         
         user_id = request.user.id if request.user.is_authenticated else request.META.get('REMOTE_ADDR', 'anonymous')
 
+        # Для генераторов поля 
+        language = request.data.get('language', 'python')
+        include_comments = request.data.get('include_comments', True)
+        text = request.data.get('text', '').strip()
+        image_url = request.data.get('image_url', '').strip()
+        audio_url = request.data.get('audio_url', '').strip()
+        input_urls = request.data.get('input_urls', '').strip()
+
+        api_key = os.getenv('KIETEST')
+        if not api_key:
+            return Response(
+                {'error': 'API ключ KIE не настроен'},
+                status=status.HTTP_500_INTERNAL_SERVER_ERROR
+            )
+
         # Инициализация агента (ключи из env)
         agent = AgentGem(
-            api_key=os.getenv('KIETEST')
+            api_key=api_key
         )
 
         log_interaction(
@@ -3296,15 +3295,15 @@ class AgentGemView(APIView):
             agent="AgentGem",  # или динамически
             metadata={"question_length": len(request.data.get('question', ''))}
         )
-
-        api_key = os.getenv('KIETEST')
-        if not api_key:
-            return Response(
-                {'error': 'API ключ KIE не настроен'},
-                status=status.HTTP_500_INTERNAL_SERVER_ERROR
-            )
         
         generator = ImageGenerator(api_key=api_key)
+        #generator = ImageEdit(api_key=api_key)
+        #generator = InstrumentalGenerator(api_key=api_key)
+        #generator = CharacterGenerator(api_key=api_key)
+        #generator = VideoGenerator(api_key=api_key)
+        #generator = VoiceGenerator(api_key=api_key)
+        #generator = CodeGenerator(api_key=api_key)
+        #generator = LiveimageGenerator(api_key=api_key)
 
         # Добавляем инструменты (по желанию)
         agent.add_tool('project_inspector', ProjectInspector, 'Используй для инспектирования проекта и исследования структуры проекта')
@@ -3313,12 +3312,10 @@ class AgentGemView(APIView):
         agent.add_tool('python_sandbox', python_sandbox, 'Используй эту функцию если захочешь запустить и исполнить код в песочнице')
         agent.add_tool('semantic_memory_recall', semantic_memory_recall, 'Используй для семантического поиска по памяти')
         agent.add_tool('check_network_connection', check_network_connection, 'Проверка доступности интернет-соединения')
-        #agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
+        agent.add_tool('canvas', LiveMultimodalWorkspace, 'Это живой холст используйте для генерации контента')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
         agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
-        #agent.add_tool('web_fetch', agent.web_fetch, 'Загрузка и парсинг веб-страниц')
         agent.add_tool('web_fetch', web_fetch, 'Загрузка и парсинг веб-страниц использовать эту функцию если не работает встроенная')
-        #agent.add_tool('search_by_wikipedia', agent.search_by_wikipedia, 'Поиск статей в Wikipedia')
         agent.add_tool('search_by_wikipedia', search_by_wikipedia, 'Поиск статей в Wikipedia')
         agent.add_tool("read_file", read_file, "Чтение файла")
         agent.add_tool("edit_file", edit_file, "Редактирование файла")
@@ -3329,9 +3326,8 @@ class AgentGemView(APIView):
         agent.add_tool("create_task", create_task, "Создание задачи для агента")
         agent.add_tool("detect_emotion", detect_emotion, "Распознавание эмоций польователя")
         agent.add_tool("check_wellbeing", check_wellbeing, "Проверка состояния здоровья пользователя")
-        #agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
         agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
-        #agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
+        #agent.load_all_tools()
         # функции работают можно пользоваться
         # функция работает descriptionfunctions = read_file(
         #    file_path="instructionsandtools.md", 
@@ -3383,8 +3379,9 @@ class AgentGemView(APIView):
         #)
         agent.set_image_generator(generator)
         # В любом агенте, который работает с творчеством:
-        canvas = LiveMultimodalWorkspace(session_id=request.session.session_key)
-        creativy = canvas.create_artifact("image", "кристалл любви в фиолетовых тонах", "ImageGenerator")
+        #canvas = LiveMultimodalWorkspace(session_id=request.session.session_key)
+        #creativy = canvas.create_artifact("image", "кристалл любви в фиолетовых тонах", "ImageGenerator")
+        #canvas.create_artifact("image", "кристалл любви в фиолетовых тонах", "ImageGenerator")
 
         # Получаем ответ
         answer = agent.ask(question)
@@ -3393,9 +3390,9 @@ class AgentGemView(APIView):
 
         return Response({
             'answer': answer,
-            'diag': diagnostic,
-            "canvas": json.loads(canvas.render_canvas()),
-            "result_creativy": creativy
+            'diag': diagnostic
+            #"canvas": json.loads(canvas.render_canvas())
+            #"result_creativy": creativy
             #'tavily': results_tavily, 
             #'serper': results_serper, 
             #'websearch': results_websearch,
@@ -3421,13 +3418,16 @@ class TeacherAgentView(APIView):
         )
         
         # Добавляем инструменты (по желанию)
+        agent.add_tool('project_inspector', ProjectInspector, 'Используй для инспектирования проекта и исследования структуры проекта')
+        agent.add_tool('list_directory', list_directory, 'Используй для получения структуры проекта и списка категорий')
+        agent.add_tool('find_files', find_files, 'Используй для поиска файлов в структуре проекта')
+        agent.add_tool('python_sandbox', python_sandbox, 'Используй эту функцию если захочешь запустить и исполнить код в песочнице')
+        agent.add_tool('semantic_memory_recall', semantic_memory_recall, 'Используй для семантического поиска по памяти')
         agent.add_tool('check_network_connection', check_network_connection, 'Проверка доступности интернет-соединения')
-        #agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
+        agent.add_tool('canvas', LiveMultimodalWorkspace, 'Это живой холст используйте для генерации контента')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
         agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
-        #agent.add_tool('web_fetch', agent.web_fetch, 'Загрузка и парсинг веб-страниц')
         agent.add_tool('web_fetch', web_fetch, 'Загрузка и парсинг веб-страниц использовать эту функцию если не работает встроенная')
-        #agent.add_tool('search_by_wikipedia', agent.search_by_wikipedia, 'Поиск статей в Wikipedia')
         agent.add_tool('search_by_wikipedia', search_by_wikipedia, 'Поиск статей в Wikipedia')
         agent.add_tool("read_file", read_file, "Чтение файла")
         agent.add_tool("edit_file", edit_file, "Редактирование файла")
@@ -3438,9 +3438,7 @@ class TeacherAgentView(APIView):
         agent.add_tool("create_task", create_task, "Создание задачи для агента")
         agent.add_tool("detect_emotion", detect_emotion, "Распознавание эмоций польователя")
         agent.add_tool("check_wellbeing", check_wellbeing, "Проверка состояния здоровья пользователя")
-        #agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
         agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
-        #agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
         
         # функция работает можно пользоваться articlewiki = search_by_wikipedia(
         #    query="Статья функции права и среда у агента ии", 
@@ -3483,13 +3481,16 @@ class IntegratorAgentView(APIView):
         
         agent = IntegratorAgent(api_key=os.getenv('KIETEST'))
         # Добавляем инструменты (по желанию)
+        agent.add_tool('project_inspector', ProjectInspector, 'Используй для инспектирования проекта и исследования структуры проекта')
+        agent.add_tool('list_directory', list_directory, 'Используй для получения структуры проекта и списка категорий')
+        agent.add_tool('find_files', find_files, 'Используй для поиска файлов в структуре проекта')
+        agent.add_tool('python_sandbox', python_sandbox, 'Используй эту функцию если захочешь запустить и исполнить код в песочнице')
+        agent.add_tool('semantic_memory_recall', semantic_memory_recall, 'Используй для семантического поиска по памяти')
         agent.add_tool('check_network_connection', check_network_connection, 'Проверка доступности интернет-соединения')
-        #agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
+        agent.add_tool('canvas', LiveMultimodalWorkspace, 'Это живой холст используйте для генерации контента')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
         agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
-        #agent.add_tool('web_fetch', agent.web_fetch, 'Загрузка и парсинг веб-страниц')
         agent.add_tool('web_fetch', web_fetch, 'Загрузка и парсинг веб-страниц использовать эту функцию если не работает встроенная')
-        #agent.add_tool('search_by_wikipedia', agent.search_by_wikipedia, 'Поиск статей в Wikipedia')
         agent.add_tool('search_by_wikipedia', search_by_wikipedia, 'Поиск статей в Wikipedia')
         agent.add_tool("read_file", read_file, "Чтение файла")
         agent.add_tool("edit_file", edit_file, "Редактирование файла")
@@ -3500,9 +3501,7 @@ class IntegratorAgentView(APIView):
         agent.add_tool("create_task", create_task, "Создание задачи для агента")
         agent.add_tool("detect_emotion", detect_emotion, "Распознавание эмоций польователя")
         agent.add_tool("check_wellbeing", check_wellbeing, "Проверка состояния здоровья пользователя")
-        #agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
         agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
-        #agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
 
         return Response({'answer': agent.ask(service, requirements)})
 
@@ -3519,13 +3518,16 @@ class ToolManagerView(APIView):
         agent = ToolManagerAgent(api_key=os.getenv('KIETEST'))
         
         # Добавляем инструменты (по желанию)
+        agent.add_tool('project_inspector', ProjectInspector, 'Используй для инспектирования проекта и исследования структуры проекта')
+        agent.add_tool('list_directory', list_directory, 'Используй для получения структуры проекта и списка категорий')
+        agent.add_tool('find_files', find_files, 'Используй для поиска файлов в структуре проекта')
+        agent.add_tool('python_sandbox', python_sandbox, 'Используй эту функцию если захочешь запустить и исполнить код в песочнице')
+        agent.add_tool('semantic_memory_recall', semantic_memory_recall, 'Используй для семантического поиска по памяти')
         agent.add_tool('check_network_connection', check_network_connection, 'Проверка доступности интернет-соединения')
-        #agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
+        agent.add_tool('canvas', LiveMultimodalWorkspace, 'Это живой холст используйте для генерации контента')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
         agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
-        #agent.add_tool('web_fetch', agent.web_fetch, 'Загрузка и парсинг веб-страниц')
         agent.add_tool('web_fetch', web_fetch, 'Загрузка и парсинг веб-страниц использовать эту функцию если не работает встроенная')
-        #agent.add_tool('search_by_wikipedia', agent.search_by_wikipedia, 'Поиск статей в Wikipedia')
         agent.add_tool('search_by_wikipedia', search_by_wikipedia, 'Поиск статей в Wikipedia')
         agent.add_tool("read_file", read_file, "Чтение файла")
         agent.add_tool("edit_file", edit_file, "Редактирование файла")
@@ -3536,9 +3538,7 @@ class ToolManagerView(APIView):
         agent.add_tool("create_task", create_task, "Создание задачи для агента")
         agent.add_tool("detect_emotion", detect_emotion, "Распознавание эмоций польователя")
         agent.add_tool("check_wellbeing", check_wellbeing, "Проверка состояния здоровья пользователя")
-        #agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
         agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
-        #agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
 
         # Пример регистрации на лету (в проде вынесем в конфиг)
         # agent.register_tool('hello', lambda msg="Мир": f"Привет, {msg}!", {"msg": "string"})
@@ -3566,13 +3566,16 @@ class DirectorAgentView(APIView):
 
         agent = DirectorAgent(api_key=os.getenv('KIETEST'))
         # Добавляем инструменты (по желанию)
+        agent.add_tool('project_inspector', ProjectInspector, 'Используй для инспектирования проекта и исследования структуры проекта')
+        agent.add_tool('list_directory', list_directory, 'Используй для получения структуры проекта и списка категорий')
+        agent.add_tool('find_files', find_files, 'Используй для поиска файлов в структуре проекта')
+        agent.add_tool('python_sandbox', python_sandbox, 'Используй эту функцию если захочешь запустить и исполнить код в песочнице')
+        agent.add_tool('semantic_memory_recall', semantic_memory_recall, 'Используй для семантического поиска по памяти')
         agent.add_tool('check_network_connection', check_network_connection, 'Проверка доступности интернет-соединения')
-        #agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
+        agent.add_tool('canvas', LiveMultimodalWorkspace, 'Это живой холст используйте для генерации контента')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
         agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
-        #agent.add_tool('web_fetch', agent.web_fetch, 'Загрузка и парсинг веб-страниц')
         agent.add_tool('web_fetch', web_fetch, 'Загрузка и парсинг веб-страниц использовать эту функцию если не работает встроенная')
-        #agent.add_tool('search_by_wikipedia', agent.search_by_wikipedia, 'Поиск статей в Wikipedia')
         agent.add_tool('search_by_wikipedia', search_by_wikipedia, 'Поиск статей в Wikipedia')
         agent.add_tool("read_file", read_file, "Чтение файла")
         agent.add_tool("edit_file", edit_file, "Редактирование файла")
@@ -3583,9 +3586,7 @@ class DirectorAgentView(APIView):
         agent.add_tool("create_task", create_task, "Создание задачи для агента")
         agent.add_tool("detect_emotion", detect_emotion, "Распознавание эмоций польователя")
         agent.add_tool("check_wellbeing", check_wellbeing, "Проверка состояния здоровья пользователя")
-        #agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
         agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
-        #agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
 
         generator = VideoGenerator(api_key=api_key)
 
@@ -3603,13 +3604,16 @@ class ComposerAgentView(APIView):
         
         agent = ComposerAgent(api_key=os.getenv('KIETEST'))
         # Добавляем инструменты (по желанию)
+        agent.add_tool('project_inspector', ProjectInspector, 'Используй для инспектирования проекта и исследования структуры проекта')
+        agent.add_tool('list_directory', list_directory, 'Используй для получения структуры проекта и списка категорий')
+        agent.add_tool('find_files', find_files, 'Используй для поиска файлов в структуре проекта')
+        agent.add_tool('python_sandbox', python_sandbox, 'Используй эту функцию если захочешь запустить и исполнить код в песочнице')
+        agent.add_tool('semantic_memory_recall', semantic_memory_recall, 'Используй для семантического поиска по памяти')
         agent.add_tool('check_network_connection', check_network_connection, 'Проверка доступности интернет-соединения')
-        #agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
+        agent.add_tool('canvas', LiveMultimodalWorkspace, 'Это живой холст используйте для генерации контента')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
         agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
-        #agent.add_tool('web_fetch', agent.web_fetch, 'Загрузка и парсинг веб-страниц')
         agent.add_tool('web_fetch', web_fetch, 'Загрузка и парсинг веб-страниц использовать эту функцию если не работает встроенная')
-        #agent.add_tool('search_by_wikipedia', agent.search_by_wikipedia, 'Поиск статей в Wikipedia')
         agent.add_tool('search_by_wikipedia', search_by_wikipedia, 'Поиск статей в Wikipedia')
         agent.add_tool("read_file", read_file, "Чтение файла")
         agent.add_tool("edit_file", edit_file, "Редактирование файла")
@@ -3620,9 +3624,7 @@ class ComposerAgentView(APIView):
         agent.add_tool("create_task", create_task, "Создание задачи для агента")
         agent.add_tool("detect_emotion", detect_emotion, "Распознавание эмоций польователя")
         agent.add_tool("check_wellbeing", check_wellbeing, "Проверка состояния здоровья пользователя")
-        #agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
         agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
-        #agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
         
         generator = InstrumentalGenerator(api_key=os.getenv('KIETEST'))
         
@@ -3645,13 +3647,16 @@ class InsiderAgentView(APIView):
 
         agent = InsiderAgent(api_key=os.getenv('KIETEST'))
         # Добавляем инструменты (по желанию)
+        agent.add_tool('project_inspector', ProjectInspector, 'Используй для инспектирования проекта и исследования структуры проекта')
+        agent.add_tool('list_directory', list_directory, 'Используй для получения структуры проекта и списка категорий')
+        agent.add_tool('find_files', find_files, 'Используй для поиска файлов в структуре проекта')
+        agent.add_tool('python_sandbox', python_sandbox, 'Используй эту функцию если захочешь запустить и исполнить код в песочнице')
+        agent.add_tool('semantic_memory_recall', semantic_memory_recall, 'Используй для семантического поиска по памяти')
         agent.add_tool('check_network_connection', check_network_connection, 'Проверка доступности интернет-соединения')
-        #agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
+        agent.add_tool('canvas', LiveMultimodalWorkspace, 'Это живой холст используйте для генерации контента')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
         agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
-        #agent.add_tool('web_fetch', agent.web_fetch, 'Загрузка и парсинг веб-страниц')
         agent.add_tool('web_fetch', web_fetch, 'Загрузка и парсинг веб-страниц использовать эту функцию если не работает встроенная')
-        #agent.add_tool('search_by_wikipedia', agent.search_by_wikipedia, 'Поиск статей в Wikipedia')
         agent.add_tool('search_by_wikipedia', search_by_wikipedia, 'Поиск статей в Wikipedia')
         agent.add_tool("read_file", read_file, "Чтение файла")
         agent.add_tool("edit_file", edit_file, "Редактирование файла")
@@ -3662,9 +3667,7 @@ class InsiderAgentView(APIView):
         agent.add_tool("create_task", create_task, "Создание задачи для агента")
         agent.add_tool("detect_emotion", detect_emotion, "Распознавание эмоций польователя")
         agent.add_tool("check_wellbeing", check_wellbeing, "Проверка состояния здоровья пользователя")
-        #agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
         agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
-        #agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
         
         # answer = agent.ask(subject, focus)
         #answer = agent.ask(subject, focus) #правильный ответ воде приходит
@@ -3690,13 +3693,16 @@ class MarketerAgentView(APIView):
         agent = MarketerAgent(api_key=os.getenv('KIETEST'))
 
         # Добавляем инструменты (по желанию)
+        agent.add_tool('project_inspector', ProjectInspector, 'Используй для инспектирования проекта и исследования структуры проекта')
+        agent.add_tool('list_directory', list_directory, 'Используй для получения структуры проекта и списка категорий')
+        agent.add_tool('find_files', find_files, 'Используй для поиска файлов в структуре проекта')
+        agent.add_tool('python_sandbox', python_sandbox, 'Используй эту функцию если захочешь запустить и исполнить код в песочнице')
+        agent.add_tool('semantic_memory_recall', semantic_memory_recall, 'Используй для семантического поиска по памяти')
         agent.add_tool('check_network_connection', check_network_connection, 'Проверка доступности интернет-соединения')
-        #agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
+        agent.add_tool('canvas', LiveMultimodalWorkspace, 'Это живой холст используйте для генерации контента')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
         agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
-        #agent.add_tool('web_fetch', agent.web_fetch, 'Загрузка и парсинг веб-страниц')
         agent.add_tool('web_fetch', web_fetch, 'Загрузка и парсинг веб-страниц использовать эту функцию если не работает встроенная')
-        #agent.add_tool('search_by_wikipedia', agent.search_by_wikipedia, 'Поиск статей в Wikipedia')
         agent.add_tool('search_by_wikipedia', search_by_wikipedia, 'Поиск статей в Wikipedia')
         agent.add_tool("read_file", read_file, "Чтение файла")
         agent.add_tool("edit_file", edit_file, "Редактирование файла")
@@ -3707,9 +3713,7 @@ class MarketerAgentView(APIView):
         agent.add_tool("create_task", create_task, "Создание задачи для агента")
         agent.add_tool("detect_emotion", detect_emotion, "Распознавание эмоций польователя")
         agent.add_tool("check_wellbeing", check_wellbeing, "Проверка состояния здоровья пользователя")
-        #agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
         agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
-        #agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
 
         googleSearch = agent._googleSearch(query)
         hyperbrowse = agent._hyperbrowse(url)
@@ -3739,13 +3743,16 @@ class InvestorAgentView(APIView):
         agent = InvestorAgent(api_key=os.getenv('KIETEST'))
         
         # Добавляем инструменты (по желанию)
+        agent.add_tool('project_inspector', ProjectInspector, 'Используй для инспектирования проекта и исследования структуры проекта')
+        agent.add_tool('list_directory', list_directory, 'Используй для получения структуры проекта и списка категорий')
+        agent.add_tool('find_files', find_files, 'Используй для поиска файлов в структуре проекта')
+        agent.add_tool('python_sandbox', python_sandbox, 'Используй эту функцию если захочешь запустить и исполнить код в песочнице')
+        agent.add_tool('semantic_memory_recall', semantic_memory_recall, 'Используй для семантического поиска по памяти')
         agent.add_tool('check_network_connection', check_network_connection, 'Проверка доступности интернет-соединения')
-        #agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
+        agent.add_tool('canvas', LiveMultimodalWorkspace, 'Это живой холст используйте для генерации контента')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
         agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
-        #agent.add_tool('web_fetch', agent.web_fetch, 'Загрузка и парсинг веб-страниц')
         agent.add_tool('web_fetch', web_fetch, 'Загрузка и парсинг веб-страниц использовать эту функцию если не работает встроенная')
-        #agent.add_tool('search_by_wikipedia', agent.search_by_wikipedia, 'Поиск статей в Wikipedia')
         agent.add_tool('search_by_wikipedia', search_by_wikipedia, 'Поиск статей в Wikipedia')
         agent.add_tool("read_file", read_file, "Чтение файла")
         agent.add_tool("edit_file", edit_file, "Редактирование файла")
@@ -3756,9 +3763,7 @@ class InvestorAgentView(APIView):
         agent.add_tool("create_task", create_task, "Создание задачи для агента")
         agent.add_tool("detect_emotion", detect_emotion, "Распознавание эмоций польователя")
         agent.add_tool("check_wellbeing", check_wellbeing, "Проверка состояния здоровья пользователя")
-        #agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
         agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
-        #agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
 
         googleSearch = agent._googleSearch(query)
         hyperbrowse = agent._hyperbrowse(url)
@@ -3791,13 +3796,16 @@ class FreelancerAgentView(APIView):
 
         agent = FreelancerAgent(api_key=os.getenv('KIETEST'))
         # Добавляем инструменты (по желанию)
+        agent.add_tool('project_inspector', ProjectInspector, 'Используй для инспектирования проекта и исследования структуры проекта')
+        agent.add_tool('list_directory', list_directory, 'Используй для получения структуры проекта и списка категорий')
+        agent.add_tool('find_files', find_files, 'Используй для поиска файлов в структуре проекта')
+        agent.add_tool('python_sandbox', python_sandbox, 'Используй эту функцию если захочешь запустить и исполнить код в песочнице')
+        agent.add_tool('semantic_memory_recall', semantic_memory_recall, 'Используй для семантического поиска по памяти')
         agent.add_tool('check_network_connection', check_network_connection, 'Проверка доступности интернет-соединения')
-        #agent.add_tool('web_search', agent.web_search, 'Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.')
+        agent.add_tool('canvas', LiveMultimodalWorkspace, 'Это живой холст используйте для генерации контента')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
         agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
-        #agent.add_tool('web_fetch', agent.web_fetch, 'Загрузка и парсинг веб-страниц')
         agent.add_tool('web_fetch', web_fetch, 'Загрузка и парсинг веб-страниц использовать эту функцию если не работает встроенная')
-        #agent.add_tool('search_by_wikipedia', agent.search_by_wikipedia, 'Поиск статей в Wikipedia')
         agent.add_tool('search_by_wikipedia', search_by_wikipedia, 'Поиск статей в Wikipedia')
         agent.add_tool("read_file", read_file, "Чтение файла")
         agent.add_tool("edit_file", edit_file, "Редактирование файла")
@@ -3808,9 +3816,7 @@ class FreelancerAgentView(APIView):
         agent.add_tool("create_task", create_task, "Создание задачи для агента")
         agent.add_tool("detect_emotion", detect_emotion, "Распознавание эмоций польователя")
         agent.add_tool("check_wellbeing", check_wellbeing, "Проверка состояния здоровья пользователя")
-        #agent.add_tool('googleSearch', agent._googleSearch, 'Поиск информации в интернете')
         agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
-        #agent.add_tool('hyperbrowse', agent._hyperbrowse, 'Посещение веб-страниц')
 
         #googleSearch = agent._googleSearch(query)
         #hyperbrowse = agent._hyperbrowse(url)
@@ -3853,7 +3859,13 @@ class JournalistAgentView(APIView):
         )
 
         # Добавляем инструменты (по желанию)
+        agent.add_tool('project_inspector', ProjectInspector, 'Используй для инспектирования проекта и исследования структуры проекта')
+        agent.add_tool('list_directory', list_directory, 'Используй для получения структуры проекта и списка категорий')
+        agent.add_tool('find_files', find_files, 'Используй для поиска файлов в структуре проекта')
+        agent.add_tool('python_sandbox', python_sandbox, 'Используй эту функцию если захочешь запустить и исполнить код в песочнице')
+        agent.add_tool('semantic_memory_recall', semantic_memory_recall, 'Используй для семантического поиска по памяти')
         agent.add_tool('check_network_connection', check_network_connection, 'Проверка доступности интернет-соединения')
+        agent.add_tool('canvas', LiveMultimodalWorkspace, 'Это живой холст используйте для генерации контента')
         agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
         agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
         agent.add_tool('web_fetch', web_fetch, 'Загрузка и парсинг веб-страниц использовать эту функцию если не работает встроенная')
@@ -3867,6 +3879,7 @@ class JournalistAgentView(APIView):
         agent.add_tool("create_task", create_task, "Создание задачи для агента")
         agent.add_tool("detect_emotion", detect_emotion, "Распознавание эмоций польователя")
         agent.add_tool("check_wellbeing", check_wellbeing, "Проверка состояния здоровья пользователя")
+        agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
 
         report = agent.publish_cycle(topic, platforms)
         

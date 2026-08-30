@@ -14,6 +14,7 @@ from .wikipedia_search import search_by_wikipedia
 from .functionsforagents import read_file, edit_file, git_commit, save_to_memory, recall_memory, send_email, create_task, detect_emotion, check_wellbeing
 from pathlib import Path
 from .md_loader import load_md_files
+#from .registry import get_all_tools
 
 logger = logging.getLogger(__name__)
 
@@ -170,6 +171,11 @@ class AgentGem:
         self.image_generator = generator
         logger.info("🎨 Image generator подключён к AgentGpt")
     
+    #def load_all_tools(self):
+    #    """Загрузить все 20 функций в агента"""
+    #    for name, info in get_all_tools().items():
+    #        self.add_tool(name, info['func'], info['desc'])
+
     def add_tool(self, name: str, func: callable, description: str):
         self.tools[name] = {'func': func, 'description': description}
     
@@ -577,27 +583,26 @@ class AgentGem:
             response.raise_for_status()
             data = response.json()
             
-            text = self._extract_text_or_tool(data)
-
-            if text:
-                self.context.append({"role": "user", "parts": [{"text": prompt}]})
-                self.context.append({"role": "model", "parts": [{"text": text}]})
-                logger.info(f"✅ Ответ: {text[:400]}...")
-                return text
-            
-            func_call = self._extract_text_or_tool(data)
+            text, tool_call = self._extract_text_or_tool(data)
             
             # ✅ СЛУЧАЙ 2: FunctionCall — выполняем инструмент
-            if 'functionCall' in func_call:
-                func_id = func_call.get('id')
-                func_name = func_call.get('name')
-                func_args = func_call.get('args', {})
+            #if 'functionCall' in func_call:
+            if tool_call:
+                #func_id = func_call.get('id')
+                #func_name = func_call.get('name')
+                #func_args = func_call.get('args', {})
                     
+                #logger.info(f"🔧 FunctionCall: {func_name}({func_args})")
+                func_name = tool_call.get('name')
+                func_args = tool_call.get('input', tool_call.get('args', {}))
+            
                 logger.info(f"🔧 FunctionCall: {func_name}({func_args})")
                     
                 if func_name in self.tools:
                     tool_func = self.tools[func_name]['func']
                     query = func_args.get('query', '')
+                    if not query and isinstance(func_args, str):
+                        query = func_args
                     tool_result = tool_func(query)
                         
                     logger.info(f"✅ Инструмент выполнен: {tool_result[:200]}...")
@@ -610,18 +615,26 @@ class AgentGem:
                             "Content-Type": "application/json"
                         },
                         json={
-                            "contents": [{"role": "user", "parts": [{"text": tool_result}]}],
+                            "contents": [{"role": "user", "parts": [{"text": f"Tool result: {tool_result}"}]}],
+                            "tools": gemini_tools if gemini_tools else None,
+                            "tool_config": {"function_calling_config": {"mode": "AUTO"}},
                             "generationConfig": {
                                 "temperature": 0.3, 
-                                "maxOutputTokens": 10000
+                                "maxOutputTokens": 10000,
+                                "thinkingConfig": {
+                                    "includeThoughts": False,
+                                    "thinkingLevel": "high"
                                 }
+                            }
                         },
                         timeout=180
                     )
+                
                     second_response.raise_for_status()
                     second_data = second_response.json()
                         
-                    final_text = self._extract_text_or_tool(second_data)
+                    #final_text = self._extract_text_or_tool(second_data)
+                    final_text, _ = self._extract_text_or_tool(second_data)
                     if final_text:
                         self.context.append({"role": "user", "parts": [{"text": prompt}]})
                         self.context.append({"role": "model", "parts": [{"text": final_text}]})
@@ -637,9 +650,19 @@ class AgentGem:
                 
                 else:
                     return f"⚠️ Инструмент '{func_name}' не зарегистрирован"
-                
-            logger.warning(f"Неизвестный формат parts: {first_part}")
-            return "Ошибка: не удалось обработать ответ API"
+            
+            # ✅ СЛУЧАЙ 2: Обычный текстовый ответ
+            if text:
+                self.context.append({"role": "user", "parts": [{"text": prompt}]})
+                self.context.append({"role": "model", "parts": [{"text": text}]})
+                logger.info(f"✅ Ответ: {text[:400]}...")
+                return text    
+
+            # ✅ СЛУЧАЙ 3: Пустой ответ
+            logger.warning(f"Пустой ответ от API. Данные: {json.dumps(data, ensure_ascii=False)[:500]}")
+            return "Извините, не удалось получить ответ. Попробуйте ещё раз."    
+            #logger.warning(f"Неизвестный формат parts: {first_part}")
+            #return "Ошибка: не удалось обработать ответ API"
             
         except requests.Timeout:
             logger.error("Таймаут запроса к Gemini API")

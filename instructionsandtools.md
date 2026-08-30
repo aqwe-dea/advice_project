@@ -185,19 +185,18 @@
       }
     }
 ]
-
 ## Универсальная схема инструментов чтобы агенту ориентироваться в инструментах и функциях
 tools = [
     {
         "type": "function",
         "function": {
             "name": "web_search",
-            "description": "Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.",
+            "description": "Ищет актуальную информацию в интернете",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "query": {"type": "string"},
-                    "max_results": {"type": "integer", "default": 5}
+                    "query": {"type": "string", "description": "Поисковый запрос"},
+                    "max_results": {"type": "integer", "default": 5, "minimum": 1, "maximum": 20}
                 },
                 "required": ["query"]
             }
@@ -207,17 +206,18 @@ tools = [
         "type": "function",
         "function": {
             "name": "web_fetch",
-            "description": "Загрузка и парсинг веб-страниц",
+            "description": "Загружает и парсит веб-страницу",
             "parameters": {
                 "type": "object",
                 "properties": {
-                    "url": {"type": "string"},
-                    "max_length": {"type": "integer", "default": 5000},
+                    "url": {"type": "string", "format": "uri", "description": "URL страницы"},
+                    "max_length": {"type": "integer", "default": 5000}
                 },
-                "required": ["url"],
-            },
-        },
-    },
+                "required": ["url"]
+            }
+        }
+    }
+    // ... остальные инструменты в том же формате
     {
         "type": "function",
         "function": {
@@ -230,9 +230,9 @@ tools = [
                     "lang": {"type": "string"},
                     "max_results": {"type": "integer", "default": 3},
                 },
-                "required": ["query"],
-            },
-        },
+                "required": ["query"]
+            }
+        }
     },
     {
         "type": "function",
@@ -245,9 +245,9 @@ tools = [
                     "file_path": {"type": "string"},
                     "max_chars": {"type": "integer", "default": 10000},
                 },
-                "required": ["file_path"],
-            },
-        },
+                "required": ["file_path"]
+            }
+        }
     },
     {
         "type": "function",
@@ -261,9 +261,9 @@ tools = [
                     "content": {"type": "string"},
                     "mode": {"type": "string"},
                 },
-                "required": ["file_path"],
-            },
-        },
+                "required": ["file_path"]
+            }
+        }
     },
     {
         "type": "function",
@@ -276,9 +276,9 @@ tools = [
                     "message": {"type": "string"},
                     "repo_path": {"type": "string"},
                 },
-                "required": ["message"],
-            },
-        },
+                "required": ["message"]
+            }
+        }
     },
     {
         "type": "function",
@@ -291,9 +291,9 @@ tools = [
                     "entry": {"type": "string"},
                     "memory_file": {"type": "string"},
                 },
-                "required": ["entry"],
-            },
-        },
+                "required": ["entry"]
+            }
+        }
     },
     {
         "type": "function",
@@ -307,9 +307,9 @@ tools = [
                     "memory_file": {"type": "string"},
                     "limit": {"type": "integer", "default": 3},
                 },
-                "required": ["query"],
-            },
-        },
+                "required": ["query"]
+            }
+        }
     },
     {
         "type": "function",
@@ -323,9 +323,9 @@ tools = [
                     "subject": {"type": "string"},
                     "body": {"type": "string"},
                 },
-                "required": ["to"],
-            },
-        },
+                "required": ["to"]
+            }
+        }
     },
     {
         "type": "function",
@@ -340,9 +340,9 @@ tools = [
                     "priority": {"type": "string"},
                     "file": {"type": "string"},
                 },
-                "required": ["title"],
-            },
-        },
+                "required": ["title"]
+            }
+        }
     },
     {
         "type": "function",
@@ -354,9 +354,9 @@ tools = [
                 "properties": {
                     "text": {"type": "string"},
                 },
-                "required": ["text"],
-            },
-        },
+                "required": ["text"]
+            }
+        }
     },
     {
         "type": "function",
@@ -368,9 +368,9 @@ tools = [
                 "properties": {
                     "question": {"type": "string"},
                 },
-                "required": ["question"],
-            },
-        },
+                "required": ["question"]
+            }
+        }
     },
     {
         "type": "function",
@@ -385,8 +385,7 @@ tools = [
                 },
                 "max_results": {
                     "type": "integer",
-                    "default": 5,
-                    "enum": ["fake", "lie", "forbiden"]
+                    "default": 5
                 }
             },
             "required": ["query", "max_results"]
