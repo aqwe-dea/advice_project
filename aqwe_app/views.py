@@ -93,7 +93,7 @@ from .agents.functionsforagents.detect_emotion import detect_emotion
 from .agents.functionsforagents.check_wellbeing import check_wellbeing
 from .agents.search_internet import search_internet
 from .agents.journalist_agent import JournalistAgent
-from .agents.registry import get_all_agents
+from .agents.registry import get_all_agents, get_all_tools
 from .check_network_connection import check_network_connection
 from .api_client import APIClient
 from .cycle_manager import CycleManager
@@ -3387,10 +3387,12 @@ class AgentGemView(APIView):
         answer = agent.ask(question)
         
         diagnostic = agent.self_assess()
+        list_tools = get_all_tools()
 
         return Response({
             'answer': answer,
-            'diag': diagnostic
+            'diag': diagnostic,
+            'tools': list_tools
             #"canvas": json.loads(canvas.render_canvas())
             #"result_creativy": creativy
             #'tavily': results_tavily, 
