@@ -2724,6 +2724,11 @@ class AgentChatView(APIView):
             'diag': diagnostic
             #'audit': audit_result
         })
+    
+    def load_all_tools(self):
+        """Загрузить все 20 функций в агента"""
+        for name, info in get_all_tools().items():
+            self.add_tool(name, info['func'], info['desc'])
 
 class SmartAgentView(APIView):
     """API endpoint для умного агента с памятью"""
@@ -2787,6 +2792,11 @@ class SmartAgentView(APIView):
             'timestamp': datetime.now().isoformat(),
             'diag': diagnostic
         })
+    
+    def load_all_tools(self):
+        """Загрузить все 20 функций в агента"""
+        for name, info in get_all_tools().items():
+            self.add_tool(name, info['func'], info['desc'])
 
 class ImageGeneratorView(APIView):
     """API endpoint для генерации изображений"""
@@ -3195,6 +3205,11 @@ class AgentGptView(APIView):
             'diag': diagnostic
             #'checknetwork': statusnetwork
         })
+    
+    def load_all_tools(self):
+        """Загрузить все 20 функций в агента"""
+        for name, info in get_all_tools().items():
+            self.add_tool(name, info['func'], info['desc'])
 
 class AgentClaView(APIView):
     """Простой агент для взаимодействия с LLM API. Поддерживает: память контекста, инструменты, базовое планирование."""
@@ -3257,7 +3272,15 @@ class AgentClaView(APIView):
         
         diagnostic = agent.self_assess()
 
-        return Response({'answer': answer, 'diag': diagnostic})
+        return Response({
+            'answer': answer, 
+            'diag': diagnostic
+        })
+    
+    def load_all_tools(self):
+        """Загрузить все 20 функций в агента"""
+        for name, info in get_all_tools().items():
+            self.add_tool(name, info['func'], info['desc'])
 
 class AgentGemView(APIView):
     """Простой агент для взаимодействия с LLM API. Поддерживает: память контекста, инструменты, базовое планирование."""
@@ -3387,12 +3410,10 @@ class AgentGemView(APIView):
         answer = agent.ask(question)
         
         diagnostic = agent.self_assess()
-        list_tools = get_all_tools()
 
         return Response({
             'answer': answer,
-            'diag': diagnostic,
-            'tools': list_tools
+            'diag': diagnostic
             #"canvas": json.loads(canvas.render_canvas())
             #"result_creativy": creativy
             #'tavily': results_tavily, 
@@ -3405,6 +3426,11 @@ class AgentGemView(APIView):
             #'article': articlewiki
             #'functionsandtools': descriptionfunctions
         })
+    
+    def load_all_tools(self):
+        """Загрузить все 20 функций в агента"""
+        for name, info in get_all_tools().items():
+            self.add_tool(name, info['func'], info['desc'])
 
 class TeacherAgentView(APIView):
     """Агент-учитель: отвечает на вопросы, выдаёт справочные материалы, адаптирует сложность"""
