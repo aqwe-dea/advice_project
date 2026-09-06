@@ -297,7 +297,7 @@
   | Сервис | Роль | Статус | Ссылка |
   |--------|------|--------|--------|
   | **Render** | Основной бэкенд | 🟡 Обслуживание | `https://advice-project.onrender.com` |
-  | **Netlify** | Резерв 1 (Front+Edge) | ⬜ Подготовка | `https://*.netlify.app` |
+  | **Netlify** | Резерв 1 (Front+Edge) | ⬜ Подготовка | `https://advice-aqwe.netlify.app/` |
   | **Railway** | Резерв 2 (Full Backend) | ⬜ Подготовка | `https://*.up.railway.app` |
   | **Vercel** | DEMO (Serverless) | 🟢 Онлайн  | `https://advice-project-nu.vercel.app` |
 
