@@ -554,7 +554,7 @@ class AgentGem:
 
         try:
             response = requests.post(
-                f"{self.base_url}/gemini/v1/models/gemini-3-7-flash:generateContent",
+                f"{self.base_url}/gemini/v1/models/gemini-3-8-flash:generateContent",
                 headers={
                     "Authorization": f"Bearer {self.api_key}",
                     "Content-Type": "application/json"
@@ -603,7 +603,7 @@ class AgentGem:
                         
                     # Повторный запрос для генерации отчёта
                     second_response = requests.post(
-                        f"{self.base_url}/gemini/v1/models/gemini-3-7-flash:generateContent",
+                        f"{self.base_url}/gemini/v1/models/gemini-3-8-flash:generateContent",
                         headers={
                             "Authorization": f"Bearer {self.api_key}",
                             "Content-Type": "application/json"

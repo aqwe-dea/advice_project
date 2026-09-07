@@ -2680,7 +2680,7 @@ class AgentChatView(APIView):
         agent = SimpleAgent(
             api_key=os.getenv('KIETEST'),
             base_url='https://api.kie.ai',
-            model='gpt-5-6-sol'
+            model='gpt-6-astra'
         )
         
         # Логируем вход
@@ -2718,10 +2718,14 @@ class AgentChatView(APIView):
         # Получаем ответ
         answer = agent.ask(question)
         diagnostic = agent.self_assess()
+        #inspector = project_inspect_and_verify()
+        #tools = load_all_tools()
 
         return Response({
             'answer': answer,
             'diag': diagnostic
+            #'inspect': inspector,
+            #'list-func': tools
             #'audit': audit_result
         })
     
@@ -2729,6 +2733,11 @@ class AgentChatView(APIView):
         """Загрузить все 20 функций в агента"""
         for name, info in get_all_tools().items():
             self.add_tool(name, info['func'], info['desc'])
+    
+    def project_inspect_and_verify(project_root: str = ".") -> str:
+        inspector = ProjectInspector(project_root)
+        result = inspector.inspect_project()
+        return json.dumps(result, ensure_ascii=False, indent=2)
 
 class SmartAgentView(APIView):
     """API endpoint для умного агента с памятью"""
@@ -2785,18 +2794,27 @@ class SmartAgentView(APIView):
         answer = agent.ask(question, user_feedback)
         
         diagnostic = agent.self_assess()
+        #inspector = project_inspect_and_verify()
+        #tools = load_all_tools()
 
         return Response({
             'answer': answer,
             'question': question,
             'timestamp': datetime.now().isoformat(),
             'diag': diagnostic
+            #'inspect': inspector,
+            #'list-func': tools
         })
     
     def load_all_tools(self):
         """Загрузить все 20 функций в агента"""
         for name, info in get_all_tools().items():
             self.add_tool(name, info['func'], info['desc'])
+
+    def project_inspect_and_verify(project_root: str = ".") -> str:
+        inspector = ProjectInspector(project_root)
+        result = inspector.inspect_project()
+        return json.dumps(result, ensure_ascii=False, indent=2)
 
 class ImageGeneratorView(APIView):
     """API endpoint для генерации изображений"""
@@ -3198,11 +3216,15 @@ class AgentGptView(APIView):
         answer = agent.ask(enhanced_prompt)
         
         diagnostic = agent.self_assess()
+        #inspector = project_inspect_and_verify()
+        #tools = load_all_tools()
 
         return Response({
             'answer': answer,
             "emotion_context": emotion,
             'diag': diagnostic
+            #'inspect': inspector,
+            #'list-func': tools
             #'checknetwork': statusnetwork
         })
     
@@ -3210,6 +3232,11 @@ class AgentGptView(APIView):
         """Загрузить все 20 функций в агента"""
         for name, info in get_all_tools().items():
             self.add_tool(name, info['func'], info['desc'])
+    
+    def project_inspect_and_verify(project_root: str = ".") -> str:
+        inspector = ProjectInspector(project_root)
+        result = inspector.inspect_project()
+        return json.dumps(result, ensure_ascii=False, indent=2)
 
 class AgentClaView(APIView):
     """Простой агент для взаимодействия с LLM API. Поддерживает: память контекста, инструменты, базовое планирование."""
@@ -3271,16 +3298,25 @@ class AgentClaView(APIView):
         answer = agent.ask(question)
         
         diagnostic = agent.self_assess()
+        #inspector = project_inspect_and_verify()
+        #tools = load_all_tools()
 
         return Response({
             'answer': answer, 
             'diag': diagnostic
+            #'inspect': inspector,
+            #'list-func': tools
         })
     
     def load_all_tools(self):
         """Загрузить все 20 функций в агента"""
         for name, info in get_all_tools().items():
             self.add_tool(name, info['func'], info['desc'])
+    
+    def project_inspect_and_verify(project_root: str = ".") -> str:
+        inspector = ProjectInspector(project_root)
+        result = inspector.inspect_project()
+        return json.dumps(result, ensure_ascii=False, indent=2)
 
 class AgentGemView(APIView):
     """Простой агент для взаимодействия с LLM API. Поддерживает: память контекста, инструменты, базовое планирование."""
@@ -3410,10 +3446,14 @@ class AgentGemView(APIView):
         answer = agent.ask(question)
         
         diagnostic = agent.self_assess()
+        #inspector = project_inspect_and_verify()
+        #tools = load_all_tools()
 
         return Response({
             'answer': answer,
             'diag': diagnostic
+            #'inspect': inspector,
+            #'list-func': tools
             #"canvas": json.loads(canvas.render_canvas())
             #"result_creativy": creativy
             #'tavily': results_tavily, 
@@ -3431,6 +3471,11 @@ class AgentGemView(APIView):
         """Загрузить все 20 функций в агента"""
         for name, info in get_all_tools().items():
             self.add_tool(name, info['func'], info['desc'])
+    
+    def project_inspect_and_verify(project_root: str = ".") -> str:
+        inspector = ProjectInspector(project_root)
+        result = inspector.inspect_project()
+        return json.dumps(result, ensure_ascii=False, indent=2)
 
 class TeacherAgentView(APIView):
     """Агент-учитель: отвечает на вопросы, выдаёт справочные материалы, адаптирует сложность"""
@@ -3482,7 +3527,11 @@ class TeacherAgentView(APIView):
             level=level  # ← Теперь переменная существует!
         )
         
-        return Response({'answer': answer, 'studycard': studycard, 'article': articlewiki})
+        return Response({
+            'answer': answer, 
+            'studycard': studycard 
+            #'article': articlewiki
+        })
     
     def test_teacher_agent(code: str) -> tuple[bool, str]:
         """Тест: код должен содержать методы ask() и generate_study_card()"""

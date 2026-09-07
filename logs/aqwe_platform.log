@@ -334,3 +334,64 @@ WARNING 2026-09-02 08:47:47,726 agent_gem Неизвестная структура ответа: ['code',
 WARNING 2026-09-02 08:47:47,735 agent_gem Пустой ответ от API. Данные: {"code": 500, "msg": "Server exception, please try again later"}
 INFO 2026-09-02 08:53:47,469 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
 INFO 2026-09-02 08:55:44,190 autoreload Watching for file changes with StatReloader
+INFO 2026-09-07 23:11:26,101 autoreload Watching for file changes with StatReloader
+ERROR 2026-09-07 23:17:31,875 agent Ошибка LLM: 500 Server Error: Internal Server Error for url: https://api.kie.ai/codex/v1/responses
+ERROR 2026-09-07 23:18:21,449 log Internal Server Error: /agent-chat/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 2721, in post
+    inspector = project_inspect_and_verify()
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+NameError: name 'project_inspect_and_verify' is not defined. Did you mean: 'self.project_inspect_and_verify'?
+ERROR 2026-09-07 23:19:16,364 agent Ошибка LLM: 500 Server Error: Internal Server Error for url: https://api.kie.ai/codex/v1/responses
+ERROR 2026-09-07 23:19:16,530 log Internal Server Error: /agent-chat/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 2721, in post
+    inspector = project_inspect_and_verify()
+                ^^^^^^^^^^^^^^^^^^^^^^^^^^
+NameError: name 'project_inspect_and_verify' is not defined. Did you mean: 'self.project_inspect_and_verify'?
+INFO 2026-09-07 23:24:45,395 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-09-07 23:25:36,850 autoreload Watching for file changes with StatReloader
+INFO 2026-09-07 23:27:54,318 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-09-07 23:28:35,133 autoreload Watching for file changes with StatReloader
+INFO 2026-09-07 23:37:02,603 autoreload Watching for file changes with StatReloader
+ERROR 2026-09-07 23:40:46,402 agent Ошибка LLM: 500 Server Error: Internal Server Error for url: https://api.kie.ai/codex/v1/responses
+ERROR 2026-09-07 23:46:13,846 agent Ошибка LLM: 500 Server Error: Internal Server Error for url: https://api.kie.ai/codex/v1/responses
+ERROR 2026-09-07 23:46:45,206 agent Ошибка LLM: 500 Server Error: Internal Server Error for url: https://api.kie.ai/codex/v1/responses
+ERROR 2026-09-07 23:50:12,267 agent Ошибка LLM: 500 Server Error: Internal Server Error for url: https://api.kie.ai/codex/v1/responses
+ERROR 2026-09-08 00:14:59,286 agent Ошибка LLM: 500 Server Error: Internal Server Error for url: https://api.kie.ai/codex/v1/responses
