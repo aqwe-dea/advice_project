@@ -1,33 +1,39 @@
 [build]
+  base = "frontend"
+  publish = "build"
   command = "CI=false npm run build"
-  base = "./frontend"
-  publish = "./build"
-  build = "./build"
-  functions = "./netlify/functions"
 
+[build.environment]
+  NODE_VERSION = "20"
+  PYTHON_VERSION = "3.12"
+
+# Редиректы для SPA (React)
 [[redirects]]
-  from = "./*"
-  to = "./index.html"
+  from = "/*"
+  to = "/index.html"
   status = 200
 
+# Headers для безопасности
 [[headers]]
-  # Define which paths this specific [[headers]] block will cover.
-  for = "./*"
-
+  for = "/*"
   [headers.values]
     X-Frame-Options = "DENY"
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "strict-origin-when-cross-origin"
 
+# Переменные окружения (заполняются в UI Netlify)
 [template.environment]
   KIETEST = "API ключ для бэкенда"
   DATABASE_URL = "PostgreSQL строка подключения"
 
-[dev]
-  command = "gunicorn backend.wsgi --bind 0.0.0.0:$PORT"
-  port = 8888
-  publish = "./staticfiles"
-
+# Serverless functions (если понадобятся)
 [functions]
-  # Directory with serverless functions, including background
-  # functions, to deploy. This is an absolute path relative to the
-  # base directory, which is the root by default (/).
-  directory = "./src"
+  directory = "netlify/functions"
+  node_bundler = "esbuild"
+
+# Dev-сервер (локальная разработка)
+[dev]
+  command = "npm run start"
+  port = 8888
+  publish = "build"
+  target_port = 3000

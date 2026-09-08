@@ -23,11 +23,37 @@ builder = "nixpacks"
 startCommand = "python manage.py runserver 0.0.0.0:$PORT"
 
 # netlify.toml (резерв 3)
+
 [build]
-  command = "pip install -r requirements.txt"
-  publish = "frontend/build"
+  command = "CI=false npm run build"
+  base = "./frontend"
+  publish = "./build"
+  build = "./build"
+  functions = "./netlify/functions"
 
 [[redirects]]
-  from = "/*"
-  to = "/manage.py"
+  from = "./*"
+  to = "./index.html"
   status = 200
+
+[[headers]]
+  # Define which paths this specific [[headers]] block will cover.
+  for = "./*"
+
+  [headers.values]
+    X-Frame-Options = "DENY"
+
+[template.environment]
+  KIETEST = "API ключ для бэкенда"
+  DATABASE_URL = "PostgreSQL строка подключения"
+
+[dev]
+  command = "gunicorn backend.wsgi --bind 0.0.0.0:$PORT"
+  port = 8888
+  publish = "./staticfiles"
+
+[functions]
+  # Directory with serverless functions, including background
+  # functions, to deploy. This is an absolute path relative to the
+  # base directory, which is the root by default (/).
+  directory = "./src"
