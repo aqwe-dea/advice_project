@@ -97,7 +97,7 @@ from .agents.registry import get_all_agents, get_all_tools
 from .check_network_connection import check_network_connection
 from .api_client import APIClient
 from .cycle_manager import CycleManager
-from .project_inspector import ProjectInspector
+from .project_inspector import ProjectInspector, project_inspect_and_verify
 from .file_navigator import list_directory, find_files
 from .code_sandbox import python_sandbox
 from .semantic_memory import semantic_memory_recall
@@ -2718,14 +2718,14 @@ class AgentChatView(APIView):
         # Получаем ответ
         answer = agent.ask(question)
         diagnostic = agent.self_assess()
-        #inspector = project_inspect_and_verify()
-        #tools = load_all_tools()
+        inspector = project_inspect_and_verify()
+        tools = self.load_all_tools()
 
         return Response({
             'answer': answer,
-            'diag': diagnostic
-            #'inspect': inspector,
-            #'list-func': tools
+            'diag': diagnostic,
+            'inspect': inspector,
+            'list-func': tools
             #'audit': audit_result
         })
     
@@ -2794,16 +2794,16 @@ class SmartAgentView(APIView):
         answer = agent.ask(question, user_feedback)
         
         diagnostic = agent.self_assess()
-        #inspector = project_inspect_and_verify()
-        #tools = load_all_tools()
+        inspector = project_inspect_and_verify()
+        tools = self.load_all_tools()
 
         return Response({
             'answer': answer,
             'question': question,
             'timestamp': datetime.now().isoformat(),
-            'diag': diagnostic
-            #'inspect': inspector,
-            #'list-func': tools
+            'diag': diagnostic,
+            'inspect': inspector,
+            'list-func': tools
         })
     
     def load_all_tools(self):
@@ -3216,15 +3216,15 @@ class AgentGptView(APIView):
         answer = agent.ask(enhanced_prompt)
         
         diagnostic = agent.self_assess()
-        #inspector = project_inspect_and_verify()
-        #tools = load_all_tools()
+        inspector = project_inspect_and_verify()
+        tools = self.load_all_tools()
 
         return Response({
             'answer': answer,
             "emotion_context": emotion,
-            'diag': diagnostic
-            #'inspect': inspector,
-            #'list-func': tools
+            'diag': diagnostic,
+            'inspect': inspector,
+            'list-func': tools
             #'checknetwork': statusnetwork
         })
     
@@ -3298,14 +3298,14 @@ class AgentClaView(APIView):
         answer = agent.ask(question)
         
         diagnostic = agent.self_assess()
-        #inspector = project_inspect_and_verify()
-        #tools = load_all_tools()
+        inspector = project_inspect_and_verify()
+        tools = self.load_all_tools()
 
         return Response({
             'answer': answer, 
-            'diag': diagnostic
-            #'inspect': inspector,
-            #'list-func': tools
+            'diag': diagnostic,
+            'inspect': inspector,
+            'list-func': tools
         })
     
     def load_all_tools(self):
@@ -3446,14 +3446,14 @@ class AgentGemView(APIView):
         answer = agent.ask(question)
         
         diagnostic = agent.self_assess()
-        #inspector = project_inspect_and_verify()
-        #tools = load_all_tools()
+        inspector = project_inspect_and_verify()
+        tools = self.load_all_tools()
 
         return Response({
             'answer': answer,
-            'diag': diagnostic
-            #'inspect': inspector,
-            #'list-func': tools
+            'diag': diagnostic,
+            'inspect': inspector,
+            'list-func': tools
             #"canvas": json.loads(canvas.render_canvas())
             #"result_creativy": creativy
             #'tavily': results_tavily, 
