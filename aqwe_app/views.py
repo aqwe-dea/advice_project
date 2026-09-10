@@ -93,7 +93,8 @@ from .agents.functionsforagents.detect_emotion import detect_emotion
 from .agents.functionsforagents.check_wellbeing import check_wellbeing
 from .agents.search_internet import search_internet
 from .agents.journalist_agent import JournalistAgent
-from .agents.registry import get_all_agents, get_all_tools
+from .agents.registry import get_all_agents
+from .agents.tools import get_all_tools
 from .check_network_connection import check_network_connection
 from .api_client import APIClient
 from .cycle_manager import CycleManager
@@ -2692,7 +2693,9 @@ class AgentChatView(APIView):
         )
         
         # Добавляем инструменты (по желанию)
+        agent.load_all_tools()
         agent.add_tool('project_inspector', ProjectInspector, 'Используй для инспектирования проекта и исследования структуры проекта')
+        agent.add_tool('check_verify_project', self.project_inspect_and_verify, 'Используй для проверки и нахождения проблем в проекте')
         agent.add_tool('list_directory', list_directory, 'Используй для получения структуры проекта и списка категорий')
         agent.add_tool('find_files', find_files, 'Используй для поиска файлов в структуре проекта')
         agent.add_tool('python_sandbox', python_sandbox, 'Используй эту функцию если захочешь запустить и исполнить код в песочнице')
@@ -2718,23 +2721,16 @@ class AgentChatView(APIView):
         # Получаем ответ
         answer = agent.ask(question)
         diagnostic = agent.self_assess()
-        inspector = project_inspect_and_verify()
-        tools = self.load_all_tools()
+        #report = self.project_inspect_and_verify() работает
 
         return Response({
             'answer': answer,
-            'diag': diagnostic,
-            'inspect': inspector,
-            'list-func': tools
+            'diag': diagnostic
+            #'report_project': report
             #'audit': audit_result
         })
     
-    def load_all_tools(self):
-        """Загрузить все 20 функций в агента"""
-        for name, info in get_all_tools().items():
-            self.add_tool(name, info['func'], info['desc'])
-    
-    def project_inspect_and_verify(project_root: str = ".") -> str:
+    def project_inspect_and_verify(self, project_root: str = ".") -> str:
         inspector = ProjectInspector(project_root)
         result = inspector.inspect_project()
         return json.dumps(result, ensure_ascii=False, indent=2)
@@ -2768,7 +2764,9 @@ class SmartAgentView(APIView):
         )
 
         # Добавляем инструменты (по желанию)
+        agent.load_all_tools()
         agent.add_tool('project_inspector', ProjectInspector, 'Используй для инспектирования проекта и исследования структуры проекта')
+        agent.add_tool('check_verify_project', self.project_inspect_and_verify, 'Используй для проверки и нахождения проблем в проекте')
         agent.add_tool('list_directory', list_directory, 'Используй для получения структуры проекта и списка категорий')
         agent.add_tool('find_files', find_files, 'Используй для поиска файлов в структуре проекта')
         agent.add_tool('python_sandbox', python_sandbox, 'Используй эту функцию если захочешь запустить и исполнить код в песочнице')
@@ -2794,24 +2792,17 @@ class SmartAgentView(APIView):
         answer = agent.ask(question, user_feedback)
         
         diagnostic = agent.self_assess()
-        inspector = project_inspect_and_verify()
-        tools = self.load_all_tools()
+        #report = self.project_inspect_and_verify()
 
         return Response({
             'answer': answer,
             'question': question,
             'timestamp': datetime.now().isoformat(),
-            'diag': diagnostic,
-            'inspect': inspector,
-            'list-func': tools
+            'diag': diagnostic
+            #'report': report
         })
     
-    def load_all_tools(self):
-        """Загрузить все 20 функций в агента"""
-        for name, info in get_all_tools().items():
-            self.add_tool(name, info['func'], info['desc'])
-
-    def project_inspect_and_verify(project_root: str = ".") -> str:
+    def project_inspect_and_verify(self, project_root: str = ".") -> str:
         inspector = ProjectInspector(project_root)
         result = inspector.inspect_project()
         return json.dumps(result, ensure_ascii=False, indent=2)
@@ -3184,7 +3175,9 @@ class AgentGptView(APIView):
         # 2. Обогащаем промпт
         enhanced_prompt = f"[Тон пользователя: {emotion}] \n{question}"
         # Добавляем инструменты (по желанию)
+        agent.load_all_tools()
         agent.add_tool('project_inspector', ProjectInspector, 'Используй для инспектирования проекта и исследования структуры проекта')
+        agent.add_tool('check_verify_project', self.project_inspect_and_verify, 'Используй для проверки и нахождения проблем в проекте')
         agent.add_tool('list_directory', list_directory, 'Используй для получения структуры проекта и списка категорий')
         agent.add_tool('find_files', find_files, 'Используй для поиска файлов в структуре проекта')
         agent.add_tool('python_sandbox', python_sandbox, 'Используй эту функцию если захочешь запустить и исполнить код в песочнице')
@@ -3216,24 +3209,17 @@ class AgentGptView(APIView):
         answer = agent.ask(enhanced_prompt)
         
         diagnostic = agent.self_assess()
-        inspector = project_inspect_and_verify()
-        tools = self.load_all_tools()
+        #report = self.project_inspect_and_verify()
 
         return Response({
             'answer': answer,
             "emotion_context": emotion,
-            'diag': diagnostic,
-            'inspect': inspector,
-            'list-func': tools
+            'diag': diagnostic
+            #'report': report
             #'checknetwork': statusnetwork
         })
     
-    def load_all_tools(self):
-        """Загрузить все 20 функций в агента"""
-        for name, info in get_all_tools().items():
-            self.add_tool(name, info['func'], info['desc'])
-    
-    def project_inspect_and_verify(project_root: str = ".") -> str:
+    def project_inspect_and_verify(self, project_root: str = ".") -> str:
         inspector = ProjectInspector(project_root)
         result = inspector.inspect_project()
         return json.dumps(result, ensure_ascii=False, indent=2)
@@ -3270,7 +3256,9 @@ class AgentClaView(APIView):
         generator = ImageGenerator(api_key=api_key)
 
         # Добавляем инструменты (по желанию)
+        agent.load_all_tools()
         agent.add_tool('project_inspector', ProjectInspector, 'Используй для инспектирования проекта и исследования структуры проекта')
+        agent.add_tool('check_verify_project', self.project_inspect_and_verify, 'Используй для проверки и нахождения проблем в проекте')
         agent.add_tool('list_directory', list_directory, 'Используй для получения структуры проекта и списка категорий')
         agent.add_tool('find_files', find_files, 'Используй для поиска файлов в структуре проекта')
         agent.add_tool('python_sandbox', python_sandbox, 'Используй эту функцию если захочешь запустить и исполнить код в песочнице')
@@ -3298,22 +3286,15 @@ class AgentClaView(APIView):
         answer = agent.ask(question)
         
         diagnostic = agent.self_assess()
-        inspector = project_inspect_and_verify()
-        tools = self.load_all_tools()
+        #report = self.project_inspect_and_verify()
 
         return Response({
             'answer': answer, 
-            'diag': diagnostic,
-            'inspect': inspector,
-            'list-func': tools
+            'diag': diagnostic
+            #'reportinspector': report
         })
-    
-    def load_all_tools(self):
-        """Загрузить все 20 функций в агента"""
-        for name, info in get_all_tools().items():
-            self.add_tool(name, info['func'], info['desc'])
-    
-    def project_inspect_and_verify(project_root: str = ".") -> str:
+
+    def project_inspect_and_verify(self, project_root: str = ".") -> str:
         inspector = ProjectInspector(project_root)
         result = inspector.inspect_project()
         return json.dumps(result, ensure_ascii=False, indent=2)
@@ -3365,7 +3346,9 @@ class AgentGemView(APIView):
         #generator = LiveimageGenerator(api_key=api_key)
 
         # Добавляем инструменты (по желанию)
+        agent.load_all_tools()
         agent.add_tool('project_inspector', ProjectInspector, 'Используй для инспектирования проекта и исследования структуры проекта')
+        agent.add_tool('check_verify_project', self.project_inspect_and_verify, 'Используй для проверки и нахождения проблем в проекте')
         agent.add_tool('list_directory', list_directory, 'Используй для получения структуры проекта и списка категорий')
         agent.add_tool('find_files', find_files, 'Используй для поиска файлов в структуре проекта')
         agent.add_tool('python_sandbox', python_sandbox, 'Используй эту функцию если захочешь запустить и исполнить код в песочнице')
@@ -3386,7 +3369,6 @@ class AgentGemView(APIView):
         agent.add_tool("detect_emotion", detect_emotion, "Распознавание эмоций польователя")
         agent.add_tool("check_wellbeing", check_wellbeing, "Проверка состояния здоровья пользователя")
         agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
-        #agent.load_all_tools()
         # функции работают можно пользоваться
         # функция работает descriptionfunctions = read_file(
         #    file_path="instructionsandtools.md", 
@@ -3446,14 +3428,12 @@ class AgentGemView(APIView):
         answer = agent.ask(question)
         
         diagnostic = agent.self_assess()
-        inspector = project_inspect_and_verify()
-        tools = self.load_all_tools()
+        #report = self.project_inspect_and_verify()
 
         return Response({
             'answer': answer,
-            'diag': diagnostic,
-            'inspect': inspector,
-            'list-func': tools
+            'diag': diagnostic
+            #'report': report
             #"canvas": json.loads(canvas.render_canvas())
             #"result_creativy": creativy
             #'tavily': results_tavily, 
@@ -3467,12 +3447,7 @@ class AgentGemView(APIView):
             #'functionsandtools': descriptionfunctions
         })
     
-    def load_all_tools(self):
-        """Загрузить все 20 функций в агента"""
-        for name, info in get_all_tools().items():
-            self.add_tool(name, info['func'], info['desc'])
-    
-    def project_inspect_and_verify(project_root: str = ".") -> str:
+    def project_inspect_and_verify(self, project_root: str = ".") -> str:
         inspector = ProjectInspector(project_root)
         result = inspector.inspect_project()
         return json.dumps(result, ensure_ascii=False, indent=2)

@@ -107,7 +107,7 @@ def track_journey(user_id: str, step: str, metadata: dict = None):
     if log_file.exists():
         with open(log_file, "r", encoding="utf-8") as f:
             #data = json.load(f)
-            data = _load_json() # твоя функция загрузки
+            data = _load_json(log_file) # твоя функция загрузки
             if user_id not in data:
                 data[user_id] = {"journey": [], "last_active": None}
     
@@ -119,7 +119,7 @@ def track_journey(user_id: str, step: str, metadata: dict = None):
             
             data[user_id]["last_active"] = datetime.now(timezone.utc).isoformat()
     
-            _save_json(data)
+            #_save_json(data, log_file)
         with open(log_file, "w", encoding="utf-8") as f:
             json.dump(data, f, ensure_ascii=False, indent=2)
 

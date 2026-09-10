@@ -14,6 +14,7 @@ from .web_fetch import web_fetch
 from .wikipedia_search import search_by_wikipedia
 from .functionsforagents import read_file, edit_file, git_commit, save_to_memory, recall_memory, send_email, create_task, detect_emotion, check_wellbeing
 from .md_loader import load_md_files
+from .tools import get_all_tools
 
 logger = logging.getLogger(__name__)
 
@@ -182,6 +183,11 @@ class AgentGpt:
             }
         }
     
+    def load_all_tools(self):
+        """Загрузить все 20 функций в агента"""
+        for name, info in get_all_tools().items():
+            self.add_tool(name, info['func'], info['desc'])
+            
     def _build_api_tools(self) -> List[Dict]:
         """Построить список инструментов в формате API"""
         api_tools = []

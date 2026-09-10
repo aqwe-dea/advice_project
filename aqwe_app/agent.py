@@ -15,6 +15,7 @@ from .agents.web_fetch import web_fetch
 from .agents.wikipedia_search import search_by_wikipedia
 from .agents.functionsforagents import read_file, edit_file, git_commit, save_to_memory, recall_memory, send_email, create_task, detect_emotion, check_wellbeing
 from .agents.md_loader import load_md_files
+from .agents.tools import get_all_tools
 
 logger = logging.getLogger(__name__)
 
@@ -146,8 +147,6 @@ class SimpleAgent:
             {md_instructions}
     """
 
-    
-    
     def __init__(self, api_key: str, base_url: str, model: str):
         self.api_key = api_key
         self.base_url = base_url
@@ -180,7 +179,12 @@ class SimpleAgent:
                 "required": ["query"]
             }
         }
-    
+
+    def load_all_tools(self):
+        """Загрузить все 20 функций в агента"""
+        for name, info in get_all_tools().items():
+            self.add_tool(name, info['func'], info['desc'])
+
     def _build_api_tools(self) -> List[Dict]:
         """
             Построить список инструментов в формате Claude/GPT API
@@ -575,6 +579,7 @@ class SimpleAgent:
         ]
 
         try:
+            logger.info(f"📤 Запрос к Astra: {prompt[:200]}...")
             response = requests.post(
                 f"{self.base_url}/codex/v1/responses",
                 headers={
@@ -592,13 +597,13 @@ class SimpleAgent:
                     "tools": api_tools if api_tools else None
                     #"tool_choice": "auto"
                 },
-                timeout=300
+                timeout=1200
             )
             response.raise_for_status()
             data = response.json()
 
             text = self._extract_text_or_tool(data)
-            
+            logger.info(f"📥 Ответ от Astra: {text[:200]}...")
             if not text:
                 logger.error(f"Пустой текст в ответе: {data}")
                 return "Ошибка: агент не получил ответ от модели нет данных в data"
@@ -650,7 +655,7 @@ class SimpleAgent:
                                     "effort": "xhigh"
                                 }
                             },
-                            timeout=300
+                            timeout=1200
                         )
                         second_response.raise_for_status()
                         second_data = second_response.json()
