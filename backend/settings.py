@@ -42,6 +42,7 @@ DATABASES = {
     )
 }
 ALLOWED_HOSTS = env.list('ALLOWED_HOSTS', default=['127.0.0.1', 'localhost', 'advice-project.onrender.com', 'wicked-seals-fail.loca.lt', '192.168.0.182', '94.25.185.171', 'advice-aqwe.netlify.app', 'advice-project-nu.vercel.app', '*.up.railway.app', '.onrender.com', '.netlify.app', '.vercel.app', '.railway.app'])
+KIETEST = os.getenv('KIETEST')
 HUGGINGFACE_API_KEY = os.getenv('HUGGINGFACE_API_KEY')
 HF_API_KEY = os.getenv('HF_API_KEY')
 HF_API_KEY_FIN = os.getenv('HF_API_KEY_FIN')

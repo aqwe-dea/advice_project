@@ -11,6 +11,6 @@
     "env": {
       "PYTHON_VERSION": "3.12",
       "DJANGO_SETTINGS_MODULE": "backend.settings",
-      "KIETEST": "@kietest_secret"
+      "KIETEST": "@KIETEST"
     }
 }
