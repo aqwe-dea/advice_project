@@ -2,6 +2,8 @@ import os
 import subprocess
 import json
 import logging
+import pytest
+import git
 from pathlib import Path
 from typing import Dict, List, IO, TYPE_CHECKING, Any, Type, Tuple, Union, Mapping, TypeVar, Callable, Iterator, Optional, Sequence
 

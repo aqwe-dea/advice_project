@@ -15,6 +15,7 @@ from .wikipedia_search import search_by_wikipedia
 from .functionsforagents import read_file, edit_file, git_commit, save_to_memory, recall_memory, send_email, create_task, detect_emotion, check_wellbeing
 from pathlib import Path
 from .md_loader import load_md_files
+from .tools import get_all_tools
 
 logger = logging.getLogger(__name__)
 
@@ -33,6 +34,11 @@ class JournalistAgent:
 
     def add_tool(self, name: str, func: callable, description: str):
         self.tools[name] = {'func': func, 'description': description}
+    
+    def load_all_tools(self):
+        """Загрузить все 20 функций в агента"""
+        for name, info in get_all_tools().items():
+            self.add_tool(name, info['func'], info['desc'])
 
     def _log_step(self, step: str, status: str, data: Dict):
         """Логирует шаг цикла в JSON-файл"""

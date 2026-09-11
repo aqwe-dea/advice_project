@@ -10,6 +10,7 @@ from abc import abstractmethod
 from bs4 import BeautifulSoup
 from .web_search import web_search
 from .web_search import web_search as _web_search
+from .tools import get_all_tools
 
 logger = logging.getLogger(__name__)
 
@@ -63,6 +64,11 @@ class MarketerAgent:
                 "required": ["query"]
             }
         }
+    
+    def load_all_tools(self):
+        """Загрузить все 20 функций в агента"""
+        for name, info in get_all_tools().items():
+            self.add_tool(name, info['func'], info['desc'])
     
     def _build_claude_tools(self) -> List[Dict]:
         """Построить список инструментов в формате Claude API"""

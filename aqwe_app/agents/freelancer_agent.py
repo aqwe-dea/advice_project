@@ -12,6 +12,7 @@ from .web_search import web_search
 from .web_search import web_search as _web_search
 from .web_fetch import web_fetch
 from .wikipedia_search import search_by_wikipedia
+from .tools import get_all_tools
 
 logger = logging.getLogger(__name__)
 
@@ -107,6 +108,11 @@ class FreelancerAgent:
                 "required": ["query"]
             }
         }
+    
+    def load_all_tools(self):
+        """Загрузить все 20 функций в агента"""
+        for name, info in get_all_tools().items():
+            self.add_tool(name, info['func'], info['desc'])
     
     def _build_claude_tools(self) -> List[Dict]:
         claude_tools = []

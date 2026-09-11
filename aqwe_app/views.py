@@ -3466,6 +3466,7 @@ class TeacherAgentView(APIView):
         )
         
         # Добавляем инструменты (по желанию)
+        agent.load_all_tools()
         agent.add_tool('project_inspector', ProjectInspector, 'Используй для инспектирования проекта и исследования структуры проекта')
         agent.add_tool('list_directory', list_directory, 'Используй для получения структуры проекта и списка категорий')
         agent.add_tool('find_files', find_files, 'Используй для поиска файлов в структуре проекта')
@@ -3533,6 +3534,7 @@ class IntegratorAgentView(APIView):
         
         agent = IntegratorAgent(api_key=os.getenv('KIETEST'))
         # Добавляем инструменты (по желанию)
+        agent.load_all_tools()
         agent.add_tool('project_inspector', ProjectInspector, 'Используй для инспектирования проекта и исследования структуры проекта')
         agent.add_tool('list_directory', list_directory, 'Используй для получения структуры проекта и списка категорий')
         agent.add_tool('find_files', find_files, 'Используй для поиска файлов в структуре проекта')
@@ -3570,6 +3572,7 @@ class ToolManagerView(APIView):
         agent = ToolManagerAgent(api_key=os.getenv('KIETEST'))
         
         # Добавляем инструменты (по желанию)
+        agent.load_all_tools()
         agent.add_tool('project_inspector', ProjectInspector, 'Используй для инспектирования проекта и исследования структуры проекта')
         agent.add_tool('list_directory', list_directory, 'Используй для получения структуры проекта и списка категорий')
         agent.add_tool('find_files', find_files, 'Используй для поиска файлов в структуре проекта')
@@ -3618,6 +3621,7 @@ class DirectorAgentView(APIView):
 
         agent = DirectorAgent(api_key=os.getenv('KIETEST'))
         # Добавляем инструменты (по желанию)
+        agent.load_all_tools()
         agent.add_tool('project_inspector', ProjectInspector, 'Используй для инспектирования проекта и исследования структуры проекта')
         agent.add_tool('list_directory', list_directory, 'Используй для получения структуры проекта и списка категорий')
         agent.add_tool('find_files', find_files, 'Используй для поиска файлов в структуре проекта')
@@ -3656,6 +3660,7 @@ class ComposerAgentView(APIView):
         
         agent = ComposerAgent(api_key=os.getenv('KIETEST'))
         # Добавляем инструменты (по желанию)
+        agent.load_all_tools()
         agent.add_tool('project_inspector', ProjectInspector, 'Используй для инспектирования проекта и исследования структуры проекта')
         agent.add_tool('list_directory', list_directory, 'Используй для получения структуры проекта и списка категорий')
         agent.add_tool('find_files', find_files, 'Используй для поиска файлов в структуре проекта')
@@ -3699,6 +3704,7 @@ class InsiderAgentView(APIView):
 
         agent = InsiderAgent(api_key=os.getenv('KIETEST'))
         # Добавляем инструменты (по желанию)
+        agent.load_all_tools()
         agent.add_tool('project_inspector', ProjectInspector, 'Используй для инспектирования проекта и исследования структуры проекта')
         agent.add_tool('list_directory', list_directory, 'Используй для получения структуры проекта и списка категорий')
         agent.add_tool('find_files', find_files, 'Используй для поиска файлов в структуре проекта')
@@ -3745,6 +3751,7 @@ class MarketerAgentView(APIView):
         agent = MarketerAgent(api_key=os.getenv('KIETEST'))
 
         # Добавляем инструменты (по желанию)
+        agent.load_all_tools()
         agent.add_tool('project_inspector', ProjectInspector, 'Используй для инспектирования проекта и исследования структуры проекта')
         agent.add_tool('list_directory', list_directory, 'Используй для получения структуры проекта и списка категорий')
         agent.add_tool('find_files', find_files, 'Используй для поиска файлов в структуре проекта')
@@ -3795,6 +3802,7 @@ class InvestorAgentView(APIView):
         agent = InvestorAgent(api_key=os.getenv('KIETEST'))
         
         # Добавляем инструменты (по желанию)
+        agent.load_all_tools()
         agent.add_tool('project_inspector', ProjectInspector, 'Используй для инспектирования проекта и исследования структуры проекта')
         agent.add_tool('list_directory', list_directory, 'Используй для получения структуры проекта и списка категорий')
         agent.add_tool('find_files', find_files, 'Используй для поиска файлов в структуре проекта')
@@ -3848,6 +3856,7 @@ class FreelancerAgentView(APIView):
 
         agent = FreelancerAgent(api_key=os.getenv('KIETEST'))
         # Добавляем инструменты (по желанию)
+        agent.load_all_tools()
         agent.add_tool('project_inspector', ProjectInspector, 'Используй для инспектирования проекта и исследования структуры проекта')
         agent.add_tool('list_directory', list_directory, 'Используй для получения структуры проекта и списка категорий')
         agent.add_tool('find_files', find_files, 'Используй для поиска файлов в структуре проекта')
@@ -3911,6 +3920,7 @@ class JournalistAgentView(APIView):
         )
 
         # Добавляем инструменты (по желанию)
+        agent.load_all_tools()
         agent.add_tool('project_inspector', ProjectInspector, 'Используй для инспектирования проекта и исследования структуры проекта')
         agent.add_tool('list_directory', list_directory, 'Используй для получения структуры проекта и списка категорий')
         agent.add_tool('find_files', find_files, 'Используй для поиска файлов в структуре проекта')

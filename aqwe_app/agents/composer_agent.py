@@ -8,6 +8,7 @@ from uuid import UUID
 from pathlib import Path
 from abc import abstractmethod
 from bs4 import BeautifulSoup
+from .tools import get_all_tools
 
 logger = logging.getLogger(__name__)
 
@@ -50,6 +51,11 @@ class ComposerAgent:
     
     def add_tool(self, name: str, func: callable, description: str):
         self.tools[name] = {'func': func, 'description': description}
+    
+    def load_all_tools(self):
+        """Загрузить все 20 функций в агента"""
+        for name, info in get_all_tools().items():
+            self.add_tool(name, info['func'], info['desc'])
     
     def _extract_text_from_response(self, data: dict) -> str:
         try:

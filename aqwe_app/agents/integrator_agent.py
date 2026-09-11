@@ -7,6 +7,7 @@ from typing import Dict, List, IO, TYPE_CHECKING, Any, Type, Tuple, Union, Mappi
 from uuid import UUID
 from pathlib import Path
 from abc import abstractmethod
+from .tools import get_all_tools
 
 logger = logging.getLogger(__name__)
 
@@ -43,6 +44,11 @@ class IntegratorAgent:
     
     def add_tool(self, name: str, func: callable, description: str):
         self.tools[name] = {'func': func, 'description': description}
+    
+    def load_all_tools(self):
+        """Загрузить все 20 функций в агента"""
+        for name, info in get_all_tools().items():
+            self.add_tool(name, info['func'], info['desc'])
     
     def _build_api_tools(self) -> List[Dict]:
         """Построить список инструментов в формате API"""
