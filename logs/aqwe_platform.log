@@ -1123,3 +1123,5 @@ ERROR 2026-09-10 03:25:44,441 agent_cla Ошибка LLM (попытка 2): 429 Client Error
 INFO 2026-09-10 03:36:02,511 autoreload C:\advice_project\aqwe_app\agents\agent_cla.py changed, reloading.
 INFO 2026-09-10 03:39:07,089 autoreload Watching for file changes with StatReloader
 ERROR 2026-09-10 03:41:40,100 agent_cla Ошибка LLM (попытка 1): 429 Client Error: Too Many Requests for url: https://api.kie.ai/claude/v1/messages
+INFO 2026-09-13 00:46:27,631 autoreload Watching for file changes with StatReloader
+WARNING 2026-09-13 00:49:33,978 log Method Not Allowed: /agent-cla/

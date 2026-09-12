@@ -7,16 +7,11 @@ from abc import abstractmethod
 class ImageGenerator(BaseGenerator):
     """Генератор изображений через KIE.ai + FLUX.1"""
     
-    DEFAULT_MODEL = "gpt-image-2-text-to-image"
+    DEFAULT_MODEL = "gpt-image-2-5-flare-text-to-image"
     
     def generate(
         self,
         prompt: str,
-        negative_prompt: str = "bad, ugly, distorted, low quality",
-        width: int = 1024,
-        height: int = 1024,
-        num_images: int = 1,
-        guidance_scale: float = 3.5,
         **kwargs
     ) -> Dict[str, Any]:
         """
@@ -30,14 +25,9 @@ class ImageGenerator(BaseGenerator):
         """
         input_data = {
             "prompt": prompt,
-            "negative_prompt": negative_prompt,
-            "width": width,
-            "height": height,
-            "num_images": num_images,
-            "guidance_scale": guidance_scale,
-            "output_format": "png",
-            "sync_mode": False,
-            "enable_safety_checker": True
+            "aspect_ratio": "1:1",
+            "resolution": "4K",
+            "background": "auto"
         }
         input_data.update(kwargs)
         

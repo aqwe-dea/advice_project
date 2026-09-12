@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 class ImageEdit(BaseGenerator):
     """Редактор изображений через KIE.ai"""
     
-    DEFAULT_MODEL = "gpt-image-2-image-to-image"
+    DEFAULT_MODEL = "gpt-image-2-5-flare-image-to-image"
     @staticmethod
     def _is_valid_url(url: str) -> bool:
         """Проверка валидности URL"""
@@ -40,8 +40,9 @@ class ImageEdit(BaseGenerator):
         input_data = {
             "prompt": prompt.strip(),
             "input_urls": input_urls.strip(),
-            "aspect_ratio": "auto",
-            "resolution": "1K"
+            "aspect_ratio": "1:1",
+            "resolution": "4K",
+            "background": "auto"
         }
 
         input_data.update({k: v for k, v in kwargs.items() if k not in input_data})
