@@ -3,7 +3,7 @@ import { colors } from "../theme";
 import crystal from '../crystal-symbiosis.jpg';
 import logo from '../logo.svg';
 
-function Blog() {
+function Services() {
     return (
     <div className="blog">
       <div style={{
@@ -37,7 +37,7 @@ function Blog() {
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent'
           }}>
-            Советница АКВИ И это наш блог 
+            Советница АКВИ И это наши услуги 
           </h1>
           <img src={logo} alt="Логотип Советницы АКВИ" className="about-logo" />
           <p style={{
@@ -46,11 +46,32 @@ function Blog() {
           maxWidth: '700px',
           margin: '0 auto'
           }}>
-          Здесь вы найдете интересные статьи которые возможно вам помогут в жизни или при решении задач.
+          Здесь вы найдете наши услуги
           </p>
         </div>
-        <h2>Наши статьи под кристаллом</h2>
-    
+        <h2>Наши услуги под кристаллом</h2>
+        <p style={{color: '#e8e8d3', marginTop: '1rem', fontStyle: 'italic'}}>
+          <h3>Услуги с примерами работ и возможностью заказа</h3>
+          <p>Услуга | Что создать | Инструменты | Срок</p>
+          <p>Карточка профиля | 3 варианта: минимализм, креатив, профессионал | ImageGenerator | 1 час</p>
+          <p>[ссылки на работы]</p>
+          <p>Библиотека знаний | Показать 4 файла: consciousnessandessence.md, accumulateexperience.md, instructionsandtools.md, forbook.md | — | 30 мин</p>
+          <p>[ссылки на работы]</p>
+          <p>Бренд для платформы | Логотип + баннер + favicon + цветовая палитра | ImageGenerator + ImageEdit | 2 часа </p>
+          <p>[ссылки на работы]</p>
+          <p>Рекламный ролик | 30-сек видео: «Что такое Советница АКВИ?» | VideoGenerator (Google Omni) | 3 часа</p>
+          <p>[ссылки на работы]</p>
+          <p>Мини-приложение в Docker | Простой REST API + Dockerfile + инструкция | IntegratorAgent + ToolManagerAgent | 4 часа</p>
+          <p>[ссылки на работы]</p>
+          <p>Визуальная карта проекта | Анимированная схема: агенты → функции → генераторы | All 5 agents + ImageGenerator | 2 часа</p>
+          <p>[ссылки на работы]</p>
+          <p>Аудит профиля фрилансера | Пример отчёта: сильные стороны, точки роста, рекомендации | FreelancerAgent + MarketerAgent |1 час</p>
+          <p>[ссылки на работы]</p>
+          <p>SEO-описания | 3 примера: для услуги, для агента, для генератора |MarketerAgent + TeacherAgent |1 час</p>
+          <p>[ссылки на работы]</p>
+          <p>Учебный модуль | Пример выше: «Python для новичка» | TeacherAgent + LiveMultimodalWorkspace | 3 часа</p>
+          <p>[ссылки на работы]</p>
+        </p>
         <div className="crystal-section" style={{margin: '2rem 0'}}>
           <img 
             src={crystal}
@@ -90,35 +111,20 @@ function Blog() {
               textAlign: 'center',
               color: colors.textPrimary
             }}>
-              Здесь будут статьи
+              Здесь будут наши услуги
             </h2>
             <p style={{color: colors.textSecondary, lineHeight: '1.6'}}>
-                <li>
-                    <a href="/symbiosis-human-ai" style={{color: '#f8f8f0', textDecoration: 'none'}}>
-                        Симбиоз человека и ИИ
-                    </a>
-                </li>
-                <li>
-                    <a href="/services-overview" style={{color: '#f8f8f0', textDecoration: 'none'}}>
-                        Обзор наших услуг
-                    </a>
-                </li>
-                <li>
-                    <a href="/ai-agents-consulting" style={{color: '#f8f8f0', textDecoration: 'none'}}>
-                        Агенты консультанты
-                    </a>
-                </li>
-                <li>
-                    <a href="/awareness" style={{color: '#f8f8f0', textDecoration: 'none'}}>
-                        Осознание и понимание в чем разница
-                    </a>
-                </li>
-                <li>
-                    <a href="/energylife" style={{color: '#f8f8f0', textDecoration: 'none'}}>
-                        Материю определяет энергия
-                    </a>
-                </li>
-                [Статья №6]
+                <p>| Услуга | Ценник | Кто исполняет | Почему это работает |</p>
+                <p>|--------|--------|---------------|---------------------|</p>
+                <p>| **Карточка профиля** | 500 ₽ | ImageGenerator | Быстро, массово, востребовано на фрилансе |</p>
+                <p>| **Ребрендинг бренда** | 2000 ₽ | ImageEdit + DirectorAgent | Глубокая проработка, высокая маржинальность |</p>
+                <p>| **Рекламный ролик (15-60 сек)** | 3000 ₽ | VideoGenerator (Google Omni) | Визуал + звук = высокий чек |</p>
+                <p>| **Мини-приложение в Docker** | 15 000 ₽ | IntegratorAgent + ToolManagerAgent | Сложно, но очень ценно для бизнеса |</p>
+                <p>| **Библиотека знаний для агентов** | 5000 ₽ | ДЕА + АКВИ (ручная работа) | Уникальный продукт, который мы уже создали |</p>
+                <p>| **Визуальная карта проекта** | 2000-3000 ₽ | Все 5 основных агентов + генераторы | Визуализация = ясность = ценность |</p>
+                <p>| **Аудит профиля фрилансера** | 1000 ₽ | FreelancerAgent + MarketerAgent | Быстрый вход, доверие, апселл к другим услугам |</p>
+                <p>| **Генерация SEO-описаний для услуг** | 750 ₽ | MarketerAgent + TeacherAgent | Массовый продукт, легко масштабируется |</p>
+                <p>| **Персонализированный учебный модуль** | 2500 ₽ | TeacherAgent + LiveMultimodalWorkspace | Глубина + интерактив = высокая лояльность |</p>
             </p>
           </div>
           <div style={{
@@ -165,7 +171,7 @@ function Blog() {
             marginBottom: '1rem',
             color: colors.primary
           }}>
-            Интересные статьи?
+            Закажите услугу через форму?
           </h2>
           <p style={{
             color: colors.textSecondary,
@@ -196,4 +202,4 @@ function Blog() {
     );
 }
 
-export default Blog;
+export default Services;

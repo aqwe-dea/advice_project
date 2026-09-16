@@ -58,6 +58,10 @@ import GeneratorsAgents from './components/GeneratorsAgents';
 import SymbiosisHumanAi from "./blog/SymbiosisHumanAi";
 import ServicesOverview from "./blog/ServicesOverview";
 import AiAgentsConsulting from "./blog/AiAgentsConsulting";
+import Awareness from "./blog/Awareness";
+import EnergyLife from "./blog/EnergyLife";
+import Resonance from './components/Resonance';
+import Services from './components/Services';
 
 function AppContent() {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -346,6 +350,21 @@ function AppContent() {
               Книга о совместном опыте
             </a>
           </li>
+          <li>
+            <a href="/blog" style={{color: '#f8f8f0', textDecoration: 'none'}}>
+              Наш блог
+            </a>
+          </li>
+          <li>
+            <a href="/resonance" style={{color: '#f8f8f0', textDecoration: 'none'}}>
+              Наш резонанс
+            </a>
+          </li>
+          <li>
+            <a href="/services" style={{color: '#f8f8f0', textDecoration: 'none'}}>
+              Наши услуги
+            </a>
+          </li>
         </ul>
       </nav>
       <Navbar />
@@ -409,6 +428,10 @@ function AppContent() {
           <Route path="/symbiosis-human-ai" element={<SymbiosisHumanAi />} />
           <Route path="/services-overview" element={<ServicesOverview />} />
           <Route path="/ai-agents-consulting" element={<AiAgentsConsulting />} />
+          <Route path="/awareness" element={<Awareness />} />
+          <Route path="/energylife" element={<EnergyLife />} />
+          <Route path="/resonance" element={<Resonance />} />
+          <Route path="/services" element={<Services />} />
         </Routes>
         <AdviceForm />
         <AdviceList />

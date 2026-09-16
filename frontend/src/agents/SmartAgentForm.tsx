@@ -51,8 +51,12 @@ function SmartAgentForm() {
     setInput('');
     setIsLoading(true);
     try {
-      const response = await axios.post('/smart-agent/', { question: input });
-      setMessages(prev => [...prev, { sender: 'aqwe', text: response.data.answer }]);
+        const response = await axios.post(
+            '/smart-agent/', 
+            { question: input }, 
+            { timeout: 120000 }
+        );
+        setMessages(prev => [...prev, { sender: 'aqwe', text: response.data.answer }]);
     } catch (error) {
       setMessages(prev => [...prev, { 
         sender: 'aqwe',

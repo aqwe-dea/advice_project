@@ -76,18 +76,18 @@ const ThreeDModelConverterForm = () => {
     const cleanUrl = relativeUrl.replace(/^\/+/, '');
     return `/${cleanUrl}`;
   };
-  const extractSection = (text: string, startMarker: string, endMarker: string | null): string => {
-    const startIndex = text.indexOf(startMarker);
-    if (startIndex === -1) return "";
-    let endIndex = -1;
-    if (endMarker) {
-      endIndex = text.indexOf(endMarker, startIndex + startMarker.length);
-    }
-    if (endIndex === -1) {
-      return text.substring(startIndex + startMarker.length).trim();
-    }
-    return text.substring(startIndex + startMarker.length, endIndex).trim();
-  };
+  //const extractSection = (text: string, startMarker: string, endMarker: string | null): string => {
+  //  const startIndex = text.indexOf(startMarker);
+  //  if (startIndex === -1) return "";
+  //  let endIndex = -1;
+  //  if (endMarker) {
+  //    endIndex = text.indexOf(endMarker, startIndex + startMarker.length);
+  //  }
+  //  if (endIndex === -1) {
+  //    return text.substring(startIndex + startMarker.length).trim();
+  //  }
+  //  return text.substring(startIndex + startMarker.length, endIndex).trim();
+  //};
   const renderModelingPlan = () => {
     if (!result || !result.modeling_plan) return null;
     const imageUrl = getFullImageUrl(result.image3dmodel);
@@ -119,6 +119,10 @@ const ThreeDModelConverterForm = () => {
         )}
         <div className="plan-text">
           <ReactMarkdown>{result.modeling_plan}</ReactMarkdown>
+        </div>
+        <div>
+          <progress value={progress} max={100} />
+          <span>{progress}% завершено</span>
         </div>
         <button 
           onClick={() => setResult(null)}

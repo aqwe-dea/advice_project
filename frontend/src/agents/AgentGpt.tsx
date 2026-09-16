@@ -11,9 +11,10 @@ function AgentGpt() {
     const [messages, setMessages] = useState<Array<{ sender: string; text: string }>>([]);
     const [input, setInput] = useState<string>('');
     const [isLoading, setIsLoading] = useState<boolean>(false);
-    const [error, setError] = useState<string | null>(null);
+    //const [error, setError] = useState<string | null>(null);
     useEffect(() => {
         const fetchHistory = async () => {
+            //setError(null);
             try {
                 const userEmail = 'user@example.com';
                 const response = await axios.get(`${API_BASE_URL}/api/user-history/?email=${userEmail}`);
@@ -25,9 +26,10 @@ function AgentGpt() {
                 ]).flat();
                 
                 setMessages(historyMessages);
-            } catch (err) {
-                setError('Не удалось загрузить историю сообщений');
-                console.error('Error fetching history:', err);
+            } catch (error) {
+                //setError('Не удалось загрузить историю сообщений');
+                console.error('Error fetching history:', error);
+                //const errorMessage = 'Извините, произошла ошибка. Пожалуйста, попробуйте позже.';
             }
         };
         fetchHistory();
@@ -59,7 +61,7 @@ function AgentGpt() {
         setMessages(prev => [...prev, newQuestion]);
         setInput('');
         setIsLoading(true);
-        setError(null);
+        //setError(null);
         
         try {
             // ✅ Используем полный URL
@@ -77,7 +79,7 @@ function AgentGpt() {
                 { sender: 'aqwe', text: response.data.answer }
             ]);
         } catch (error) {
-            setError('Не удалось получить ответ от агента');
+            //setError('Не удалось получить ответ от агента');
             console.error('Error agent message:', error);
             const errorMessage = 'Извините, произошла ошибка. Пожалуйста, попробуйте позже.';
             setMessages(prev => [

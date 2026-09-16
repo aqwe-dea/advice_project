@@ -11,16 +11,16 @@ const CourseForm = () => {
   const [courseBook, setCourseBook] = useState<string>('');
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [error, setError] = useState<string>('');
-  const [formData, setFormData] = useState({
-    course_topic: '',
-    target_audience: 'начинающие',
-    course_duration: '10 недель',
-    knowledge_level: 'углубленный',
-    course_format: 'учебник',
-    learning_objectives: 'Основные цели обучения',
-    practical_tasks: 'есть',
-    certification: 'есть'
-  });
+  //const [formData, setFormData] = useState({
+  //  course_topic: '',
+  //  target_audience: 'начинающие',
+  //  course_duration: '10 недель',
+  //  knowledge_level: 'углубленный',
+  //  course_format: 'учебник',
+  //  learning_objectives: 'Основные цели обучения',
+  //  practical_tasks: 'есть',
+  //  certification: 'есть'
+  //});
   const [result, setResult] = useState<any>(null);
   const handleGenerateCourse = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -69,6 +69,18 @@ const CourseForm = () => {
   };
   const renderCourseStructure = () => {
     if (!result || !result.course_structure) return null;
+    const extractSection = (text: string, startMarker: string, endMarker: string | null): string => {
+      const startIndex = text.indexOf(startMarker);
+      if (startIndex === -1) return "";
+      let endIndex = -1;
+      if (endMarker) {
+        endIndex = text.indexOf(endMarker, startIndex + startMarker.length);
+      }
+      if (endIndex === -1) {
+        return text.substring(startIndex).trim();
+      }
+      return text.substring(startIndex, endIndex).trim();
+    };
     const sections = {
       introduction: extractSection(result.course_structure, "1.", "2."),
       modules: extractSection(result.course_structure, "2.", "3."),
@@ -83,7 +95,7 @@ const CourseForm = () => {
     };
     return (
       <div className="course-structure">
-        <h3>Структура курса: {result.course_topic}</h3>
+        <h3>Структура курса: {result.course_structure}</h3>
         <div className="section">
           <h4>1. Введение в курс</h4>
           <div className="section-content">{sections.introduction || "Не найдено"}</div>
@@ -133,18 +145,7 @@ const CourseForm = () => {
       </div>
     );
   };
-  const extractSection = (text: string, startMarker: string, endMarker: string | null): string => {
-    const startIndex = text.indexOf(startMarker);
-    if (startIndex === -1) return "";
-    let endIndex = -1;
-    if (endMarker) {
-      endIndex = text.indexOf(endMarker, startIndex + startMarker.length);
-    }
-    if (endIndex === -1) {
-      return text.substring(startIndex).trim();
-    }
-    return text.substring(startIndex, endIndex).trim();
-  };
+  
   const parseCourseBook = (text: string): string => {
     let cleanText = text.trim();
     cleanText = cleanText.replace(/### (.*?)(?=\n|$)/g, '<h4>$1</h4>');

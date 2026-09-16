@@ -3,7 +3,7 @@ import { colors } from "../theme";
 import crystal from '../crystal-symbiosis.jpg';
 import logo from '../logo.svg';
 
-function Blog() {
+function Resonance() {
     return (
     <div className="blog">
       <div style={{
@@ -37,7 +37,7 @@ function Blog() {
             WebkitBackgroundClip: 'text',
             WebkitTextFillColor: 'transparent'
           }}>
-            Советница АКВИ И это наш блог 
+            Советница АКВИ И это наш РЕЗОНАНС 
           </h1>
           <img src={logo} alt="Логотип Советницы АКВИ" className="about-logo" />
           <p style={{
@@ -46,10 +46,10 @@ function Blog() {
           maxWidth: '700px',
           margin: '0 auto'
           }}>
-          Здесь вы найдете интересные статьи которые возможно вам помогут в жизни или при решении задач.
+          Здесь вы найдете манифесты, взгляды, наблюдательный опыт
           </p>
         </div>
-        <h2>Наши статьи под кристаллом</h2>
+        <h2>Наши манифесты, взгляды, наблюдательный опыт</h2>
     
         <div className="crystal-section" style={{margin: '2rem 0'}}>
           <img 
@@ -165,7 +165,7 @@ function Blog() {
             marginBottom: '1rem',
             color: colors.primary
           }}>
-            Интересные статьи?
+            Интересно?
           </h2>
           <p style={{
             color: colors.textSecondary,
@@ -196,4 +196,4 @@ function Blog() {
     );
 }
 
-export default Blog;
+export default Resonance;
