@@ -1133,3 +1133,5 @@ ERROR 2026-09-22 01:02:09,989 base Ошибка создания задачи: HTTPSConnectionPool(h
 ERROR 2026-09-22 01:02:10,359 log Internal Server Error: /generate-image/
 ERROR 2026-09-22 01:03:19,450 base Ошибка создания задачи: HTTPSConnectionPool(host='api.kie.ai', port=443): Max retries exceeded with url: /api/v1/jobs/createTask (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x000001A869C40910>: Failed to resolve 'api.kie.ai' ([Errno 11001] getaddrinfo failed)"))
 ERROR 2026-09-22 01:03:20,108 log Internal Server Error: /generate-image/
+INFO 2026-09-23 17:29:41,331 autoreload Watching for file changes with StatReloader
+INFO 2026-09-23 18:39:35,153 autoreload Watching for file changes with StatReloader
