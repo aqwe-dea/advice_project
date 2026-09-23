@@ -1125,3 +1125,11 @@ INFO 2026-09-10 03:39:07,089 autoreload Watching for file changes with StatReloa
 ERROR 2026-09-10 03:41:40,100 agent_cla Ошибка LLM (попытка 1): 429 Client Error: Too Many Requests for url: https://api.kie.ai/claude/v1/messages
 INFO 2026-09-13 00:46:27,631 autoreload Watching for file changes with StatReloader
 WARNING 2026-09-13 00:49:33,978 log Method Not Allowed: /agent-cla/
+INFO 2026-09-16 05:46:22,748 autoreload Watching for file changes with StatReloader
+INFO 2026-09-22 00:08:40,197 autoreload Watching for file changes with StatReloader
+ERROR 2026-09-22 00:59:55,113 base Ошибка создания задачи: HTTPSConnectionPool(host='api.kie.ai', port=443): Max retries exceeded with url: /api/v1/jobs/createTask (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x000001A86941E660>: Failed to resolve 'api.kie.ai' ([Errno 11001] getaddrinfo failed)"))
+ERROR 2026-09-22 00:59:57,131 log Internal Server Error: /generate-image/
+ERROR 2026-09-22 01:02:09,989 base Ошибка создания задачи: HTTPSConnectionPool(host='api.kie.ai', port=443): Max retries exceeded with url: /api/v1/jobs/createTask (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x000001A869A0AFD0>: Failed to resolve 'api.kie.ai' ([Errno 11001] getaddrinfo failed)"))
+ERROR 2026-09-22 01:02:10,359 log Internal Server Error: /generate-image/
+ERROR 2026-09-22 01:03:19,450 base Ошибка создания задачи: HTTPSConnectionPool(host='api.kie.ai', port=443): Max retries exceeded with url: /api/v1/jobs/createTask (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x000001A869C40910>: Failed to resolve 'api.kie.ai' ([Errno 11001] getaddrinfo failed)"))
+ERROR 2026-09-22 01:03:20,108 log Internal Server Error: /generate-image/

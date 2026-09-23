@@ -22,51 +22,6 @@ const CourseForm = () => {
   //  certification: 'есть'
   //});
   const [result, setResult] = useState<any>(null);
-  const handleGenerateCourse = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!topic.trim()) {
-      setError('Пожалуйста, укажите тему курса');
-      return;
-    }
-    setIsLoading(true);
-    setError('');
-    setCourseBook('');
-    try {
-      const structureResponse = await axios.post(
-        '/generate-course/',
-        { topic, level },
-        { headers: { 'Content-Type': 'application/json' } }
-      );
-      if (structureResponse.data.course_structure) {
-        const bookResponse = await axios.post(
-          '/generate-course/build_course_book/',
-          { 
-            course_structure: structureResponse.data.course_structure,
-            course_topic: topic 
-          },
-          { headers: { 'Content-Type': 'application/json' } }
-        );
-        if (bookResponse.data.course_book) {
-          setCourseBook(bookResponse.data.course_book);
-        } else {
-          setError('Сервер вернул пустой ответ. Попробуйте другую тему.');
-        }
-      } else {
-        setError('Сервер вернул пустую структуру курса.');
-      }
-    } catch (err: any) {
-      console.error('Ошибка запроса:', err);
-      if (err.response) {
-        setError(`Ошибка ${err.response.status}: ${err.response.data.error || 'Не удалось сгенерировать курс'}`);
-      } else if (err.request) {
-        setError('Нет ответа от сервера. Проверьте подключение к интернету.');
-      } else {
-        setError('Произошла ошибка при отправке запроса.');
-      }
-    } finally {
-      setIsLoading(false);
-    }
-  };
   const renderCourseStructure = () => {
     if (!result || !result.course_structure) return null;
     const extractSection = (text: string, startMarker: string, endMarker: string | null): string => {
@@ -81,6 +36,7 @@ const CourseForm = () => {
       }
       return text.substring(startIndex, endIndex).trim();
     };
+    
     const sections = {
       introduction: extractSection(result.course_structure, "1.", "2."),
       modules: extractSection(result.course_structure, "2.", "3."),
@@ -93,6 +49,7 @@ const CourseForm = () => {
       support: extractSection(result.course_structure, "9.", "10."),
       recommendations: extractSection(result.course_structure, "10.", null)
     };
+  
     return (
       <div className="course-structure">
         <h3>Структура курса: {result.course_structure}</h3>
@@ -144,6 +101,51 @@ const CourseForm = () => {
         </button>
       </div>
     );
+  };
+  const handleGenerateCourse = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!topic.trim()) {
+      setError('Пожалуйста, укажите тему курса');
+      return;
+    }
+    setIsLoading(true);
+    setError('');
+    setCourseBook('');
+    try {
+      const structureResponse = await axios.post(
+        '/generate-course/',
+        { topic, level },
+        { headers: { 'Content-Type': 'application/json' } }
+      );
+      if (structureResponse.data.course_structure) {
+        const bookResponse = await axios.post(
+          '/generate-course/build_course_book/',
+          { 
+            course_structure: structureResponse.data.course_structure,
+            course_topic: topic 
+          },
+          { headers: { 'Content-Type': 'application/json' } }
+        );
+        if (bookResponse.data.course_book) {
+          setCourseBook(bookResponse.data.course_book);
+        } else {
+          setError('Сервер вернул пустой ответ. Попробуйте другую тему.');
+        }
+      } else {
+        setError('Сервер вернул пустую структуру курса.');
+      }
+    } catch (err: any) {
+      console.error('Ошибка запроса:', err);
+      if (err.response) {
+        setError(`Ошибка ${err.response.status}: ${err.response.data.error || 'Не удалось сгенерировать курс'}`);
+      } else if (err.request) {
+        setError('Нет ответа от сервера. Проверьте подключение к интернету.');
+      } else {
+        setError('Произошла ошибка при отправке запроса.');
+      }
+    } finally {
+      setIsLoading(false);
+    }
   };
   
   const parseCourseBook = (text: string): string => {

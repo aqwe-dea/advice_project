@@ -1,10 +1,55 @@
-import React from 'react';
 import { colors } from "../theme";
 import crystal from '../crystal-symbiosis.jpg';
 import logo from '../logo.svg';
+import React, { useState } from 'react';
+import '../App.css';
+//import ReactMarkdown from 'react-markdown'
+
+const OrderForm: React.FC = () => {
+  const [formData, setFormData] = useState({
+    service: '',
+    name: '',
+    email: '',
+    description: ''
+  });
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Создаём задачу в markdown-файле через API
+    await fetch('/api/tasks', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        title: `Заказ: ${formData.service}`,
+        description: formData.description,
+        priority: 'medium',
+        client: { name: formData.name, email: formData.email }
+      })
+    });
+
+    alert('Спасибо! Ваш заказ принят. Мы свяжемся с вами в течение 24 часов.');
+    setFormData({ service: '', name: '', email: '', description: '' });
+  };
+
+  return (
+    <form onSubmit={handleSubmit} className="order-form">
+      <select value={formData.service} onChange={e => setFormData({...formData, service: e.target.value})} required>
+        <option value="">Выберите услугу</option>
+        <option value="profile-card">Карточка профиля — 500 ₽</option>
+        <option value="rebranding">Ребрендинг бренда — 2000 ₽</option>
+        {/* ... остальные услуги ... */}
+      </select>
+      <input type="text" placeholder="Ваше имя" value={formData.name} onChange={e => setFormData({...formData, name: e.target.value})} required />
+      <input type="email" placeholder="Ваш email" value={formData.email} onChange={e => setFormData({...formData, email: e.target.value})} required />
+      <textarea placeholder="Опишите задачу" value={formData.description} onChange={e => setFormData({...formData, description: e.target.value})} required />
+      <button type="submit">Заказать</button>
+    </form>
+  );
+};
 
 function Services() {
-    return (
+  return (
     <div className="blog">
       <div style={{
         maxWidth: '1000px',
@@ -181,6 +226,7 @@ function Services() {
           }}>
             Присоединяйтесь к тысячам пользователей, которые уже используют Советницу АКВИ для принятия обоснованных решений.
           </p>
+          <OrderForm />
           <button style={{
             backgroundColor: colors.primary,
             color: 'white',
@@ -199,7 +245,8 @@ function Services() {
         </div>
       </div>
     </div>
-    );
+  );
+  
 }
 
 export default Services;
