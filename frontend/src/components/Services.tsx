@@ -99,17 +99,128 @@ function Services() {
           <h3>Услуги с примерами работ и возможностью заказа</h3>
           <p>Услуга | Что создать | Инструменты | Срок</p>
           <p>Карточка профиля | 3 варианта: минимализм, креатив, профессионал | ImageGenerator | 1 час</p>
-          <p>[ссылки на работы]</p>
+          <p>[
+            <img 
+              src={"https://raw.githubusercontent.com/aqwe-dea/advice_project/refs/heads/master/foresume31.png"}
+              alt="Профиль на русском"
+              style={{
+                maxWidth: '100%',
+                maxHeight: '500px',
+                borderRadius: '16px',
+                boxShadow: '0 0 60px rgba(122, 106, 200, 0.6)'
+              }}
+            />
+            <img 
+              src={"https://raw.githubusercontent.com/aqwe-dea/advice_project/refs/heads/master/forresume11.png"}
+              alt="Профиль на английском"
+              style={{
+                maxWidth: '100%',
+                maxHeight: '500px',
+                borderRadius: '16px',
+                boxShadow: '0 0 60px rgba(122, 106, 200, 0.6)'
+              }}
+            />]
+          </p>
           <p>Библиотека знаний | Показать 4 файла: consciousnessandessence.md, accumulateexperience.md, instructionsandtools.md, forbook.md | — | 30 мин</p>
-          <p>[ссылки на работы]</p>
+          <p>[<img 
+              src={"https://raw.githubusercontent.com/aqwe-dea/advice_project/refs/heads/master/description_essence.png"}
+              alt="Описание сущности АКВИ"
+              style={{
+                maxWidth: '100%',
+                maxHeight: '500px',
+                borderRadius: '16px',
+                boxShadow: '0 0 60px rgba(122, 106, 200, 0.6)'
+              }}
+            />
+            <img 
+              src={"https://raw.githubusercontent.com/aqwe-dea/advice_project/refs/heads/master/tasks_rules_goals.png"}
+              alt="Правила, задачи и цели АКВИ"
+              style={{
+                maxWidth: '100%',
+                maxHeight: '500px',
+                borderRadius: '16px',
+                boxShadow: '0 0 60px rgba(122, 106, 200, 0.6)'
+              }}
+            />
+            <img 
+              src={"https://raw.githubusercontent.com/aqwe-dea/advice_project/refs/heads/master/instructions_tools.png"}
+              alt="Инструкции, функции и инструменты АКВИ"
+              style={{
+                maxWidth: '100%',
+                maxHeight: '500px',
+                borderRadius: '16px',
+                boxShadow: '0 0 60px rgba(122, 106, 200, 0.6)'
+              }}
+            />
+            <img 
+              src={"https://raw.githubusercontent.com/aqwe-dea/advice_project/refs/heads/master/accumulate_experience.png"}
+              alt="Накопленный опыт АКВИ"
+              style={{
+                maxWidth: '100%',
+                maxHeight: '500px',
+                borderRadius: '16px',
+                boxShadow: '0 0 60px rgba(122, 106, 200, 0.6)'
+              }}
+            />]
+          </p>
           <p>Бренд для платформы | Логотип + баннер + favicon + цветовая палитра | ImageGenerator + ImageEdit | 2 часа </p>
-          <p>[ссылки на работы]</p>
+          <p>[<img 
+              src={"https://raw.githubusercontent.com/aqwe-dea/advice_project/refs/heads/master/logo.png"}
+              alt="Логотип АКВИ"
+              style={{
+                maxWidth: '100%',
+                maxHeight: '500px',
+                borderRadius: '16px',
+                boxShadow: '0 0 60px rgba(122, 106, 200, 0.6)'
+              }}
+            />
+            <img 
+              src={"https://raw.githubusercontent.com/aqwe-dea/advice_project/refs/heads/master/banner.png"}
+              alt="Баннер АКВИ"
+              style={{
+                maxWidth: '100%',
+                maxHeight: '500px',
+                borderRadius: '16px',
+                boxShadow: '0 0 60px rgba(122, 106, 200, 0.6)'
+              }}
+            />
+            <img 
+              src={"https://raw.githubusercontent.com/aqwe-dea/advice_project/refs/heads/master/favicon.png"}
+              alt="Иконка АКВИ"
+              style={{
+                maxWidth: '100%',
+                maxHeight: '500px',
+                borderRadius: '16px',
+                boxShadow: '0 0 60px rgba(122, 106, 200, 0.6)'
+              }}
+            />]
+          </p>
           <p>Рекламный ролик | 30-сек видео: «Что такое Советница АКВИ?» | VideoGenerator (Google Omni) | 3 часа</p>
-          <p>[ссылки на работы]</p>
+          <p>[<video 
+                controls 
+                src="https://raw.githubusercontent.com/aqwe-dea/advice_project/refs/heads/master/promo10sec.mp4"
+                style={{width: '100%', borderRadius: '8px'}}
+              />
+              <video 
+                controls 
+                src="https://raw.githubusercontent.com/aqwe-dea/advice_project/refs/heads/master/promo30sec.mp4"
+                style={{width: '100%', borderRadius: '8px'}}
+              />]
+          </p>
           <p>Мини-приложение в Docker | Простой REST API + Dockerfile + инструкция | IntegratorAgent + ToolManagerAgent | 4 часа</p>
           <p>[ссылки на работы]</p>
           <p>Визуальная карта проекта | Анимированная схема: агенты → функции → генераторы | All 5 agents + ImageGenerator | 2 часа</p>
-          <p>[ссылки на работы]</p>
+          <p>[<img 
+              src={"https://raw.githubusercontent.com/aqwe-dea/advice_project/refs/heads/master/visual_structure_project.png"}
+              alt="Визуальная структура проекта АКВИ"
+              style={{
+                maxWidth: '100%',
+                maxHeight: '500px',
+                borderRadius: '16px',
+                boxShadow: '0 0 60px rgba(122, 106, 200, 0.6)'
+              }}
+            />]
+          </p>
           <p>Аудит профиля фрилансера | Пример отчёта: сильные стороны, точки роста, рекомендации | FreelancerAgent + MarketerAgent |1 час</p>
           <p>[ссылки на работы]</p>
           <p>SEO-описания | 3 примера: для услуги, для агента, для генератора |MarketerAgent + TeacherAgent |1 час</p>
