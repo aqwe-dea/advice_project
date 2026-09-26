@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { colors } from "../theme";
+import { PersonalizedModule } from '../components/PersonalizedModule';
 
 const AgentTeacher = () => {
   const handleAsk = async (question: string) => {
@@ -97,6 +98,7 @@ const Agent: React.FC<AgentProps> = ({
             <li key={idx} style={{marginBottom: '0.5rem'}}>{cap}</li>
           ))}
         </ul>
+        <PersonalizedModule topic="Python" level="beginner" modalities={['text', 'interactive']} />
       </div>
 
       <form onSubmit={handleSubmit} style={{marginBottom: '2rem'}}>

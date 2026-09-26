@@ -15,21 +15,28 @@ const OrderForm: React.FC = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
-    // Создаём задачу в markdown-файле через API
-    await fetch('/api/tasks', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        title: `Заказ: ${formData.service}`,
-        description: formData.description,
-        priority: 'medium',
-        client: { name: formData.name, email: formData.email }
-      })
-    });
-
-    alert('Спасибо! Ваш заказ принят. Мы свяжемся с вами в течение 24 часов.');
-    setFormData({ service: '', name: '', email: '', description: '' });
+    //setIsLoading(true);
+  
+    try {
+      // Отправляем запрос агенту, который умеет создавать задачи
+      const response = await fetch('/agent-gem/', { // или твой URL
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          question: `Создай новую задачу. Услуга: ${formData.service}. Клиент: ${formData.name}, Email: ${formData.email}. Описание: ${formData.description}. Приоритет: medium.`
+        })
+      });
+  
+      const data = await response.json();
+      if (data.answer) {
+        alert('Спасибо! Ваш заказ принят и передан в работу. Мы свяжемся с вами по почте.');
+        setFormData({ service: '', name: '', email: '', description: '' });
+      }
+    } catch (error) {
+      alert('Произошла ошибка при отправке. Пожалуйста, попробуйте позже.');
+    } finally {
+      //setIsLoading(false);
+    }
   };
 
   return (

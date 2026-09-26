@@ -103,6 +103,7 @@ from .file_navigator import list_directory, find_files
 from .code_sandbox import python_sandbox
 from .semantic_memory import semantic_memory_recall
 from .live_canvas import LiveMultimodalWorkspace
+from django.core.mail import send_mail
 from stripe.checkout._session import Session
 from stripe._request_options import RequestOptions
 from stripe._stripe_object import StripeObject
@@ -3451,6 +3452,19 @@ class AgentGemView(APIView):
         inspector = ProjectInspector(project_root)
         result = inspector.inspect_project()
         return json.dumps(result, ensure_ascii=False, indent=2)
+    
+    def create_order(self, request):
+    
+        # Отправка уведомления
+        send_mail(
+            subject=f'Новый заказ: {data["title"]}',
+            message=data["description"],
+            from_email='meaqwe@hotmail.com',
+            recipient_list=['11genio8d8@gmail.com'],  # твоя почта
+            fail_silently=False,
+        )
+    
+        return Response({'status': 'success'})
 
 class TeacherAgentView(APIView):
     """Агент-учитель: отвечает на вопросы, выдаёт справочные материалы, адаптирует сложность"""
