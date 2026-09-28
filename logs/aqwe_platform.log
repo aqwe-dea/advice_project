@@ -1135,3 +1135,29 @@ ERROR 2026-09-22 01:03:19,450 base Ошибка создания задачи: HTTPSConnectionPool(h
 ERROR 2026-09-22 01:03:20,108 log Internal Server Error: /generate-image/
 INFO 2026-09-23 17:29:41,331 autoreload Watching for file changes with StatReloader
 INFO 2026-09-23 18:39:35,153 autoreload Watching for file changes with StatReloader
+INFO 2026-09-27 01:30:09,246 autoreload Watching for file changes with StatReloader
+ERROR 2026-09-27 01:39:33,706 agent_gpt Ошибка LLM: 500 Server Error: Internal Server Error for url: https://api.kie.ai/codex/v1/responses
+ERROR 2026-09-27 01:41:02,636 agent_gpt Ошибка LLM: 500 Server Error: Internal Server Error for url: https://api.kie.ai/codex/v1/responses
+ERROR 2026-09-27 01:41:48,387 agent_cla Ошибка LLM (попытка 1): 400 Client Error: Bad Request for url: https://api.kie.ai/claude/v1/messages
+ERROR 2026-09-27 01:41:52,871 agent_cla Ошибка LLM (попытка 2): 400 Client Error: Bad Request for url: https://api.kie.ai/claude/v1/messages
+INFO 2026-09-28 00:47:27,700 autoreload Watching for file changes with StatReloader
+ERROR 2026-09-28 01:08:11,101 agent_cla Ошибка LLM (попытка 1): 429 Client Error: Too Many Requests for url: https://api.kie.ai/claude/v1/messages
+ERROR 2026-09-28 01:08:15,728 agent_cla Ошибка LLM (попытка 2): 429 Client Error: Too Many Requests for url: https://api.kie.ai/claude/v1/messages
+ERROR 2026-09-28 01:11:27,065 agent_gpt Ошибка LLM: 500 Server Error: Internal Server Error for url: https://api.kie.ai/codex/v1/responses
+ERROR 2026-09-28 01:15:05,361 freelancer_agent Ошибка LLM (попытка 1): 429 Client Error: Too Many Requests for url: https://api.kie.ai/claude/v1/messages
+ERROR 2026-09-28 01:15:09,106 freelancer_agent Ошибка LLM (попытка 2): 429 Client Error: Too Many Requests for url: https://api.kie.ai/claude/v1/messages
+ERROR 2026-09-28 01:15:12,714 freelancer_agent Ошибка LLM (попытка 1): 429 Client Error: Too Many Requests for url: https://api.kie.ai/claude/v1/messages
+ERROR 2026-09-28 01:15:16,354 freelancer_agent Ошибка LLM (попытка 2): 429 Client Error: Too Many Requests for url: https://api.kie.ai/claude/v1/messages
+ERROR 2026-09-28 01:22:40,363 agent Ошибка извлечения: 'NoneType' object is not subscriptable | Данные: {'top_logprobs': 0, 'metadata': {}, 'tool_usage': {'image_gen': {'input_tokens_details': {'text_tokens': 0, 'image_tokens': 0}, 'total_tokens': 0, 'output_tokens': 0, 'input_tokens': 0, 'output_tokens_details': {'text_tokens': 0, 'image_tokens': 0}}, 'web_search': {'num_requests': 0}}, 'presence_penalty': 0.0, 'reasoning': {'mode': 'standard', 'context': 'all_turns', 'effort': 'xhigh'}, 'usage': {'input_tokens_details': {'cache_write_tokens': 0, 'cached_tokens': 0}, 'attribution': {'request_fields': {'tools': {'cache_write_tokens': 0, 'output_tokens': 0, 'input_tokens': 659, 'cached_tokens': 0}}, 'items': {'msg_084a45825b7e819b016ab99725d83887d2806e81cf04dd6420': {'cache_write_tokens': 0, 'output_tokens': 0, 'input_tokens': 9812, 'content': [{'cache_write_tokens': 0, 'output_tokens': 0, 'input_tokens': 9812, 'cached_tokens': 0}], 'cached_tokens': 0}, 'fc_084a45825b7e819b016ab9972f988887d29bf1a4745bfbd9b5': {'cache_write_tokens': 0, 'output_tokens': 51, 'input_tokens': 0, 'cached_tokens': 0}, 'msg_084a45825b7e819b016ab99725d84887d29d32c0b50b06500b': {'cache_write_tokens': 0, 'output_tokens': 0, 'input_tokens': 18, 'content': [{'cache_write_tokens': 0, 'output_tokens': 0, 'input_tokens': 18, 'cached_tokens': 0}], 'cached_tokens': 0}, 'fc_084a45825b7e819b016ab9972f988087d2ab3a6d7ec7009510': {'cache_write_tokens': 0, 'output_tokens': 31, 'input_tokens': 0, 'cached_tokens': 0}, 'rs_084a45825b7e819b016ab99727e95c87d2b65b4aeaf42d0cba': {'cache_write_tokens': 0, 'output_tokens': 80, 'input_tokens': 2, 'cached_tokens': 0}, 'fc_084a45825b7e819b016ab9972f986c87d2b40705f39e5915a6': {'cache_write_tokens': 0, 'output_tokens': 74, 'input_tokens': 0, 'cached_tokens': 0}}}, 'total_tokens': 10727, 'output_tokens': 236, 'input_tokens': 10491, 'output_tokens_details': {'reasoning_tokens': 80}}, 'created_at': 1790547749, 'safety_identifier': 'user-QpuKlHcVBd3GB2tYSTouWpKf', 'tools': [{'name': 'web_search', 'description': 'Ищет актуальную информацию в интернете. Использовать эту функцию 
+INFO 2026-09-28 02:15:01,473 autoreload Watching for file changes with StatReloader
+ERROR 2026-09-28 02:20:24,366 agent_gpt Ошибка LLM: 500 Server Error: Internal Server Error for url: https://api.kie.ai/codex/v1/responses
+INFO 2026-09-28 02:55:32,276 autoreload Watching for file changes with StatReloader
+INFO 2026-09-28 03:16:51,381 autoreload Watching for file changes with StatReloader
+WARNING 2026-09-28 03:25:33,176 log Method Not Allowed: /agent-cla/
+WARNING 2026-09-28 03:25:33,177 log Method Not Allowed: /agent-cla/
+WARNING 2026-09-28 03:26:18,184 log Bad Request: /agent-cla/
+ERROR 2026-09-28 03:27:35,716 agent_cla Ошибка LLM (попытка 1): 429 Client Error: Too Many Requests for url: https://api.kie.ai/claude/v1/messages
+ERROR 2026-09-28 03:27:40,393 agent_cla Ошибка LLM (попытка 2): 429 Client Error: Too Many Requests for url: https://api.kie.ai/claude/v1/messages
+WARNING 2026-09-28 03:28:20,118 log Method Not Allowed: /agent-gpt/
+ERROR 2026-09-28 03:29:11,636 agent_gpt Ошибка LLM: 500 Server Error: Internal Server Error for url: https://api.kie.ai/codex/v1/responses
+WARNING 2026-09-28 03:29:43,791 log Method Not Allowed: /agent-chat/

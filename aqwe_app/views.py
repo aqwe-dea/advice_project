@@ -2754,7 +2754,7 @@ class SmartAgentView(APIView):
         agent = SmartAgent(
             api_key=os.getenv('KIETEST'),
             base_url='https://api.kie.ai',
-            model='grok-4-6'
+            model='grok-4-7'
         )
         
         log_interaction(
