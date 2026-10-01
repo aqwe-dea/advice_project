@@ -212,15 +212,15 @@ class SmartAgent:
         """
         try:
             # Grok возвращает: data["output"][0]["content"][0]
-            output_list = data.get("output")
+            output_list = data.get("output", [])
             if not output_list or not isinstance(output_list, list):
                 logger.warning(f"Пустой или неверный output: {data.keys()}")
                 return "", None
         
-            first_message = output_list[0]
-            content_list = first_message.get("content")
-            if not content_list or not isinstance(content_list, list):
-                return "", None
+            first_message = output_list[1]
+            content_list = first_message.get("content", [])
+            #if not content_list or not isinstance(content_list, list):
+            #    return "", None
         
             first_block = content_list[0]
             block_type = first_block.get("type")
@@ -554,7 +554,7 @@ class SmartAgent:
         try:
             logger.info(f"📤 Запрос к Grok: {prompt[:200]}...")
             response = requests.post(
-                f"{self.base_url}/grok/v1/responses",
+                f"{self.base_url}/openai/v1/responses",
                 headers={
                     "Authorization": f"Bearer {self.api_key}",
                     "Content-Type": "application/json"
@@ -636,7 +636,7 @@ class SmartAgent:
                             
                         # Повторный запрос для получения человеческого ответа
                         second_response = requests.post(
-                            f"{self.base_url}/grok/v1/responses",
+                            f"{self.base_url}/openai/v1/responses",
                             headers={
                                 "Authorization": f"Bearer {self.api_key}",
                                 "Content-Type": "application/json"

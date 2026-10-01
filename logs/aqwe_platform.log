@@ -1201,3 +1201,17 @@ WARNING 2026-10-01 08:08:46,284 log Method Not Allowed: /smart-agent/
 ERROR 2026-10-01 08:10:44,695 smart_agent Ошибка LLM: 500 Server Error: Internal Server Error for url: https://api.kie.ai/grok/v1/responses
 INFO 2026-10-01 09:40:27,981 autoreload Watching for file changes with StatReloader
 WARNING 2026-10-01 09:47:55,511 log Method Not Allowed: /smart-agent/
+INFO 2026-10-01 20:17:59,975 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-01 20:31:16,138 log Method Not Allowed: /smart-agent/
+INFO 2026-10-01 20:37:28,106 autoreload C:\advice_project\aqwe_app\smartagent\smart_agent.py changed, reloading.
+INFO 2026-10-01 20:39:45,340 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-01 20:41:55,324 log Method Not Allowed: /smart-agent/
+ERROR 2026-10-01 20:42:45,444 smart_agent Ошибка LLM: 500 Server Error: Internal Server Error for url: https://api.kie.ai/grok/v1/responses
+INFO 2026-10-01 20:48:28,551 autoreload C:\advice_project\aqwe_app\smartagent\smart_agent.py changed, reloading.
+INFO 2026-10-01 20:50:43,005 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-01 20:52:58,610 log Method Not Allowed: /smart-agent/
+INFO 2026-10-01 21:02:59,251 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-01 21:07:17,400 log Method Not Allowed: /smart-agent/
+ERROR 2026-10-01 21:09:19,233 smart_agent Ошибка извлечения: list index out of range | Данные: {'top_logprobs': 0, 'metadata': {'system_fingerprint': 'fp_5719f1aec35dd73c'}, 'presence_penalty': 0.0, 'reasoning': {}, 'usage': {'context_details': {'output_tokens': 432, 'input_tokens': 12315}, 'num_sources_used': 0, 'input_tokens_details': {'cached_tokens': 12288}, 'num_server_side_tools_used': 0, 'total_tokens': 12739, 'output_tokens': 424, 'cost_in_usd_ticks': 29722800, 'input_tokens': 12315, 'output_tokens_details': {'reasoning_tokens': 316}}, 'created_at': 1790878152, 'tools': [{'name': 
+INFO 2026-10-01 21:39:54,527 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-01 21:47:26,746 log Method Not Allowed: /smart-agent/
