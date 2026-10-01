@@ -205,53 +205,97 @@ class AgentGpt:
     
     def _extract_text_or_tool(self, data: dict) -> tuple[str, Optional[Dict]]:
         """
-            Извлекает текст или tool_call из ответа с JSON Schema.
-            Returns: (текст_ответа, tool_call_инфо_или_None)
+            Безопасно извлекает текст ИЛИ информацию о вызове инструмента из ответа API.
+            Поддерживает: OpenAI/GPT/Grok (choices/output), Anthropic (content), Gemini (candidates).
+            Returns: (текст, словарь tool_call или None)
         """
         try:
-            output_list = data.get("output", [])
-            if not output_list or not isinstance(output_list, list):
-                logger.warning(f"Пустой или неверный output: {data.keys()}")
-                return "", None
-        
-            first_message = output_list[0]
-            content_list = first_message.get("content", [])
-            if not content_list or not isinstance(content_list, list):
-                return "", None
-        
-            first_block = content_list[0]
-            block_type = first_block.get("type")
-        
-            # 🎯 Если это tool_call
-            if block_type == "tool_call":
-                tool_info = first_block.get("tool_call", {})
-                return "", {
-                    "id": tool_info.get("id"),
-                    "name": tool_info.get("name"),
-                    "arguments": tool_info.get("arguments", "{}")
-                }
-
-            if block_type == "function_call":
-                fc = first_block.get("function_call", {})
-                return {
-                    'id': None,
-                    'name': fc.get('name'),
-                    'arguments': fc.get('arguments', '{}')
-                }
-                
-            # 🎯 Если это текст в JSON Schema формате
-            if block_type == "output_text":
-                raw_text = first_block.get("text", "")
+            # 5. OpenAI / GPT-5.x / Grok / Совместимые (структура output)
+            output = data.get('output')
+            if output and isinstance(output, list) and len(output) > 0:
+                msg = output[1]
+                message = msg.get('content')
+                content = message[0]
             
-                return raw_text, None
-        
-            # Fallback
-            logger.warning(f"Неизвестный тип блока: {block_type}")
+                # Tool calls (современный формат)
+                if 'tool_calls' in msg and msg['tool_calls']:
+                    tc = msg['tool_calls'][0]
+                    return {
+                        'id': tc.get('id'),
+                        'name': tc['function']['name'],
+                        'arguments': tc['function'].get('arguments', '{}')
+                    }
+                # Legacy function_call
+                if 'function_call' in msg:
+                    fc = msg['function_call']
+                    return {
+                        'id': None,
+                        'name': fc.get('name'),
+                        'arguments': fc.get('arguments', '{}')
+                    }
+                # Текст
+                text = content.get('text', '')
+                #if isinstance(content, list):
+                #    text = '\n'.join(block.get('text', '') for block in content if isinstance(block, dict))
+                #else:
+                    #text = content or ''
+                #    text = str(content)
+                return text
+            logger.warning(f"Неизвестная структура ответа: {list(data.keys())}")
             return "", None
-        
+
         except Exception as e:
-            logger.error(f"Ошибка извлечения: {e} | Данные: {str(data)[:500]}")
+            logger.error(f"Ошибка извлечения: {e} | Данные: {str(data)[:2000]}")
             return "", None
+    #def _extract_text_or_tool(self, data: dict) -> tuple[str, Optional[Dict]]:
+    #    """
+    #        Извлекает текст или tool_call из ответа с JSON Schema.
+    #        Returns: (текст_ответа, tool_call_инфо_или_None)
+    #    """
+    #    try:
+    #        output_list = data.get("output", [])
+    #        if not output_list or not isinstance(output_list, list):
+    #            logger.warning(f"Пустой или неверный output: {data.keys()}")
+    #            return "", None
+    #    
+    #        first_message = output_list[0]
+    #        content_list = first_message.get("content", [])
+    #        if not content_list or not isinstance(content_list, list):
+    #            return "", None
+    #    
+    #        first_block = content_list[0]
+    #        block_type = first_block.get("type")
+    #    
+    #        # 🎯 Если это tool_call
+    #        if block_type == "tool_call":
+    #            tool_info = first_block.get("tool_call", {})
+    #            return "", {
+    #                "id": tool_info.get("id"),
+    #                "name": tool_info.get("name"),
+    #                "arguments": tool_info.get("arguments", "{}")
+    #            }
+
+    #        if block_type == "function_call":
+    #            fc = first_block.get("function_call", {})
+    #            return {
+    #                'id': None,
+    #                'name': fc.get('name'),
+    #                'arguments': fc.get('arguments', '{}')
+    #            }
+                
+    #        # 🎯 Если это текст в JSON Schema формате
+    #        if block_type == "output_text":
+    #            raw_text = first_block.get("text", "")
+    #        
+    #            return raw_text, None
+    #    
+    #        # Fallback
+    #        logger.warning(f"Неизвестный тип блока: {block_type}")
+    #        return "", None
+        
+    #    except Exception as e:
+    #        logger.error(f"Ошибка извлечения: {e} | Данные: {str(data)[:500]}")
+    #        return "", None
 
     #def _extract_text_or_tool(self, data: dict) -> tuple[str, Optional[Dict]]: this worked
     #    """

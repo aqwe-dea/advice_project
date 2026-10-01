@@ -212,13 +212,13 @@ class SmartAgent:
         """
         try:
             # Grok возвращает: data["output"][0]["content"][0]
-            output_list = data.get("output", [])
+            output_list = data.get("output")
             if not output_list or not isinstance(output_list, list):
                 logger.warning(f"Пустой или неверный output: {data.keys()}")
                 return "", None
         
             first_message = output_list[0]
-            content_list = first_message.get("content", [])
+            content_list = first_message.get("content")
             if not content_list or not isinstance(content_list, list):
                 return "", None
         

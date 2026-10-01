@@ -604,7 +604,7 @@ class AgentCla:
                         "anthropic-version": "2023-06-01"
                     },
                     json={
-                        "model": "claude-opus-5",
+                        "model": "claude-opus-4-8",
                         "messages": messages,
                         "thinkingFlag": False,
                         "stream": False,
