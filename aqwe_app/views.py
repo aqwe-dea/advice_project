@@ -3543,6 +3543,7 @@ class IntegratorAgentView(APIView):
     def post(self, request):
         service = request.data.get('service', '')
         requirements = request.data.get('requirements', '')
+        prompt = request.data.get('service', '')
         if not service:
             return Response({'error': 'Укажите название сервиса'}, status=400)
         
@@ -3571,7 +3572,9 @@ class IntegratorAgentView(APIView):
         agent.add_tool("check_wellbeing", check_wellbeing, "Проверка состояния здоровья пользователя")
         agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
 
-        return Response({'answer': agent.ask(service, requirements)})
+        check = agent._call_llm(prompt)
+
+        return Response({'answer': agent.ask(service, requirements), 'check': check})
 
 class ToolManagerView(APIView):
     def post(self, request):
@@ -3611,11 +3614,12 @@ class ToolManagerView(APIView):
 
         # Пример регистрации на лету (в проде вынесем в конфиг)
         # agent.register_tool('hello', lambda msg="Мир": f"Привет, {msg}!", {"msg": "string"})
-        # tool = agent.call_tool_direct(tool_name, params)
+        tool = agent.call_tool_direct(tool_name, params)
         answer = agent.ask(question)
 
         return Response({
-            'answer': answer
+            'answer': answer,
+            'tool': tool
         })
 
 class DirectorAgentView(APIView):
@@ -3758,8 +3762,8 @@ class MarketerAgentView(APIView):
         if not topic:
             return Response({'error': 'Укажите тему поста'}, status=400)
         
-        query = request.data.get('query', f"finded where public post")
-        url = request.data.get('url', 'https://www.google.com')
+        #query = request.data.get('query', f"finded where public post")
+        #url = request.data.get('url', 'https://www.google.com')
         question = request.data.get('topic', '')
 
         agent = MarketerAgent(api_key=os.getenv('KIETEST'))
@@ -3788,17 +3792,17 @@ class MarketerAgentView(APIView):
         agent.add_tool("check_wellbeing", check_wellbeing, "Проверка состояния здоровья пользователя")
         agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
 
-        googleSearch = agent._googleSearch(query)
-        hyperbrowse = agent._hyperbrowse(url)
+        #googleSearch = agent._googleSearch(query)
+        #hyperbrowse = agent._hyperbrowse(url)
 
         answer = agent.ask(question)
         post = agent.create_post(topic, platform, tone)
 
         return Response({
             'answer': answer,
-            'checkanswer': post,
-            'googleSearch': googleSearch,
-            'hyperbrowse': hyperbrowse
+            'checkanswer': post
+            #'googleSearch': googleSearch,
+            #'hyperbrowse': hyperbrowse
         })
 
 class InvestorAgentView(APIView):
@@ -3808,8 +3812,8 @@ class InvestorAgentView(APIView):
         #if not ticker:
         #    return Response({'error': 'Укажите тикер актива'}, status=400)
         
-        query = request.data.get('query', '')
-        url = request.data.get('url', '')
+        #query = request.data.get('query', '')
+        #url = request.data.get('url', '')
         #prompt = request.data.get('prompt', '')
         question = request.data.get('ticker', '')
 
@@ -3839,18 +3843,18 @@ class InvestorAgentView(APIView):
         agent.add_tool("check_wellbeing", check_wellbeing, "Проверка состояния здоровья пользователя")
         agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
 
-        googleSearch = agent._googleSearch(query)
-        hyperbrowse = agent._hyperbrowse(url)
+        #googleSearch = agent._googleSearch(query)
+        #hyperbrowse = agent._hyperbrowse(url)
         #outcome_or_error = agent._call_llm(prompt)
         answer = agent.ask(question)
         analyze = agent.analyze_asset(ticker)
 
         return Response({
             'answer': answer,
-            'analyze': analyze,
+            'analyze': analyze
             #'outcomeorerror': outcome_or_error,
-            'googleSearch': googleSearch,
-            'hyperbrowse': hyperbrowse
+            #'googleSearch': googleSearch,
+            #'hyperbrowse': hyperbrowse
         })
 
 class FreelancerAgentView(APIView):
@@ -3900,8 +3904,8 @@ class FreelancerAgentView(APIView):
 
         # ← ИСПРАВЛЕНО: используем find_orders, который вызывает _call_llm
         # Это позволяет Claude использовать tool use правильно
-        answer = agent.find_orders(skills, min_budget, max_budget)
-        analyse = agent.analyze_freelance_orders(orders)
+        analyse = agent.find_orders(skills, min_budget, max_budget)
+        answer = agent.analyze_freelance_orders(orders)
 
         return Response({
             'answer': answer,
@@ -3955,7 +3959,7 @@ class JournalistAgentView(APIView):
         agent.add_tool("create_task", create_task, "Создание задачи для агента")
         agent.add_tool("detect_emotion", detect_emotion, "Распознавание эмоций польователя")
         agent.add_tool("check_wellbeing", check_wellbeing, "Проверка состояния здоровья пользователя")
-        agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
+        #agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
 
         report = agent.publish_cycle(topic, platforms)
         

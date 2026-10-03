@@ -152,7 +152,7 @@ class InvestorAgent:
                         "anthropic-version": "2023-06-01"
                     },
                     json={
-                        "model": "claude-opus-4-7",
+                        "model": "claude-opus-4-8",
                         "messages": messages,
                         "thinkingFlag": False,
                         "stream": False,
@@ -208,7 +208,7 @@ class InvestorAgent:
                             "anthropic-version": "2023-06-01"
                         },
                         json={
-                            "model": "claude-opus-4-7",
+                            "model": "claude-opus-4-8",
                             "messages": messages,
                             "thinkingFlag": False,
                             #"tool_choice": {"type": "auto"},

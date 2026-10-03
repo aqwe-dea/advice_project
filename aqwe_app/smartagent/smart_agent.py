@@ -552,7 +552,7 @@ class SmartAgent:
         api_tools = self._build_api_tools()
         
         try:
-            logger.info(f"📤 Запрос к Grok: {prompt[:200]}...")
+            logger.info(f"📤 Запрос к KIMI: {prompt[:200]}...")
             response = requests.post(
                 f"{self.base_url}/openai/v1/responses",
                 headers={
@@ -597,7 +597,7 @@ class SmartAgent:
             response.raise_for_status()
             data = response.json()
             text = self._extract_text_or_tool(data)
-            logger.info(f"📥 Ответ от Grok: {text[:200]}...")
+            logger.info(f"📥 Ответ от KIMI: {text[:200]}...")
             if not text:
                 logger.error(f"Пустой текст в ответе: {data}")
                 return "Ошибка: агент не получил ответ от модели нет данных в data"

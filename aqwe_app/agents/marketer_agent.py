@@ -145,7 +145,7 @@ class MarketerAgent:
                         "anthropic-version": "2023-06-01"
                     },
                     json={
-                        "model": "claude-opus-4-7",
+                        "model": "claude-opus-4-8",
                         "messages": messages,
                         "tools": claude_tools if claude_tools else None,
                         "thinkingFlag": False,
@@ -182,7 +182,7 @@ class MarketerAgent:
                             "anthropic-version": "2023-06-01"
                         },
                         json={
-                            "model": "claude-opus-4-7",
+                            "model": "claude-opus-4-8",
                             "messages": messages,
                             "tool_choice": {"type": "auto"},
                             "thinkingFlag": False,
