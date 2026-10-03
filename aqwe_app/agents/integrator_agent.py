@@ -98,9 +98,9 @@ class IntegratorAgent:
                     }
                 # Legacy function_call
                 if 'function_call' in msg:
-                    fc = msg['function_call']
+                    fc = msg['function_call'][0]
                     return {
-                        'id': None,
+                        'id': fc.get('id'),
                         'name': fc.get('name'),
                         'arguments': fc.get('arguments', '{}')
                     }
