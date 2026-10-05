@@ -88,43 +88,79 @@ class ToolManagerAgent:
             Returns: (текст, словарь tool_call или None)
         """
         try:
-            # 5. OpenAI / GPT-5.x / Grok / Совместимые (структура output)
-            output = data.get('output')
-            if output and isinstance(output, list) and len(output) > 0:
-                msg = output[1]
-                message = msg.get('content')
-                content = message[0]
-            
+            # Вместо рискованного output[1].get('text'):
+            content_list = data.get('output')[1].get('content')
+
+            if isinstance(content_list, list) and len(content_list) > 1:
+                text = content_list[1].get('text', '')
+
+            elif isinstance(content_list, list) and len(content_list) > 0:
                 # Tool calls (современный формат)
-                if 'tool_calls' in msg and msg['tool_calls']:
-                    tc = msg['tool_calls'][0]
+                if 'tool_calls' in content_list and content_list['tool_calls']:
+                    tc = content_list['tool_calls'][0]
                     return {
                         'id': tc.get('id'),
                         'name': tc['function']['name'],
                         'arguments': tc['function'].get('arguments', '{}')
                     }
                 # Legacy function_call
-                if 'function_call' in msg:
-                    fc = msg['function_call'][0]
+                if 'function_call' in content_list:
+                    fc = content_list['function_call'][0]
                     return {
                         'id': fc.get('id'),
                         'name': fc.get('name'),
                         'arguments': fc.get('arguments', '{}')
                     }
-                # Текст
-                text = content.get('text', '')
-                #if isinstance(content, list):
-                #    text = '\n'.join(block.get('text', '') for block in content if isinstance(block, dict))
-                #else:
-                    #text = content or ''
-                #    text = str(content)
+                text = content_list[0].get('text', '') # Фоллбэк на первый элемент
                 return text
+
+            else:
+                text = str(content_list)
+            
             logger.warning(f"Неизвестная структура ответа: {list(data.keys())}")
             return "", None
-
+            
         except Exception as e:
             logger.error(f"Ошибка извлечения: {e} | Данные: {str(data)[:2000]}")
             return "", None
+
+            ## 5. OpenAI / GPT-5.x / Grok / Совместимые (структура output)
+            #output = data.get('output')
+            #if output and isinstance(output, list) and len(output) > 0:
+            #    msg = output[1]
+            #    message = msg.get('content')
+            #    content = message[0]
+            
+            #    # Tool calls (современный формат)
+            #    if 'tool_calls' in msg and msg['tool_calls']:
+            #        tc = msg['tool_calls'][0]
+            #        return {
+            #            'id': tc.get('id'),
+            #            'name': tc['function']['name'],
+            #            'arguments': tc['function'].get('arguments', '{}')
+            #        }
+            #    # Legacy function_call
+            #    if 'function_call' in msg:
+            #        fc = msg['function_call'][0]
+            #        return {
+            #            'id': fc.get('id'),
+            #            'name': fc.get('name'),
+            #            'arguments': fc.get('arguments', '{}')
+            #        }
+            #    # Текст
+            #    text = content.get('text', '')
+            #    #if isinstance(content, list):
+            #    #    text = '\n'.join(block.get('text', '') for block in content if isinstance(block, dict))
+            #    #else:
+            #        #text = content or ''
+            #    #    text = str(content)
+            #    return text
+            #logger.warning(f"Неизвестная структура ответа: {list(data.keys())}")
+            #return "", None
+
+        #except Exception as e:
+        #    logger.error(f"Ошибка извлечения: {e} | Данные: {str(data)[:2000]}")
+        #    return "", None
 
     #def _extract_text_or_tool(self, data: dict) -> tuple[str, Optional[Dict]]:
     #    """Извлечь текст или function_call из ответа API"""
@@ -345,29 +381,50 @@ class ToolManagerAgent:
     
     def call_tool_direct(self, tool_name: str, params: Dict = None) -> str:
         """Прямой вызов инструмента (для тестов)"""
-        if tool_name not in self.tools:
-            return f"❌ Инструмент '{tool_name}' не найден. Доступны: {', '.join(self.tools.keys())}"
+        report = []
+        for tool_name, tool_info in self.tools.items():
+            if not tool_name or tool_name.strip() == "":
+                continue # Пропускаем пустые имена
         
-        tool = self.tools[tool_name]
-        func = tool['func']
+            try:
+                # Вызываем функцию с тестовыми аргументами (например, для read_file передаем 'test.md')
+                func = tool_info['func']
+                result = func(query="test") 
+                report.append(f"✅ {tool_name}: Успешно")
+                log_entry = {
+                    "tool": tool_name,
+                    "status": "success",
+                    "result_preview": str(result)[:200]
+                }
+                self.call_log.append(log_entry)
+            except Exception as e:
+                report.append(f"❌ {tool_name}: Ошибка - {str(e)}")
+
+        return "\n".join(report)
+
+        #if tool_name not in self.tools:
+        #    return f"❌ Инструмент '{tool_name}' не найден. Доступны: {', '.join(self.tools.keys())}"
         
-        try:
-            start = time.time()
-            result = func(**(params or {}))
-            duration = round(time.time() - start, 3)
+        #tool = self.tools[tool_name]
+        #func = tool['func']
+        
+        #try:
+        #    start = time.time()
+        #    result = func(**(params or {}))
+        #    duration = round(time.time() - start, 3)
+        #    
+        #    log_entry = {
+        #        "tool": tool_name,
+        #        "params": params,
+        #        "status": "success",
+        #        "duration": duration,
+        #        "result_preview": str(result)[:200]
+        #    }
+        #    self.call_log.append(log_entry)
             
-            log_entry = {
-                "tool": tool_name,
-                "params": params,
-                "status": "success",
-                "duration": duration,
-                "result_preview": str(result)[:200]
-            }
-            self.call_log.append(log_entry)
-            
-            return f"✅ {tool_name} выполнен за {duration}с\nРезультат: {result}"
-        except Exception as e:
-            return f"❌ Ошибка: {str(e)}"
+        #    return f"✅ {tool_name} выполнен за {duration}с\nРезультат: {result}"
+        #except Exception as e:
+        #    return f"❌ Ошибка: {str(e)}"
     
     def get_log(self, limit: int = 10) -> str:
         return json.dumps(self.call_log[-limit:], ensure_ascii=False, indent=2)
