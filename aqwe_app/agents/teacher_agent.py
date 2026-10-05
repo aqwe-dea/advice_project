@@ -89,43 +89,85 @@ class TeacherAgent:
             Returns: (текст, словарь tool_call или None)
         """
         try:
-            # 5. OpenAI / GPT-5.x / Grok / Совместимые (структура output)
-            output = data.get('output')
-            if output and isinstance(output, list) and len(output) > 0:
-                msg = output[1]
-                message = msg.get('content')
-                content = message[0]
-            
-                # Tool calls (современный формат)
-                if 'tool_calls' in msg and msg['tool_calls']:
-                    tc = msg['tool_calls'][0]
-                    return {
-                        'id': tc.get('id'),
-                        'name': tc['function']['name'],
-                        'arguments': tc['function'].get('arguments', '{}')
-                    }
-                # Legacy function_call
-                if 'function_call' in msg:
-                    fc = msg['function_call'][0]
-                    return {
-                        'id': fc.get('id'),
-                        'name': fc.get('name'),
-                        'arguments': fc.get('arguments', '{}')
-                    }
-                # Текст
-                text = content.get('text', '')
-                #if isinstance(content, list):
-                #    text = '\n'.join(block.get('text', '') for block in content if isinstance(block, dict))
-                #else:
-                    #text = content or ''
-                #    text = str(content)
+            # Вместо рискованного output[1].get('text'): пробую свой
+            content_list = data.get('output')[1].get('content')
+
+            if isinstance(content_list, list) and len(content_list) > 1:
+                text = content_list[1].get('text', '')
+
+            # Tool calls (современный формат)
+            if 'tool_calls' in content_list and content_list['tool_calls']:
+                tc = content_list['tool_calls'][0]
+                return {
+                    'id': tc.get('id'),
+                    'name': tc['function']['name'],
+                    'arguments': tc['function'].get('arguments', '{}')
+                }
+            # Legacy function_call
+            if 'function_call' in content_list:
+                fc = content_list['function_call'][0]
+                return {
+                    'id': fc.get('id'),
+                    'name': fc.get('name'),
+                    'arguments': fc.get('arguments', '{}')
+                }
+            elif isinstance(content_list, list) and len(content_list) > 0:
+                text = content_list[0].get('text', '') # Фоллбэк на первый элемент
                 return text
+
+            else:
+                text = str(content_list)
+            
             logger.warning(f"Неизвестная структура ответа: {list(data.keys())}")
             return "", None
-
+            
         except Exception as e:
             logger.error(f"Ошибка извлечения: {e} | Данные: {str(data)[:2000]}")
             return "", None
+    #def _extract_text_or_tool(self, data: dict) -> tuple[str, Optional[Dict]]: this worked
+    #    """
+    #        Безопасно извлекает текст ИЛИ информацию о вызове инструмента из ответа API.
+    #        Поддерживает: OpenAI/GPT/Grok (choices/output), Anthropic (content), Gemini (candidates).
+    #        Returns: (текст, словарь tool_call или None)
+    #    """
+    #    try:
+    #        # 5. OpenAI / GPT-5.x / Grok / Совместимые (структура output)
+    #        output = data.get('output')
+    #        if output and isinstance(output, list) and len(output) > 0:
+    #            msg = output[1]
+    #            message = msg.get('content')
+    #            content = message[0]
+    #        
+    #            # Tool calls (современный формат)
+    #            if 'tool_calls' in msg and msg['tool_calls']:
+    #                tc = msg['tool_calls'][0]
+    #                return {
+    #                    'id': tc.get('id'),
+    #                    'name': tc['function']['name'],
+    #                    'arguments': tc['function'].get('arguments', '{}')
+    #                }
+    #            # Legacy function_call
+    #            if 'function_call' in msg:
+    #                fc = msg['function_call'][0]
+    #                return {
+    #                    'id': fc.get('id'),
+    #                    'name': fc.get('name'),
+    #                    'arguments': fc.get('arguments', '{}')
+    #                }
+    #            # Текст
+    #            text = content.get('text', '')
+    #            #if isinstance(content, list):
+    #            #    text = '\n'.join(block.get('text', '') for block in content if isinstance(block, dict))
+    #            #else:
+    #                #text = content or ''
+    #            #    text = str(content)
+    #            return text
+    #        logger.warning(f"Неизвестная структура ответа: {list(data.keys())}")
+    #        return "", None
+
+    #    except Exception as e:
+    #        logger.error(f"Ошибка извлечения: {e} | Данные: {str(data)[:2000]}")
+    #        return "", None
 
     def _call_llm(self, prompt: str, temperature: float = 0.3) -> str:
         """Вызов LLM API с поддержкой инструментов"""
@@ -143,14 +185,15 @@ class TeacherAgent:
                     "Content-Type": "application/json"
                 },
                 json={
-                    "model": "gpt-6-sol",
+                    "model": "gpt-6-astra",
                     "input": messages,
                     "stream": False,
                     "max_output_tokens": 10000,
                     "reasoning": {
-                        "effort": "xhigh"
+                        "effort": "max"
                     },
-                    "tools": api_tools if api_tools else None
+                    "tools": api_tools if api_tools else None,
+                    "tool_choice": "auto"
                 },
                 timeout=1200
             )
@@ -207,14 +250,15 @@ class TeacherAgent:
                                 "Content-Type": "application/json"
                             },
                             json={
-                                "model": "gpt-6-sol",
+                                "model": "gpt-6-astra",
                                 "input": messages,
                                 "stream": False,
                                 "max_output_tokens": 10000,
                                 "reasoning": {
-                                    "effort": "xhigh"
+                                    "effort": "max"
                                 },
-                                "tools": api_tools if api_tools else None
+                                "tools": api_tools if api_tools else None,
+                                "tool_choice": "auto"
                             },
                             timeout=1200
                         )

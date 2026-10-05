@@ -1339,3 +1339,47 @@ INFO 2026-10-05 02:44:24,135 autoreload C:\advice_project\aqwe_app\agents\integr
 INFO 2026-10-05 02:45:02,081 autoreload Watching for file changes with StatReloader
 WARNING 2026-10-05 02:48:46,796 log Method Not Allowed: /agent-toolmanager/
 WARNING 2026-10-05 02:58:09,310 log Method Not Allowed: /agent-integrator/
+INFO 2026-10-05 07:02:59,622 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-05 07:05:57,858 log Method Not Allowed: /agent-integrator/
+ERROR 2026-10-05 07:12:04,308 integrator_agent Ошибка LLM: 500 Server Error: Internal Server Error for url: https://api.kie.ai/codex/v1/responses
+ERROR 2026-10-05 07:22:49,106 integrator_agent Ошибка LLM: 500 Server Error: Internal Server Error for url: https://api.kie.ai/codex/v1/responses
+ERROR 2026-10-05 07:26:20,902 integrator_agent Ошибка LLM: 500 Server Error: Internal Server Error for url: https://api.kie.ai/codex/v1/responses
+ERROR 2026-10-05 07:27:45,141 integrator_agent Ошибка LLM: 500 Server Error: Internal Server Error for url: https://api.kie.ai/codex/v1/responses
+WARNING 2026-10-05 07:33:53,353 log Method Not Allowed: /agent-integrator/
+ERROR 2026-10-05 07:35:23,777 integrator_agent Ошибка LLM: 500 Server Error: Internal Server Error for url: https://api.kie.ai/codex/v1/responses
+INFO 2026-10-05 07:57:34,865 autoreload C:\advice_project\aqwe_app\agents\integrator_agent.py changed, reloading.
+INFO 2026-10-05 07:58:50,622 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-05 08:01:12,803 log Method Not Allowed: /agent-integrator/
+ERROR 2026-10-05 08:03:34,615 integrator_agent Ошибка LLM: 500 Server Error: Internal Server Error for url: https://api.kie.ai/codex/v1/responses
+INFO 2026-10-05 08:12:26,104 autoreload C:\advice_project\aqwe_app\agents\agent_gpt.py changed, reloading.
+INFO 2026-10-05 08:13:44,810 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-05 08:15:25,863 log Method Not Allowed: /agent-gpt/
+ERROR 2026-10-05 08:17:32,781 agent_gpt Ошибка LLM: 500 Server Error: Internal Server Error for url: https://api.kie.ai/codex/v1/responses
+ERROR 2026-10-05 08:23:37,226 agent_gpt Ошибка LLM: 500 Server Error: Internal Server Error for url: https://api.kie.ai/codex/v1/responses
+INFO 2026-10-05 08:33:24,231 autoreload C:\advice_project\aqwe_app\agents\agent_gpt.py changed, reloading.
+INFO 2026-10-05 08:34:39,590 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-05 08:35:58,202 log Method Not Allowed: /agent-gpt/
+ERROR 2026-10-05 08:37:01,429 agent_gpt Ошибка LLM: 500 Server Error: Internal Server Error for url: https://api.kie.ai/codex/v1/responses
+INFO 2026-10-05 08:53:39,697 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-05 08:55:44,925 log Method Not Allowed: /agent-gpt/
+ERROR 2026-10-05 08:56:36,066 agent_gpt Ошибка LLM: 500 Server Error: Internal Server Error for url: https://api.kie.ai/codex/v1/responses
+INFO 2026-10-05 09:00:26,642 autoreload C:\advice_project\aqwe_app\agents\agent_gpt.py changed, reloading.
+INFO 2026-10-05 09:02:17,786 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-05 09:04:43,103 log Method Not Allowed: /agent-gpt/
+ERROR 2026-10-05 09:06:18,072 agent_gpt Ошибка LLM: 500 Server Error: Internal Server Error for url: https://api.kie.ai/codex/v1/responses
+INFO 2026-10-05 09:09:27,216 autoreload C:\advice_project\aqwe_app\agents\agent_gpt.py changed, reloading.
+INFO 2026-10-05 09:10:15,153 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-05 09:11:38,815 log Method Not Allowed: /agent-gpt/
+ERROR 2026-10-05 09:12:51,584 agent_gpt Ошибка LLM: 500 Server Error: Internal Server Error for url: https://api.kie.ai/codex/v1/responses
+INFO 2026-10-05 09:32:32,394 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-05 09:34:09,194 log Method Not Allowed: /agent-gpt/
+INFO 2026-10-05 09:42:26,396 autoreload C:\advice_project\aqwe_app\agents\agent_gpt.py changed, reloading.
+INFO 2026-10-05 09:43:39,259 autoreload Watching for file changes with StatReloader
+INFO 2026-10-05 09:50:14,529 autoreload C:\advice_project\aqwe_app\agents\agent_gpt.py changed, reloading.
+INFO 2026-10-05 09:50:51,016 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-05 09:52:56,655 log Method Not Allowed: /agent-gpt/
+INFO 2026-10-05 10:01:32,546 autoreload C:\advice_project\aqwe_app\agents\agent_gpt.py changed, reloading.
+INFO 2026-10-05 10:02:46,350 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-05 10:05:28,727 log Method Not Allowed: /agent-gpt/
+INFO 2026-10-05 12:12:29,854 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-05 12:18:32,094 log Method Not Allowed: /agent-gpt/

@@ -202,7 +202,6 @@ class AgentGpt:
                 }
             })
         return api_tools
-    
     def _extract_text_or_tool(self, data: dict) -> tuple[str, Optional[Dict]]:
         """
             Безопасно извлекает текст ИЛИ информацию о вызове инструмента из ответа API.
@@ -210,29 +209,29 @@ class AgentGpt:
             Returns: (текст, словарь tool_call или None)
         """
         try:
-            # Вместо рискованного output[1].get('text'):
+            # Вместо рискованного output[1].get('text'): пробую свой
             content_list = data.get('output')[1].get('content')
 
             if isinstance(content_list, list) and len(content_list) > 1:
                 text = content_list[1].get('text', '')
 
+            # Tool calls (современный формат)
+            if 'tool_calls' in content_list and content_list['tool_calls']:
+                tc = content_list['tool_calls'][0]
+                return {
+                    'id': tc.get('id'),
+                    'name': tc['function']['name'],
+                    'arguments': tc['function'].get('arguments', '{}')
+                }
+            # Legacy function_call
+            if 'function_call' in content_list:
+                fc = content_list['function_call'][0]
+                return {
+                    'id': fc.get('id'),
+                    'name': fc.get('name'),
+                    'arguments': fc.get('arguments', '{}')
+                }
             elif isinstance(content_list, list) and len(content_list) > 0:
-                # Tool calls (современный формат)
-                if 'tool_calls' in content_list and content_list['tool_calls']:
-                    tc = content_list['tool_calls'][0]
-                    return {
-                        'id': tc.get('id'),
-                        'name': tc['function']['name'],
-                        'arguments': tc['function'].get('arguments', '{}')
-                    }
-                # Legacy function_call
-                if 'function_call' in content_list:
-                    fc = content_list['function_call'][0]
-                    return {
-                        'id': fc.get('id'),
-                        'name': fc.get('name'),
-                        'arguments': fc.get('arguments', '{}')
-                    }
                 text = content_list[0].get('text', '') # Фоллбэк на первый элемент
                 return text
 
@@ -245,6 +244,97 @@ class AgentGpt:
         except Exception as e:
             logger.error(f"Ошибка извлечения: {e} | Данные: {str(data)[:2000]}")
             return "", None
+    #def _extract_text_or_tool(self, data: dict) -> tuple[str, Optional[Dict]]: this try next
+    #    """
+    #        Безопасно извлекает текст ИЛИ информацию о вызове инструмента из ответа API.
+    #        Адаптирован под формат codex/v1/responses и gpt-6-sol.
+    #    """
+    #    try:
+    #        output = data.get('output')[1].get('content')
+    #        #if not isinstance(output, list) or len(output) == 0:
+    #        #    logger.warning("Пустой или неверный 'output' в ответе API")
+    #        #    return "", None
+    #        
+    #        # Берем первый блок сообщения (обычно это основной ответ)
+    #        msg_block = output[0]
+    #        #content_list = msg_block.get('content')
+    #        
+    #        #if not isinstance(content_list, list):
+    #        #    return str(content_list), None
+    #            
+    #        # Проходим по всем элементам контента
+    #        for item in msg_block:
+    #            # 1. Проверка на вызов инструмента
+    #            if item.get('type') == 'tool_call' or 'tool_call' in item:
+    #                return "", {
+    #                    'id': item.get('id'),
+    #                    'name': item.get('name'),
+    #                    'arguments': item.get('arguments', '{}')
+    #                }
+    #            elif item.get('type') == 'function_call' or 'function_call' in item:
+    #                return "", {
+    #                    'id': item.get('id'),
+    #                    'name': item.get('name'),
+    #                    'arguments': item.get('arguments', '{}')
+    #                }
+    #            # 2. Проверка на текстовый ответ
+    #            elif item.get('type') == 'output_text' or 'text' in item:
+    #                return item.get('text', ''), None
+    #                
+    #        # Fallback: если структура старая или нестандартная, берем первый элемент как строку
+    #        if len(msg_block) > 0:
+    #            first_item = msg_block[0]
+    #            if isinstance(first_item, dict) and 'text' in first_item:
+    #                return first_item['text'], None
+    #                
+    #        return str(msg_block), None
+    #        
+    #    except Exception as e:
+    #        logger.error(f"Ошибка извлечения: {e} | Данные: {str(data)[:2000]}")
+    #        return "", None
+
+    #def _extract_text_or_tool(self, data: dict) -> tuple[str, Optional[Dict]]: this old worked
+    #    """
+    #        Безопасно извлекает текст ИЛИ информацию о вызове инструмента из ответа API.
+    #        Поддерживает: OpenAI/GPT/Grok (choices/output), Anthropic (content), Gemini (candidates).
+    #        Returns: (текст, словарь tool_call или None)
+    #    """
+    #    try:
+    #        # Вместо рискованного output[1].get('text'):
+    #        content_list = data.get('output')[1].get('content')
+
+    #        if isinstance(content_list, list) and len(content_list) > 1:
+    #            text = content_list[1].get('text', '')
+
+    #        elif isinstance(content_list, list) and len(content_list) > 0:
+    #            # Tool calls (современный формат)
+    #            if 'tool_calls' in content_list and content_list['tool_calls']:
+    #                tc = content_list['tool_calls'][0]
+    #                return {
+    #                    'id': tc.get('id'),
+    #                    'name': tc['function']['name'],
+    #                    'arguments': tc['function'].get('arguments', '{}')
+    #                }
+    #            # Legacy function_call
+    #            if 'function_call' in content_list:
+    #                fc = content_list['function_call'][0]
+    #                return {
+    #                    'id': fc.get('id'),
+    #                    'name': fc.get('name'),
+    #                    'arguments': fc.get('arguments', '{}')
+    #                }
+    #            text = content_list[0].get('text', '') # Фоллбэк на первый элемент
+    #            return text
+
+    #        else:
+    #            text = str(content_list)
+            
+    #        logger.warning(f"Неизвестная структура ответа: {list(data.keys())}")
+    #        return "", None
+            
+    #    except Exception as e:
+    #        logger.error(f"Ошибка извлечения: {e} | Данные: {str(data)[:2000]}")
+    #        return "", None
 
             ## 5. OpenAI / GPT-5.x / Grok / Совместимые (структура output)
             #output = data.get('output')
@@ -283,219 +373,6 @@ class AgentGpt:
         #except Exception as e:
         #    logger.error(f"Ошибка извлечения: {e} | Данные: {str(data)[:2000]}")
         #    return "", None
-    #def _extract_text_or_tool(self, data: dict) -> tuple[str, Optional[Dict]]:
-    #    """
-    #        Извлекает текст или tool_call из ответа с JSON Schema.
-    #        Returns: (текст_ответа, tool_call_инфо_или_None)
-    #    """
-    #    try:
-    #        output_list = data.get("output", [])
-    #        if not output_list or not isinstance(output_list, list):
-    #            logger.warning(f"Пустой или неверный output: {data.keys()}")
-    #            return "", None
-    #    
-    #        first_message = output_list[0]
-    #        content_list = first_message.get("content", [])
-    #        if not content_list or not isinstance(content_list, list):
-    #            return "", None
-    #    
-    #        first_block = content_list[0]
-    #        block_type = first_block.get("type")
-    #    
-    #        # 🎯 Если это tool_call
-    #        if block_type == "tool_call":
-    #            tool_info = first_block.get("tool_call", {})
-    #            return "", {
-    #                "id": tool_info.get("id"),
-    #                "name": tool_info.get("name"),
-    #                "arguments": tool_info.get("arguments", "{}")
-    #            }
-
-    #        if block_type == "function_call":
-    #            fc = first_block.get("function_call", {})
-    #            return {
-    #                'id': None,
-    #                'name': fc.get('name'),
-    #                'arguments': fc.get('arguments', '{}')
-    #            }
-                
-    #        # 🎯 Если это текст в JSON Schema формате
-    #        if block_type == "output_text":
-    #            raw_text = first_block.get("text", "")
-    #        
-    #            return raw_text, None
-    #    
-    #        # Fallback
-    #        logger.warning(f"Неизвестный тип блока: {block_type}")
-    #        return "", None
-        
-    #    except Exception as e:
-    #        logger.error(f"Ошибка извлечения: {e} | Данные: {str(data)[:500]}")
-    #        return "", None
-
-    #def _extract_text_or_tool(self, data: dict) -> tuple[str, Optional[Dict]]: this worked
-    #    """
-    #        Безопасно извлекает текст ИЛИ информацию о вызове инструмента из ответа API.
-    #        Поддерживает: OpenAI/GPT/Grok (choices/output), Anthropic (content), Gemini (candidates).
-    #        Returns: (текст, словарь tool_call или None)
-    #    """
-    #    try:
-    #        # 5. OpenAI / GPT-5.x / Grok / Совместимые (структура output)
-    #        output = data.get('output')
-    #        if output and isinstance(output, list) and len(output) > 0:
-    #            msg = output[1]
-    #            message = msg.get('content')
-    #            content = message[0]
-    #        
-    #            # Tool calls (современный формат)
-    #            if 'tool_calls' in msg and msg['tool_calls']:
-    #                tc = msg['tool_calls'][0]
-    #                return {
-    #                    'id': tc.get('id'),
-    #                    'name': tc['function']['name'],
-    #                    'arguments': tc['function'].get('arguments', '{}')
-    #                }
-    #            # Legacy function_call
-    #            if 'function_call' in msg:
-    #                fc = msg['function_call']
-    #                return {
-    #                    'id': None,
-    #                    'name': fc.get('name'),
-    #                    'arguments': fc.get('arguments', '{}')
-    #                }
-    #            # Текст
-    #            text = content.get('text', '')
-    #            #if isinstance(content, list):
-    #            #    text = '\n'.join(block.get('text', '') for block in content if isinstance(block, dict))
-    #            #else:
-    #                #text = content or ''
-    #            #    text = str(content)
-    #            return text
-    #    # Если ничего не подошло
-    #        logger.warning(f"Неизвестная структура ответа: {list(data.keys())}")
-    #        return "", None
-
-    #    except Exception as e:
-    #        logger.error(f"Ошибка извлечения: {e} | Данные: {str(data)[:2000]}")
-    #        return "", None
-    #def _extract_text_or_tool(self, data: dict) -> tuple[str, Optional[Dict]]:
-    #    """
-    #        Безопасно извлекает текст ИЛИ информацию о вызове инструмента из ответа API.
-    #        Поддерживает: OpenAI/GPT/Grok (choices/output), Anthropic (content), Gemini (candidates).
-    #        Returns: (текст, словарь tool_call или None)
-    #    """
-    #    try:
-    #        # 1. OpenAI / GPT-5.x / Grok / Совместимые (структура choices)
-    #        choices = data.get('choices')
-    #        if choices and isinstance(choices, list) and len(choices) > 0:
-    #            msg = choices[0].get('message', {})
-    #        
-    #            # Tool calls (современный формат)
-    #            if 'tool_calls' in msg and msg['tool_calls']:
-    #                tc = msg['tool_calls'][0]
-    #                return "", {
-    #                    'id': tc.get('id'),
-    #                    'name': tc['function']['name'],
-    #                    'arguments': tc['function'].get('arguments', '{}')
-    #                }
-    #            # Legacy function_call
-    #            if 'function_call' in msg:
-    #                fc = msg['function_call']
-    #                return "", {
-    #                    'id': None,
-    #                    'name': fc.get('name'),
-    #                    'arguments': fc.get('arguments', '{}')
-    #                }
-    #            # Текст
-    #            content = msg.get('content')
-    #            if isinstance(content, list):
-    #                text = '\n'.join(block.get('text', '') for block in content if isinstance(block, dict))
-    #            else:
-    #                text = content or ''
-    #            return text.strip(), None
-
-    #        # 2. Anthropic / Claude (структура content-блоков)
-    #        content_list = data.get('content')
-    #        if content_list and isinstance(content_list, list):
-    #            first = content_list[0]
-    #            if isinstance(first, dict):
-    #                if first.get('type') == 'tool_use':
-    #                    return "", {
-    #                        'id': first.get('id'),
-    #                        'name': first.get('name'),
-    #                        'input': first.get('input', {})
-    #                    }
-    #                if first.get('type') == 'text':
-    #                    return first.get('text', '').strip(), None
-
-    #        # 3. Google / Gemini (структура candidates)
-    #        candidates = data.get('candidates')
-    #       if candidates and isinstance(candidates, list) and len(candidates) > 0:
-    #            parts = candidates[0].get('content', {}).get('parts', [])
-    #            if parts and isinstance(parts, list):
-    #                first = parts[0]
-    #                if isinstance(first, dict):
-    #                    if 'functionCall' in first:
-    #                        fc = first['functionCall']
-    #                        return "", {
-    #                            'name': fc.get('name'),
-    #                            'input': fc.get('args', {})
-    #                        }
-    #                    if 'text' in first:
-    #                        return first['text'].strip(), None
-
-            # 4. Grok / Responses API (структура output)
-    #        output = data.get('output')
-    #        if output and isinstance(output, list):
-    #            for item in output:
-    #                if isinstance(item, dict) and item.get('type') == 'message':
-    #                    blocks = item.get('content', [])
-    #                    if isinstance(blocks, list) and blocks:
-    #                        first = blocks[0]
-    #                        if isinstance(first, dict):
-    #                            if first.get('type') == 'tool_use':
-    #                                return "", {'name': first.get('name'), 'input': first.get('input', {})}
-    #                            if first.get('type') == 'text':
-    #                                return first.get('text', '').strip(), None
-
-    #        # Если ничего не подошло
-    #        logger.warning(f"Неизвестная структура ответа: {list(data.keys())}")
-    #        return "", None
-
-    #    except Exception as e:
-    #        logger.error(f"Ошибка извлечения: {e} | Данные: {str(data)[:200]}")
-    #        return "", None
-
-    #def _extract_text_or_tooledold(self, data: dict) -> tuple[str, Optional[Dict]]: на всякий случай
-    #    """Извлечь текст или function_call из ответа API"""
-    #    try:
-    #        message = data.get('choices', [{}])[0].get('message', {})
-    #        content = message.get('content')
-
-    #        # Проверка на function_call
-    #        if 'function_call' in content:
-    #            return "", content['function_call'][0]['function']
-
-    #        # Проверка на tool_calls (OpenAI-стиль)
-    #        if 'tool_calls' in content and content['tool_calls']:
-    #            tool_call = content['tool_calls'][0]
-    #            return "", {
-    #                'id': tool_call.get('id'),
-    #                'name': tool_call.get('name'),
-    #                'arguments': tool_call.get('arguments', '{}')
-    #            }
-            
-    #        # Обычный текст
-    #        if isinstance(content, list):
-    #            text = '\n'.join(item.get('text', '') for item in content if isinstance(item, dict))
-    #        else:
-    #            text = content 
-
-    #        return text
-            
-    #    except Exception as e:
-    #        logger.error(f"Ошибка извлечения: {str(e)}")
-    #        return "", None
 
     def _call_llm(self, prompt: str) -> str:
         """Внутренний вызов к LLM API."""
@@ -827,14 +704,15 @@ class AgentGpt:
                     "Content-Type": "application/json"
                 },
                 json={
-                    "model": "gpt-6-sol",
+                    "model": "gpt-6-astra",
                     "input": messages,
                     "stream": False,
                     "max_output_tokens": 10000,
                     "reasoning": {
-                        "effort": "xhigh"
+                        "effort": "max"
                     },
-                    "tools": api_tools if api_tools else None
+                    "tools": api_tools if api_tools else None,
+                    "tool_choice": "auto"
                 },
                 timeout=1200
             )
@@ -890,14 +768,15 @@ class AgentGpt:
                                 "Content-Type": "application/json"
                             },
                             json={
-                                "model": "gpt-6-sol",
+                                "model": "gpt-6-astra",
                                 "input": messages,
                                 "stream": False,
                                 "max_output_tokens": 10000,
                                 "reasoning": {
-                                    "effort": "xhigh"
+                                    "effort": "max"
                                 },
-                                "tools": api_tools if api_tools else None
+                                "tools": api_tools if api_tools else None,
+                                "tool_choice": "auto"
                             },
                             timeout=1200
                         )
