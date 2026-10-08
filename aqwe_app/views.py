@@ -3544,6 +3544,7 @@ class IntegratorAgentView(APIView):
         service = request.data.get('service', '')
         requirements = request.data.get('requirements', '')
         prompt = request.data.get('service', '')
+        service_name = request.data.get('service', '')
         if not service:
             return Response({'error': 'Укажите название сервиса'}, status=400)
         
@@ -3573,8 +3574,14 @@ class IntegratorAgentView(APIView):
         agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
 
         check = agent._call_llm(prompt)
+        answer = agent.ask(service, requirements)
+        code = agent.generate_code(service_name)
 
-        return Response({'answer': agent.ask(service, requirements), 'check': check})
+        return Response({
+            'answer': answer,
+            'check': check,
+            'code': code
+        })
 
 class ToolManagerView(APIView):
     def post(self, request):
