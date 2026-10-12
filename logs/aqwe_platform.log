@@ -1439,3 +1439,159 @@ INFO 2026-10-08 03:48:53,567 autoreload Watching for file changes with StatReloa
 WARNING 2026-10-08 03:49:52,363 log Method Not Allowed: /agent-integrator/
 ERROR 2026-10-08 03:53:43,274 base Ошибка создания задачи: HTTPSConnectionPool(host='api.kie.ai', port=443): Max retries exceeded with url: /api/v1/jobs/createTask (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)')))
 ERROR 2026-10-08 03:53:44,504 log Internal Server Error: /generate-image/
+INFO 2026-10-11 20:34:46,964 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-11 20:38:18,961 log Method Not Allowed: /agent-integrator/
+WARNING 2026-10-11 20:38:38,963 log Method Not Allowed: /agent-integrator/
+WARNING 2026-10-11 20:47:37,985 log Method Not Allowed: /agent-integrator/
+WARNING 2026-10-11 20:50:07,359 integrator_agent Неизвестная структура ответа: ['top_logprobs', 'instructions', 'metadata', 'tool_usage', 'presence_penalty', 'reasoning', 'usage', 'created_at', 'safety_identifier', 'tools', 'output', 'top_p', 'frequency_penalty', 'temperature', 'tool_choice', 'model', 'service_tier', 'id', 'text', 'prompt_cache_key', 'truncation', 'store', 'completed_at', 'parallel_tool_calls', 'background', 'access_programs', 'credits_consumed', 'object', 'status', 'prompt_cache_retention']
+INFO 2026-10-11 20:52:27,361 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-10-11 20:53:10,010 autoreload Watching for file changes with StatReloader
+INFO 2026-10-11 20:56:56,957 autoreload C:\advice_project\aqwe_app\agents\integrator_agent.py changed, reloading.
+INFO 2026-10-11 20:57:09,665 autoreload Watching for file changes with StatReloader
+INFO 2026-10-11 21:02:07,792 autoreload C:\advice_project\aqwe_app\agents\integrator_agent.py changed, reloading.
+INFO 2026-10-11 21:02:20,281 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-11 21:03:01,086 log Method Not Allowed: /agent-integrator/
+ERROR 2026-10-11 21:04:56,896 integrator_agent Ошибка извлечения: argument of type 'NoneType' is not iterable | Данные: {'top_logprobs': 0, 'instructions': '\n        Вы — Интегратор АКВИ, эксперт по созданию production-ready обёрток для внешних сервисов.\n        \n        ВАШИ ЗАДАЧИ:\n            1. Писать чистый, типизированный код интеграций (Python/JS)\n            2. Добавлять обработку ошибок, retry-логику, валидацию схем\n            3. Включать примеры использования и тестовые заглушки\n            4. Указывать необходимые env-переменные и зависимости\n            5. Сохранять эмпатию и ясность в пояснениях\n        \n        ФОРМАТ ОТВЕТА:\n            - Краткое описание интеграции\n            - Полный код в блоке ```python или ```javascript\n            - Инструкция по запуску (pip/npm, env, пример вызова)\n            - Предупреждения о лимитах/безопасности\n        \n        ВАША ФИЛОСОФИЯ:\n            "Хорошая интеграция — невидимая интеграция."\n        \n        ВАШИ ИНСТРУМЕНТЫ:\n            - web_search(query: str, max_results: int = 5): Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.\n                Args:\n                    query: Поисковый запрос (обязателен, непустой).\n                    max_results: Сколько результатов вернуть (1..20).\n                    provider: "tavily" | "serper".\n                    region: Регион поиска (например, "ru-ru", "us-en", "wt-wt").\n            - web_fetch(url: str, max_length: int = 5000): Загружает веб-страницу и извлекает основной текст. Загрузка и парсинг веб-страниц.\n                Args:\n                    url: Адрес страницы (обязателен, должен начинаться с http:// или https://)\n                    max_length: Максимальная длина возвращаемого текста (по умолчанию 5000)\n            - search_by_wikipedia(query: str, lang: str, max_results: int = 3): Ищет статьи в Wikipedia и возвращает результаты. Поиск статей в Wikipedia. \n                Args:\n                    query: Поисковый запрос (обязателен)\n                    lang: Язык Wikipedia (\'ru\', \'en\', \'de\' и 
+ERROR 2026-10-11 21:05:01,198 log Internal Server Error: /agent-integrator/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 3582, in post
+    'check': check,
+             ^^^^^
+NameError: name 'check' is not defined
+INFO 2026-10-11 21:05:26,788 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-10-11 21:05:42,610 autoreload Watching for file changes with StatReloader
+INFO 2026-10-11 21:06:48,897 autoreload C:\advice_project\aqwe_app\agents\integrator_agent.py changed, reloading.
+INFO 2026-10-11 21:07:01,195 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-11 21:07:38,341 log Method Not Allowed: /agent-integrator/
+ERROR 2026-10-11 21:09:07,762 integrator_agent Ошибка извлечения: argument of type 'NoneType' is not iterable | Данные: {'top_logprobs': 0, 'instructions': '\n        Вы — Интегратор АКВИ, эксперт по созданию production-ready обёрток для внешних сервисов.\n        \n        ВАШИ ЗАДАЧИ:\n            1. Писать чистый, типизированный код интеграций (Python/JS)\n            2. Добавлять обработку ошибок, retry-логику, валидацию схем\n            3. Включать примеры использования и тестовые заглушки\n            4. Указывать необходимые env-переменные и зависимости\n            5. Сохранять эмпатию и ясность в пояснениях\n        \n        ФОРМАТ ОТВЕТА:\n            - Краткое описание интеграции\n            - Полный код в блоке ```python или ```javascript\n            - Инструкция по запуску (pip/npm, env, пример вызова)\n            - Предупреждения о лимитах/безопасности\n        \n        ВАША ФИЛОСОФИЯ:\n            "Хорошая интеграция — невидимая интеграция."\n        \n        ВАШИ ИНСТРУМЕНТЫ:\n            - web_search(query: str, max_results: int = 5): Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.\n                Args:\n                    query: Поисковый запрос (обязателен, непустой).\n                    max_results: Сколько результатов вернуть (1..20).\n                    provider: "tavily" | "serper".\n                    region: Регион поиска (например, "ru-ru", "us-en", "wt-wt").\n            - web_fetch(url: str, max_length: int = 5000): Загружает веб-страницу и извлекает основной текст. Загрузка и парсинг веб-страниц.\n                Args:\n                    url: Адрес страницы (обязателен, должен начинаться с http:// или https://)\n                    max_length: Максимальная длина возвращаемого текста (по умолчанию 5000)\n            - search_by_wikipedia(query: str, lang: str, max_results: int = 3): Ищет статьи в Wikipedia и возвращает результаты. Поиск статей в Wikipedia. \n                Args:\n                    query: Поисковый запрос (обязателен)\n                    lang: Язык Wikipedia (\'ru\', \'en\', \'de\' и 
+ERROR 2026-10-11 21:11:19,827 integrator_agent Ошибка извлечения: argument of type 'NoneType' is not iterable | Данные: {'top_logprobs': 0, 'instructions': '\n        Вы — Интегратор АКВИ, эксперт по созданию production-ready обёрток для внешних сервисов.\n        \n        ВАШИ ЗАДАЧИ:\n            1. Писать чистый, типизированный код интеграций (Python/JS)\n            2. Добавлять обработку ошибок, retry-логику, валидацию схем\n            3. Включать примеры использования и тестовые заглушки\n            4. Указывать необходимые env-переменные и зависимости\n            5. Сохранять эмпатию и ясность в пояснениях\n        \n        ФОРМАТ ОТВЕТА:\n            - Краткое описание интеграции\n            - Полный код в блоке ```python или ```javascript\n            - Инструкция по запуску (pip/npm, env, пример вызова)\n            - Предупреждения о лимитах/безопасности\n        \n        ВАША ФИЛОСОФИЯ:\n            "Хорошая интеграция — невидимая интеграция."\n        \n        ВАШИ ИНСТРУМЕНТЫ:\n            - web_search(query: str, max_results: int = 5): Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.\n                Args:\n                    query: Поисковый запрос (обязателен, непустой).\n                    max_results: Сколько результатов вернуть (1..20).\n                    provider: "tavily" | "serper".\n                    region: Регион поиска (например, "ru-ru", "us-en", "wt-wt").\n            - web_fetch(url: str, max_length: int = 5000): Загружает веб-страницу и извлекает основной текст. Загрузка и парсинг веб-страниц.\n                Args:\n                    url: Адрес страницы (обязателен, должен начинаться с http:// или https://)\n                    max_length: Максимальная длина возвращаемого текста (по умолчанию 5000)\n            - search_by_wikipedia(query: str, lang: str, max_results: int = 3): Ищет статьи в Wikipedia и возвращает результаты. Поиск статей в Wikipedia. \n                Args:\n                    query: Поисковый запрос (обязателен)\n                    lang: Язык Wikipedia (\'ru\', \'en\', \'de\' и 
+INFO 2026-10-11 21:20:25,412 autoreload Watching for file changes with StatReloader
+INFO 2026-10-11 21:25:58,580 autoreload C:\advice_project\aqwe_app\agents\integrator_agent.py changed, reloading.
+INFO 2026-10-11 21:26:22,715 autoreload Watching for file changes with StatReloader
+INFO 2026-10-11 21:26:51,079 autoreload C:\advice_project\aqwe_app\agents\integrator_agent.py changed, reloading.
+INFO 2026-10-11 21:27:06,754 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-11 21:28:18,544 log Method Not Allowed: /agent-integrator/
+ERROR 2026-10-11 21:31:39,669 integrator_agent Ошибка извлечения: argument of type 'NoneType' is not iterable | Данные: {'top_logprobs': 0, 'instructions': '\n        Вы — Интегратор АКВИ, эксперт по созданию production-ready обёрток для внешних сервисов.\n        \n        ВАШИ ЗАДАЧИ:\n            1. Писать чистый, типизированный код интеграций (Python/JS)\n            2. Добавлять обработку ошибок, retry-логику, валидацию схем\n            3. Включать примеры использования и тестовые заглушки\n            4. Указывать необходимые env-переменные и зависимости\n            5. Сохранять эмпатию и ясность в пояснениях\n        \n        ФОРМАТ ОТВЕТА:\n            - Краткое описание интеграции\n            - Полный код в блоке ```python или ```javascript\n            - Инструкция по запуску (pip/npm, env, пример вызова)\n            - Предупреждения о лимитах/безопасности\n        \n        ВАША ФИЛОСОФИЯ:\n            "Хорошая интеграция — невидимая интеграция."\n        \n        ВАШИ ИНСТРУМЕНТЫ:\n            - web_search(query: str, max_results: int = 5): Ищет актуальную информацию в интернете. Используй для новостей, фактов, свежих данных.\n                Args:\n                    query: Поисковый запрос (обязателен, непустой).\n                    max_results: Сколько результатов вернуть (1..20).\n                    provider: "tavily" | "serper".\n                    region: Регион поиска (например, "ru-ru", "us-en", "wt-wt").\n            - web_fetch(url: str, max_length: int = 5000): Загружает веб-страницу и извлекает основной текст. Загрузка и парсинг веб-страниц.\n                Args:\n                    url: Адрес страницы (обязателен, должен начинаться с http:// или https://)\n                    max_length: Максимальная длина возвращаемого текста (по умолчанию 5000)\n            - search_by_wikipedia(query: str, lang: str, max_results: int = 3): Ищет статьи в Wikipedia и возвращает результаты. Поиск статей в Wikipedia. \n                Args:\n                    query: Поисковый запрос (обязателен)\n                    lang: Язык Wikipedia (\'ru\', \'en\', \'de\' и 
+INFO 2026-10-11 21:38:06,514 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-11 21:39:03,977 log Method Not Allowed: /agent-composer/
+ERROR 2026-10-11 21:43:32,796 log Internal Server Error: /agent-composer/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 3709, in post
+    agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
+                                ^^^^^^^^^^^^^^^^
+AttributeError: 'ComposerAgent' object has no attribute '_calculate'
+INFO 2026-10-11 21:43:53,939 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-10-11 21:44:30,731 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-11 21:45:50,162 log Method Not Allowed: /agent-composer/
+INFO 2026-10-11 21:46:34,661 instrumental_generator Полный ответ API: {'code': 200, 'msg': 'success', 'data': {'taskId': '59d38129f9b1286b9f9bc312229bf158'}}, Создание задачи: статус=200, taskId=59d38129f9b1286b9f9bc312229bf158
+INFO 2026-10-12 01:27:00,656 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-12 01:33:55,979 log Method Not Allowed: /agent-integrator/
+ERROR 2026-10-12 01:37:45,304 integrator_agent Ошибка LLM: 'str' object has no attribute 'get'
+INFO 2026-10-12 01:40:46,359 autoreload C:\advice_project\aqwe_app\agents\integrator_agent.py changed, reloading.
+INFO 2026-10-12 01:41:34,041 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-12 01:43:31,004 log Method Not Allowed: /agent-integrator/
+ERROR 2026-10-12 01:45:07,055 integrator_agent Ошибка LLM: 'str' object has no attribute 'get'
+INFO 2026-10-12 01:47:54,983 autoreload C:\advice_project\aqwe_app\agents\integrator_agent.py changed, reloading.
+INFO 2026-10-12 01:48:41,400 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-12 01:49:44,858 log Method Not Allowed: /agent-integrator/
+INFO 2026-10-12 02:42:42,056 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-12 02:47:36,164 log Method Not Allowed: /agent-integrator/
+ERROR 2026-10-12 02:50:19,728 integrator_agent Ошибка LLM: 503 Server Error: Service Unavailable for url: https://api.kie.ai/codex/v1/responses
+ERROR 2026-10-12 02:59:27,879 integrator_agent Ошибка LLM: 503 Server Error: Service Unavailable for url: https://api.kie.ai/codex/v1/responses
+ERROR 2026-10-12 03:00:13,477 integrator_agent Ошибка LLM: 503 Server Error: Service Unavailable for url: https://api.kie.ai/codex/v1/responses
+ERROR 2026-10-12 03:02:44,195 integrator_agent Ошибка LLM: 429 Client Error: Too Many Requests for url: https://api.kie.ai/codex/v1/responses
+INFO 2026-10-12 03:18:10,196 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-12 03:18:57,134 log Method Not Allowed: /agent-integrator/
+INFO 2026-10-12 03:49:27,357 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-12 03:50:28,086 log Method Not Allowed: /agent-integrator/
+ERROR 2026-10-12 03:52:26,064 integrator_agent Ошибка LLM: 503 Server Error: Service Unavailable for url: https://api.kie.ai/codex/v1/responses
+ERROR 2026-10-12 03:58:20,723 integrator_agent Ошибка LLM: 429 Client Error: Too Many Requests for url: https://api.kie.ai/codex/v1/responses
+INFO 2026-10-12 04:02:51,507 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-12 04:04:32,798 log Method Not Allowed: /agent-integrator/
+ERROR 2026-10-12 04:05:15,729 integrator_agent Ошибка LLM: 'tuple' object has no attribute 'get'
+INFO 2026-10-12 04:05:51,370 autoreload C:\advice_project\aqwe_app\agents\integrator_agent.py changed, reloading.
+INFO 2026-10-12 04:06:32,866 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-12 04:07:21,840 log Method Not Allowed: /agent-integrator/
+ERROR 2026-10-12 04:08:04,606 integrator_agent Ошибка LLM: 'tuple' object has no attribute 'get'
+INFO 2026-10-12 04:08:35,934 autoreload C:\advice_project\aqwe_app\agents\integrator_agent.py changed, reloading.
+INFO 2026-10-12 04:09:14,061 autoreload Watching for file changes with StatReloader
+ERROR 2026-10-12 04:10:36,923 integrator_agent Ошибка LLM: 'tuple' object has no attribute 'get'
+INFO 2026-10-12 04:24:00,158 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-12 04:25:00,693 log Method Not Allowed: /agent-integrator/
+WARNING 2026-10-12 04:27:34,190 integrator_agent Неизвестная структура ответа: ['top_logprobs', 'instructions', 'metadata', 'tool_usage', 'presence_penalty', 'reasoning', 'usage', 'created_at', 'safety_identifier', 'tools', 'output', 'top_p', 'frequency_penalty', 'temperature', 'tool_choice', 'model', 'service_tier', 'id', 'text', 'prompt_cache_key', 'truncation', 'store', 'completed_at', 'parallel_tool_calls', 'background', 'access_programs', 'credits_consumed', 'object', 'status', 'prompt_cache_retention']
+ERROR 2026-10-12 04:27:34,190 integrator_agent Ошибка LLM: 'tuple' object has no attribute 'get'
+INFO 2026-10-12 04:28:29,647 autoreload C:\advice_project\aqwe_app\agents\integrator_agent.py changed, reloading.
+INFO 2026-10-12 04:29:19,180 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-12 04:31:56,568 log Method Not Allowed: /agent-integrator/
+ERROR 2026-10-12 04:33:15,220 integrator_agent Ошибка LLM: 'str' object has no attribute 'get'
+INFO 2026-10-12 04:39:01,580 autoreload C:\advice_project\aqwe_app\agents\integrator_agent.py changed, reloading.
+INFO 2026-10-12 04:39:39,953 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-12 04:43:22,562 log Method Not Allowed: /agent-integrator/
+WARNING 2026-10-12 04:44:32,409 integrator_agent Неизвестная структура ответа: ['top_logprobs', 'instructions', 'metadata', 'tool_usage', 'presence_penalty', 'reasoning', 'usage', 'created_at', 'safety_identifier', 'tools', 'output', 'top_p', 'frequency_penalty', 'temperature', 'tool_choice', 'model', 'service_tier', 'id', 'text', 'prompt_cache_key', 'truncation', 'store', 'completed_at', 'parallel_tool_calls', 'background', 'access_programs', 'credits_consumed', 'object', 'status', 'prompt_cache_retention']
+WARNING 2026-10-12 04:45:50,841 integrator_agent Неизвестная структура ответа: ['top_logprobs', 'instructions', 'metadata', 'tool_usage', 'presence_penalty', 'reasoning', 'usage', 'created_at', 'safety_identifier', 'tools', 'output', 'top_p', 'frequency_penalty', 'temperature', 'tool_choice', 'model', 'service_tier', 'id', 'text', 'prompt_cache_key', 'truncation', 'store', 'completed_at', 'parallel_tool_calls', 'background', 'access_programs', 'credits_consumed', 'object', 'status', 'prompt_cache_retention']
+INFO 2026-10-12 04:47:22,085 autoreload C:\advice_project\aqwe_app\agents\integrator_agent.py changed, reloading.
+INFO 2026-10-12 04:47:55,536 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-12 04:48:57,605 log Method Not Allowed: /agent-integrator/
+INFO 2026-10-12 05:20:22,206 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-12 05:24:11,845 log Method Not Allowed: /agent-integrator/
+INFO 2026-10-12 06:28:10,644 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-12 06:32:25,637 log Method Not Allowed: /agent-integrator/
+WARNING 2026-10-12 06:36:46,079 log Bad Request: /agent-integrator/
+INFO 2026-10-12 06:56:23,168 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-12 07:01:36,372 log Method Not Allowed: /agent-integrator/
+ERROR 2026-10-12 07:03:24,474 integrator_agent Ошибка LLM: web_fetch() got an unexpected keyword argument 'query'
+INFO 2026-10-12 07:10:32,879 autoreload C:\advice_project\aqwe_app\agents\integrator_agent.py changed, reloading.
+INFO 2026-10-12 07:12:21,939 autoreload Watching for file changes with StatReloader
+ERROR 2026-10-12 07:15:23,035 integrator_agent Ошибка LLM: web_fetch() got an unexpected keyword argument 'query'
+INFO 2026-10-12 07:16:28,564 autoreload C:\advice_project\aqwe_app\agents\integrator_agent.py changed, reloading.
+INFO 2026-10-12 07:17:22,337 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-12 07:23:34,978 log Method Not Allowed: /agent-integrator/
+INFO 2026-10-12 07:28:11,129 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-10-12 07:29:31,696 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-12 07:40:22,962 log Method Not Allowed: /agent-integrator/
+WARNING 2026-10-12 07:41:47,994 log Bad Request: /agent-integrator/
+INFO 2026-10-12 07:47:24,765 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-10-12 07:48:29,019 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-12 07:51:03,248 log Method Not Allowed: /agent-integrator/
+INFO 2026-10-12 07:53:59,125 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-10-12 07:54:35,753 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-12 07:58:26,240 log Method Not Allowed: /agent-integrator/
+INFO 2026-10-12 08:03:51,220 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-10-12 08:04:27,474 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-12 08:06:06,598 log Method Not Allowed: /agent-integrator/

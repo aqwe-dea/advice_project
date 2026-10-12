@@ -3543,7 +3543,6 @@ class IntegratorAgentView(APIView):
     def post(self, request):
         service = request.data.get('service', '')
         requirements = request.data.get('requirements', '')
-        prompt = request.data.get('service', '')
         service_name = request.data.get('service', '')
         if not service:
             return Response({'error': 'Укажите название сервиса'}, status=400)
@@ -3573,13 +3572,11 @@ class IntegratorAgentView(APIView):
         agent.add_tool("check_wellbeing", check_wellbeing, "Проверка состояния здоровья пользователя")
         agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
 
-        check = agent._call_llm(prompt)
         answer = agent.ask(service, requirements)
         code = agent.generate_code(service_name)
 
         return Response({
             'answer': answer,
-            'check': check,
             'code': code
         })
 
@@ -3667,7 +3664,6 @@ class DirectorAgentView(APIView):
         agent.add_tool("create_task", create_task, "Создание задачи для агента")
         agent.add_tool("detect_emotion", detect_emotion, "Распознавание эмоций польователя")
         agent.add_tool("check_wellbeing", check_wellbeing, "Проверка состояния здоровья пользователя")
-        agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
 
         generator = VideoGenerator(api_key=api_key)
 
@@ -3706,7 +3702,6 @@ class ComposerAgentView(APIView):
         agent.add_tool("create_task", create_task, "Создание задачи для агента")
         agent.add_tool("detect_emotion", detect_emotion, "Распознавание эмоций польователя")
         agent.add_tool("check_wellbeing", check_wellbeing, "Проверка состояния здоровья пользователя")
-        agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
         
         generator = InstrumentalGenerator(api_key=os.getenv('KIETEST'))
         
