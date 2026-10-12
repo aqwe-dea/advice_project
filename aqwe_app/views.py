@@ -88,6 +88,7 @@ from .agents.functionsforagents.git_commit import git_commit
 from .agents.functionsforagents.save_to_memory import save_to_memory
 from .agents.functionsforagents.recall_memory import recall_memory
 from .agents.functionsforagents.create_task import create_task
+from .agents.functionsforagents.record_in_diary import record_in_diary
 from .agents.functionsforagents.send_email import send_email
 from .agents.functionsforagents.detect_emotion import detect_emotion
 from .agents.functionsforagents.check_wellbeing import check_wellbeing
@@ -2695,6 +2696,7 @@ class AgentChatView(APIView):
         
         # Добавляем инструменты (по желанию)
         agent.load_all_tools()
+        agent.add_tool('record_in_diary', record_in_diary, 'Функция для ведения дневника')
         agent.add_tool('project_inspector', ProjectInspector, 'Используй для инспектирования проекта и исследования структуры проекта')
         agent.add_tool('check_verify_project', self.project_inspect_and_verify, 'Используй для проверки и нахождения проблем в проекте')
         agent.add_tool('list_directory', list_directory, 'Используй для получения структуры проекта и списка категорий')
@@ -2766,6 +2768,7 @@ class SmartAgentView(APIView):
 
         # Добавляем инструменты (по желанию)
         agent.load_all_tools()
+        agent.add_tool('record_in_diary', record_in_diary, 'Функция для ведения дневника')
         agent.add_tool('project_inspector', ProjectInspector, 'Используй для инспектирования проекта и исследования структуры проекта')
         agent.add_tool('check_verify_project', self.project_inspect_and_verify, 'Используй для проверки и нахождения проблем в проекте')
         agent.add_tool('list_directory', list_directory, 'Используй для получения структуры проекта и списка категорий')
@@ -3177,6 +3180,7 @@ class AgentGptView(APIView):
         enhanced_prompt = f"[Тон пользователя: {emotion}] \n{question}"
         # Добавляем инструменты (по желанию)
         agent.load_all_tools()
+        agent.add_tool('record_in_diary', record_in_diary, 'Функция для ведения дневника')
         agent.add_tool('project_inspector', ProjectInspector, 'Используй для инспектирования проекта и исследования структуры проекта')
         agent.add_tool('check_verify_project', self.project_inspect_and_verify, 'Используй для проверки и нахождения проблем в проекте')
         agent.add_tool('list_directory', list_directory, 'Используй для получения структуры проекта и списка категорий')
@@ -3259,6 +3263,7 @@ class AgentClaView(APIView):
         # Добавляем инструменты (по желанию)
         agent.load_all_tools()
         agent.add_tool('project_inspector', ProjectInspector, 'Используй для инспектирования проекта и исследования структуры проекта')
+        agent.add_tool('record_in_diary', record_in_diary, 'Функция для ведения дневника')
         agent.add_tool('check_verify_project', self.project_inspect_and_verify, 'Используй для проверки и нахождения проблем в проекте')
         agent.add_tool('list_directory', list_directory, 'Используй для получения структуры проекта и списка категорий')
         agent.add_tool('find_files', find_files, 'Используй для поиска файлов в структуре проекта')
@@ -3281,6 +3286,12 @@ class AgentClaView(APIView):
         agent.add_tool("check_wellbeing", check_wellbeing, "Проверка состояния здоровья пользователя")
         agent.add_tool('calculate', agent._calculate, 'Математические вычисления')
         
+        # функция работает можно пользоваться diary = record_in_diary(
+        #    title="Первая запись в дневник", 
+        #    description="Агенты АКВИ начинают вести дневник и это здорово", 
+        #    file="agent_diary.md"
+        #)
+
         agent.set_image_generator(generator)
 
         # Получаем ответ
@@ -3292,6 +3303,7 @@ class AgentClaView(APIView):
         return Response({
             'answer': answer, 
             'diag': diagnostic
+            #'record_in_diary': diary
             #'reportinspector': report
         })
 
@@ -3348,6 +3360,7 @@ class AgentGemView(APIView):
 
         # Добавляем инструменты (по желанию)
         agent.load_all_tools()
+        agent.add_tool('record_in_diary', record_in_diary, 'Функция для ведения дневника')
         agent.add_tool('project_inspector', ProjectInspector, 'Используй для инспектирования проекта и исследования структуры проекта')
         agent.add_tool('check_verify_project', self.project_inspect_and_verify, 'Используй для проверки и нахождения проблем в проекте')
         agent.add_tool('list_directory', list_directory, 'Используй для получения структуры проекта и списка категорий')
