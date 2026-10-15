@@ -94,7 +94,6 @@ class IntegratorAgent:
         self.context: List[Dict] = [
             {"role": "system", "content": self.SYSTEM_PROMPT}
             #{"role": "system", "content": [{"type": "input_text", "text": self.SYSTEM_PROMPT}]} this worked for gpt/kimi
-            #{"role": "system", "content": [{"type": "text", "text": self.SYSTEM_PROMPT}]} choices
         ]
         self.tools: Dict[str, Dict] = {}
         self.load_all_tools()
@@ -275,52 +274,9 @@ class IntegratorAgent:
     #    except Exception as e:
     #        logger.error(f"Ошибка извлечения: {e} | Данные: {str(data)[:2000]}")
     #        return "", None
-    #def _extract_text_or_tool(self, data: dict) -> tuple[str, Optional[Dict]]: this worked
-    #    """
-    #        Безопасно извлекает текст ИЛИ информацию о вызове инструмента из ответа API.
-    #        Поддерживает: OpenAI/GPT/Grok (choices/output), Anthropic (content), Gemini (candidates).
-    #        Returns: (текст, словарь tool_call или None)
-    #    """
-    #    try:
-    #        # Вместо рискованного output[1].get('text'):
-    #        content_list = data.get('output')[1].get('content')
-
-    #        if isinstance(content_list, list) and len(content_list) > 1:
-    #            text = content_list[1].get('text', '')
-
-    #        elif isinstance(content_list, list) and len(content_list) > 0:
-    #            # Tool calls (современный формат)
-    #            if 'tool_calls' in content_list and content_list['tool_calls']:
-    #                tc = content_list['tool_calls'][0]
-    #                return {
-    #                    'id': tc.get('id'),
-    #                    'name': tc['function']['name'],
-    #                    'arguments': tc['function'].get('arguments', '{}')
-    #                }
-    #            # Legacy function_call
-    #            if 'function_call' in content_list:
-    #                fc = content_list['function_call'][0]
-    #                return {
-    #                    'id': fc.get('id'),
-    #                    'name': fc.get('name'),
-    #                    'arguments': fc.get('arguments', '{}')
-    #                }
-    #            text = content_list[0].get('text', '') # Фоллбэк на первый элемент
-    #            return text
-
-    #        else:
-    #            text = str(content_list)
-    #        
-    #        logger.warning(f"Неизвестная структура ответа: {list(data.keys())}")
-    #        return "", None
-            
-    #    except Exception as e:
-    #        logger.error(f"Ошибка извлечения: {e} | Данные: {str(data)[:2000]}")
-    #        return "", None
 
     def _call_llm(self, prompt: str) -> str:
         messages = self.context.copy()
-        #messages.append({"role": "user", "content": [{"type": "text", "text": prompt}]}) this choices
         #messages.append({"role": "user", "content": [{"type": "input_text", "text": prompt}]}) this worked for gpt/kimi
         #api_tools = self._build_api_tools() this worked for gpt/kimi
         messages.append({"role": "user", "content": prompt.strip()})    
@@ -614,22 +570,6 @@ class IntegratorAgent:
         except Exception as e:
             logger.error(f"Ошибка LLM: {str(e)}")
             return f"Ошибка: {str(e)}"
-            #choices = data.get('choices', [{}])
-            #message = choices[0].get('message', {})
-            #content = message.get('content')
-            
-            #text = '\n'.join(item.get('text', '') for item in content if isinstance(item, dict)) if isinstance(content, list) else (content or '')
-            
-            #if not text.strip():
-            #    logger.error("Пустой ответ от API")
-            #    return "Ошибка: агент не сгенерировал код"
-            
-            #self.context.append({"role": "user", "content": [{"type": "text", "text": prompt}]})
-            #self.context.append({"role": "assistant", "content": [{"type": "text", "text": text}]})
-            #return text
-        #except Exception as e:
-        #    logger.error(f"Ошибка LLM: {str(e)}")
-        #    return f"Ошибка: {str(e)}"
 
     def ask(self, service: str, requirements: str = "") -> str:
         # МЫ УБРАЛИ ЦИКЛ С REGEX! Теперь модель сама решит, когда использовать web_fetch, 

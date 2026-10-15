@@ -1599,3 +1599,739 @@ INFO 2026-10-13 00:13:22,559 autoreload Watching for file changes with StatReloa
 WARNING 2026-10-13 00:18:49,656 log Method Not Allowed: /agent-cla/
 INFO 2026-10-13 00:31:49,720 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
 INFO 2026-10-13 00:33:26,534 autoreload Watching for file changes with StatReloader
+INFO 2026-10-13 06:14:10,691 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-13 06:21:10,740 log Method Not Allowed: /content-maker/
+ERROR 2026-10-13 06:24:15,991 views Ошибка в ContentMakerView: string indices must be integers, not 'str'
+ERROR 2026-10-13 06:24:16,010 log Internal Server Error: /content-maker/
+ERROR 2026-10-13 06:34:03,682 content_maker_agent Генерация не удалась: 'candidates'
+ERROR 2026-10-13 06:34:03,821 views Ошибка в ContentMakerView: string indices must be integers, not 'str'
+ERROR 2026-10-13 06:34:04,253 log Internal Server Error: /content-maker/
+INFO 2026-10-13 06:54:41,685 autoreload C:\advice_project\aqwe_app\agents\content_maker_agent.py changed, reloading.
+INFO 2026-10-13 06:59:37,066 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-13 07:03:59,548 log Method Not Allowed: /content-maker/
+ERROR 2026-10-13 07:05:13,753 content_maker_agent Генерация не удалась: 'candidates'
+ERROR 2026-10-13 07:05:13,814 views Ошибка в ContentMakerView: string indices must be integers, not 'str'
+ERROR 2026-10-13 07:05:13,832 log Internal Server Error: /content-maker/
+INFO 2026-10-13 07:12:25,294 autoreload C:\advice_project\aqwe_app\agents\content_maker_agent.py changed, reloading.
+INFO 2026-10-13 07:13:47,249 autoreload Watching for file changes with StatReloader
+INFO 2026-10-13 07:23:50,499 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-10-13 07:24:34,612 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-13 07:28:17,963 log Method Not Allowed: /content-maker/
+ERROR 2026-10-13 07:32:47,879 content_maker_agent Генерация не удалась: 'candidates'
+ERROR 2026-10-13 07:32:47,946 views Ошибка в ContentMakerView: string indices must be integers, not 'str'
+ERROR 2026-10-13 07:32:47,964 log Internal Server Error: /content-maker/
+INFO 2026-10-14 19:11:18,967 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-14 19:29:33,923 log Method Not Allowed: /content-maker/
+ERROR 2026-10-14 19:32:26,230 views Ошибка в ContentMakerView: string indices must be integers, not 'str'
+ERROR 2026-10-14 19:32:26,278 log Internal Server Error: /content-maker/
+INFO 2026-10-14 19:58:15,337 autoreload Watching for file changes with StatReloader
+INFO 2026-10-14 20:15:50,837 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-10-14 20:16:43,281 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-14 20:18:00,539 log Method Not Allowed: /content-maker/
+ERROR 2026-10-14 20:19:44,276 log Internal Server Error: /content-maker/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 3998, in post
+    agent.add_tool('check_verify_project', self.project_inspect_and_verify, 'Используй для проверки и нахождения проблем в проекте')
+                                           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AttributeError: 'ContentMakerView' object has no attribute 'project_inspect_and_verify'
+INFO 2026-10-14 20:20:24,433 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-10-14 20:21:07,167 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-14 20:22:05,098 log Method Not Allowed: /content-maker/
+ERROR 2026-10-14 20:23:17,941 content_maker_agent Генерация не удалась: 'text'
+ERROR 2026-10-14 20:23:18,182 log Internal Server Error: /content-maker/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 4019, in post
+    result_text = agent.ask(topic=topic, style=style, target_audience=target_audience)
+  File "c:\advice_project\aqwe_app\agents\content_maker_agent.py", line 158, in ask
+    if result["status"] == "success":
+       ~~~~~~^^^^^^^^^^
+TypeError: string indices must be integers, not 'str'
+INFO 2026-10-14 20:30:47,310 autoreload C:\advice_project\aqwe_app\agents\content_maker_agent.py changed, reloading.
+INFO 2026-10-14 20:31:25,822 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-14 20:34:53,277 log Method Not Allowed: /content-maker/
+ERROR 2026-10-14 20:35:16,394 content_maker_agent Генерация не удалась: HTTPSConnectionPool(host='api.kie.ai', port=443): Max retries exceeded with url: /gemini/v1/models/gemini-3-8-flash:generateContent (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)')))
+INFO 2026-10-14 20:39:48,170 autoreload C:\advice_project\aqwe_app\agents\content_maker_agent.py changed, reloading.
+INFO 2026-10-14 20:40:29,529 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-14 20:42:19,600 log Method Not Allowed: /content-maker/
+INFO 2026-10-14 21:11:47,760 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-14 21:12:45,525 log Method Not Allowed: /content-maker/
+ERROR 2026-10-14 21:13:33,454 content_maker_agent Генерация не удалась: 'text'
+ERROR 2026-10-14 21:13:34,675 log Internal Server Error: /content-maker/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 4019, in post
+    result_text = agent.ask(topic=topic, style=style, target_audience=target_audience)
+  File "c:\advice_project\aqwe_app\agents\content_maker_agent.py", line 161, in ask
+    if result["status"] == "success":
+       ~~~~~~^^^^^^^^^^
+TypeError: string indices must be integers, not 'str'
+INFO 2026-10-14 21:17:41,178 autoreload C:\advice_project\aqwe_app\agents\content_maker_agent.py changed, reloading.
+INFO 2026-10-14 21:18:18,749 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-14 21:19:42,438 log Method Not Allowed: /content-maker/
+ERROR 2026-10-14 21:21:03,486 content_maker_agent Генерация не удалась: 'text'
+ERROR 2026-10-14 21:21:03,769 log Internal Server Error: /content-maker/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 4019, in post
+    result_text = agent.ask(topic=topic, style=style, target_audience=target_audience)
+  File "c:\advice_project\aqwe_app\agents\content_maker_agent.py", line 161, in ask
+    if result["status"] == "success":
+       ~~~~~~^^^^^^^^^^
+TypeError: string indices must be integers, not 'str'
+INFO 2026-10-14 21:23:14,265 autoreload C:\advice_project\aqwe_app\agents\content_maker_agent.py changed, reloading.
+INFO 2026-10-14 21:23:48,012 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-14 21:24:41,700 log Method Not Allowed: /content-maker/
+ERROR 2026-10-14 21:25:28,601 content_maker_agent Генерация не удалась: 'text'
+INFO 2026-10-14 21:27:48,624 autoreload C:\advice_project\aqwe_app\agents\content_maker_agent.py changed, reloading.
+INFO 2026-10-14 21:28:21,980 autoreload Watching for file changes with StatReloader
+INFO 2026-10-14 21:30:24,028 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-10-14 21:30:36,301 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-14 21:31:42,147 log Method Not Allowed: /content-maker/
+INFO 2026-10-14 21:35:53,796 autoreload C:\advice_project\aqwe_app\agents\content_maker_agent.py changed, reloading.
+INFO 2026-10-14 21:36:29,560 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-14 21:38:09,271 log Method Not Allowed: /content-maker/
+ERROR 2026-10-14 21:39:10,459 content_maker_agent Генерация не удалась: 'text'
+ERROR 2026-10-14 21:39:10,934 log Internal Server Error: /content-maker/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 4020, in post
+    profit = agent.ask(topic=topic, style=style, target_audience=target_audience)
+  File "c:\advice_project\aqwe_app\agents\content_maker_agent.py", line 161, in ask
+    if result["status"] == "success":
+       ~~~~~~^^^^^^^^^^
+TypeError: string indices must be integers, not 'str'
+INFO 2026-10-14 21:40:22,665 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-10-14 21:41:05,962 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-14 21:42:56,156 log Method Not Allowed: /content-maker/
+ERROR 2026-10-14 21:43:19,072 content_maker_agent Генерация не удалась: 'text'
+ERROR 2026-10-14 21:43:48,293 content_maker_agent Генерация не удалась: 'text'
+INFO 2026-10-14 21:48:44,774 autoreload C:\advice_project\aqwe_app\agents\content_maker_agent.py changed, reloading.
+INFO 2026-10-14 21:49:19,086 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-14 21:50:56,494 log Method Not Allowed: /content-maker/
+ERROR 2026-10-14 21:51:30,859 content_maker_agent Генерация не удалась: 'text'
+ERROR 2026-10-14 21:52:06,110 content_maker_agent Генерация не удалась: 'text'
+INFO 2026-10-14 21:54:18,251 autoreload C:\advice_project\aqwe_app\agents\content_maker_agent.py changed, reloading.
+INFO 2026-10-14 21:54:46,832 autoreload Watching for file changes with StatReloader
+ERROR 2026-10-14 21:56:59,752 content_maker_agent Генерация не удалась: 'text'
+ERROR 2026-10-14 21:57:41,031 content_maker_agent Генерация не удалась: 'text'
+INFO 2026-10-14 22:00:23,285 autoreload C:\advice_project\aqwe_app\agents\content_maker_agent.py changed, reloading.
+INFO 2026-10-14 22:01:00,984 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-14 22:03:22,119 log Method Not Allowed: /content-maker/
+INFO 2026-10-14 22:12:30,503 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-10-14 22:13:14,888 autoreload Watching for file changes with StatReloader
+INFO 2026-10-14 22:14:58,888 autoreload C:\advice_project\aqwe_app\agents\content_maker_agent.py changed, reloading.
+INFO 2026-10-14 22:15:15,651 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-14 22:15:51,681 log Method Not Allowed: /content-maker/
+ERROR 2026-10-14 22:16:55,363 log Internal Server Error: /content-maker/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 4021, in post
+    check = agent.generate_banner(topic=topic, style=style, target_audience=target_audience)
+  File "c:\advice_project\aqwe_app\agents\content_maker_agent.py", line 136, in generate_banner
+    return data["candidates"][0]["content"]["parts"][0]["text"].strip()
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+KeyError: 'text'
+INFO 2026-10-14 22:20:25,533 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-10-14 22:21:02,862 autoreload Watching for file changes with StatReloader
+INFO 2026-10-14 22:25:54,520 autoreload C:\advice_project\aqwe_app\agents\content_maker_agent.py changed, reloading.
+INFO 2026-10-14 22:26:08,373 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-14 22:27:30,443 log Method Not Allowed: /content-maker/
+ERROR 2026-10-14 22:28:22,751 log Internal Server Error: /content-maker/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 4019, in post
+    result_text = agent.ask(topic=topic, style=style, target_audience=target_audience)
+  File "c:\advice_project\aqwe_app\agents\content_maker_agent.py", line 195, in ask
+    result = self.generate_banner(topic, style, target_audience)
+  File "c:\advice_project\aqwe_app\agents\content_maker_agent.py", line 143, in generate_banner
+    self.context.append({"role": "user", "parts": [{"text": prompt}]})
+                                                            ^^^^^^
+NameError: name 'prompt' is not defined. Did you mean: 'profit'?
+INFO 2026-10-14 22:29:49,780 autoreload C:\advice_project\aqwe_app\agents\content_maker_agent.py changed, reloading.
+INFO 2026-10-14 22:30:21,399 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-14 22:31:32,900 log Method Not Allowed: /content-maker/
+ERROR 2026-10-14 22:32:15,474 log Internal Server Error: /content-maker/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 4019, in post
+    result_text = agent.ask(topic=topic, style=style, target_audience=target_audience)
+  File "c:\advice_project\aqwe_app\agents\content_maker_agent.py", line 197, in ask
+    if result["status"] == "success":
+       ~~~~~~^^^^^^^^^^
+TypeError: tuple indices must be integers or slices, not str
+INFO 2026-10-14 22:37:30,957 autoreload C:\advice_project\aqwe_app\agents\content_maker_agent.py changed, reloading.
+INFO 2026-10-14 22:38:05,590 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-14 22:39:33,480 log Method Not Allowed: /content-maker/
+ERROR 2026-10-14 22:40:05,115 log Internal Server Error: /content-maker/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 4019, in post
+    result_text = agent.ask(topic=topic, style=style, target_audience=target_audience)
+  File "c:\advice_project\aqwe_app\agents\content_maker_agent.py", line 197, in ask
+    if result["status"] == "success":
+       ~~~~~~^^^^^^^^^^
+TypeError: tuple indices must be integers or slices, not str
+INFO 2026-10-14 22:41:24,122 autoreload C:\advice_project\aqwe_app\agents\content_maker_agent.py changed, reloading.
+INFO 2026-10-14 22:41:40,391 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-14 22:44:34,514 log Method Not Allowed: /content-maker/
+INFO 2026-10-14 23:36:57,764 autoreload Watching for file changes with StatReloader
+INFO 2026-10-14 23:44:00,744 autoreload C:\advice_project\aqwe_app\agents\content_maker_agent.py changed, reloading.
+INFO 2026-10-14 23:44:36,032 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-14 23:45:46,642 log Method Not Allowed: /content-maker/
+INFO 2026-10-14 23:52:01,989 autoreload C:\advice_project\aqwe_app\agents\content_maker_agent.py changed, reloading.
+INFO 2026-10-14 23:52:53,383 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-14 23:54:19,040 log Method Not Allowed: /content-maker/
+WARNING 2026-10-14 23:55:08,690 content_maker_agent Неизвестная структура ответа: ['code', 'msg']
+ERROR 2026-10-14 23:55:09,576 log Internal Server Error: /content-maker/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 4019, in post
+    result_text = agent.ask(topic=topic, style=style, target_audience=target_audience)
+  File "c:\advice_project\aqwe_app\agents\content_maker_agent.py", line 200, in ask
+    if result["status"] == "success":
+       ~~~~~~^^^^^^^^^^
+TypeError: tuple indices must be integers or slices, not str
+INFO 2026-10-14 23:58:35,363 autoreload C:\advice_project\aqwe_app\agents\content_maker_agent.py changed, reloading.
+INFO 2026-10-14 23:59:13,406 autoreload Watching for file changes with StatReloader
+INFO 2026-10-15 00:00:03,238 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-10-15 00:00:15,751 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-15 00:01:19,846 log Method Not Allowed: /content-maker/
+WARNING 2026-10-15 00:02:04,342 content_maker_agent Неизвестная структура ответа: ['code', 'msg']
+ERROR 2026-10-15 00:02:04,835 log Internal Server Error: /content-maker/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 4019, in post
+    result_text = agent.ask(topic=topic, style=style, target_audience=target_audience)
+  File "c:\advice_project\aqwe_app\agents\content_maker_agent.py", line 200, in ask
+    if result["status"] == "success":
+       ~~~~~~^^^^^^^^^^
+TypeError: tuple indices must be integers or slices, not str
+INFO 2026-10-15 00:13:20,915 autoreload C:\advice_project\aqwe_app\agents\content_maker_agent.py changed, reloading.
+INFO 2026-10-15 00:13:55,001 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-15 00:15:18,035 log Method Not Allowed: /content-maker/
+WARNING 2026-10-15 00:16:27,125 content_maker_agent Неизвестная структура ответа: ['code', 'msg']
+ERROR 2026-10-15 00:16:27,449 log Internal Server Error: /content-maker/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 4019, in post
+    result_text = agent.ask(topic=topic, style=style, target_audience=target_audience)
+  File "c:\advice_project\aqwe_app\agents\content_maker_agent.py", line 200, in ask
+    if result["status"] == "success":
+       ~~~~~~^^^^^^^^^^
+TypeError: tuple indices must be integers or slices, not str
+INFO 2026-10-15 00:33:27,317 autoreload C:\advice_project\aqwe_app\agents\content_maker_agent.py changed, reloading.
+INFO 2026-10-15 00:34:37,696 autoreload Watching for file changes with StatReloader
+INFO 2026-10-15 00:37:38,686 autoreload C:\advice_project\aqwe_app\agents\content_maker_agent.py changed, reloading.
+INFO 2026-10-15 00:38:35,296 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-15 00:41:30,138 log Method Not Allowed: /content-maker/
+WARNING 2026-10-15 00:42:29,329 content_maker_agent Неизвестная структура ответа: ['code', 'msg']
+ERROR 2026-10-15 00:42:30,426 log Internal Server Error: /content-maker/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 4019, in post
+    result_text = agent.ask(topic=topic, style=style, target_audience=target_audience)
+  File "c:\advice_project\aqwe_app\agents\content_maker_agent.py", line 203, in ask
+    if result["status"] == "success":
+       ~~~~~~^^^^^^^^^^
+TypeError: tuple indices must be integers or slices, not str
+INFO 2026-10-15 00:43:29,823 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-10-15 00:44:10,916 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-15 00:45:28,608 log Method Not Allowed: /content-maker/
+WARNING 2026-10-15 00:46:15,809 content_maker_agent Неизвестная структура ответа: ['code', 'msg']
+ERROR 2026-10-15 00:46:16,129 log Internal Server Error: /content-maker/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 4026, in post
+    f"**Что получилось:** Успешно сгенерирован концепт '{check}'. Чистая прибыль: {check['economics']['net_profit']} ед.\n"
+                                                                                   ~~~~~^^^^^^^^^^^^^
+TypeError: tuple indices must be integers or slices, not str
+INFO 2026-10-15 00:49:30,236 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-10-15 00:50:04,648 autoreload Watching for file changes with StatReloader
+INFO 2026-10-15 01:02:07,077 autoreload C:\advice_project\aqwe_app\agents\content_maker_agent.py changed, reloading.
+INFO 2026-10-15 01:02:25,293 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-15 01:03:16,334 log Method Not Allowed: /content-maker/
+INFO 2026-10-15 01:47:29,141 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-15 01:53:45,003 log Method Not Allowed: /content-maker/
+WARNING 2026-10-15 01:55:57,127 content_maker_agent Неизвестная структура ответа: ['code', 'msg']
+WARNING 2026-10-15 01:56:33,842 content_maker_agent Неизвестная структура ответа: ['code', 'msg']
+WARNING 2026-10-15 01:57:09,201 content_maker_agent Неизвестная структура ответа: ['code', 'msg']
+INFO 2026-10-15 02:11:48,532 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-15 02:14:16,810 log Method Not Allowed: /content-maker/
+WARNING 2026-10-15 02:17:12,881 content_maker_agent Неизвестная структура ответа: ['code', 'msg']
+WARNING 2026-10-15 02:17:47,700 content_maker_agent Неизвестная структура ответа: ['code', 'msg']
+WARNING 2026-10-15 02:18:22,739 content_maker_agent Неизвестная структура ответа: ['code', 'msg']
+INFO 2026-10-15 02:30:15,355 autoreload Watching for file changes with StatReloader
+INFO 2026-10-15 02:33:06,652 autoreload C:\advice_project\aqwe_app\agents\content_maker_agent.py changed, reloading.
+INFO 2026-10-15 02:34:21,845 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-15 02:36:54,944 log Method Not Allowed: /content-maker/
+WARNING 2026-10-15 02:39:59,200 content_maker_agent Неизвестная структура ответа: ['code', 'msg']
+WARNING 2026-10-15 02:40:34,487 content_maker_agent Неизвестная структура ответа: ['code', 'msg']
+WARNING 2026-10-15 02:41:09,399 content_maker_agent Неизвестная структура ответа: ['code', 'msg']
+INFO 2026-10-15 03:11:19,904 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-15 03:16:34,375 log Method Not Allowed: /content-maker/
+ERROR 2026-10-15 03:18:03,725 log Internal Server Error: /content-maker/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\urllib3\connection.py", line 196, in _new_conn
+    sock = connection.create_connection(
+        (self._dns_host, self.port),
+    ...<2 lines>...
+        socket_options=self.socket_options,
+    )
+  File "C:\advice_project\env\Lib\site-packages\urllib3\util\connection.py", line 60, in create_connection
+    for res in socket.getaddrinfo(host, port, family, socket.SOCK_STREAM):
+               ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\python 3.13.2\Lib\socket.py", line 977, in getaddrinfo
+    for res in _socket.getaddrinfo(host, port, family, type, proto, flags):
+               ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+socket.gaierror: [Errno 11001] getaddrinfo failed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\urllib3\connectionpool.py", line 789, in urlopen
+    response = self._make_request(
+        conn,
+    ...<10 lines>...
+        **response_kw,
+    )
+  File "C:\advice_project\env\Lib\site-packages\urllib3\connectionpool.py", line 490, in _make_request
+    raise new_e
+  File "C:\advice_project\env\Lib\site-packages\urllib3\connectionpool.py", line 466, in _make_request
+    self._validate_conn(conn)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\urllib3\connectionpool.py", line 1095, in _validate_conn
+    conn.connect()
+    ~~~~~~~~~~~~^^
+  File "C:\advice_project\env\Lib\site-packages\urllib3\connection.py", line 615, in connect
+    self.sock = sock = self._new_conn()
+                       ~~~~~~~~~~~~~~^^
+  File "C:\advice_project\env\Lib\site-packages\urllib3\connection.py", line 203, in _new_conn
+    raise NameResolutionError(self.host, self, e) from e
+urllib3.exceptions.NameResolutionError: <urllib3.connection.HTTPSConnection object at 0x0000029742CF74D0>: Failed to resolve 'api.kie.ai' ([Errno 11001] getaddrinfo failed)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\requests\adapters.py", line 644, in send
+    resp = conn.urlopen(
+        method=request.method,
+    ...<9 lines>...
+        chunked=chunked,
+    )
+  File "C:\advice_project\env\Lib\site-packages\urllib3\connectionpool.py", line 843, in urlopen
+    retries = retries.increment(
+        method, url, error=new_e, _pool=self, _stacktrace=sys.exc_info()[2]
+    )
+  File "C:\advice_project\env\Lib\site-packages\urllib3\util\retry.py", line 519, in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='api.kie.ai', port=443): Max retries exceeded with url: /gemini/v1/models/gemini-4-argon:generateContent (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x0000029742CF74D0>: Failed to resolve 'api.kie.ai' ([Errno 11001] getaddrinfo failed)"))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 4019, in post
+    result_text = agent.ask(topic=topic, style=style, target_audience=target_audience)
+  File "c:\advice_project\aqwe_app\agents\content_maker_agent.py", line 192, in ask
+    result = self.generate_banner(topic, style, target_audience)
+  File "c:\advice_project\aqwe_app\agents\content_maker_agent.py", line 112, in generate_banner
+    response = requests.post(
+        f"{self.base_url}/gemini/v1/models/gemini-4-argon:generateContent",
+    ...<18 lines>...
+        timeout=1200
+    )
+  File "C:\advice_project\env\Lib\site-packages\requests\api.py", line 115, in post
+    return request("post", url, data=data, json=json, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\requests\api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\requests\sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\requests\sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\requests\adapters.py", line 677, in send
+    raise ConnectionError(e, request=request)
+requests.exceptions.ConnectionError: HTTPSConnectionPool(host='api.kie.ai', port=443): Max retries exceeded with url: /gemini/v1/models/gemini-4-argon:generateContent (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x0000029742CF74D0>: Failed to resolve 'api.kie.ai' ([Errno 11001] getaddrinfo failed)"))
+INFO 2026-10-15 04:18:40,216 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-15 04:21:49,450 log Method Not Allowed: /content-maker/
+ERROR 2026-10-15 04:24:20,802 log Internal Server Error: /content-maker/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\urllib3\connection.py", line 196, in _new_conn
+    sock = connection.create_connection(
+        (self._dns_host, self.port),
+    ...<2 lines>...
+        socket_options=self.socket_options,
+    )
+  File "C:\advice_project\env\Lib\site-packages\urllib3\util\connection.py", line 60, in create_connection
+    for res in socket.getaddrinfo(host, port, family, socket.SOCK_STREAM):
+               ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\python 3.13.2\Lib\socket.py", line 977, in getaddrinfo
+    for res in _socket.getaddrinfo(host, port, family, type, proto, flags):
+               ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+socket.gaierror: [Errno 11001] getaddrinfo failed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\urllib3\connectionpool.py", line 789, in urlopen
+    response = self._make_request(
+        conn,
+    ...<10 lines>...
+        **response_kw,
+    )
+  File "C:\advice_project\env\Lib\site-packages\urllib3\connectionpool.py", line 490, in _make_request
+    raise new_e
+  File "C:\advice_project\env\Lib\site-packages\urllib3\connectionpool.py", line 466, in _make_request
+    self._validate_conn(conn)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\urllib3\connectionpool.py", line 1095, in _validate_conn
+    conn.connect()
+    ~~~~~~~~~~~~^^
+  File "C:\advice_project\env\Lib\site-packages\urllib3\connection.py", line 615, in connect
+    self.sock = sock = self._new_conn()
+                       ~~~~~~~~~~~~~~^^
+  File "C:\advice_project\env\Lib\site-packages\urllib3\connection.py", line 203, in _new_conn
+    raise NameResolutionError(self.host, self, e) from e
+urllib3.exceptions.NameResolutionError: <urllib3.connection.HTTPSConnection object at 0x000002979AFF70E0>: Failed to resolve 'api.kie.ai' ([Errno 11001] getaddrinfo failed)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\requests\adapters.py", line 644, in send
+    resp = conn.urlopen(
+        method=request.method,
+    ...<9 lines>...
+        chunked=chunked,
+    )
+  File "C:\advice_project\env\Lib\site-packages\urllib3\connectionpool.py", line 843, in urlopen
+    retries = retries.increment(
+        method, url, error=new_e, _pool=self, _stacktrace=sys.exc_info()[2]
+    )
+  File "C:\advice_project\env\Lib\site-packages\urllib3\util\retry.py", line 519, in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='api.kie.ai', port=443): Max retries exceeded with url: /gemini/v1/models/gemini-4-argon:generateContent (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x000002979AFF70E0>: Failed to resolve 'api.kie.ai' ([Errno 11001] getaddrinfo failed)"))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 4019, in post
+    result_text = agent.ask(topic=topic, style=style, target_audience=target_audience)
+  File "c:\advice_project\aqwe_app\agents\content_maker_agent.py", line 192, in ask
+    result = self.generate_banner(topic, style, target_audience)
+  File "c:\advice_project\aqwe_app\agents\content_maker_agent.py", line 112, in generate_banner
+    response = requests.post(
+        f"{self.base_url}/gemini/v1/models/gemini-4-argon:generateContent",
+    ...<18 lines>...
+        timeout=1200
+    )
+  File "C:\advice_project\env\Lib\site-packages\requests\api.py", line 115, in post
+    return request("post", url, data=data, json=json, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\requests\api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\requests\sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\requests\sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\requests\adapters.py", line 677, in send
+    raise ConnectionError(e, request=request)
+requests.exceptions.ConnectionError: HTTPSConnectionPool(host='api.kie.ai', port=443): Max retries exceeded with url: /gemini/v1/models/gemini-4-argon:generateContent (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x000002979AFF70E0>: Failed to resolve 'api.kie.ai' ([Errno 11001] getaddrinfo failed)"))
+INFO 2026-10-15 15:38:35,637 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-15 16:00:28,427 log Method Not Allowed: /content-maker/
+WARNING 2026-10-15 16:01:41,680 content_maker_agent Неизвестная структура ответа: ['code', 'msg']
+WARNING 2026-10-15 16:01:46,358 content_maker_agent Неизвестная структура ответа: ['code', 'msg']
+WARNING 2026-10-15 16:01:50,521 content_maker_agent Неизвестная структура ответа: ['code', 'msg']
+WARNING 2026-10-15 16:10:44,227 content_maker_agent Неизвестная структура ответа: ['code', 'msg']
+WARNING 2026-10-15 16:10:51,834 content_maker_agent Неизвестная структура ответа: ['code', 'msg']
+WARNING 2026-10-15 16:10:56,872 content_maker_agent Неизвестная структура ответа: ['code', 'msg']
+WARNING 2026-10-15 16:11:43,503 log Method Not Allowed: /content-maker/
+WARNING 2026-10-15 16:12:31,708 content_maker_agent Неизвестная структура ответа: ['code', 'msg']
+WARNING 2026-10-15 16:12:36,029 content_maker_agent Неизвестная структура ответа: ['code', 'msg']
+WARNING 2026-10-15 16:12:39,949 content_maker_agent Неизвестная структура ответа: ['code', 'msg']
+INFO 2026-10-15 16:41:03,027 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-15 16:44:06,591 log Method Not Allowed: /content-maker/
+INFO 2026-10-15 17:43:03,248 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-15 17:45:58,562 log Method Not Allowed: /content-maker/
+WARNING 2026-10-15 17:47:27,991 content_maker_agent Неизвестная структура ответа: ['code', 'msg']
+WARNING 2026-10-15 17:47:33,293 content_maker_agent Неизвестная структура ответа: ['code', 'msg']
+WARNING 2026-10-15 17:47:36,973 content_maker_agent Неизвестная структура ответа: ['code', 'msg']
+WARNING 2026-10-15 17:49:21,461 content_maker_agent Неизвестная структура ответа: ['code', 'msg']
+WARNING 2026-10-15 17:49:25,859 content_maker_agent Неизвестная структура ответа: ['code', 'msg']
+WARNING 2026-10-15 17:49:30,260 content_maker_agent Неизвестная структура ответа: ['code', 'msg']
