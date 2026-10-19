@@ -52,6 +52,9 @@ from .views import InvestorAgentView
 from .views import FreelancerAgentView
 from .views import JournalistAgentView
 from .views import ContentMakerView
+from .views import AuditorCheckerView
+from .views import PartnerRepresentativeView
+from .views import LeadManagerView
 from .views import StatsView
 from .views import sitemap_view, robots_view
 from .views import SmartView
@@ -108,6 +111,9 @@ urlpatterns = [
     path('agent-freelancer/', FreelancerAgentView.as_view(), name='agent-freelancer'),
     path('journalist/', JournalistAgentView.as_view(), name='journalist_agent'),
     path('content-maker/', ContentMakerView.as_view(), name='content-maker'),
+    path('auditor-checker/', AuditorCheckerView.as_view(), name='auditor-checker'),
+    path('partner-representative/', PartnerRepresentativeView.as_view(), name='partner-representative'),
+    path('lead-manager/', LeadManagerView.as_view(), name='lead-manager'),
     path('statistic/', StatsView.as_view(), name='statistic'),
     path('sitemap.xml', sitemap_view),
     path('robots.txt', robots_view),

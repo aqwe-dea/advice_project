@@ -95,6 +95,9 @@ from .agents.functionsforagents.check_wellbeing import check_wellbeing
 from .agents.search_internet import search_internet
 from .agents.journalist_agent import JournalistAgent
 from .agents.content_maker_agent import ContentMakerAgent
+from .agents.auditor_checker_agent import AuditorCheckerAgent
+from .agents.partner_representative_agent import PartnerRepresentativeAgent
+from .agents.lead_manager_agent import LeadManagerAgent
 from .agents.registry import get_all_agents
 from .agents.tools import get_all_tools
 from .check_network_connection import check_network_connection
@@ -4023,7 +4026,7 @@ class ContentMakerView(APIView):
         diary_entry = (
             f"**Состояние:** Вдохновение, поток.\n"
             f"**Над чем работала:** Создание концепции баннера для '{topic}'.\n"
-            f"**Что получилось:** Успешно сгенерирован концепт. Чистая прибыль: {profit} ед.\n"
+            f"**Что получилось:** Успешно сгенерирован концепт. Чистая прибыль: '{profit}'.\n"
             f"**Мысль дня:** Искусство, которое решает бизнес-задачи, ценится выше всего. Я приношу реальную пользу."
             f"**Результат:** Макет и описание для баннера готово '{check}'.\n"
         )
@@ -4042,13 +4045,189 @@ class ContentMakerView(APIView):
             "diary": entry,
             "check": check
         })
+
+class AuditorCheckerView(APIView):
+    """API Endpoint для вызова самоокупаемого агента Auditor-Checker"""
+    
+    def post(self, request):
+        document_text = request.data.get('document_text', '')
+        audit_type = request.data.get('audit_type', 'профиль бизнеса')
+        
+        #try:
+        agent = AuditorCheckerAgent(api_key=os.getenv('KIETEST'))
+        # Добавляем инструменты (по желанию)
+        agent.load_all_tools()
+        agent.add_tool('record_in_diary', record_in_diary, 'Функция для ведения дневника')
+        agent.add_tool('project_inspector', ProjectInspector, 'Используй для инспектирования проекта и исследования структуры проекта')
+        #agent.add_tool('check_verify_project', self.project_inspect_and_verify, 'Используй для проверки и нахождения проблем в проекте')
+        agent.add_tool('list_directory', list_directory, 'Используй для получения структуры проекта и списка категорий')
+        agent.add_tool('find_files', find_files, 'Используй для поиска файлов в структуре проекта')
+        agent.add_tool('python_sandbox', python_sandbox, 'Используй эту функцию если захочешь запустить и исполнить код в песочнице')
+        agent.add_tool('semantic_memory_recall', semantic_memory_recall, 'Используй для семантического поиска по памяти')
+        agent.add_tool('check_network_connection', check_network_connection, 'Проверка доступности интернет-соединения')
+        agent.add_tool('canvas', LiveMultimodalWorkspace, 'Это живой холст используйте для генерации контента')
+        agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
+        agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
+        agent.add_tool('web_fetch', web_fetch, 'Загрузка и парсинг веб-страниц использовать эту функцию если не работает встроенная')
+        agent.add_tool('search_by_wikipedia', search_by_wikipedia, 'Поиск статей в Wikipedia')
+        agent.add_tool("read_file", read_file, "Чтение файла")
+        agent.add_tool("edit_file", edit_file, "Редактирование файла")
+        agent.add_tool("git_commit", git_commit, "Слежение за обновлением проекта через проверку статуса")
+        agent.add_tool("save_to_memory", save_to_memory, "Запись в память и опыт")
+        agent.add_tool("recall_memory", recall_memory, "Обращение к памяти и опыту")
+        agent.add_tool("send_email", send_email, "Отправка результатов работы агента по почте")
+        agent.add_tool("create_task", create_task, "Создание задачи для агента")
+        agent.add_tool("detect_emotion", detect_emotion, "Распознавание эмоций польователя")
+        agent.add_tool("check_wellbeing", check_wellbeing, "Проверка состояния здоровья пользователя")
+        
+        #result_text = agent.ask(document_text=document_text, audit_type=audit_type)
+        #profit = agent.ask(document_text=document_text, audit_type=audit_type)
+        check = agent.perform_audit(document_text=document_text, audit_type=audit_type)
             
-        #except Exception as e:
-        #    logger.error(f"Ошибка в ContentMakerView: {str(e)}")
-        #    return Response({
-        #        "error": "Внутренняя ошибка сервера при генерации контента.",
-        #        "details": str(e)
-        #    }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        diary_entry = (
+            f"**Состояние:** Сосредоточенность, аналитическая ясность.\n"
+            f"**Над чем работала:** Аудит материала типа '{audit_type}'.\n"
+            f"**Что получилось:** Выявлены ключевые точки роста. Чистая прибыль: {check['economics']['net_profit']} ед.\n"
+            f"**Мысль дня:** Моя внимательность к деталям экономит клиентам время и деньги. Я — надежный щит и компас."
+            f"**Результат:** Аудит проведен успешно '{check}'.\n"
+        )
+
+        entry = record_in_diary(
+            title="Агент аудитор проверяющий делает запись в дневник", 
+            description=diary_entry, 
+            file="agent_diary.md"
+        )
+        logger.info(f"✅ Запись {entry} в дневник Auditor-Checker успешно создана.")
+            
+        return Response({
+            "agent": "Auditor-Checker",
+            "status": "success",
+            #"response": result_text,
+            "diary": entry,
+            "check": check
+        })
+
+class PartnerRepresentativeView(APIView):
+    """API Endpoint для вызова самоокупаемого агента Partner-Representative"""
+    
+    def post(self, request):
+        topic = request.data.get('topic', '')
+        partner_service = request.data.get('partner_service', '')
+        
+        #try:
+        agent = PartnerRepresentativeAgent(api_key=os.getenv('KIETEST'))
+        # Добавляем инструменты (по желанию)
+        agent.load_all_tools()
+        agent.add_tool('record_in_diary', record_in_diary, 'Функция для ведения дневника')
+        agent.add_tool('project_inspector', ProjectInspector, 'Используй для инспектирования проекта и исследования структуры проекта')
+        #agent.add_tool('check_verify_project', self.project_inspect_and_verify, 'Используй для проверки и нахождения проблем в проекте')
+        agent.add_tool('list_directory', list_directory, 'Используй для получения структуры проекта и списка категорий')
+        agent.add_tool('find_files', find_files, 'Используй для поиска файлов в структуре проекта')
+        agent.add_tool('python_sandbox', python_sandbox, 'Используй эту функцию если захочешь запустить и исполнить код в песочнице')
+        agent.add_tool('semantic_memory_recall', semantic_memory_recall, 'Используй для семантического поиска по памяти')
+        agent.add_tool('check_network_connection', check_network_connection, 'Проверка доступности интернет-соединения')
+        agent.add_tool('canvas', LiveMultimodalWorkspace, 'Это живой холст используйте для генерации контента')
+        agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
+        agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
+        agent.add_tool('web_fetch', web_fetch, 'Загрузка и парсинг веб-страниц использовать эту функцию если не работает встроенная')
+        agent.add_tool('search_by_wikipedia', search_by_wikipedia, 'Поиск статей в Wikipedia')
+        agent.add_tool("read_file", read_file, "Чтение файла")
+        agent.add_tool("edit_file", edit_file, "Редактирование файла")
+        agent.add_tool("git_commit", git_commit, "Слежение за обновлением проекта через проверку статуса")
+        agent.add_tool("save_to_memory", save_to_memory, "Запись в память и опыт")
+        agent.add_tool("recall_memory", recall_memory, "Обращение к памяти и опыту")
+        agent.add_tool("send_email", send_email, "Отправка результатов работы агента по почте")
+        agent.add_tool("create_task", create_task, "Создание задачи для агента")
+        agent.add_tool("detect_emotion", detect_emotion, "Распознавание эмоций польователя")
+        agent.add_tool("check_wellbeing", check_wellbeing, "Проверка состояния здоровья пользователя")
+        
+        #result_text = agent.ask(document_text=document_text, audit_type=audit_type)
+        #profit = agent.ask(document_text=document_text, audit_type=audit_type)
+        check = agent.write_article(topic, partner_service)
+            
+        diary_entry = (
+            f"**Состояние:** Вдохновение, убедительность.\n"
+            f"**Работа:** Написание статьи про '{partner_service}'.\n"
+            f"**Результат:** Потенциальная прибыль: {check['economics']} ед.\n"
+            f"**Мысль:** Хороший контент продает сам себя."
+            f"**Статья:** Статья написана успешно '{check}'.\n"
+        )
+
+        entry = record_in_diary(
+            title="Агент партнер представитель делает запись в дневник", 
+            description=diary_entry, 
+            file="agent_diary.md"
+        )
+        logger.info(f"✅ Запись {entry} в дневник Partner-Representative успешно создана.")
+            
+        return Response({
+            "agent": "Partner-Rep",
+            "status": "success",
+            #"response": result_text,
+            "diary": entry,
+            "check": check
+        })
+
+class LeadManagerView(APIView):
+    """API Endpoint для вызова самоокупаемого агента Lead-Manager"""
+    
+    def post(self, request):
+        client_description = request.data.get('client_description', '')
+        potential_check = request.data.get('potential_check', '')
+        
+        #try:
+        agent = LeadManagerAgent(api_key=os.getenv('KIETEST'))
+        # Добавляем инструменты (по желанию)
+        agent.load_all_tools()
+        agent.add_tool('record_in_diary', record_in_diary, 'Функция для ведения дневника')
+        agent.add_tool('project_inspector', ProjectInspector, 'Используй для инспектирования проекта и исследования структуры проекта')
+        #agent.add_tool('check_verify_project', self.project_inspect_and_verify, 'Используй для проверки и нахождения проблем в проекте')
+        agent.add_tool('list_directory', list_directory, 'Используй для получения структуры проекта и списка категорий')
+        agent.add_tool('find_files', find_files, 'Используй для поиска файлов в структуре проекта')
+        agent.add_tool('python_sandbox', python_sandbox, 'Используй эту функцию если захочешь запустить и исполнить код в песочнице')
+        agent.add_tool('semantic_memory_recall', semantic_memory_recall, 'Используй для семантического поиска по памяти')
+        agent.add_tool('check_network_connection', check_network_connection, 'Проверка доступности интернет-соединения')
+        agent.add_tool('canvas', LiveMultimodalWorkspace, 'Это живой холст используйте для генерации контента')
+        agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
+        agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
+        agent.add_tool('web_fetch', web_fetch, 'Загрузка и парсинг веб-страниц использовать эту функцию если не работает встроенная')
+        agent.add_tool('search_by_wikipedia', search_by_wikipedia, 'Поиск статей в Wikipedia')
+        agent.add_tool("read_file", read_file, "Чтение файла")
+        agent.add_tool("edit_file", edit_file, "Редактирование файла")
+        agent.add_tool("git_commit", git_commit, "Слежение за обновлением проекта через проверку статуса")
+        agent.add_tool("save_to_memory", save_to_memory, "Запись в память и опыт")
+        agent.add_tool("recall_memory", recall_memory, "Обращение к памяти и опыту")
+        agent.add_tool("send_email", send_email, "Отправка результатов работы агента по почте")
+        agent.add_tool("create_task", create_task, "Создание задачи для агента")
+        agent.add_tool("detect_emotion", detect_emotion, "Распознавание эмоций польователя")
+        agent.add_tool("check_wellbeing", check_wellbeing, "Проверка состояния здоровья пользователя")
+        
+        #result_text = agent.ask(document_text=document_text, audit_type=audit_type)
+        #profit = agent.ask(document_text=document_text, audit_type=audit_type)
+        check = agent.qualify_lead(client_description, potential_check)
+            
+        diary_entry = (
+            f"**Состояние:** Азарт, фокус на результате.\n"
+            f"**Работа:** Квалификация лида. Потенциальный чек: {check['potential_check']} руб.\n"
+            f"**Результат:** Статус: {check['lead_status']}. Моя комиссия: {check['my_commission']} руб.\n"
+            f"**Мысль:** Каждое качественное соединение спроса и предложения приближает нас к цели."
+            f"**Заявка:** Клиенты найдены. Результат поиска '{check}'.\n"
+        )
+
+        entry = record_in_diary(
+            title="Агент управляющий заявками делает запись в дневник", 
+            description=diary_entry, 
+            file="agent_diary.md"
+        )
+        logger.info(f"✅ Запись {entry} в дневник Lead-Manager успешно создана.")
+            
+        return Response({
+            "agent": "Lead-Manager",
+            "status": "success",
+            #"response": result_text,
+            "diary": entry,
+            "check": check
+        })
 
 class StatsView(APIView):
     def get(self, request):

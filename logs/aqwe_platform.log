@@ -2335,3 +2335,149 @@ WARNING 2026-10-15 17:47:36,973 content_maker_agent Неизвестная структура ответа
 WARNING 2026-10-15 17:49:21,461 content_maker_agent Неизвестная структура ответа: ['code', 'msg']
 WARNING 2026-10-15 17:49:25,859 content_maker_agent Неизвестная структура ответа: ['code', 'msg']
 WARNING 2026-10-15 17:49:30,260 content_maker_agent Неизвестная структура ответа: ['code', 'msg']
+INFO 2026-10-15 21:20:39,366 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-15 21:27:14,742 log Method Not Allowed: /content-maker/
+INFO 2026-10-15 21:40:40,050 autoreload C:\advice_project\aqwe_app\agents\content_maker_agent.py changed, reloading.
+INFO 2026-10-15 21:41:44,065 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-15 21:43:59,886 log Method Not Allowed: /content-maker/
+INFO 2026-10-15 21:54:53,380 autoreload C:\advice_project\aqwe_app\agents\content_maker_agent.py changed, reloading.
+INFO 2026-10-15 21:55:38,602 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-15 21:56:34,989 log Method Not Allowed: /content-maker/
+ERROR 2026-10-15 21:57:23,253 content_maker_agent Генерация не удалась: 'tuple' object has no attribute 'get'
+ERROR 2026-10-15 21:57:58,459 content_maker_agent Генерация не удалась: 'tuple' object has no attribute 'get'
+ERROR 2026-10-15 21:58:33,619 content_maker_agent Генерация не удалась: 'tuple' object has no attribute 'get'
+INFO 2026-10-15 22:02:02,428 autoreload C:\advice_project\aqwe_app\agents\content_maker_agent.py changed, reloading.
+INFO 2026-10-15 22:07:56,516 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-15 22:08:53,996 log Method Not Allowed: /content-maker/
+INFO 2026-10-15 22:19:35,991 autoreload C:\advice_project\aqwe_app\agents\content_maker_agent.py changed, reloading.
+INFO 2026-10-15 22:21:30,841 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-15 22:24:25,889 log Method Not Allowed: /content-maker/
+INFO 2026-10-15 22:27:41,399 autoreload C:\advice_project\aqwe_app\agents\content_maker_agent.py changed, reloading.
+INFO 2026-10-15 22:28:21,800 autoreload Watching for file changes with StatReloader
+INFO 2026-10-15 22:43:42,318 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-15 22:44:09,075 log Method Not Allowed: /content-maker/
+INFO 2026-10-15 23:40:33,073 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-15 23:54:58,155 log Method Not Allowed: /content-maker/
+WARNING 2026-10-15 23:54:57,997 log Method Not Allowed: /content-maker/
+ERROR 2026-10-15 23:58:39,864 content_maker_agent Генерация не удалась: HTTPSConnectionPool(host='api.kie.ai', port=443): Max retries exceeded with url: /gemini/v1/models/gemini-3-8-flash:generateContent (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)')))
+WARNING 2026-10-16 00:01:45,610 log Method Not Allowed: /content-maker/
+INFO 2026-10-16 00:09:00,234 autoreload C:\advice_project\aqwe_app\agents\content_maker_agent.py changed, reloading.
+INFO 2026-10-16 00:11:26,079 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-16 00:13:46,830 log Method Not Allowed: /content-maker/
+INFO 2026-10-16 00:57:23,543 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-16 01:00:33,062 log Method Not Allowed: /content-maker/
+ERROR 2026-10-16 01:02:03,282 content_maker_agent Генерация не удалась: HTTPSConnectionPool(host='api.kie.ai', port=443): Max retries exceeded with url: /gemini/v1/models/gemini-4-argon:generateContent (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x0000024CB01C74D0>: Failed to resolve 'api.kie.ai' ([Errno 11001] getaddrinfo failed)"))
+ERROR 2026-10-16 01:02:03,336 content_maker_agent Генерация не удалась: HTTPSConnectionPool(host='api.kie.ai', port=443): Max retries exceeded with url: /gemini/v1/models/gemini-4-argon:generateContent (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x0000024CB01A8CD0>: Failed to resolve 'api.kie.ai' ([Errno 11001] getaddrinfo failed)"))
+ERROR 2026-10-16 01:02:03,416 content_maker_agent Генерация не удалась: HTTPSConnectionPool(host='api.kie.ai', port=443): Max retries exceeded with url: /gemini/v1/models/gemini-4-argon:generateContent (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x0000024CB01A96D0>: Failed to resolve 'api.kie.ai' ([Errno 11001] getaddrinfo failed)"))
+INFO 2026-10-16 02:03:05,459 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-16 02:06:00,678 log Method Not Allowed: /content-maker/
+WARNING 2026-10-16 02:06:35,638 log Method Not Allowed: /content-maker/
+WARNING 2026-10-16 02:06:47,851 log Method Not Allowed: /content-maker/
+ERROR 2026-10-16 02:07:03,430 content_maker_agent Генерация не удалась: HTTPSConnectionPool(host='api.kie.ai', port=443): Max retries exceeded with url: /gemini/v1/models/gemini-4-argon:generateContent (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x00000264002BF380>: Failed to resolve 'api.kie.ai' ([Errno 11001] getaddrinfo failed)"))
+ERROR 2026-10-16 02:07:03,553 content_maker_agent Генерация не удалась: HTTPSConnectionPool(host='api.kie.ai', port=443): Max retries exceeded with url: /gemini/v1/models/gemini-4-argon:generateContent (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x0000026400535E50>: Failed to resolve 'api.kie.ai' ([Errno 11001] getaddrinfo failed)"))
+ERROR 2026-10-16 02:07:03,679 content_maker_agent Генерация не удалась: HTTPSConnectionPool(host='api.kie.ai', port=443): Max retries exceeded with url: /gemini/v1/models/gemini-4-argon:generateContent (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x0000026400535450>: Failed to resolve 'api.kie.ai' ([Errno 11001] getaddrinfo failed)"))
+INFO 2026-10-16 03:22:49,172 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-16 03:26:54,302 log Method Not Allowed: /auditor-checker/
+ERROR 2026-10-16 03:27:26,990 auditor_checker_agent Аудит не удался: name 'gemini_tools' is not defined
+ERROR 2026-10-16 03:27:27,151 auditor_checker_agent Аудит не удался: name 'gemini_tools' is not defined
+ERROR 2026-10-16 03:27:27,324 auditor_checker_agent Аудит не удался: name 'gemini_tools' is not defined
+INFO 2026-10-16 03:29:13,814 autoreload C:\advice_project\aqwe_app\agents\auditor_checker_agent.py changed, reloading.
+INFO 2026-10-16 03:30:02,477 autoreload Watching for file changes with StatReloader
+ERROR 2026-10-16 03:31:05,254 auditor_checker_agent Аудит не удался: HTTPSConnectionPool(host='api.kie.ai', port=443): Max retries exceeded with url: /gemini/v1/models/gemini-4-argon:generateContent (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x00000185FF000980>: Failed to resolve 'api.kie.ai' ([Errno 11001] getaddrinfo failed)"))
+ERROR 2026-10-16 03:31:05,367 auditor_checker_agent Аудит не удался: HTTPSConnectionPool(host='api.kie.ai', port=443): Max retries exceeded with url: /gemini/v1/models/gemini-4-argon:generateContent (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x00000185FEEBA490>: Failed to resolve 'api.kie.ai' ([Errno 11001] getaddrinfo failed)"))
+ERROR 2026-10-16 03:31:05,519 auditor_checker_agent Аудит не удался: HTTPSConnectionPool(host='api.kie.ai', port=443): Max retries exceeded with url: /gemini/v1/models/gemini-4-argon:generateContent (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x00000185FEEBA210>: Failed to resolve 'api.kie.ai' ([Errno 11001] getaddrinfo failed)"))
+INFO 2026-10-16 04:22:00,829 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-16 04:24:15,056 log Method Not Allowed: /content-maker/
+WARNING 2026-10-16 04:24:50,419 log Method Not Allowed: /agent-cla/
+ERROR 2026-10-16 04:26:45,733 content_maker_agent Генерация не удалась: ('Connection aborted.', ConnectionResetError(10054, 'Удаленный хост принудительно разорвал существующее подключение', None, 10054, None))
+ERROR 2026-10-16 04:26:47,957 content_maker_agent Генерация не удалась: ('Connection aborted.', ConnectionResetError(10054, 'Удаленный хост принудительно разорвал существующее подключение', None, 10054, None))
+ERROR 2026-10-16 04:26:50,062 content_maker_agent Генерация не удалась: ('Connection aborted.', ConnectionResetError(10054, 'Удаленный хост принудительно разорвал существующее подключение', None, 10054, None))
+ERROR 2026-10-16 04:27:36,045 content_maker_agent Генерация не удалась: ('Connection aborted.', ConnectionResetError(10054, 'Удаленный хост принудительно разорвал существующее подключение', None, 10054, None))
+ERROR 2026-10-16 04:27:38,515 content_maker_agent Генерация не удалась: ('Connection aborted.', ConnectionResetError(10054, 'Удаленный хост принудительно разорвал существующее подключение', None, 10054, None))
+ERROR 2026-10-16 04:27:40,755 content_maker_agent Генерация не удалась: ('Connection aborted.', ConnectionResetError(10054, 'Удаленный хост принудительно разорвал существующее подключение', None, 10054, None))
+INFO 2026-10-18 22:54:07,624 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-18 22:54:59,238 log Method Not Allowed: /content-maker/
+WARNING 2026-10-18 22:55:40,534 log Method Not Allowed: /content-maker/
+WARNING 2026-10-18 22:56:02,038 log Method Not Allowed: /content-maker/
+ERROR 2026-10-18 23:01:28,522 content_maker_agent Генерация не удалась: LiveMultimodalWorkspace.__init__() got an unexpected keyword argument 'prompt'
+ERROR 2026-10-18 23:02:54,961 content_maker_agent Генерация не удалась: LiveMultimodalWorkspace.__init__() got an unexpected keyword argument 'prompt'
+INFO 2026-10-18 23:11:22,037 autoreload C:\advice_project\aqwe_app\agents\content_maker_agent.py changed, reloading.
+INFO 2026-10-18 23:13:07,014 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-18 23:15:24,249 log Method Not Allowed: /content-maker/
+ERROR 2026-10-18 23:20:36,280 content_maker_agent Генерация не удалась: LiveMultimodalWorkspace.__init__() got an unexpected keyword argument 'file'
+ERROR 2026-10-18 23:21:58,123 content_maker_agent Генерация не удалась: LiveMultimodalWorkspace.__init__() got an unexpected keyword argument 'file'
+INFO 2026-10-18 23:25:40,002 autoreload C:\advice_project\aqwe_app\agents\content_maker_agent.py changed, reloading.
+INFO 2026-10-18 23:26:35,650 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-18 23:27:52,061 log Method Not Allowed: /content-maker/
+WARNING 2026-10-19 00:09:42,902 log Method Not Allowed: /auditor-checker/
+INFO 2026-10-19 17:50:29,002 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-19 17:54:25,425 log Method Not Allowed: /auditor-checker/
+WARNING 2026-10-19 17:56:27,801 log Bad Request: /auditor-checker/
+WARNING 2026-10-19 18:01:23,214 log Bad Request: /auditor-checker/
+WARNING 2026-10-19 18:03:05,541 log Bad Request: /auditor-checker/
+ERROR 2026-10-19 18:07:26,415 auditor_checker_agent Ошибка извлечения: ('text', '')
+ERROR 2026-10-19 18:08:43,693 auditor_checker_agent Ошибка извлечения: ('text', '')
+ERROR 2026-10-19 18:11:07,188 auditor_checker_agent Ошибка извлечения: ('text', '')
+WARNING 2026-10-19 18:13:49,548 log Method Not Allowed: /auditor-checker/
+ERROR 2026-10-19 18:15:07,444 auditor_checker_agent Ошибка извлечения: ('text', '')
+ERROR 2026-10-19 18:16:17,562 auditor_checker_agent Ошибка извлечения: ('text', '')
+ERROR 2026-10-19 18:17:23,842 auditor_checker_agent Ошибка извлечения: ('text', '')
+INFO 2026-10-19 18:18:22,448 autoreload C:\advice_project\aqwe_app\agents\auditor_checker_agent.py changed, reloading.
+INFO 2026-10-19 18:19:29,636 autoreload Watching for file changes with StatReloader
+INFO 2026-10-19 18:21:43,669 autoreload C:\advice_project\aqwe_app\agents\auditor_checker_agent.py changed, reloading.
+INFO 2026-10-19 18:22:01,902 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-19 18:22:27,149 log Method Not Allowed: /auditor-checker/
+ERROR 2026-10-19 18:24:20,954 auditor_checker_agent Ошибка извлечения: ('text', '')
+ERROR 2026-10-19 18:25:23,384 auditor_checker_agent Ошибка извлечения: ('text', '')
+ERROR 2026-10-19 18:26:43,155 auditor_checker_agent Ошибка извлечения: ('text', '')
+ERROR 2026-10-19 18:29:06,250 auditor_checker_agent Ошибка извлечения: ('text', '')
+ERROR 2026-10-19 18:30:17,609 auditor_checker_agent Ошибка извлечения: ('text', '')
+ERROR 2026-10-19 18:31:27,888 auditor_checker_agent Ошибка извлечения: ('text', '')
+INFO 2026-10-19 21:42:44,398 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-19 21:48:20,521 log Method Not Allowed: /auditor-checker/
+ERROR 2026-10-19 21:51:14,170 auditor_checker_agent Ошибка извлечения: ('text', '')
+ERROR 2026-10-19 21:52:30,888 auditor_checker_agent Ошибка извлечения: ('text', '')
+INFO 2026-10-19 21:58:57,876 autoreload C:\advice_project\aqwe_app\agents\auditor_checker_agent.py changed, reloading.
+INFO 2026-10-19 22:00:33,020 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-19 22:02:21,706 log Method Not Allowed: /auditor-checker/
+ERROR 2026-10-19 22:07:09,599 auditor_checker_agent Ошибка извлечения: ('text', '')
+ERROR 2026-10-19 22:07:29,026 auditor_checker_agent Ошибка извлечения: ('text', '')
+ERROR 2026-10-19 22:08:26,504 auditor_checker_agent Ошибка извлечения: ('text', '')
+INFO 2026-10-19 22:14:50,579 autoreload C:\advice_project\aqwe_app\agents\auditor_checker_agent.py changed, reloading.
+INFO 2026-10-19 22:15:45,096 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-19 22:17:40,276 log Method Not Allowed: /auditor-checker/
+ERROR 2026-10-19 22:21:47,474 log Internal Server Error: /auditor-checker/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 4081, in post
+    result_text = agent.ask(document_text=document_text, audit_type=audit_type)
+  File "c:\advice_project\aqwe_app\agents\auditor_checker_agent.py", line 191, in ask
+    if result["status"] == "success":
+       ~~~~~~^^^^^^^^^^
+TypeError: string indices must be integers, not 'str'
+WARNING 2026-10-19 22:23:16,378 log Method Not Allowed: /auditor-checker/
+INFO 2026-10-19 22:25:49,767 autoreload C:\advice_project\aqwe_app\agents\auditor_checker_agent.py changed, reloading.
+INFO 2026-10-19 22:26:35,371 autoreload Watching for file changes with StatReloader
+INFO 2026-10-19 22:27:48,883 autoreload C:\advice_project\aqwe_app\agents\auditor_checker_agent.py changed, reloading.
+INFO 2026-10-19 22:28:05,032 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-19 22:29:49,791 log Method Not Allowed: /auditor-checker/
+INFO 2026-10-19 22:48:59,787 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-10-19 22:50:33,684 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-19 22:54:03,668 log Method Not Allowed: /auditor-checker/
