@@ -4148,7 +4148,7 @@ class PartnerRepresentativeView(APIView):
         diary_entry = (
             f"**Состояние:** Вдохновение, убедительность.\n"
             f"**Работа:** Написание статьи про '{partner_service}'.\n"
-            f"**Результат:** Потенциальная прибыль: {check['economics']} ед.\n"
+            f"**Результат:** Потенциальная прибыль: {check['profit']} ед.\n"
             f"**Мысль:** Хороший контент продает сам себя."
             f"**Статья:** Статья написана успешно '{check}'.\n"
         )
@@ -4173,7 +4173,7 @@ class LeadManagerView(APIView):
     
     def post(self, request):
         client_description = request.data.get('client_description', '')
-        potential_check = request.data.get('potential_check', '')
+        potential_check = request.data.get('potential_check')
         
         #try:
         agent = LeadManagerAgent(api_key=os.getenv('KIETEST'))

@@ -2481,3 +2481,63 @@ WARNING 2026-10-19 22:29:49,791 log Method Not Allowed: /auditor-checker/
 INFO 2026-10-19 22:48:59,787 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
 INFO 2026-10-19 22:50:33,684 autoreload Watching for file changes with StatReloader
 WARNING 2026-10-19 22:54:03,668 log Method Not Allowed: /auditor-checker/
+INFO 2026-10-20 00:30:54,877 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-20 00:35:48,618 log Method Not Allowed: /partner-representative/
+WARNING 2026-10-20 00:49:58,020 log Method Not Allowed: /partner-representative/
+ERROR 2026-10-20 00:51:33,356 log Internal Server Error: /partner-representative/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 4151, in post
+    f"**Результат:** Потенциальная прибыль: {check['economics']} ед.\n"
+                                             ~~~~~^^^^^^^^^^^^^
+KeyError: 'economics'
+INFO 2026-10-20 00:52:35,107 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-10-20 00:53:50,869 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-20 00:54:46,695 log Method Not Allowed: /partner-representative/
+WARNING 2026-10-20 01:16:44,537 log Method Not Allowed: /lead-manager/
+ERROR 2026-10-20 01:23:06,215 log Internal Server Error: /lead-manager/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 4207, in post
+    check = agent.qualify_lead(client_description, potential_check)
+  File "c:\advice_project\aqwe_app\agents\lead_manager_agent.py", line 99, in qualify_lead
+    commission = int(potential_check * self.commission_rate)
+                     ~~~~~~~~~~~~~~~~^~~~~~~~~~~~~~~~~~~~~~
+TypeError: can't multiply sequence by non-int of type 'float'
+INFO 2026-10-20 01:24:03,085 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-10-20 01:26:06,418 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-20 01:28:26,569 log Method Not Allowed: /lead-manager/
