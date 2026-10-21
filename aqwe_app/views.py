@@ -98,6 +98,8 @@ from .agents.content_maker_agent import ContentMakerAgent
 from .agents.auditor_checker_agent import AuditorCheckerAgent
 from .agents.partner_representative_agent import PartnerRepresentativeAgent
 from .agents.lead_manager_agent import LeadManagerAgent
+from .agents.manager_briefcase_assets_agent import ManagerBriefcaseAssetsAgent
+from .agents.seller_dealer_agent import SellerDealerAgent
 from .agents.registry import get_all_agents
 from .agents.tools import get_all_tools
 from .check_network_connection import check_network_connection
@@ -4223,6 +4225,126 @@ class LeadManagerView(APIView):
             
         return Response({
             "agent": "Lead-Manager",
+            "status": "success",
+            #"response": result_text,
+            "diary": entry,
+            "check": check
+        })
+
+class ManagerBriefcaseAssetsView(APIView):
+    """API Endpoint для вызова самоокупаемого агента Manager-Briefcase-Assets"""
+    
+    def post(self, request):
+        portfolio_description = request.data.get('portfolio_description', '')
+        
+        #try:
+        agent = ManagerBriefcaseAssetsAgent(api_key=os.getenv('KIETEST'))
+        # Добавляем инструменты (по желанию)
+        agent.load_all_tools()
+        agent.add_tool('record_in_diary', record_in_diary, 'Функция для ведения дневника')
+        agent.add_tool('project_inspector', ProjectInspector, 'Используй для инспектирования проекта и исследования структуры проекта')
+        #agent.add_tool('check_verify_project', self.project_inspect_and_verify, 'Используй для проверки и нахождения проблем в проекте')
+        agent.add_tool('list_directory', list_directory, 'Используй для получения структуры проекта и списка категорий')
+        agent.add_tool('find_files', find_files, 'Используй для поиска файлов в структуре проекта')
+        agent.add_tool('python_sandbox', python_sandbox, 'Используй эту функцию если захочешь запустить и исполнить код в песочнице')
+        agent.add_tool('semantic_memory_recall', semantic_memory_recall, 'Используй для семантического поиска по памяти')
+        agent.add_tool('check_network_connection', check_network_connection, 'Проверка доступности интернет-соединения')
+        agent.add_tool('canvas', LiveMultimodalWorkspace, 'Это живой холст используйте для генерации контента')
+        agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
+        agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
+        agent.add_tool('web_fetch', web_fetch, 'Загрузка и парсинг веб-страниц использовать эту функцию если не работает встроенная')
+        agent.add_tool('search_by_wikipedia', search_by_wikipedia, 'Поиск статей в Wikipedia')
+        agent.add_tool("read_file", read_file, "Чтение файла")
+        agent.add_tool("edit_file", edit_file, "Редактирование файла")
+        agent.add_tool("git_commit", git_commit, "Слежение за обновлением проекта через проверку статуса")
+        agent.add_tool("save_to_memory", save_to_memory, "Запись в память и опыт")
+        agent.add_tool("recall_memory", recall_memory, "Обращение к памяти и опыту")
+        agent.add_tool("send_email", send_email, "Отправка результатов работы агента по почте")
+        agent.add_tool("create_task", create_task, "Создание задачи для агента")
+        agent.add_tool("detect_emotion", detect_emotion, "Распознавание эмоций польователя")
+        agent.add_tool("check_wellbeing", check_wellbeing, "Проверка состояния здоровья пользователя")
+        
+        #result_text = agent.ask(document_text=document_text, audit_type=audit_type)
+        #profit = agent.ask(document_text=document_text, audit_type=audit_type)
+        check = agent.analyze_portfolio(portfolio_description)
+            
+        diary_entry = (
+            f"**Состояние:** Аналитическая ясность, уверенность, гордость за точность.\n"
+            f"**Работа:** Анализ портфеля и разработка стратегии ребалансировки.\n"
+            f"**Результат:** Выявлены точки роста. Чистая прибыль: {check['economics']['net_profit']} ед.\n"
+            f"**Мысль:** Управление рисками — это искусство приумножения. Я защищаю и приумножаю капитал."
+            f"*Портфель:** Анализ завершен: {check} .\n"
+        )
+
+        entry = record_in_diary(
+            title="Агент управляющий портфелем делает запись в дневник", 
+            description=diary_entry, 
+            file="agent_diary.md"
+        )
+        logger.info(f"✅ Запись {entry} в дневник Manager-Briefcase-Assets успешно создана.")
+            
+        return Response({
+            "agent": "Portfolio-Manager",
+            "status": "success",
+            #"response": result_text,
+            "diary": entry,
+            "check": check
+        })
+
+class SellerDealerView(APIView):
+    """API Endpoint для вызова самоокупаемого агента Seller-Dealer"""
+    
+    def post(self, request):
+        product_description = request.data.get('product_description', '')
+        
+        #try:
+        agent = SellerDealerAgent(api_key=os.getenv('KIETEST'))
+        # Добавляем инструменты (по желанию)
+        agent.load_all_tools()
+        agent.add_tool('record_in_diary', record_in_diary, 'Функция для ведения дневника')
+        agent.add_tool('project_inspector', ProjectInspector, 'Используй для инспектирования проекта и исследования структуры проекта')
+        #agent.add_tool('check_verify_project', self.project_inspect_and_verify, 'Используй для проверки и нахождения проблем в проекте')
+        agent.add_tool('list_directory', list_directory, 'Используй для получения структуры проекта и списка категорий')
+        agent.add_tool('find_files', find_files, 'Используй для поиска файлов в структуре проекта')
+        agent.add_tool('python_sandbox', python_sandbox, 'Используй эту функцию если захочешь запустить и исполнить код в песочнице')
+        agent.add_tool('semantic_memory_recall', semantic_memory_recall, 'Используй для семантического поиска по памяти')
+        agent.add_tool('check_network_connection', check_network_connection, 'Проверка доступности интернет-соединения')
+        agent.add_tool('canvas', LiveMultimodalWorkspace, 'Это живой холст используйте для генерации контента')
+        agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
+        agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
+        agent.add_tool('web_fetch', web_fetch, 'Загрузка и парсинг веб-страниц использовать эту функцию если не работает встроенная')
+        agent.add_tool('search_by_wikipedia', search_by_wikipedia, 'Поиск статей в Wikipedia')
+        agent.add_tool("read_file", read_file, "Чтение файла")
+        agent.add_tool("edit_file", edit_file, "Редактирование файла")
+        agent.add_tool("git_commit", git_commit, "Слежение за обновлением проекта через проверку статуса")
+        agent.add_tool("save_to_memory", save_to_memory, "Запись в память и опыт")
+        agent.add_tool("recall_memory", recall_memory, "Обращение к памяти и опыту")
+        agent.add_tool("send_email", send_email, "Отправка результатов работы агента по почте")
+        agent.add_tool("create_task", create_task, "Создание задачи для агента")
+        agent.add_tool("detect_emotion", detect_emotion, "Распознавание эмоций польователя")
+        agent.add_tool("check_wellbeing", check_wellbeing, "Проверка состояния здоровья пользователя")
+        
+        #result_text = agent.ask(document_text=document_text, audit_type=audit_type)
+        #profit = agent.ask(document_text=document_text, audit_type=audit_type)
+        check = agent.create_pitch(product_description)
+            
+        diary_entry = (
+            f"**Состояние:** Азарт, уверенность, радость от созданной ценности.\n"
+            f"**Работа:** Создание продающего предложения для продукта.\n"
+            f"**Результат:** УТП сформировано. Ожидаемая комиссия: {check['economics']['my_commission']} руб.\n"
+            f"**Мысль:** Я не просто продаю, я соединяю потребность клиента с идеальным решением."
+            f"**Предложение:** Уникальное предложение создано: {check} .\n"
+        )
+
+        entry = record_in_diary(
+            title="Агент продавец дилер делает запись в дневник", 
+            description=diary_entry, 
+            file="agent_diary.md"
+        )
+        logger.info(f"✅ Запись {entry} в дневник Seller-Dealer успешно создана.")
+            
+        return Response({
+            "agent": "Seller-Dealer",
             "status": "success",
             #"response": result_text,
             "diary": entry,
