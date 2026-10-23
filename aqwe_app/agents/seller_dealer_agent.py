@@ -94,10 +94,11 @@ class SellerDealerAgent:
             )
             response.raise_for_status()
             data = response.json()
-            pitch_text, _ = self._extract_text_or_tool(data)
+            #pitch_text, _ = self._extract_text_or_tool(data)
+            text = self._extract_text_or_tool(data)
             
-            if not pitch_text:
-                pitch_text = "Уникальное предложение создано. Продукт обладает высочайшей ценностью для целевой аудитории."
+            #if not pitch_text:
+            #    pitch_text = "Уникальное предложение создано. Продукт обладает высочайшей ценностью для целевой аудитории."
 
             commission = int(self.avg_check * self.commission_rate)
             profit = commission # Расход токенов минимален по сравнению с комиссией
@@ -108,13 +109,13 @@ class SellerDealerAgent:
                 f"**Работа:** Создание продающего предложения для продукта.\n"
                 f"**Результат:** УТП сформировано. Ожидаемая комиссия: {commission} руб.\n"
                 f"**Мысль:** Я не просто продаю, я соединяю потребность клиента с идеальным решением."
-                f"**Предложение:** Уникальное предложение создано: {pitch_text} .\n"
+                f"**Предложение:** Уникальное предложение создано: {text} .\n"
             )
             record_in_diary(title="Создание УТП", description=diary_entry, file="agent_diary.md")
 
             return {
                 "status": "success",
-                "pitch": pitch_text,
+                "pitch": text,
                 "economics": {
                     "avg_check": self.avg_check,
                     "my_commission": commission,

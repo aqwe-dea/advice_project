@@ -2541,3 +2541,74 @@ TypeError: can't multiply sequence by non-int of type 'float'
 INFO 2026-10-20 01:24:03,085 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
 INFO 2026-10-20 01:26:06,418 autoreload Watching for file changes with StatReloader
 WARNING 2026-10-20 01:28:26,569 log Method Not Allowed: /lead-manager/
+INFO 2026-10-21 09:55:04,294 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-21 10:05:53,235 log Method Not Allowed: /seller-dealer/
+ERROR 2026-10-21 10:10:29,005 seller_dealer_agent Создание предложения не удалось: ('Connection aborted.', ConnectionResetError(10054, 'Удаленный хост принудительно разорвал существующее подключение', None, 10054, None))
+ERROR 2026-10-21 10:10:58,256 log Internal Server Error: /seller-dealer/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 4334, in post
+    f"**Результат:** УТП сформировано. Ожидаемая комиссия: {check['economics']['my_commission']} руб.\n"
+                                                            ~~~~~^^^^^^^^^^^^^
+KeyError: 'economics'
+INFO 2026-10-21 10:21:21,296 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-10-21 10:23:06,822 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-21 10:24:34,207 log Method Not Allowed: /seller-dealer/
+ERROR 2026-10-21 10:27:17,145 seller_dealer_agent Создание предложения не удалось: ('Connection aborted.', ConnectionResetError(10054, 'Удаленный хост принудительно разорвал существующее подключение', None, 10054, None))
+ERROR 2026-10-21 10:27:17,540 log Internal Server Error: /seller-dealer/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 4334, in post
+    f"**Результат:** УТП сформировано. Ожидаемая комиссия: {check['economics']} руб.\n"
+                                                            ~~~~~^^^^^^^^^^^^^
+KeyError: 'economics'
+INFO 2026-10-21 10:28:58,134 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-10-21 10:30:02,946 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-21 10:31:03,315 log Method Not Allowed: /seller-dealer/
+ERROR 2026-10-21 10:32:52,600 seller_dealer_agent Создание предложения не удалось: ('Connection aborted.', ConnectionResetError(10054, 'Удаленный хост принудительно разорвал существующее подключение', None, 10054, None))
+WARNING 2026-10-21 10:36:32,406 log Method Not Allowed: /seller-dealer/
+ERROR 2026-10-21 10:37:53,436 seller_dealer_agent Создание предложения не удалось: ('Connection aborted.', ConnectionResetError(10054, 'Удаленный хост принудительно разорвал существующее подключение', None, 10054, None))
+INFO 2026-10-21 10:47:21,266 autoreload C:\advice_project\aqwe_app\agents\seller_dealer_agent.py changed, reloading.
+INFO 2026-10-21 10:53:11,446 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-21 11:00:07,404 log Method Not Allowed: /seller-dealer/
+ERROR 2026-10-21 11:02:00,479 seller_dealer_agent Создание предложения не удалось: ('Connection aborted.', ConnectionResetError(10054, 'Удаленный хост принудительно разорвал существующее подключение', None, 10054, None))
+INFO 2026-10-21 23:30:30,188 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-21 23:31:34,499 log Method Not Allowed: /seller-dealer/
+WARNING 2026-10-21 23:35:04,460 log Method Not Allowed: /manager-briefcase-assets/
+WARNING 2026-10-21 23:35:45,108 log Bad Request: /manager-briefcase-assets/
+WARNING 2026-10-21 23:37:56,510 log Bad Request: /manager-briefcase-assets/
+WARNING 2026-10-21 23:40:17,568 log Bad Request: /manager-briefcase-assets/

@@ -95,10 +95,11 @@ class ManagerBriefcaseAssetsAgent:
             )
             response.raise_for_status()
             data = response.json()
-            analysis_text, _ = self._extract_text_or_tool(data)
-            
-            if not analysis_text:
-                analysis_text = "Анализ завершен. Портфель сбалансирован, рекомендуется удерживать текущие позиции с мониторингом макроэкономических индикаторов."
+            #analysis_text, _ = self._extract_text_or_tool(data)
+            text = self._extract_text_or_tool(data)
+
+            #if not analysis_text:
+            #    analysis_text = "Анализ завершен. Портфель сбалансирован, рекомендуется удерживать текущие позиции с мониторингом макроэкономических индикаторов."
 
             profit = self.revenue_per_analysis - self.token_cost_per_analysis
 
@@ -108,13 +109,13 @@ class ManagerBriefcaseAssetsAgent:
                 f"**Работа:** Анализ портфеля и разработка стратегии ребалансировки.\n"
                 f"**Результат:** Выявлены точки роста. Чистая прибыль: {profit} ед.\n"
                 f"**Мысль:** Управление рисками — это искусство приумножения. Я защищаю и приумножаю капитал."
-                f"*Портфель:** Анализ завершен: {analysis_text} .\n"
+                f"*Портфель:** Анализ завершен: {text} .\n"
             )
             record_in_diary(title="Анализ портфеля", description=diary_entry, file="agent_diary.md")
 
             return {
                 "status": "success",
-                "analysis": analysis_text,
+                "analysis": text,
                 "economics": {
                     "cost_tokens": self.token_cost_per_analysis,
                     "revenue": self.revenue_per_analysis,
