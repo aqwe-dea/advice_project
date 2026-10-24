@@ -2612,3 +2612,25 @@ WARNING 2026-10-21 23:35:04,460 log Method Not Allowed: /manager-briefcase-asset
 WARNING 2026-10-21 23:35:45,108 log Bad Request: /manager-briefcase-assets/
 WARNING 2026-10-21 23:37:56,510 log Bad Request: /manager-briefcase-assets/
 WARNING 2026-10-21 23:40:17,568 log Bad Request: /manager-briefcase-assets/
+INFO 2026-10-24 04:02:59,731 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-24 04:09:19,013 log Method Not Allowed: /agent-director/
+ERROR 2026-10-24 04:15:08,472 director_agent Ошибка LLM (попытка 1): ('Connection aborted.', ConnectionResetError(10054, 'Удаленный хост принудительно разорвал существующее подключение', None, 10054, None))
+INFO 2026-10-24 04:15:15,242 video_generator Запрос генерации видео: prompt=Ошибка: нет кандидатов в ответе API...
+INFO 2026-10-24 04:15:17,458 video_generator Задача создана: task_id=f5662583531a020e6b7493d32d00d846
+INFO 2026-10-24 04:31:22,793 video_generator Запрос генерации видео: prompt=A 30-second promotional video in a modern techno-m...
+INFO 2026-10-24 04:31:25,592 video_generator Задача создана: task_id=73be750b7392c2f2d97542960e25aa56
+WARNING 2026-10-24 04:42:24,355 log Method Not Allowed: /agent-director/
+INFO 2026-10-24 04:45:05,160 video_generator Запрос генерации видео: prompt=Cinematic 3D motion graphics video, duration 30 se...
+INFO 2026-10-24 04:45:07,737 video_generator Задача создана: task_id=606f9b3286715edd6559b00bd84087d7
+ERROR 2026-10-24 04:46:03,820 base Задача не выполнена: internal error, please try again later.
+ERROR 2026-10-24 04:46:03,856 video_generator Задача не выполнена или таймаут
+INFO 2026-10-24 04:51:49,717 video_generator Запрос генерации видео: prompt=Cinematic 3D motion graphics video, duration 30 se...
+INFO 2026-10-24 04:51:51,883 video_generator Задача создана: task_id=025833bd71477c9cfc15c6efc1a1fb22
+INFO 2026-10-24 05:04:47,482 autoreload C:\advice_project\aqwe_app\agents\composer_agent.py changed, reloading.
+INFO 2026-10-24 05:08:12,346 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-24 05:23:56,462 log Method Not Allowed: /agent-director/
+INFO 2026-10-24 05:31:14,223 video_generator Запрос генерации видео: prompt=A 30-second dynamic kaleidoscopic video with a hyp...
+INFO 2026-10-24 05:31:16,394 video_generator Задача создана: task_id=4b56fdb40c05a810f6830b1fd564bbe2
+WARNING 2026-10-24 05:38:27,120 log Method Not Allowed: /agent-composer/
+WARNING 2026-10-24 05:43:35,318 log Method Not Allowed: /agent-composer/
+INFO 2026-10-24 05:45:13,567 instrumental_generator Полный ответ API: {'code': 200, 'msg': 'success', 'data': {'taskId': '27cf86ac755eed6afce95284fa56da1e'}}, Создание задачи: статус=200, taskId=27cf86ac755eed6afce95284fa56da1e
