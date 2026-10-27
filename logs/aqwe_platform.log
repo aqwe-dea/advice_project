@@ -2634,3 +2634,8 @@ INFO 2026-10-24 05:31:16,394 video_generator Задача создана: task_id=4b56fdb40c0
 WARNING 2026-10-24 05:38:27,120 log Method Not Allowed: /agent-composer/
 WARNING 2026-10-24 05:43:35,318 log Method Not Allowed: /agent-composer/
 INFO 2026-10-24 05:45:13,567 instrumental_generator Полный ответ API: {'code': 200, 'msg': 'success', 'data': {'taskId': '27cf86ac755eed6afce95284fa56da1e'}}, Создание задачи: статус=200, taskId=27cf86ac755eed6afce95284fa56da1e
+INFO 2026-10-28 00:16:58,451 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-28 00:21:32,976 log Method Not Allowed: /agent-composer/
+INFO 2026-10-28 00:30:10,315 instrumental_generator Полный ответ API: {'code': 200, 'msg': 'success', 'data': {'taskId': 'bb798d47ab52e15162684321c0653c00'}}, Создание задачи: статус=200, taskId=bb798d47ab52e15162684321c0653c00
+INFO 2026-10-28 00:39:42,024 instrumental_generator Полный ответ API: {'code': 200, 'msg': 'success', 'data': {'taskId': 'bdbc3b40a8c8060876236fc97a93f03b'}}, Создание задачи: статус=200, taskId=bdbc3b40a8c8060876236fc97a93f03b
+INFO 2026-10-28 00:50:34,811 instrumental_generator Полный ответ API: {'code': 200, 'msg': 'success', 'data': {'taskId': 'da416921cace25956e9863caca4c51b4'}}, Создание задачи: статус=200, taskId=da416921cace25956e9863caca4c51b4
