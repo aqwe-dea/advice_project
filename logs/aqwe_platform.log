@@ -2639,3 +2639,7 @@ WARNING 2026-10-28 00:21:32,976 log Method Not Allowed: /agent-composer/
 INFO 2026-10-28 00:30:10,315 instrumental_generator Полный ответ API: {'code': 200, 'msg': 'success', 'data': {'taskId': 'bb798d47ab52e15162684321c0653c00'}}, Создание задачи: статус=200, taskId=bb798d47ab52e15162684321c0653c00
 INFO 2026-10-28 00:39:42,024 instrumental_generator Полный ответ API: {'code': 200, 'msg': 'success', 'data': {'taskId': 'bdbc3b40a8c8060876236fc97a93f03b'}}, Создание задачи: статус=200, taskId=bdbc3b40a8c8060876236fc97a93f03b
 INFO 2026-10-28 00:50:34,811 instrumental_generator Полный ответ API: {'code': 200, 'msg': 'success', 'data': {'taskId': 'da416921cace25956e9863caca4c51b4'}}, Создание задачи: статус=200, taskId=da416921cace25956e9863caca4c51b4
+INFO 2026-10-30 04:56:54,355 autoreload Watching for file changes with StatReloader
+WARNING 2026-10-30 05:00:04,103 log Method Not Allowed: /author-agent/
+WARNING 2026-10-30 05:21:06,718 log Method Not Allowed: /auditor-checker/
+WARNING 2026-10-30 05:37:58,886 log Method Not Allowed: /content-maker/

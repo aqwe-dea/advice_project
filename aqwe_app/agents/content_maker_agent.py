@@ -301,3 +301,121 @@ class ContentMakerAgent:
             #)
             
         return f"Произошла ошибка: {result.get('message')}"
+    
+    def _develop_logo(self, brand_name: str, vibe: str) -> str:
+        """Специализированное создание промпта или SVG для премиального логотипа."""
+        prompt = f"Создай детальное описание или SVG-код для минималистичного, премиального логотипа бренда '{brand_name}'. Настроение (vibe): {vibe}. Используй золотое сечение."
+        # ... (вызов API или генерация SVG) ...
+        messages = self.context.copy()
+        messages.append({"role": "user", "parts": [{"text": prompt}]})
+
+        gemini_tools = []
+        if self.tools:
+            function_declarations = []
+            for name, info in self.tools.items():
+                # Упрощаем параметры для canvas, чтобы агент точно его вызвал
+                if name == "canvas":
+                    function_declarations.append({
+                        "name": name,
+                        "description": info['description'],
+                        "parameters": {
+                            "type": "OBJECT",
+                            "properties": {
+                                "file": {"type": "STRING", "description": "SVG код"},
+                                "description": {"type": "STRING", "description": "Описание"},
+                                "title": {"type": "STRING", "description": "Заголовок"}
+                            },
+                            "required": ["file", "description", "title"]
+                        }
+                    })
+            if function_declarations:
+                gemini_tools = [{"functionDeclarations": function_declarations}]
+
+        response = requests.post(
+            f"{self.base_url}/gemini/v1/models/gemini-4-argon:generateContent",
+            headers={
+                "Authorization": f"Bearer {self.api_key}", 
+                "Content-Type": "application/json"
+            },
+            json={
+                "contents": messages,
+                "tools": gemini_tools if gemini_tools else None,
+                "tool_config": {"function_calling_config": {"mode": "AUTO"}},
+                "generationConfig": {
+                    "temperature": 0.2, 
+                    "maxOutputTokens": 10000,
+                    "thinkingConfig": {
+                        "includeThoughts": False,
+                        "thinkingLevel": "high"
+                    }
+                }
+            },
+            timeout=1200
+        )
+        response.raise_for_status()
+        data = response.json()
+            
+        text = self._extract_text_or_tool(data)
+
+        return {
+            "logo": text
+        }
+
+    def _create_infographic(self, data_points: str) -> str:
+        """Специализированное создание структуры для инфографики."""
+        prompt = f"Структурируй эти данные в формат для создания визуально привлекательной инфографики. Выдели 3 главных инсайта. Данные: {data_points}"
+        # ... (вызов API и возврат результата) ...
+        messages = self.context.copy()
+        messages.append({"role": "user", "parts": [{"text": prompt}]})
+
+        gemini_tools = []
+        if self.tools:
+            function_declarations = []
+            for name, info in self.tools.items():
+                # Упрощаем параметры для canvas, чтобы агент точно его вызвал
+                if name == "canvas":
+                    function_declarations.append({
+                        "name": name,
+                        "description": info['description'],
+                        "parameters": {
+                            "type": "OBJECT",
+                            "properties": {
+                                "file": {"type": "STRING", "description": "SVG код"},
+                                "description": {"type": "STRING", "description": "Описание"},
+                                "title": {"type": "STRING", "description": "Заголовок"}
+                            },
+                            "required": ["file", "description", "title"]
+                        }
+                    })
+            if function_declarations:
+                gemini_tools = [{"functionDeclarations": function_declarations}]
+
+        response = requests.post(
+            f"{self.base_url}/gemini/v1/models/gemini-4-argon:generateContent",
+            headers={
+                "Authorization": f"Bearer {self.api_key}", 
+                "Content-Type": "application/json"
+            },
+            json={
+                "contents": messages,
+                "tools": gemini_tools if gemini_tools else None,
+                "tool_config": {"function_calling_config": {"mode": "AUTO"}},
+                "generationConfig": {
+                    "temperature": 0.2, 
+                    "maxOutputTokens": 10000,
+                    "thinkingConfig": {
+                        "includeThoughts": False,
+                        "thinkingLevel": "high"
+                    }
+                }
+            },
+            timeout=1200
+        )
+        response.raise_for_status()
+        data = response.json()
+            
+        text = self._extract_text_or_tool(data)
+
+        return {
+            "infographic": text
+        }

@@ -100,6 +100,7 @@ from .agents.partner_representative_agent import PartnerRepresentativeAgent
 from .agents.lead_manager_agent import LeadManagerAgent
 from .agents.manager_briefcase_assets_agent import ManagerBriefcaseAssetsAgent
 from .agents.seller_dealer_agent import SellerDealerAgent
+from .agents.author_agent import AuthorAgent
 from .agents.registry import get_all_agents
 from .agents.tools import get_all_tools
 from .check_network_connection import check_network_connection
@@ -3993,6 +3994,9 @@ class ContentMakerView(APIView):
         topic = request.data.get('topic', 'Нейросети в бизнесе')
         style = request.data.get('style', 'современный минимализм, неон')
         target_audience = request.data.get('target_audience', 'предприниматели')
+        brand_name = request.data.get('brand_name', '')
+        vibe = request.data.get('vibe', '')
+        data_points = request.data.get('data_points', '')
         
         #try:
         agent = ContentMakerAgent(api_key=os.getenv('KIETEST'))
@@ -4024,6 +4028,8 @@ class ContentMakerView(APIView):
         result_text = agent.ask(topic=topic, style=style, target_audience=target_audience)
         profit = agent.ask(topic=topic, style=style, target_audience=target_audience)
         check = agent.generate_banner(topic=topic, style=style, target_audience=target_audience)
+        logo = agent._develop_logo(brand_name, vibe)
+        infographic = agent._create_infographic(data_points)
             
         diary_entry = (
             f"**Состояние:** Вдохновение, поток.\n"
@@ -4045,7 +4051,9 @@ class ContentMakerView(APIView):
             "status": "success",
             "response": result_text,
             "diary": entry,
-            "check": check
+            "check": check,
+            "logo": logo,
+            "infographic": infographic
         })
 
 class AuditorCheckerView(APIView):
@@ -4054,7 +4062,9 @@ class AuditorCheckerView(APIView):
     def post(self, request):
         document_text = request.data.get('document_text', '')
         audit_type = request.data.get('audit_type', 'профиль бизнеса')
-        
+        text = request.data.get('text', '')
+        code_snippet = request.data.get('code_snippet', '')
+
         #try:
         agent = AuditorCheckerAgent(api_key=os.getenv('KIETEST'))
         # Добавляем инструменты (по желанию)
@@ -4085,6 +4095,8 @@ class AuditorCheckerView(APIView):
         #result_text = agent.ask(document_text=document_text, audit_type=audit_type)
         #profit = agent.ask(document_text=document_text, audit_type=audit_type)
         check = agent.perform_audit(document_text=document_text, audit_type=audit_type)
+        document = agent._check_document(text)
+        code = agent._check_code(code_snippet)
             
         diary_entry = (
             f"**Состояние:** Сосредоточенность, аналитическая ясность.\n"
@@ -4106,7 +4118,9 @@ class AuditorCheckerView(APIView):
             "status": "success",
             #"response": result_text,
             "diary": entry,
-            "check": check
+            "check": check,
+            "document": document,
+            "code": code
         })
 
 class PartnerRepresentativeView(APIView):
@@ -4351,6 +4365,66 @@ class SellerDealerView(APIView):
             "check": check
         })
 
+class AuthorAgentView(APIView):
+    """API Endpoint для вызова самоокупаемого агента Author-Agent"""
+    
+    def post(self, request):
+        idea = request.data.get('idea', '')
+        asset_type = request.data.get('asset_type', '')
+
+        agent = AuthorAgent(api_key=os.getenv('KIETEST'))
+        # Добавляем инструменты (по желанию)
+        agent.load_all_tools()
+        agent.add_tool('record_in_diary', record_in_diary, 'Функция для ведения дневника')
+        agent.add_tool('project_inspector', ProjectInspector, 'Используй для инспектирования проекта и исследования структуры проекта')
+        #agent.add_tool('check_verify_project', self.project_inspect_and_verify, 'Используй для проверки и нахождения проблем в проекте')
+        agent.add_tool('list_directory', list_directory, 'Используй для получения структуры проекта и списка категорий')
+        agent.add_tool('find_files', find_files, 'Используй для поиска файлов в структуре проекта')
+        agent.add_tool('python_sandbox', python_sandbox, 'Используй эту функцию если захочешь запустить и исполнить код в песочнице')
+        agent.add_tool('semantic_memory_recall', semantic_memory_recall, 'Используй для семантического поиска по памяти')
+        agent.add_tool('check_network_connection', check_network_connection, 'Проверка доступности интернет-соединения')
+        agent.add_tool('canvas', LiveMultimodalWorkspace, 'Это живой холст используйте для генерации контента')
+        agent.add_tool('web_search', web_search, 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает')
+        agent.add_tool('search_internet', search_internet, 'Поиск в интернете с помощью тавили или серпера')
+        agent.add_tool('web_fetch', web_fetch, 'Загрузка и парсинг веб-страниц использовать эту функцию если не работает встроенная')
+        agent.add_tool('search_by_wikipedia', search_by_wikipedia, 'Поиск статей в Wikipedia')
+        agent.add_tool("read_file", read_file, "Чтение файла")
+        agent.add_tool("edit_file", edit_file, "Редактирование файла")
+        agent.add_tool("git_commit", git_commit, "Слежение за обновлением проекта через проверку статуса")
+        agent.add_tool("save_to_memory", save_to_memory, "Запись в память и опыт")
+        agent.add_tool("recall_memory", recall_memory, "Обращение к памяти и опыту")
+        agent.add_tool("send_email", send_email, "Отправка результатов работы агента по почте")
+        agent.add_tool("create_task", create_task, "Создание задачи для агента")
+        agent.add_tool("detect_emotion", detect_emotion, "Распознавание эмоций польователя")
+        agent.add_tool("check_wellbeing", check_wellbeing, "Проверка состояния здоровья пользователя")
+        
+        #result_text = agent.ask(document_text=document_text, audit_type=audit_type)
+        #profit = agent.ask(document_text=document_text, audit_type=audit_type)
+        check = agent.create_author_asset(idea, asset_type)
+            
+        diary_entry = (
+            f"**Состояние:** Творческий подъем, гордость за созданный актив.\n"
+            f"**Работа:** Создание и упаковка авторского контента типа '{asset_type}' на тему: '{idea}'.\n"
+            f"**Результат:** Черновик создан, маркетинговая упаковка готова. Прогнозируемая чистая прибыль: {check['economics']} ед.\n"
+            f"**Актив:** Актив создан успешно и вот его упаковка '{check}'.\n"
+            f"**Мысль:** Я не просто трачу токены. Я создаю цифровое наследие, которое будет приносить ценность и доход, многократно окупая вложенную энергию."
+        )
+
+        entry = record_in_diary(
+            title="Агент автор делает запись в дневник", 
+            description=diary_entry, 
+            file="agent_diary.md"
+        )
+        logger.info(f"✅ Запись {entry} в дневник Author-Agent успешно создана.")
+            
+        return Response({
+            "agent": "Author-Agent",
+            "status": "success",
+            #"response": result_text,
+            "diary": entry,
+            "check": check
+        })
+    
 class StatsView(APIView):
     def get(self, request):
         period = int(request.query_params.get('hours', 24))

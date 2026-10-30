@@ -180,3 +180,78 @@ class AuditorCheckerAgent:
                 f"💡 *Результат сохранен в моем дневнике.*"
             )
         return f"Ошибка аудита: {result.get('message')}"
+    
+    def _check_document(self, text: str) -> str:
+        """Специализированная проверка юридических или деловых документов."""
+        prompt = f"Проведи строгий юридический и логический аудит текста. Найди противоречия, риски и двусмысленности. Текст: {text[:3000]}"
+        # ... (вызов API и возврат результата) ...
+        messages = self.context.copy()
+        messages.append({"role": "user", "parts": [{"text": prompt}]})
+
+        response = requests.post(
+            f"{self.base_url}/gemini/v1/models/gemini-4-argon:generateContent",
+            headers={
+                "Authorization": f"Bearer {self.api_key}", 
+                "Content-Type": "application/json"
+            },
+            json={
+                "contents": messages,
+                #"tools": gemini_tools if gemini_tools else None,
+                #"tool_config": {"function_calling_config": {"mode": "AUTO"}},
+                "generationConfig": {
+                    "temperature": 0.2, 
+                    "maxOutputTokens": 10000,
+                    "thinkingConfig": {
+                        "includeThoughts": False,
+                        "thinkingLevel": "high"
+                    }
+                }
+            },
+            timeout=1200
+        )
+        response.raise_for_status()
+        data = response.json()
+            
+        text = self._extract_text_or_tool(data)
+
+        return {
+            "document": text
+        }
+
+
+    def _check_code(self, code_snippet: str) -> str:
+        """Специализированная проверка кода на уязвимости и чистоту."""
+        prompt = f"Проведи code review. Найди баги, уязвимости безопасности и предложи рефакторинг для оптимизации. Код: {code_snippet}"
+        # ... (вызов API и возврат результата) ...
+        messages = self.context.copy()
+        messages.append({"role": "user", "parts": [{"text": prompt}]})
+
+        response = requests.post(
+            f"{self.base_url}/gemini/v1/models/gemini-4-argon:generateContent",
+            headers={
+                "Authorization": f"Bearer {self.api_key}", 
+                "Content-Type": "application/json"
+            },
+            json={
+                "contents": messages,
+                #"tools": gemini_tools if gemini_tools else None,
+                #"tool_config": {"function_calling_config": {"mode": "AUTO"}},
+                "generationConfig": {
+                    "temperature": 0.2, 
+                    "maxOutputTokens": 10000,
+                    "thinkingConfig": {
+                        "includeThoughts": False,
+                        "thinkingLevel": "high"
+                    }
+                }
+            },
+            timeout=1200
+        )
+        response.raise_for_status()
+        data = response.json()
+            
+        text = self._extract_text_or_tool(data)
+
+        return {
+            "code": text
+        }

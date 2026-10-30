@@ -61,6 +61,7 @@ from aqwe_app.views import PartnerRepresentativeView
 from aqwe_app.views import LeadManagerView
 from aqwe_app.views import ManagerBriefcaseAssetsView
 from aqwe_app.views import SellerDealerView
+from aqwe_app.views import AuthorAgentView
 from aqwe_app.views import StatsView
 from aqwe_app.views import sitemap_view, robots_view
 from aqwe_app.views import SmartView
@@ -130,6 +131,7 @@ urlpatterns = [
     path('lead-manager/', LeadManagerView.as_view(), name='lead-manager'),
     path('manager-briefcase-assets/', ManagerBriefcaseAssetsView.as_view(), name='manager-briefcase-assets'),
     path('seller-dealer/', SellerDealerView.as_view(), name='seller-dealer'),
+    path('author-agent/', AuthorAgentView.as_view(), name='author-agent'),
     path('statistic/', StatsView.as_view(), name='statistic'),
     path('sitemap.xml', sitemap_view),
     path('robots.txt', robots_view),
