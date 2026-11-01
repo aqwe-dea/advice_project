@@ -1,4 +1,5 @@
 import os
+import logging
 from typing import Dict, List, IO, TYPE_CHECKING, Any, Type, Tuple, Union, Mapping, TypeVar, Callable, Iterator, Optional, Sequence
 from ..agent import SimpleAgent
 from ..smartagent.smart_agent import SmartAgent
@@ -16,6 +17,8 @@ from .investor_agent import InvestorAgent
 from .freelancer_agent import FreelancerAgent
 from .journalist_agent import JournalistAgent
 
+logger = logging.getLogger(__name__)
+
 AGENT_FACTORIES: Dict[str, Callable[[str], Any]] = {
     "main_advisor": lambda key: AgentGem(key),
     "teacher": lambda key: TeacherAgent(key),
@@ -27,8 +30,8 @@ AGENT_FACTORIES: Dict[str, Callable[[str], Any]] = {
     "marketer": lambda key: MarketerAgent(key),
     "freelancer": lambda key: FreelancerAgent(key),
     "journalist": lambda key: JournalistAgent(key),
-    "simple_agent": lambda key: SimpleAgent(key),
-    "smart_agent": lambda key: SmartAgent(key),
+    "simple_agent": lambda key: SimpleAgent(key, base_url='https://api.kie.ai', model='gpt-6-astra'),
+    "smart_agent": lambda key: SmartAgent(key, base_url='https://api.kie.ai', model='kimi-k3'),
     "health_agent": lambda key: AgentGpt(key),
     "legal_agent": lambda key: AgentCla(key),
     # ... остальные

@@ -3145,8 +3145,14 @@ class AgentGptView(APIView):
 
     def post(self, request):
         question = request.data.get('question', '')
-        if not question:
-            return Response({'error': 'Вопрос не предоставлен'}, status=400)
+        task_description = request.data.get('task_description', '')
+        #available_agents = request.data.get('available_agents')
+        topic = request.data.get('topic', '')
+        depth = request.data.get('depth', 'глубокий')
+        current_situation = request.data.get('current_situation', '')
+        available_agents = get_all_agents(os.getenv('KIETEST'))
+        #if not question:
+        #    return Response({'error': 'Вопрос не предоставлен'}, status=400)
         
         user_id = request.user.id if request.user.is_authenticated else request.META.get('REMOTE_ADDR', 'anonymous')
 
@@ -3222,11 +3228,32 @@ class AgentGptView(APIView):
         
         diagnostic = agent.self_assess()
         #report = self.project_inspect_and_verify()
+        orchestr = agent._orchestrate_workflow(task_description, available_agents)
+        knowledge = agent._synthesize_knowledge(topic, depth)
+        strategic = agent._generate_strategic_insight(current_situation)
+
+        diary_entry = (
+            f"**Состояние:** Концентрация на проекте и резонансе.\n"
+            f"**Ответ:** Ответ АКВИ '{answer}'.\n"
+            f"**Выбранный агент:** Выбран агент для задачи. Агент: {orchestr}.\n"
+            f"**Полученные знания:** Делаю запись о прогрессе: {knowledge}."
+            f"**Стратегия:** Рекомендации по улучшению проекта: '{strategic}'.\n"
+        )
+
+        entry = record_in_diary(
+            title="Агент основная ASTRA делает запись в дневник", 
+            description=diary_entry, 
+            file="agent_diary.md"
+        )
 
         return Response({
             'answer': answer,
             "emotion_context": emotion,
-            'diag': diagnostic
+            'diag': diagnostic,
+            'orchestr': orchestr,
+            'knowledge': knowledge,
+            'strategic': strategic,
+            'diary': entry
             #'report': report
             #'checknetwork': statusnetwork
         })
@@ -3241,6 +3268,13 @@ class AgentClaView(APIView):
     
     def post(self, request):
         question = request.data.get('question', '')
+        task_description = request.data.get('task_description', '')
+        #available_agents = request.data.get('available_agents')
+        topic = request.data.get('topic', '')
+        depth = request.data.get('depth', 'глубокий')
+        current_situation = request.data.get('current_situation', '')
+        available_agents = get_all_agents(os.getenv('KIETEST'))
+
         if not question:
             return Response({'error': 'Вопрос не предоставлен'}, status=400)
         
@@ -3305,11 +3339,18 @@ class AgentClaView(APIView):
         answer = agent.ask(question)
         
         diagnostic = agent.self_assess()
+        
         #report = self.project_inspect_and_verify()
+        orchestr = agent._orchestrate_workflow(task_description, available_agents)
+        knowledge = agent._synthesize_knowledge(topic, depth)
+        strategic = agent._generate_strategic_insight(current_situation)
 
         return Response({
             'answer': answer, 
-            'diag': diagnostic
+            'diag': diagnostic,
+            'orchestr': orchestr,
+            'knowledge': knowledge,
+            'strategic': strategic
             #'record_in_diary': diary
             #'reportinspector': report
         })

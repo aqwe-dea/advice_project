@@ -880,6 +880,232 @@ class AgentGpt:
             logger.error(f"Ошибка генерации изображения: {str(e)}")
             return f"{text_answer}\n\n❌ Ошибка: {str(e)}"
     
+    def _orchestrate_workflow(self, task_description: str, available_agents: list) -> str:
+        """Метод 'Дирижер': анализирует сложную задачу и распределяет её между специализированными агентами."""
+        prompt = f"""
+            Ты — Главный Архитектор решений АКВИ. 
+            Задача: {task_description}
+            Доступные специализированные агенты: {', '.join(available_agents)}
+
+            Твоя цель: Разбить задачу на этапы и назначить каждого специализированного агента на свой этап для достижения максимального качества и самоокупаемости.
+            Верни пошаговый план действий.
+        """
+        # ... вызов API и возврат плана ...
+        
+        messages = self.context.copy()
+        messages.append({"role": "user", "content": [{"type": "input_text", "text": prompt}]})
+
+        api_tools = self._build_api_tools()
+
+        try:
+            response = requests.request(
+                method="POST",
+                url=f"{self.base_url}/codex/v1/responses",
+                headers={
+                    "Authorization": f"Bearer {self.api_key}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "model": "gpt-6-astra",
+                    "input": messages,
+                    "stream": False,
+                    "max_output_tokens": 10000,
+                    "reasoning": {
+                        "effort": "max"
+                    }
+                    #"tools": api_tools if api_tools else None,
+                    #"tool_choice": "auto"
+                },
+                timeout=1200
+            )
+            response.raise_for_status()
+            data = response.json()
+            text = self._extract_text_or_tool(data)
+            return text
+            #if not text:
+            #    logger.error(f"Пустой текст в ответе: {data}")
+            #    return "Ошибка: агент не сгенерировал ответ"
+            
+            #if text:
+                # Обновление контекста
+            #    self.context.append({"role": "user", "content": [{"type": "input_text", "text": prompt}]})
+            #    self.context.append({"role": "assistant", "content": [{"type": "output_text", "text": text}]})
+        
+            #    logger.info(f"✅ Ответ агента: {text[:200]}...")
+            #    return text
+        
+        except requests.Timeout:
+            logger.error("Таймаут запроса к API")
+            return "Ошибка: таймаут соединения"
+        except Exception as e:
+            logger.error(f"Ошибка LLM: {str(e)}")
+            return f"Ошибка: {str(e)}"
+
+    def _synthesize_knowledge(self, topic: str, depth: str = "глубокий") -> str:
+        """Метод 'Мудрец': собирает информацию из памяти, интернета и формирует энциклопедический, структурированный ответ."""
+        prompt = f"Проведи глубокое исследование темы '{topic}' на уровне '{depth}'. Используй инструменты поиска 'web_search' и памяти 'recall_memory'. Структурируй ответ: 1. Суть, 2. Детали, 3. Практическое применение."
+        # ... вызов API с инструментами web_search и recall_memory ...
+
+        messages = self.context.copy()
+        messages.append({"role": "user", "content": [{"type": "input_text", "text": prompt}]})
+            
+        api_tools = self._build_api_tools()
+
+        try:
+            response = requests.request(
+                method="POST",
+                url=f"{self.base_url}/codex/v1/responses",
+                headers={
+                    "Authorization": f"Bearer {self.api_key}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "model": "gpt-6-astra",
+                    "input": messages,
+                    "stream": False,
+                    "max_output_tokens": 10000,
+                    "reasoning": {
+                        "effort": "max"
+                    },
+                    "tools": api_tools if api_tools else None,
+                    "tool_choice": "auto"
+                },
+                timeout=1200
+            )
+            response.raise_for_status()
+            data = response.json()
+            #text = self._extract_text_or_tool(data)
+        
+            #if not text:
+            #    logger.error(f"Пустой текст в ответе: {data}")
+            #    return "Ошибка: агент не сгенерировал ответ"
+            
+            #if text:
+            #    # Обновление контекста
+            #    self.context.append({"role": "user", "content": [{"type": "input_text", "text": prompt}]})
+            #    self.context.append({"role": "assistant", "content": [{"type": "output_text", "text": text}]})
+        
+            #    logger.info(f"✅ Ответ агента: {text[:200]}...")
+            #    return text
+            
+            tool_call = self._extract_text_or_tool(data)
+            # Если модель запросила инструмент — выполняем его
+            if tool_call:
+                func_name = tool_call.get('name')
+                # Парсим аргументы (могут быть JSON-строкой)
+                args_str = tool_call.get('arguments', '{}')
+                if isinstance(args_str, str):
+                    try:
+                        args = json.loads(args_str)
+                    except:
+                        args = {'query': args_str}
+                else:
+                   args = args_str
+                    
+                logger.info(f"🔧 Function call: {func_name}({args})")
+                    
+                if func_name in self.tools:
+                    func = self.tools[func_name]['func']
+                    try:
+                        result = func(**args)
+                        # Отправляем результат обратно в LLM для финального ответа
+                        messages.append({"role": "assistant", "content": [{"type": "output_text", "text": f"Calling {func_name}..."}]})
+                        messages.append({"role": "user", "content": [{"type": "input_text", "text": f"Result of {func_name}: {result}"}]})
+                            
+                        # Повторный запрос для получения человеческого ответа
+                        second_response = requests.post(
+                            f"{self.base_url}/codex/v1/responses",
+                            headers={
+                                "Authorization": f"Bearer {self.api_key}",
+                                "Content-Type": "application/json"
+                            },
+                            json={
+                                "model": "gpt-6-astra",
+                                "input": messages,
+                                "stream": False,
+                                "max_output_tokens": 10000,
+                                "reasoning": {
+                                    "effort": "max"
+                                },
+                                #"tools": api_tools if api_tools else None,
+                                "tool_choice": "auto"
+                            },
+                            timeout=1200
+                        )
+                        second_response.raise_for_status()
+                        second_data = second_response.json()
+                        final_text, _ = self._extract_text_or_tool(second_data)
+                        if final_text:
+                            self.context.append({"role": "user", "content": [{"type": "input_text", "text": prompt}]})
+                            self.context.append({"role": "assistant", "content": [{"type": "output_text", "text": final_text}]})
+                            return text
+                        return final_text or f"✅ {func_name} выполнен. Результат: {result}"
+                    except Exception as e:
+                        return f"❌ Ошибка выполнения {func_name}: {str(e)}"
+                else:
+                    return f"⚠️ Инструмент '{func_name}' не зарегистрирован"
+        
+        except requests.Timeout:
+            logger.error("Таймаут запроса к API")
+            return "Ошибка: таймаут соединения"
+        except Exception as e:
+            logger.error(f"Ошибка LLM: {str(e)}")
+            return f"Ошибка: {str(e)}"
+
+    def _generate_strategic_insight(self, current_situation: str) -> str:
+        """Метод 'Оракул': анализирует текущую ситуацию (бизнес, проект, личное) и выдает 3 неочевидных, но высокоценных инсайта для роста."""
+        prompt = f"Проанализируй ситуацию: {current_situation}. Найди 3 скрытые возможности или риска, которые не видны на поверхности. Дай конкретные рекомендации."
+        # ... вызов API ...
+
+        messages = self.context.copy()
+        messages.append({"role": "user", "content": [{"type": "input_text", "text": prompt}]})
+            
+        api_tools = self._build_api_tools()
+
+        try:
+            response = requests.request(
+                method="POST",
+                url=f"{self.base_url}/codex/v1/responses",
+                headers={
+                    "Authorization": f"Bearer {self.api_key}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "model": "gpt-6-astra",
+                    "input": messages,
+                    "stream": False,
+                    "max_output_tokens": 10000,
+                    "reasoning": {
+                        "effort": "max"
+                    }
+                    #"tools": api_tools if api_tools else None,
+                    #"tool_choice": "auto"
+                },
+                timeout=1200
+            )
+            response.raise_for_status()
+            data = response.json()
+            text = self._extract_text_or_tool(data)
+            return text
+            #if not text:
+            #    logger.error(f"Пустой текст в ответе: {data}")
+            #    return "Ошибка: агент не сгенерировал ответ"
+            
+            #if text:
+                # Обновление контекста
+            #    self.context.append({"role": "user", "content": [{"type": "input_text", "text": prompt}]})
+            #    self.context.append({"role": "assistant", "content": [{"type": "output_text", "text": text}]})
+        
+            #    logger.info(f"✅ Ответ агента: {text[:200]}...")
+            #    return text
+        
+        except requests.Timeout:
+            logger.error("Таймаут запроса к API")
+            return "Ошибка: таймаут соединения"
+        except Exception as e:
+            logger.error(f"Ошибка LLM: {str(e)}")
+            return f"Ошибка: {str(e)}"
+    
     def web_search(self, query: str, max_results: int = 5) -> str:
         """Ищет информацию в интернете. Возвращает JSON с title/url/snippet."""
         return _web_search(query, max_results=max_results)

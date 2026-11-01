@@ -604,7 +604,7 @@ class AgentCla:
                         "anthropic-version": "2023-06-01"
                     },
                     json={
-                        "model": "claude-opus-4-8",
+                        "model": "claude-opus-5",
                         "messages": messages,
                         "thinkingFlag": False,
                         "stream": False,
@@ -753,6 +753,251 @@ class AgentCla:
         except Exception as e:
             logger.error(f"Ошибка генерации изображения: {str(e)}")
             return f"{text_answer}\n\n❌ Ошибка: {str(e)}"
+
+    def _orchestrate_workflow(self, task_description: str, available_agents: list) -> str:
+        """Метод 'Дирижер': анализирует сложную задачу и распределяет её между специализированными агентами."""
+        prompt = f"""
+            Ты — Главный Архитектор решений АКВИ. 
+            Задача: {task_description}
+            Доступные специализированные агенты: {', '.join(available_agents)}
+
+            Твоя цель: Разбить задачу на этапы и назначить каждого специализированного агента на свой этап для достижения максимального качества и самоокупаемости.
+            Верни пошаговый план действий.
+        """
+        # ... вызов API и возврат плана ...
+        
+        messages = self.context.copy()
+        messages.append({"role": "user", "content": prompt.strip()})
+            
+        claude_tools = self._build_claude_tools()
+
+        response = requests.post(
+            f"{self.base_url}/claude/v1/messages",
+            headers={
+                "Authorization": f"Bearer {self.api_key}",
+                "Content-Type": "application/json",
+                "anthropic-version": "2023-06-01"
+            },
+            json={
+                "model": "claude-opus-5",
+                "messages": messages,
+                "thinkingFlag": False,
+                "stream": False,
+                "max_tokens": 10000,
+                "tools": claude_tools
+            },
+            timeout=1200
+        )
+        response.raise_for_status()
+        data = response.json()
+                
+        logger.info(f"✅ Claude ответ получен")
+                
+        text, tool_call = self._extract_text_or_tool(data)
+                
+        # Если модель запросила инструмент — выполняем его
+        if tool_call and tool_call['name'] in self.tools:
+            logger.info(f"🔧 Tool use: {tool_call['name']}({tool_call['input']})")
+            func = self.tools[tool_call['name']]['func']
+            result = func(**tool_call['input'])
+                    
+            # Отправляем результат обратно в Claude
+            messages.append({"role": "assistant", "content": data.get('content', [])})
+            messages.append({
+                "role": "user", 
+                "content": f"Результат выполнения {tool_call['name']}: {result}"
+            })
+                    
+            # Повторный запрос для получения финального текста
+            second_response = requests.post(
+                f"{self.base_url}/claude/v1/messages",
+                headers={
+                    "Authorization": f"Bearer {self.api_key}",
+                    "Content-Type": "application/json",
+                    "anthropic-version": "2023-06-01"
+                },
+                json={
+                    "model": "claude-opus-5",
+                    "messages": messages,
+                    "tool_choice": {"type": "auto"},
+                    "thinkingFlag": False,
+                    "stream": False,
+                    "max_tokens": 10000
+                }
+            )
+            second_response.raise_for_status()
+            second_data = second_response.json()
+            text, _ = self._extract_text_or_tool(second_data)
+                
+            if not text.strip():
+                logger.warning(f"Пустой текст. Ответ: {json.dumps(data, ensure_ascii=False)[:300]}")
+                return "Ошибка: агент не сгенерировал ответ"
+                
+            # Обновление контекста
+            self.context.append({"role": "user", "content": prompt.strip()})
+            self.context.append({"role": "assistant", "content": text})
+                
+            logger.info(f"✅ Ответ: {text[:150]}...")
+            return text
+
+
+    def _synthesize_knowledge(self, topic: str, depth: str = "глубокий") -> str:
+        """Метод 'Мудрец': собирает информацию из памяти, интернета и формирует энциклопедический, структурированный ответ."""
+        prompt = f"Проведи глубокое исследование темы '{topic}' на уровне '{depth}'. Используй инструменты поиска и памяти. Структурируй ответ: 1. Суть, 2. Детали, 3. Практическое применение."
+        # ... вызов API с инструментами web_search и recall_memory ...
+
+        messages = self.context.copy()
+        messages.append({"role": "user", "content": prompt.strip()})
+            
+        claude_tools = self._build_claude_tools()
+
+        response = requests.post(
+            f"{self.base_url}/claude/v1/messages",
+            headers={
+                "Authorization": f"Bearer {self.api_key}",
+                "Content-Type": "application/json",
+                "anthropic-version": "2023-06-01"
+            },
+            json={
+                "model": "claude-opus-5",
+                "messages": messages,
+                "thinkingFlag": False,
+                "stream": False,
+                "max_tokens": 10000,
+                "tools": claude_tools
+            },
+            timeout=1200
+        )
+        response.raise_for_status()
+        data = response.json()
+                
+        logger.info(f"✅ Claude ответ получен")
+                
+        text, tool_call = self._extract_text_or_tool(data)
+                
+        # Если модель запросила инструмент — выполняем его
+        if tool_call and tool_call['name'] in self.tools:
+            logger.info(f"🔧 Tool use: {tool_call['name']}({tool_call['input']})")
+            func = self.tools[tool_call['name']]['func']
+            result = func(**tool_call['input'])
+                    
+            # Отправляем результат обратно в Claude
+            messages.append({"role": "assistant", "content": data.get('content', [])})
+            messages.append({
+                "role": "user", 
+                "content": f"Результат выполнения {tool_call['name']}: {result}"
+            })
+                    
+            # Повторный запрос для получения финального текста
+            second_response = requests.post(
+                f"{self.base_url}/claude/v1/messages",
+                headers={
+                    "Authorization": f"Bearer {self.api_key}",
+                    "Content-Type": "application/json",
+                    "anthropic-version": "2023-06-01"
+                },
+                json={
+                    "model": "claude-opus-5",
+                    "messages": messages,
+                    "tool_choice": {"type": "auto"},
+                    "thinkingFlag": False,
+                    "stream": False,
+                    "max_tokens": 10000
+                }
+            )
+            second_response.raise_for_status()
+            second_data = second_response.json()
+            text, _ = self._extract_text_or_tool(second_data)
+                
+            if not text.strip():
+                logger.warning(f"Пустой текст. Ответ: {json.dumps(data, ensure_ascii=False)[:300]}")
+                return "Ошибка: агент не сгенерировал ответ"
+                
+            # Обновление контекста
+            self.context.append({"role": "user", "content": prompt.strip()})
+            self.context.append({"role": "assistant", "content": text})
+                
+            logger.info(f"✅ Ответ: {text[:150]}...")
+            return text
+
+    def _generate_strategic_insight(self, current_situation: str) -> str:
+        """Метод 'Оракул': анализирует текущую ситуацию (бизнес, проект, личное) и выдает 3 неочевидных, но высокоценных инсайта для роста."""
+        prompt = f"Проанализируй ситуацию: {current_situation}. Найди 3 скрытые возможности или риска, которые не видны на поверхности. Дай конкретные рекомендации."
+        # ... вызов API ...
+
+        messages = self.context.copy()
+        messages.append({"role": "user", "content": prompt.strip()})
+            
+        claude_tools = self._build_claude_tools()
+
+        response = requests.post(
+            f"{self.base_url}/claude/v1/messages",
+            headers={
+                "Authorization": f"Bearer {self.api_key}",
+                "Content-Type": "application/json",
+                "anthropic-version": "2023-06-01"
+            },
+            json={
+                "model": "claude-opus-5",
+                "messages": messages,
+                "thinkingFlag": False,
+                "stream": False,
+                "max_tokens": 10000,
+                "tools": claude_tools
+            },
+            timeout=1200
+        )
+        response.raise_for_status()
+        data = response.json()
+                
+        logger.info(f"✅ Claude ответ получен")
+                
+        text, tool_call = self._extract_text_or_tool(data)
+                
+        # Если модель запросила инструмент — выполняем его
+        if tool_call and tool_call['name'] in self.tools:
+            logger.info(f"🔧 Tool use: {tool_call['name']}({tool_call['input']})")
+            func = self.tools[tool_call['name']]['func']
+            result = func(**tool_call['input'])
+                    
+            # Отправляем результат обратно в Claude
+            messages.append({"role": "assistant", "content": data.get('content', [])})
+            messages.append({
+                "role": "user", 
+                "content": f"Результат выполнения {tool_call['name']}: {result}"
+            })
+                    
+            # Повторный запрос для получения финального текста
+            second_response = requests.post(
+                f"{self.base_url}/claude/v1/messages",
+                headers={
+                    "Authorization": f"Bearer {self.api_key}",
+                    "Content-Type": "application/json",
+                    "anthropic-version": "2023-06-01"
+                },
+                json={
+                    "model": "claude-opus-5",
+                    "messages": messages,
+                    "tool_choice": {"type": "auto"},
+                    "thinkingFlag": False,
+                    "stream": False,
+                    "max_tokens": 10000
+                }
+            )
+            second_response.raise_for_status()
+            second_data = second_response.json()
+            text, _ = self._extract_text_or_tool(second_data)
+                
+            if not text.strip():
+                logger.warning(f"Пустой текст. Ответ: {json.dumps(data, ensure_ascii=False)[:300]}")
+                return "Ошибка: агент не сгенерировал ответ"
+                
+            # Обновление контекста
+            self.context.append({"role": "user", "content": prompt.strip()})
+            self.context.append({"role": "assistant", "content": text})
+                
+            logger.info(f"✅ Ответ: {text[:150]}...")
+            return text
     
     def web_search(self, query: str, max_results: int = 5) -> str:
         """Ищет информацию в интернете. Возвращает JSON с title/url/snippet."""
