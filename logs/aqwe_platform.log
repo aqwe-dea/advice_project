@@ -3003,3 +3003,11 @@ ERROR 2026-11-01 03:36:36,700 agent_gpt Ошибка LLM: ('Connection aborted.', Conn
 ERROR 2026-11-01 03:42:26,064 agent_gpt Ошибка LLM: ('Connection aborted.', ConnectionResetError(10054, 'Удаленный хост принудительно разорвал существующее подключение', None, 10054, None))
 ERROR 2026-11-01 03:42:32,695 agent_gpt Ошибка LLM: ('Connection aborted.', ConnectionResetError(10054, 'Удаленный хост принудительно разорвал существующее подключение', None, 10054, None))
 ERROR 2026-11-01 03:42:40,735 agent_gpt Ошибка LLM: ('Connection aborted.', ConnectionResetError(10054, 'Удаленный хост принудительно разорвал существующее подключение', None, 10054, None))
+INFO 2026-11-01 04:22:18,562 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-01 04:45:40,301 agent_gpt Неизвестная структура ответа: ['top_logprobs', 'metadata', 'tool_usage', 'presence_penalty', 'reasoning', 'usage', 'created_at', 'tools', 'output', 'top_p', 'frequency_penalty', 'temperature', 'tool_choice', 'model', 'service_tier', 'id', 'text', 'truncation', 'store', 'completed_at', 'parallel_tool_calls', 'background', 'credits_consumed', 'object', 'status', 'prompt_cache_retention']
+ERROR 2026-11-01 04:46:25,217 agent_gpt Ошибка LLM: 'str' object has no attribute 'get'
+WARNING 2026-11-01 04:48:03,237 agent_gpt Неизвестная структура ответа: ['top_logprobs', 'metadata', 'tool_usage', 'presence_penalty', 'reasoning', 'usage', 'created_at', 'tools', 'output', 'top_p', 'frequency_penalty', 'temperature', 'tool_choice', 'model', 'service_tier', 'id', 'text', 'truncation', 'store', 'completed_at', 'parallel_tool_calls', 'background', 'credits_consumed', 'object', 'status', 'prompt_cache_retention']
+INFO 2026-11-02 23:46:28,108 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-02 23:50:37,597 log Method Not Allowed: /agent-gpt/
+ERROR 2026-11-02 23:54:24,859 agent_gpt Ошибка LLM: 502 Server Error: Bad Gateway for url: https://api.kie.ai/codex/v1/responses
+ERROR 2026-11-02 23:56:41,197 agent_gpt Ошибка LLM: ('Connection aborted.', ConnectionResetError(10054, 'Удаленный хост принудительно разорвал существующее подключение', None, 10054, None))

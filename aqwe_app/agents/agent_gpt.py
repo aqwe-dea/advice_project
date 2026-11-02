@@ -202,6 +202,7 @@ class AgentGpt:
                 }
             })
         return api_tools
+
     def _extract_text_or_tool(self, data: dict) -> tuple[str, Optional[Dict]]:
         """
             Безопасно извлекает текст ИЛИ информацию о вызове инструмента из ответа API.
@@ -231,6 +232,33 @@ class AgentGpt:
                     'name': fc.get('name'),
                     'arguments': fc.get('arguments', '{}')
                 }
+            elif isinstance(content_list, list) and len(content_list) > 0:
+                text = content_list[0].get('text', '') # Фоллбэк на первый элемент
+                return text
+
+            else:
+                text = str(content_list)
+            
+            logger.warning(f"Неизвестная структура ответа: {list(data.keys())}")
+            return "", None
+            
+        except Exception as e:
+            logger.error(f"Ошибка извлечения: {e} | Данные: {str(data)[:2000]}")
+            return "", None
+    
+    def _extract_text(self, data: dict) -> tuple[str, Optional[Dict]]:
+        """
+            Безопасно извлекает текст ИЛИ информацию о вызове инструмента из ответа API.
+            Поддерживает: OpenAI/GPT/Grok (choices/output), Anthropic (content), Gemini (candidates).
+            Returns: (текст, словарь tool_call или None)
+        """
+        try:
+            # Вместо рискованного output[1].get('text'): пробую свой
+            content_list = data.get('output')[1].get('content')
+
+            if isinstance(content_list, list) and len(content_list) > 1:
+                text = content_list[1].get('text', '')
+
             elif isinstance(content_list, list) and len(content_list) > 0:
                 text = content_list[0].get('text', '') # Фоллбэк на первый элемент
                 return text
@@ -920,7 +948,7 @@ class AgentGpt:
             )
             response.raise_for_status()
             data = response.json()
-            text = self._extract_text_or_tool(data)
+            text = self._extract_text(data)
             return text
             #if not text:
             #    logger.error(f"Пустой текст в ответе: {data}")
@@ -974,19 +1002,19 @@ class AgentGpt:
             )
             response.raise_for_status()
             data = response.json()
-            #text = self._extract_text_or_tool(data)
+            text = self._extract_text_or_tool(data)
         
             #if not text:
             #    logger.error(f"Пустой текст в ответе: {data}")
             #    return "Ошибка: агент не сгенерировал ответ"
             
-            #if text:
-            #    # Обновление контекста
-            #    self.context.append({"role": "user", "content": [{"type": "input_text", "text": prompt}]})
-            #    self.context.append({"role": "assistant", "content": [{"type": "output_text", "text": text}]})
+            if text:
+                # Обновление контекста
+                self.context.append({"role": "user", "content": [{"type": "input_text", "text": prompt}]})
+                self.context.append({"role": "assistant", "content": [{"type": "output_text", "text": text}]})
         
-            #    logger.info(f"✅ Ответ агента: {text[:200]}...")
-            #    return text
+                logger.info(f"✅ Ответ агента: {text[:200]}...")
+                return text
             
             tool_call = self._extract_text_or_tool(data)
             # Если модель запросила инструмент — выполняем его
@@ -1027,7 +1055,7 @@ class AgentGpt:
                                 "reasoning": {
                                     "effort": "max"
                                 },
-                                #"tools": api_tools if api_tools else None,
+                                "tools": api_tools if api_tools else None,
                                 "tool_choice": "auto"
                             },
                             timeout=1200
@@ -1085,7 +1113,7 @@ class AgentGpt:
             )
             response.raise_for_status()
             data = response.json()
-            text = self._extract_text_or_tool(data)
+            text = self._extract_text(data)
             return text
             #if not text:
             #    logger.error(f"Пустой текст в ответе: {data}")
