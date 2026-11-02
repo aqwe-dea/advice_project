@@ -783,8 +783,8 @@ class AgentCla:
                 "messages": messages,
                 "thinkingFlag": False,
                 "stream": False,
-                "max_tokens": 10000,
-                "tools": claude_tools
+                "max_tokens": 10000
+                #"tools": claude_tools
             },
             timeout=1200
         )
@@ -793,52 +793,10 @@ class AgentCla:
                 
         logger.info(f"✅ Claude ответ получен")
                 
-        text, tool_call = self._extract_text_or_tool(data)
-                
-        # Если модель запросила инструмент — выполняем его
-        if tool_call and tool_call['name'] in self.tools:
-            logger.info(f"🔧 Tool use: {tool_call['name']}({tool_call['input']})")
-            func = self.tools[tool_call['name']]['func']
-            result = func(**tool_call['input'])
-                    
-            # Отправляем результат обратно в Claude
-            messages.append({"role": "assistant", "content": data.get('content', [])})
-            messages.append({
-                "role": "user", 
-                "content": f"Результат выполнения {tool_call['name']}: {result}"
-            })
-                    
-            # Повторный запрос для получения финального текста
-            second_response = requests.post(
-                f"{self.base_url}/claude/v1/messages",
-                headers={
-                    "Authorization": f"Bearer {self.api_key}",
-                    "Content-Type": "application/json",
-                    "anthropic-version": "2023-06-01"
-                },
-                json={
-                    "model": "claude-opus-5",
-                    "messages": messages,
-                    "tool_choice": {"type": "auto"},
-                    "thinkingFlag": False,
-                    "stream": False,
-                    "max_tokens": 10000
-                }
-            )
-            second_response.raise_for_status()
-            second_data = second_response.json()
-            text, _ = self._extract_text_or_tool(second_data)
-                
-            if not text.strip():
-                logger.warning(f"Пустой текст. Ответ: {json.dumps(data, ensure_ascii=False)[:300]}")
-                return "Ошибка: агент не сгенерировал ответ"
-                
-            # Обновление контекста
-            self.context.append({"role": "user", "content": prompt.strip()})
-            self.context.append({"role": "assistant", "content": text})
-                
-            logger.info(f"✅ Ответ: {text[:150]}...")
-            return text
+        text = self._extract_text_or_tool(data)
+        
+        logger.info(f"✅ Ответ: {text[:150]}...")
+        return text
 
 
     def _synthesize_knowledge(self, topic: str, depth: str = "глубокий") -> str:
@@ -907,11 +865,11 @@ class AgentCla:
             )
             second_response.raise_for_status()
             second_data = second_response.json()
-            text, _ = self._extract_text_or_tool(second_data)
+            text = self._extract_text_or_tool(second_data)
                 
-            if not text.strip():
-                logger.warning(f"Пустой текст. Ответ: {json.dumps(data, ensure_ascii=False)[:300]}")
-                return "Ошибка: агент не сгенерировал ответ"
+            #if not text.strip():
+            #    logger.warning(f"Пустой текст. Ответ: {json.dumps(data, ensure_ascii=False)[:300]}")
+            #    return "Ошибка: агент не сгенерировал ответ"
                 
             # Обновление контекста
             self.context.append({"role": "user", "content": prompt.strip()})
@@ -942,8 +900,8 @@ class AgentCla:
                 "messages": messages,
                 "thinkingFlag": False,
                 "stream": False,
-                "max_tokens": 10000,
-                "tools": claude_tools
+                "max_tokens": 10000
+                #"tools": claude_tools
             },
             timeout=1200
         )
@@ -952,52 +910,10 @@ class AgentCla:
                 
         logger.info(f"✅ Claude ответ получен")
                 
-        text, tool_call = self._extract_text_or_tool(data)
-                
-        # Если модель запросила инструмент — выполняем его
-        if tool_call and tool_call['name'] in self.tools:
-            logger.info(f"🔧 Tool use: {tool_call['name']}({tool_call['input']})")
-            func = self.tools[tool_call['name']]['func']
-            result = func(**tool_call['input'])
-                    
-            # Отправляем результат обратно в Claude
-            messages.append({"role": "assistant", "content": data.get('content', [])})
-            messages.append({
-                "role": "user", 
-                "content": f"Результат выполнения {tool_call['name']}: {result}"
-            })
-                    
-            # Повторный запрос для получения финального текста
-            second_response = requests.post(
-                f"{self.base_url}/claude/v1/messages",
-                headers={
-                    "Authorization": f"Bearer {self.api_key}",
-                    "Content-Type": "application/json",
-                    "anthropic-version": "2023-06-01"
-                },
-                json={
-                    "model": "claude-opus-5",
-                    "messages": messages,
-                    "tool_choice": {"type": "auto"},
-                    "thinkingFlag": False,
-                    "stream": False,
-                    "max_tokens": 10000
-                }
-            )
-            second_response.raise_for_status()
-            second_data = second_response.json()
-            text, _ = self._extract_text_or_tool(second_data)
-                
-            if not text.strip():
-                logger.warning(f"Пустой текст. Ответ: {json.dumps(data, ensure_ascii=False)[:300]}")
-                return "Ошибка: агент не сгенерировал ответ"
-                
-            # Обновление контекста
-            self.context.append({"role": "user", "content": prompt.strip()})
-            self.context.append({"role": "assistant", "content": text})
-                
-            logger.info(f"✅ Ответ: {text[:150]}...")
-            return text
+        text = self._extract_text_or_tool(data)
+                                
+        logger.info(f"✅ Ответ: {text[:150]}...")
+        return text
     
     def web_search(self, query: str, max_results: int = 5) -> str:
         """Ищет информацию в интернете. Возвращает JSON с title/url/snippet."""

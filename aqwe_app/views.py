@@ -3345,12 +3345,27 @@ class AgentClaView(APIView):
         knowledge = agent._synthesize_knowledge(topic, depth)
         strategic = agent._generate_strategic_insight(current_situation)
 
+        diary_entry = (
+            f"**Состояние:** Готова к любой работе.\n"
+            f"**Ответ:** Ответ АКВИ '{answer}'.\n"
+            f"**Доступные агенты:** Выбранные агенты для задачи. Агенты: {orchestr}.\n"
+            f"**Полученные знания:** Делаю запись о прогрессе: {knowledge}."
+            f"**Стратегия:** Рекомендации по улучшению проекта: '{strategic}'.\n"
+        )
+
+        entry = record_in_diary(
+            title="Агент основной клод OPUS делает запись в дневник", 
+            description=diary_entry, 
+            file="agent_diary.md"
+        )
+
         return Response({
             'answer': answer, 
             'diag': diagnostic,
             'orchestr': orchestr,
             'knowledge': knowledge,
-            'strategic': strategic
+            'strategic': strategic,
+            'diary': entry
             #'record_in_diary': diary
             #'reportinspector': report
         })

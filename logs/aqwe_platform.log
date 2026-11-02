@@ -3011,3 +3011,7 @@ INFO 2026-11-02 23:46:28,108 autoreload Watching for file changes with StatReloa
 WARNING 2026-11-02 23:50:37,597 log Method Not Allowed: /agent-gpt/
 ERROR 2026-11-02 23:54:24,859 agent_gpt Ошибка LLM: 502 Server Error: Bad Gateway for url: https://api.kie.ai/codex/v1/responses
 ERROR 2026-11-02 23:56:41,197 agent_gpt Ошибка LLM: ('Connection aborted.', ConnectionResetError(10054, 'Удаленный хост принудительно разорвал существующее подключение', None, 10054, None))
+INFO 2026-11-03 00:27:56,463 autoreload Watching for file changes with StatReloader
+INFO 2026-11-03 00:31:27,775 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-03 00:33:17,890 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-03 00:35:10,470 log Method Not Allowed: /agent-cla/
