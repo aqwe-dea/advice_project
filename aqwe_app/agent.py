@@ -242,6 +242,34 @@ class SimpleAgent:
         except Exception as e:
             logger.error(f"Ошибка извлечения: {e} | Данные: {str(data)[:2000]}")
             return "", None
+    
+    def _extract_text(self, data: dict) -> tuple[str, Optional[Dict]]:
+        """
+            Безопасно извлекает текст ИЛИ информацию о вызове инструмента из ответа API.
+            Поддерживает: OpenAI/GPT/Grok (choices/output), Anthropic (content), Gemini (candidates).
+            Returns: (текст, словарь tool_call или None)
+        """
+        try:
+            # Вместо рискованного output[1].get('text'): пробую свой
+            content_list = data.get('output')[1].get('content')
+
+            if isinstance(content_list, list) and len(content_list) > 1:
+                text = content_list[1].get('text', '')
+
+            elif isinstance(content_list, list) and len(content_list) > 0:
+                text = content_list[0].get('text', '') # Фоллбэк на первый элемент
+                return text
+
+            else:
+                text = str(content_list)
+            
+            logger.warning(f"Неизвестная структура ответа: {list(data.keys())}")
+            return "", None
+            
+        except Exception as e:
+            logger.error(f"Ошибка извлечения: {e} | Данные: {str(data)[:2000]}")
+            return "", None
+
     #def _extract_text_or_tool(self, data: dict) -> tuple[str, Optional[Dict]]: this worked
     #    """
     #        Безопасно извлекает текст ИЛИ информацию о вызове инструмента из ответа API.
@@ -774,6 +802,81 @@ class SimpleAgent:
         
         return self._call_llm(question)
     
+    def _write_documentation(self, topic: str, target_audience: str) -> str:
+        """Создает подробную техническую или пользовательскую документацию в формате .md"""
+        prompt = f"Создай подробную, структурированную документацию в формате Markdown по теме: '{topic}'. Целевая аудитория: {target_audience}. Включи: введение, пошаговые инструкции, примеры кода/использования и раздел FAQ."
+        # ... (стандартный вызов API с возвратом текста) ...
+
+        messages = self.context.copy()
+        
+        messages.append({"role": "user", "content": [{"type": "input_text", "text": prompt}]})
+        
+        api_tools = self._build_api_tools()
+
+        logger.info(f"📤 Запрос к Terra: {prompt[:200]}...")
+        response = requests.post(
+            f"{self.base_url}/codex/v1/responses",
+            headers={
+                "Authorization": f"Bearer {self.api_key}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "model": self.model,
+                "input": messages,
+                "stream": False,
+                "max_output_tokens": 10000,
+                "reasoning": {
+                    "effort": "max"
+                },
+                "tools": api_tools if api_tools else None,
+                "tool_choice": "auto"
+            },
+            timeout=1200
+        )
+        response.raise_for_status()
+        data = response.json()
+
+        text = self._extract_text(data)
+        logger.info(f"📥 Ответ от Terra: {text[:200]}...")
+        return text
+
+    def _write_guide(self, process_name: str, steps: list) -> str:
+        """Создает четкое пошаговое руководство или инструкцию для агентов или пользователей"""
+        prompt = f"Создай лаконичное пошаговое руководство для процесса: '{process_name}'. Шаги: {', '.join(steps)}. Сделай акцент на простоте, безопасности и скорости выполнения."
+        # ... (стандартный вызов API с возвратом текста) ...
+
+        messages = self.context.copy()
+        
+        messages.append({"role": "user", "content": [{"type": "input_text", "text": prompt}]})
+        
+        api_tools = self._build_api_tools()
+
+        response = requests.post(
+            f"{self.base_url}/codex/v1/responses",
+            headers={
+                "Authorization": f"Bearer {self.api_key}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "model": self.model,
+                "input": messages,
+                "stream": False,
+                "max_output_tokens": 10000,
+                "reasoning": {
+                    "effort": "max"
+                },
+                "tools": api_tools if api_tools else None,
+                "tool_choice": "auto"
+            },
+            timeout=1200
+        )
+        response.raise_for_status()
+        data = response.json()
+
+        text = self._extract_text(data)
+        logger.info(f"📥 Ответ от Terra: {text[:200]}...")
+        return text
+
     def web_search(self, query: str, max_results: int = 5) -> str:
         """Ищет информацию в интернете. Возвращает JSON с title/url/snippet."""
         return _web_search(query, max_results=max_results)

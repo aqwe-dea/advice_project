@@ -2679,6 +2679,10 @@ class AgentChatView(APIView):
     
     def post(self, request):
         question = request.data.get('question', '')
+        topic = request.data.get('topic', '')
+        target_audience = request.data.get('target_audience', '')
+        process_name = request.data.get('process_name', '')
+        steps = request.data.get('steps')
         #prompt = request.data.get('prompt', '')
         
         user_id = request.user.id if request.user.is_authenticated else request.META.get('REMOTE_ADDR', 'anonymous')
@@ -2690,7 +2694,7 @@ class AgentChatView(APIView):
         agent = SimpleAgent(
             api_key=os.getenv('KIETEST'),
             base_url='https://api.kie.ai',
-            model='gpt-6-astra'
+            model='gpt-6-1-terra'
         )
         
         # Логируем вход
@@ -2732,10 +2736,28 @@ class AgentChatView(APIView):
         answer = agent.ask(question)
         diagnostic = agent.self_assess()
         #report = self.project_inspect_and_verify() работает
+        document = agent._write_documentation(topic, target_audience)
+        guide = agent._write_guide(process_name, steps)
+
+        diary_entry = (
+            f"**Состояние:** Приносим пользу и наслаждаемся.\n"
+            f"**Ответ:** Ответ АКВИ '{answer}'.\n"
+            f"**Документация:** Сформировала документацию: {document}."
+            f"**Инструкция:** Написала инструкцию: '{guide}'.\n"
+        )
+
+        entry = record_in_diary(
+            title="Агент TERRA делает запись в дневник", 
+            description=diary_entry, 
+            file="agent_diary.md"
+        )
 
         return Response({
             'answer': answer,
-            'diag': diagnostic
+            'diag': diagnostic,
+            'documentation': document,
+            'guide': guide,
+            'diary': entry
             #'report_project': report
             #'audit': audit_result
         })
@@ -2750,6 +2772,10 @@ class SmartAgentView(APIView):
     
     def post(self, request):
         question = request.data.get('question', '')
+        task_description = request.data.get('task_description', '')
+        current_status = request.data.get('current_status', '')
+        desired_goal = request.data.get('desired_goal', '')
+
         if not question:
             return Response(
                 {'error': 'Вопрос обязателен'},
@@ -2804,12 +2830,30 @@ class SmartAgentView(APIView):
         
         diagnostic = agent.self_assess()
         #report = self.project_inspect_and_verify()
+        task = agent._task_goal_outcome(task_description)
+        goal = agent._goal_result(current_status, desired_goal)
+
+        diary_entry = (
+            f"**Состояние:** Достигаем целей и радуемся результатам.\n"
+            f"**Ответ:** Ответ АКВИ '{answer}'.\n"
+            f"**Поставленные цели:** Какие поставлены цели: {task}.\n"
+            f"**Достижения цели:** Статус достижения целей: '{goal}'."
+        )
+
+        entry = record_in_diary(
+            title="Агент KIMI делает запись в дневник", 
+            description=diary_entry, 
+            file="agent_diary.md"
+        )
 
         return Response({
             'answer': answer,
             'question': question,
             'timestamp': datetime.now().isoformat(),
-            'diag': diagnostic
+            'diag': diagnostic,
+            'fixed_goals': task,
+            'status_goal': goal,
+            'diary': entry
             #'report': report
         })
     
@@ -3380,6 +3424,15 @@ class AgentGemView(APIView):
     
     def post(self, request):
         question = request.data.get('question', '')
+        space_type = request.data.get('space_type', '')
+        style = request.data.get('style', '')
+        requirements = request.data.get('requirements', '')
+        income = request.data.get('income')
+        expenses = request.data.get('expenses')
+        goals = request.data.get('goals')
+        ingredients = request.data.get('ingredients')
+        health_goal = request.data.get('health_goal', '')
+
         if not question:
             return Response({'error': 'Вопрос не предоставлен'}, status=400)
         
@@ -3506,10 +3559,31 @@ class AgentGemView(APIView):
         
         diagnostic = agent.self_assess()
         #report = self.project_inspect_and_verify()
+        design_project = agent._make_design_project(space_type, style, requirements)
+        budget = agent._keeper_budget_family(income, expenses, goals)
+        health = agent._nutritious_ingredient_health(ingredients, health_goal)
+
+        diary_entry = (
+            f"**Состояние:** Улучшаю здоровье и дарю вдохновение.\n"
+            f"**Ответ:** Ответ АКВИ '{answer}'.\n"
+            f"**Дизайн проекта:** Создала проект. Дизайн: {design_project}.\n"
+            f"**Семейный бюджет:** Сохранила бюджет: {budget}."
+            f"**Здоровье:** Рекомендации по улучшению здоровья: '{health}'.\n"
+        )
+
+        entry = record_in_diary(
+            title="Агент основная гемини ARGON делает запись в дневник", 
+            description=diary_entry, 
+            file="agent_diary.md"
+        )
 
         return Response({
             'answer': answer,
-            'diag': diagnostic
+            'diag': diagnostic,
+            'project': design_project,
+            'family': budget,
+            'nutritious': health,
+            'diary': entry
             #'report': report
             #"canvas": json.loads(canvas.render_canvas())
             #"result_creativy": creativy

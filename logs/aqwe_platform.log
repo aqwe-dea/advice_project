@@ -3015,3 +3015,199 @@ INFO 2026-11-03 00:27:56,463 autoreload Watching for file changes with StatReloa
 INFO 2026-11-03 00:31:27,775 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
 INFO 2026-11-03 00:33:17,890 autoreload Watching for file changes with StatReloader
 WARNING 2026-11-03 00:35:10,470 log Method Not Allowed: /agent-cla/
+INFO 2026-11-03 23:32:04,155 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-03 23:54:56,972 log Method Not Allowed: /agent-chat/
+ERROR 2026-11-03 23:55:56,597 agent Ошибка LLM: HTTPSConnectionPool(host='api.kie.ai', port=443): Max retries exceeded with url: /codex/v1/responses (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x00000240CBB19A90>: Failed to resolve 'api.kie.ai' ([Errno 11001] getaddrinfo failed)"))
+ERROR 2026-11-03 23:56:01,453 log Internal Server Error: /agent-chat/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\urllib3\connection.py", line 196, in _new_conn
+    sock = connection.create_connection(
+        (self._dns_host, self.port),
+    ...<2 lines>...
+        socket_options=self.socket_options,
+    )
+  File "C:\advice_project\env\Lib\site-packages\urllib3\util\connection.py", line 60, in create_connection
+    for res in socket.getaddrinfo(host, port, family, socket.SOCK_STREAM):
+               ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\python 3.13.2\Lib\socket.py", line 977, in getaddrinfo
+    for res in _socket.getaddrinfo(host, port, family, type, proto, flags):
+               ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+socket.gaierror: [Errno 11001] getaddrinfo failed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\urllib3\connectionpool.py", line 789, in urlopen
+    response = self._make_request(
+        conn,
+    ...<10 lines>...
+        **response_kw,
+    )
+  File "C:\advice_project\env\Lib\site-packages\urllib3\connectionpool.py", line 490, in _make_request
+    raise new_e
+  File "C:\advice_project\env\Lib\site-packages\urllib3\connectionpool.py", line 466, in _make_request
+    self._validate_conn(conn)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\urllib3\connectionpool.py", line 1095, in _validate_conn
+    conn.connect()
+    ~~~~~~~~~~~~^^
+  File "C:\advice_project\env\Lib\site-packages\urllib3\connection.py", line 615, in connect
+    self.sock = sock = self._new_conn()
+                       ~~~~~~~~~~~~~~^^
+  File "C:\advice_project\env\Lib\site-packages\urllib3\connection.py", line 203, in _new_conn
+    raise NameResolutionError(self.host, self, e) from e
+urllib3.exceptions.NameResolutionError: <urllib3.connection.HTTPSConnection object at 0x00000240CBA6AFD0>: Failed to resolve 'api.kie.ai' ([Errno 11001] getaddrinfo failed)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\requests\adapters.py", line 644, in send
+    resp = conn.urlopen(
+        method=request.method,
+    ...<9 lines>...
+        chunked=chunked,
+    )
+  File "C:\advice_project\env\Lib\site-packages\urllib3\connectionpool.py", line 843, in urlopen
+    retries = retries.increment(
+        method, url, error=new_e, _pool=self, _stacktrace=sys.exc_info()[2]
+    )
+  File "C:\advice_project\env\Lib\site-packages\urllib3\util\retry.py", line 519, in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='api.kie.ai', port=443): Max retries exceeded with url: /codex/v1/responses (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x00000240CBA6AFD0>: Failed to resolve 'api.kie.ai' ([Errno 11001] getaddrinfo failed)"))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 2739, in post
+    document = agent._write_documentation(topic, target_audience)
+  File "c:\advice_project\aqwe_app\agent.py", line 817, in _write_documentation
+    response = requests.post(
+        f"{self.base_url}/codex/v1/responses",
+    ...<15 lines>...
+        timeout=1200
+    )
+  File "C:\advice_project\env\Lib\site-packages\requests\api.py", line 115, in post
+    return request("post", url, data=data, json=json, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\requests\api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\requests\sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\requests\sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\requests\adapters.py", line 677, in send
+    raise ConnectionError(e, request=request)
+requests.exceptions.ConnectionError: HTTPSConnectionPool(host='api.kie.ai', port=443): Max retries exceeded with url: /codex/v1/responses (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x00000240CBA6AFD0>: Failed to resolve 'api.kie.ai' ([Errno 11001] getaddrinfo failed)"))
+WARNING 2026-11-03 23:59:21,385 log Method Not Allowed: /agent-chat/
+ERROR 2026-11-04 00:01:29,083 log Internal Server Error: /agent-chat/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 2740, in post
+    guide = agent._write_guide(process_name, steps)
+  File "c:\advice_project\aqwe_app\agent.py", line 845, in _write_guide
+    prompt = f"Создай лаконичное пошаговое руководство для процесса: '{process_name}'. Шаги: {', '.join(steps)}. Сделай акцент на простоте, безопасности и скорости выполнения."
+                                                                                              ~~~~~~~~~^^^^^^^
+TypeError: sequence item 0: expected str instance, int found
+WARNING 2026-11-04 00:07:18,773 log Method Not Allowed: /agent-chat/
+WARNING 2026-11-04 00:11:57,484 agent Неизвестная структура ответа: ['top_logprobs', 'metadata', 'tool_usage', 'presence_penalty', 'reasoning', 'usage', 'created_at', 'tools', 'output', 'top_p', 'frequency_penalty', 'temperature', 'tool_choice', 'model', 'service_tier', 'id', 'text', 'truncation', 'store', 'completed_at', 'parallel_tool_calls', 'background', 'credits_consumed', 'object', 'status', 'prompt_cache_retention']
+ERROR 2026-11-04 00:11:58,031 log Internal Server Error: /agent-chat/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 2740, in post
+    guide = agent._write_guide(process_name, steps)
+  File "c:\advice_project\aqwe_app\agent.py", line 845, in _write_guide
+    prompt = f"Создай лаконичное пошаговое руководство для процесса: '{process_name}'. Шаги: {', '.join(steps)}. Сделай акцент на простоте, безопасности и скорости выполнения."
+                                                                                              ~~~~~~~~~^^^^^^^
+TypeError: can only join an iterable
+INFO 2026-11-04 00:13:36,536 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-04 00:14:54,463 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-04 00:16:00,054 log Method Not Allowed: /agent-chat/
+WARNING 2026-11-04 00:18:14,998 log Bad Request: /agent-chat/
+WARNING 2026-11-04 00:27:25,655 log Method Not Allowed: /smart-agent/
+ERROR 2026-11-04 00:37:31,645 log Internal Server Error: /smart-agent/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 2834, in post
+    goal = agent._goal_result( current_status, desired_goal)
+  File "c:\advice_project\aqwe_app\smartagent\smart_agent.py", line 882, in _goal_result
+    response.raise_for_status()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\advice_project\env\Lib\site-packages\requests\models.py", line 1026, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 401 Client Error: Unauthorized for url: https://api.kie.ai/openai/v1/responses
+INFO 2026-11-04 00:45:19,612 autoreload C:\advice_project\aqwe_app\smartagent\smart_agent.py changed, reloading.
+INFO 2026-11-04 00:46:12,076 autoreload Watching for file changes with StatReloader
+INFO 2026-11-04 00:48:28,392 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-04 00:48:44,969 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-04 00:49:10,947 log Method Not Allowed: /smart-agent/
+WARNING 2026-11-04 01:14:30,743 log Method Not Allowed: /agent-gem/

@@ -256,6 +256,48 @@ class SmartAgent:
             logger.error(f"Ошибка извлечения: {e} | Данные: {str(data)[:500]}")
             return "", None
 
+    def _extract_text(self, data: dict) -> tuple[str, Optional[Dict]]:
+        """
+            Извлекает текст или tool_call из ответа Grok v1/responses с JSON Schema.
+            Returns: (текст_ответа, tool_call_инфо_или_None)
+        """
+        try:
+            # Grok возвращает: data["output"][0]["content"][0]
+            output_list = data.get("output", [])
+            if not output_list or not isinstance(output_list, list):
+                logger.warning(f"Пустой или неверный output: {data.keys()}")
+                return "", None
+        
+            first_message = output_list[1]
+            content_list = first_message.get("content", [])
+            #if not content_list or not isinstance(content_list, list):
+            #    return "", None
+        
+            first_block = content_list[0]
+            block_type = first_block.get("type")
+        
+            # 🎯 Если это текст в JSON Schema формате
+            if block_type == "output_text":
+                raw_text = first_block.get("text", "")
+            
+                # Если внутри JSON с полями answer/mood — извлекаем answer
+                if raw_text.strip().startswith("{"):
+                    try:
+                        parsed = json.loads(raw_text)
+                        return parsed.get("answer", raw_text), None
+                    except json.JSONDecodeError:
+                        pass
+            
+                return raw_text, None
+        
+            # Fallback
+            logger.warning(f"Неизвестный тип блока: {block_type}")
+            return "", None
+        
+        except Exception as e:
+            logger.error(f"Ошибка извлечения: {e} | Данные: {str(data)[:500]}")
+            return "", None
+
     def _call_llm(self, prompt: str) -> str:
         """Внутренний вызов к LLM API."""
         messages = self.context.copy()
@@ -592,7 +634,7 @@ class SmartAgent:
                     "tools": api_tools if api_tools else None
                     #"tool_choice": "auto"
                 },
-                timeout=300
+                timeout=1200
             )
             response.raise_for_status()
             data = response.json()
@@ -674,7 +716,7 @@ class SmartAgent:
                                 "tools": api_tools if api_tools else None
                                 #"tool_choice": "auto"
                             },
-                            timeout=300
+                            timeout=1200
                         )
                         second_response.raise_for_status()
                         second_data = second_response.json()
@@ -726,6 +768,122 @@ class SmartAgent:
         #    self.learner.evaluate_action(question, answer, answer, user_feedback)
         
         return answer or self._call_llm(question)
+    
+    def _task_goal_outcome(self, task_description: str) -> str:
+        """Анализирует задачу, определяет скрытую цель и прогнозирует результат"""
+        prompt = f"Проанализируй задачу: '{task_description}'. 1. Определи истинную, глубинную цель (зачем это делается на самом деле). 2. Спрогнозируй идеальный конечный результат. 3. Предложи 3 критических шага для достижения."
+        # ... (стандартный вызов API с возвратом текста) ...
+
+        messages = self.context.copy()
+        messages.append({"role": "user", "content": [{"type": "input_text", "text": prompt}]})
+
+        api_tools = self._build_api_tools()
+        
+        logger.info(f"📤 Запрос к KIMI: {prompt[:200]}...")
+        response = requests.post(
+            f"{self.base_url}/openai/v1/responses",
+            headers={
+                "Authorization": f"Bearer {self.api_key}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "model": self.model,
+                "stream": False,
+                "input": messages,
+                "max_output_tokens": 10000,
+                "text": {
+                    "format": {
+                        "type": "json_schema",
+                        "name": "basic_response",
+                        "strict": True,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "answer": {
+                                    "type": "string",
+                                    "description": "Response content"
+                                },
+                                "mood": {
+                                    "type": "string",
+                                    "description": "Mood when responding"
+                                }
+                            },
+                            "required": [
+                                "answer",
+                                "mood"
+                            ],
+                            "additionalProperties": False
+                        }
+                    }
+                }
+                #"tools": api_tools if api_tools else None
+                #"tool_choice": "auto"
+            },
+            timeout=1200
+        )
+        response.raise_for_status()
+        data = response.json()
+        text = self._extract_text(data)
+        logger.info(f"📥 Ответ от KIMI: {text[:200]}...")
+        return text
+
+    def _goal_result(self, current_status: str, desired_goal: str) -> str:
+        """Сравнивает текущий статус с желаемой целью и выдает план преодоления разрыва"""
+        prompt = f"Текущий статус: '{current_status}'. Желаемая цель: '{desired_goal}'. Составь прагматичный план действий для преодоления этого разрыва. Укажи 2 потенциальных препятствия и способы их обхода."
+        # ... (стандартный вызов API с возвратом текста) ...
+
+        messages = self.context.copy()
+        messages.append({"role": "user", "content": [{"type": "input_text", "text": prompt}]})
+
+        api_tools = self._build_api_tools()
+
+        logger.info(f"📤 Запрос к KIMI: {prompt[:200]}...")
+        response = requests.post(
+            f"{self.base_url}/openai/v1/responses",
+            headers={
+                "Authorization": f"Bearer {self.api_key}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "model": self.model,
+                "stream": False,
+                "input": messages,
+                "max_output_tokens": 10000,
+                "text": {
+                    "format": {
+                        "type": "json_schema",
+                        "name": "basic_response",
+                        "strict": True,
+                        "schema": {
+                            "type": "object",
+                            "properties": {
+                                "answer": {
+                                    "type": "string",
+                                    "description": "Response content"
+                                },
+                                "mood": {
+                                    "type": "string",
+                                    "description": "Mood when responding"
+                                }
+                            },
+                            "required": [
+                                "answer",
+                                "mood"
+                            ],
+                            "additionalProperties": False
+                        }
+                    }
+                }
+                #"tools": api_tools if api_tools else None
+                #"tool_choice": "auto"
+            },
+            timeout=1200
+        )
+        response.raise_for_status()
+        data = response.json()
+        text = self._extract_text(data)
+        logger.info(f"📥 Ответ от KIMI: {text[:200]}...")
+        return text
     
     def web_search(self, query: str, max_results: int = 5) -> str:
         """Ищет информацию в интернете. Возвращает JSON с title/url/snippet."""

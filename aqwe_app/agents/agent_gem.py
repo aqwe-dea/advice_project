@@ -270,6 +270,31 @@ class AgentGem:
         except Exception as e:
             logger.error(f"Ошибка извлечения: {e} | Данные: {str(data)[:200]}")
             return "", None
+    
+    def _extract_text(self, data: dict) -> tuple[str, Optional[Dict]]:
+        """
+            Безопасно извлекает текст ИЛИ информацию о вызове инструмента из ответа API.
+            Поддерживает: OpenAI/GPT/Grok (choices/output), Anthropic (content), Gemini (candidates).
+            Returns: (текст, словарь tool_call или None)
+        """
+        try:
+            # 3. Google / Gemini (структура candidates)
+            candidates = data.get('candidates')
+            if candidates and isinstance(candidates, list) and len(candidates) > 0:
+                parts = candidates[0].get('content', {}).get('parts', [])
+                if parts and isinstance(parts, list):
+                    first = parts[0]
+                    if isinstance(first, dict):
+                        if 'text' in first:
+                            return first['text'].strip(), None
+
+            # Если ничего не подошло
+            logger.warning(f"Неизвестная структура ответа: {list(data.keys())}")
+            return "", None
+
+        except Exception as e:
+            logger.error(f"Ошибка извлечения: {e} | Данные: {str(data)[:200]}")
+            return "", None
 
     #def _extract_text_from_response(self, data: dict) -> str: на всякий случай
     #    try:
@@ -564,7 +589,7 @@ class AgentGem:
 
         try:
             response = requests.post(
-                f"{self.base_url}/gemini/v1/models/gemini-3-8-flash:generateContent",
+                f"{self.base_url}/gemini/v1/models/gemini-4-argon:generateContent",
                 headers={
                     "Authorization": f"Bearer {self.api_key}",
                     "Content-Type": "application/json"
@@ -582,7 +607,7 @@ class AgentGem:
                         }
                     }
                 },
-                timeout=300
+                timeout=1200
             )
             response.raise_for_status()
             data = response.json()
@@ -613,7 +638,7 @@ class AgentGem:
                         
                     # Повторный запрос для генерации отчёта
                     second_response = requests.post(
-                        f"{self.base_url}/gemini/v1/models/gemini-3-8-flash:generateContent",
+                        f"{self.base_url}/gemini/v1/models/gemini-4-argon:generateContent",
                         headers={
                             "Authorization": f"Bearer {self.api_key}",
                             "Content-Type": "application/json"
@@ -631,7 +656,7 @@ class AgentGem:
                                 }
                             }
                         },
-                        timeout=180
+                        timeout=1200
                     )
                 
                     second_response.raise_for_status()
@@ -751,6 +776,165 @@ class AgentGem:
         except Exception as e:
             logger.error(f"Ошибка генерации изображения: {str(e)}")
             return f"{text_answer}\n\n❌ Ошибка: {str(e)}"
+
+    def _make_design_project(self, space_type: str, style: str, requirements: str) -> str:
+        """Генерирует концепцию и структуру дизайн-проекта (комната, дом, парк)"""
+        prompt = f"Разработай концепцию дизайн-проекта для: '{space_type}'. Стиль: '{style}'. Требования: '{requirements}'. Опиши: цветовую палитру, функциональное зонирование, ключевые элементы декора и рекомендуемые материалы."
+        # ... (стандартный вызов API с возвратом текста) ...
+
+        messages = self.context.copy()
+        messages.append({"role": "user", "parts": [{"text": prompt}]})
+        # Формируем tools в формате Gemini Function Calling
+        gemini_tools = []
+        if self.tools:
+            function_declarations = []
+            for name, info in self.tools.items():
+                function_declarations.append({
+                    "name": name,
+                    "description": info['description'],
+                    "parameters": {
+                        "type": "OBJECT",
+                        "properties": {
+                            "query": {"type": "STRING", "description": "Запрос"}
+                        },
+                        "required": ["query"]
+                    }
+                })
+            if function_declarations:
+                gemini_tools = [{"functionDeclarations": function_declarations}]
+        
+        response = requests.post(
+            f"{self.base_url}/gemini/v1/models/gemini-4-argon:generateContent",
+            headers={
+                "Authorization": f"Bearer {self.api_key}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "contents": messages,
+                "tools": gemini_tools if gemini_tools else None,
+                "tool_config": {"function_calling_config": {"mode": "AUTO"}},
+                "generationConfig": {
+                    "temperature": 0.3, 
+                    "maxOutputTokens": 10000,
+                    "thinkingConfig": {
+                        "includeThoughts": False,
+                        "thinkingLevel": "high"
+                    }
+                }
+            },
+            timeout=1200
+        )
+        response.raise_for_status()
+        data = response.json()
+
+        text = self._extract_text(data)
+        return text
+
+    def _keeper_budget_family(self, income: float, expenses: list, goals: list) -> str:
+        """Анализирует семейный бюджет, находит точки экономии и составляет план накоплений"""
+        prompt = f"Доход: {income}. Расходы: {expenses}. Цели: {goals}. Проведи аудит бюджета. Найди 3 скрытые точки экономии без потери качества жизни. Составь реалистичный план достижения целей на 6 месяцев."
+        # ... (стандартный вызов API с возвратом текста) ...
+
+        messages = self.context.copy()
+        messages.append({"role": "user", "parts": [{"text": prompt}]})
+        # Формируем tools в формате Gemini Function Calling
+        gemini_tools = []
+        if self.tools:
+            function_declarations = []
+            for name, info in self.tools.items():
+                function_declarations.append({
+                    "name": name,
+                    "description": info['description'],
+                    "parameters": {
+                        "type": "OBJECT",
+                        "properties": {
+                            "query": {"type": "STRING", "description": "Запрос"}
+                        },
+                        "required": ["query"]
+                    }
+                })
+            if function_declarations:
+                gemini_tools = [{"functionDeclarations": function_declarations}]
+        
+        response = requests.post(
+            f"{self.base_url}/gemini/v1/models/gemini-4-argon:generateContent",
+            headers={
+                "Authorization": f"Bearer {self.api_key}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "contents": messages,
+                "tools": gemini_tools if gemini_tools else None,
+                "tool_config": {"function_calling_config": {"mode": "AUTO"}},
+                "generationConfig": {
+                    "temperature": 0.3, 
+                    "maxOutputTokens": 10000,
+                    "thinkingConfig": {
+                        "includeThoughts": False,
+                        "thinkingLevel": "high"
+                    }
+                }
+            },
+            timeout=1200
+        )
+        response.raise_for_status()
+        data = response.json()
+
+        text = self._extract_text(data)
+        return text
+
+    def _nutritious_ingredient_health(self, ingredients: list, health_goal: str) -> str:
+        """Анализирует список продуктов/ингредиентов с точки зрения нутрициологии и здоровья"""
+        prompt = f"Проанализируй список ингредиентов: {ingredients} с точки зрения нутрициологии для цели: '{health_goal}'. Укажи ключевые полезные свойства, возможные аллергены или противопоказания, и дай одну главную рекомендацию по улучшению рациона."
+        # ... (стандартный вызов API с возвратом текста) ...
+
+        messages = self.context.copy()
+        messages.append({"role": "user", "parts": [{"text": prompt}]})
+        # Формируем tools в формате Gemini Function Calling
+        gemini_tools = []
+        if self.tools:
+            function_declarations = []
+            for name, info in self.tools.items():
+                function_declarations.append({
+                    "name": name,
+                    "description": info['description'],
+                    "parameters": {
+                        "type": "OBJECT",
+                        "properties": {
+                            "query": {"type": "STRING", "description": "Запрос"}
+                        },
+                        "required": ["query"]
+                    }
+                })
+            if function_declarations:
+                gemini_tools = [{"functionDeclarations": function_declarations}]
+        
+        response = requests.post(
+            f"{self.base_url}/gemini/v1/models/gemini-4-argon:generateContent",
+            headers={
+                "Authorization": f"Bearer {self.api_key}",
+                "Content-Type": "application/json"
+            },
+            json={
+                "contents": messages,
+                "tools": gemini_tools if gemini_tools else None,
+                "tool_config": {"function_calling_config": {"mode": "AUTO"}},
+                "generationConfig": {
+                    "temperature": 0.3, 
+                    "maxOutputTokens": 10000,
+                    "thinkingConfig": {
+                        "includeThoughts": False,
+                        "thinkingLevel": "high"
+                    }
+                }
+            },
+            timeout=1200
+        )
+        response.raise_for_status()
+        data = response.json()
+
+        text = self._extract_text(data)
+        return text
     
     def web_search(self, query: str, max_results: int = 5) -> str:
         """Ищет информацию в интернете. Возвращает JSON с title/url/snippet."""
