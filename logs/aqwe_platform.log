@@ -3211,3 +3211,43 @@ INFO 2026-11-04 00:48:28,392 autoreload C:\advice_project\aqwe_app\views.py chan
 INFO 2026-11-04 00:48:44,969 autoreload Watching for file changes with StatReloader
 WARNING 2026-11-04 00:49:10,947 log Method Not Allowed: /smart-agent/
 WARNING 2026-11-04 01:14:30,743 log Method Not Allowed: /agent-gem/
+INFO 2026-11-05 01:26:32,079 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-05 01:33:55,048 log Method Not Allowed: /generate-image/
+ERROR 2026-11-05 01:36:29,786 base Ошибка создания задачи: HTTPSConnectionPool(host='api.kie.ai', port=443): Max retries exceeded with url: /api/v1/jobs/createTask (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x00000262BF5FEA50>: Failed to resolve 'api.kie.ai' ([Errno 11001] getaddrinfo failed)"))
+ERROR 2026-11-05 01:36:35,046 log Internal Server Error: /generate-image/
+ERROR 2026-11-05 01:45:24,737 base Ошибка создания задачи: HTTPSConnectionPool(host='api.kie.ai', port=443): Max retries exceeded with url: /api/v1/jobs/createTask (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)')))
+ERROR 2026-11-05 01:45:26,571 log Internal Server Error: /generate-image/
+INFO 2026-11-05 03:44:37,848 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-05 03:46:22,047 log Method Not Allowed: /generate-image/
+ERROR 2026-11-05 03:47:38,682 base Задача не выполнена: The input or output was flagged as sensitive. Please try again with different inputs.
+ERROR 2026-11-05 03:47:39,921 log Internal Server Error: /generate-image/
+WARNING 2026-11-05 03:48:23,732 log Method Not Allowed: /generate-image/
+ERROR 2026-11-05 03:49:33,281 base Задача не выполнена: The input or output was flagged as sensitive. Please try again with different inputs.
+ERROR 2026-11-05 03:49:33,531 log Internal Server Error: /generate-image/
+ERROR 2026-11-05 03:51:10,241 base Задача не выполнена: The input or output was flagged as sensitive. Please try again with different inputs.
+ERROR 2026-11-05 03:51:10,448 log Internal Server Error: /generate-image/
+ERROR 2026-11-05 03:53:06,861 base Задача не выполнена: The input or output was flagged as sensitive. Please try again with different inputs.
+ERROR 2026-11-05 03:53:07,018 log Internal Server Error: /generate-image/
+WARNING 2026-11-05 03:56:03,980 log Method Not Allowed: /generate-image/
+WARNING 2026-11-05 03:56:08,024 log Bad Request: /generate-image/
+ERROR 2026-11-05 03:58:35,191 base Задача не выполнена: The input or output was flagged as sensitive. Please try again with different inputs.
+ERROR 2026-11-05 03:58:35,564 log Internal Server Error: /generate-image/
+ERROR 2026-11-05 04:04:23,848 base Задача не выполнена: The input or output was flagged as sensitive. Please try again with different inputs.
+ERROR 2026-11-05 04:04:24,462 log Internal Server Error: /generate-image/
+ERROR 2026-11-05 04:08:36,125 base Задача не выполнена: The input or output was flagged as sensitive. Please try again with different inputs.
+ERROR 2026-11-05 04:08:36,380 log Internal Server Error: /generate-image/
+INFO 2026-11-05 15:36:20,847 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-05 15:49:46,832 log Method Not Allowed: /generate-image/
+ERROR 2026-11-05 15:50:39,769 base Задача не выполнена: The input or output was flagged as sensitive. Please try again with different inputs.
+ERROR 2026-11-05 15:50:46,461 log Internal Server Error: /generate-image/
+ERROR 2026-11-05 16:07:38,489 base Ошибка создания задачи: HTTPSConnectionPool(host='api.kie.ai', port=443): Max retries exceeded with url: /api/v1/jobs/createTask (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)')))
+ERROR 2026-11-05 16:07:40,407 log Internal Server Error: /generate-image/
+ERROR 2026-11-05 16:22:27,651 base Задача не выполнена: The input or output was flagged as sensitive. Please try again with different inputs.
+ERROR 2026-11-05 16:22:28,486 log Internal Server Error: /generate-image/
+WARNING 2026-11-05 16:33:09,996 log Method Not Allowed: /generate-image/
+ERROR 2026-11-05 16:34:07,260 base Задача не выполнена: Invalid request parameters. Please check your input and try again.
+ERROR 2026-11-05 16:34:07,878 log Internal Server Error: /generate-image/
+WARNING 2026-11-05 16:38:30,643 log Method Not Allowed: /generate-image/
+ERROR 2026-11-05 16:40:00,416 base Задача не выполнена: The input or output was flagged as sensitive. Please try again with different inputs.
+ERROR 2026-11-05 16:40:00,652 log Internal Server Error: /generate-image/
+WARNING 2026-11-05 16:50:24,078 log Method Not Allowed: /generate-image/
