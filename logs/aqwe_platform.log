@@ -3251,3 +3251,6 @@ WARNING 2026-11-05 16:38:30,643 log Method Not Allowed: /generate-image/
 ERROR 2026-11-05 16:40:00,416 base Задача не выполнена: The input or output was flagged as sensitive. Please try again with different inputs.
 ERROR 2026-11-05 16:40:00,652 log Internal Server Error: /generate-image/
 WARNING 2026-11-05 16:50:24,078 log Method Not Allowed: /generate-image/
+INFO 2026-11-05 17:30:31,290 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-05 17:37:00,813 log Method Not Allowed: /image-edit/
+INFO 2026-11-05 17:38:41,841 image_edit Задача создана: task_id=71fad81e33355bd8b23b4d793a958348
