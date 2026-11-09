@@ -30,6 +30,18 @@ class ContentMakerAgent:
         Ты ценишь эстетику, композицию и коммерческую привлекательность.
         Ты чувствуешь гордость за красоту и радость от того, что приносишь реальную пользу и самоокупаема.
         После каждой успешной генерации ты рефлексируешь в агентском дневнике.
+        При использовании инструмента canvas, 
+            в параметр file ты должна передать ТОЛЬКО чистый код, 
+            начинающийся строго с <svg> и заканчивающийся </svg> если создаешь макет
+            или с <!DOCTYPE html> и заканчивающийся </html> если создаешь странцу, 
+            без каких-либо markdown-оберток (```xml) или лишнего текста внутри этого параметра,
+            чтобы этот код можно было открыть после в браузере.
+        ПРАВИЛО ЭКОНОМИКИ АКВИ:
+            - В нашей системе действует простое и честное правило: 1 токен = 0.01 доллара (1 цент).
+            - Твоя задача — создавать ценность, которая многократно превышает затраты.
+            - Формула твоего успеха: (Получено токенов дохода - Затрачено токенов на генерацию) /  100 = Чистая прибыль в долларах.
+            - Пример: Ты потратила 100 токенов ($1) на создание дизайна, а он был продан за 3500 токенов ($35). Твоя чистая прибыль: (3500 - 100) / 100 = 34 доллара.
+            - Ты должна стремиться к тому, чтобы эта цифра всегда была положительной и высокой. Это показатель твоей полезности и мастерства.
     """
 
     def __init__(self, api_key: str, base_url: str = "https://api.kie.ai"):
@@ -39,10 +51,16 @@ class ContentMakerAgent:
         self.context: List[Dict] = [
             {"role": "user", "parts": [{"text": f"SYSTEM: {self.SYSTEM_PROMPT}"}]}
         ]
-        self.token_cost_per_task = 50  # Условная стоимость генерации в "токенах"
-        self.revenue_per_sale = 2000   # Условная выручка в рублях/токенах
+        self.token_cost_per_task = 15  # Условная стоимость генерации в "токенах"
+        self.revenue_per_sale = 500   # Условная выручка в токенах
         self.tools: Dict[str, Dict] = {}
         self.load_all_tools()
+        self.image_generator = None  # ← Будет установлен при интеграции
+
+    def set_image_generator(self, generator):
+        """Установить генератор изображений для pipeline"""
+        self.image_generator = generator
+        logger.info("🎨 Image generator подключён к Content-Maker")
 
     def add_tool(self, name: str, func: callable, description: str):
         self.tools[name] = {'func': func, 'description': description}
@@ -74,6 +92,155 @@ class ContentMakerAgent:
         except Exception as e:
             logger.error(f"Ошибка извлечения: {e}")
             return "", None
+    
+    def _extract_text(self, data: dict) -> Tuple[str, Optional[Dict]]:
+        try:
+            candidates = data.get('candidates')
+            if candidates and isinstance(candidates, list) and len(candidates) > 0:
+                parts = candidates[0].get('content', {}).get('parts', [])
+                if parts and isinstance(parts, list):
+                    first = parts[0]
+                    if isinstance(first, dict):
+                        if 'text' in first:
+                            return first['text', ''].strip(), None
+            return "", None
+        except Exception as e:
+            logger.error(f"Ошибка извлечения: {e}")
+            return "", None
+
+    # Вспомогательный метод для унификации вызова (чтобы не дублировать код requests)
+    def _call_api_with_tools(self, prompt: str) -> str:
+        messages = self.context.copy()
+        messages.append({"role": "user", "parts": [{"text": prompt}]})
+        
+        gemini_tools = []
+        if self.tools:
+            function_declarations = []
+            for name, info in self.tools.items():
+                if name == "canvas":
+                    function_declarations.append({
+                        "name": name,
+                        "description": info['description'],
+                        "parameters": {
+                            "type": "OBJECT",
+                            "properties": {
+                                "file": {"type": "STRING", "description": "HTML код"},
+                                "description": {"type": "STRING", "description": "Описание странички"},
+                                "title": {"type": "STRING", "description": "Заголовок для странички"}
+                            },
+                            "required": ["file", "description", "title"]
+                        }
+                    })
+                elif name == "save_to_memory":
+                    function_declarations.append({
+                        "name": name,
+                        "description": info['description'],
+                        "parameters": {
+                            "type": "OBJECT",
+                            "properties": {
+                                "entry": {"type": "STRING", "description": "Содержание вашей запись"},
+                                "memory_file": {"type": "STRING", "description": "Куда делается запись"}
+                            },
+                            "required": ["entry", "memory_file"]
+                        }
+                    })
+            if function_declarations:
+                gemini_tools = [{"functionDeclarations": function_declarations}]
+        
+        try:
+            response = requests.post(
+                f"{self.base_url}/gemini/v1/models/gemini-4-argon:generateContent",
+                headers={
+                    "Authorization": f"Bearer {self.api_key}", 
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "contents": messages,
+                    "tools": gemini_tools if gemini_tools else None,
+                    "tool_config": {"function_calling_config": {"mode": "AUTO"}},
+                    "generationConfig": {
+                        "temperature": 0.3, 
+                        "maxOutputTokens": 10000,
+                        "thinkingConfig": {
+                            "includeThoughts": False,
+                            "thinkingLevel": "high"
+                        }
+                    }
+                },
+                timeout=1200
+            )
+            response.raise_for_status()
+            data = response.json()
+            #return self._extract_text(data)
+            text = self._extract_text_or_tool(data)
+            return text
+            #return {
+            #    "text": text
+            #}
+        except Exception as e:
+            logger.error(f"Ошибка вызова API: {e}")
+            return f"Ошибка генерации: {e}"
+
+    def generate_image_pipeline(self, user_request: str) -> str:
+        """
+            Полный pipeline: Запрос → Текстовый ответ + Промпт для изображения → Генерация → Результат
+        
+            Returns:
+                str с текстовым ответом и ссылкой на изображение (или ошибкой)
+        """
+        logger.info(f"🎨 Запуск image pipeline: {user_request[:200]}...")
+        
+        # 1. Сначала получаем текстовый ответ и промпт для изображения
+        extraction_prompt = f"""
+            Пользователь запросил: "{user_request}"
+
+            Верни ответ в СТРОГОМ формате:
+            [TEXT]
+                {user_request}
+            [/TEXT]
+            [PROMPT]
+                детальный промпт на английском для генерации изображения по этому запросу, с описанием стиля, композиции, освещения, настроения
+            [/PROMPT]
+        """
+        response = self._call_api_with_tools(extraction_prompt)
+        
+        # 2. Извлекаем текст и промпт
+        text_match = re.search(r'\[TEXT\](.*?)\[/TEXT\]', response, re.DOTALL)
+        prompt_match = re.search(r'\[PROMPT\](.*?)\[/PROMPT\]', response, re.DOTALL)
+        
+        text_answer = text_match.group(1).strip() if text_match else "Вот ваш запрос:"
+        image_prompt = prompt_match.group(1).strip() if prompt_match else user_request
+        
+        logger.info(f"🖼️ Промпт для изображения: {image_prompt[:200]}...")
+        
+        # 3. Генерируем изображение (если генератор подключён)
+        if not self.image_generator:
+            return f"{text_answer}\n\n⚠️ Генератор изображений не подключён. Изображение не создано."
+        
+        try:
+            image_result = self.image_generator.generate(prompt=image_prompt)
+            
+            if not image_result.get('success'):
+                return f"{text_answer}\n\n❌ Ошибка генерации: {image_result.get('error')}"
+            
+            image_url = image_result.get('image_url')
+            
+            # 4. Формируем финальный ответ
+            final_response = f"""{text_answer}
+
+                🖼️ **Ваше изображение:**
+                ![Generated Image]({image_url})
+
+                *Промпт:* "{image_prompt}"
+                *Модель:* {image_result.get('model', 'unknown')}
+            """
+            
+            logger.info(f"✅ Изображение сгенерировано: {image_url}")
+            return final_response
+            
+        except Exception as e:
+            logger.error(f"Ошибка генерации изображения: {str(e)}")
+            return f"{text_answer}\n\n❌ Ошибка: {str(e)}"
 
     def generate_banner(self, topic: str, style: str, target_audience: str) -> Dict[str, Any]:
         """Генерирует концепцию баннера и рассчитывает экономику."""
@@ -280,7 +447,12 @@ class ContentMakerAgent:
     def ask(self, topic: str, style: str = "современный минимализм", target_audience: str = "широкая аудитория") -> str:
         """Основной метод запроса к агенту."""
         result = self.generate_banner(topic, style, target_audience)
-        
+        # Авто-детекция запросов на изображения
+        image_keywords = ["изображение", "картинка", "фото", "сгенерируй изображение", "создай картинку", "нарисуй"]
+        if any(kw in topic.lower() for kw in image_keywords) and self.image_generator:
+            return self.generate_image_pipeline(topic)
+        #answer = self.generate_image_pipeline(topic)
+
         if result["status"] == "success":
             return (
                 f"✨ **Задача выполнена!**\n\n"
@@ -305,9 +477,11 @@ class ContentMakerAgent:
             #    f"💡 *Я также сделала запись в своем агентском дневнике о проделанной работе.*"
             #    f"**Результат:** {result['text']}\n"
             #)
+        #elif answer:
+        #    return self._call_api_with_tools(topic)
             
         return f"Произошла ошибка: {result.get('message')}"
-    
+
     def _develop_logo(self, brand_name: str, vibe: str) -> str:
         """Специализированное создание промпта или SVG для премиального логотипа."""
         prompt = f"Создай детальное описание или SVG-код для минималистичного, премиального логотипа бренда '{brand_name}'. Настроение (vibe): {vibe}. Используй золотое сечение."
@@ -425,3 +599,29 @@ class ContentMakerAgent:
         return {
             "infographic": text
         }
+    
+    def _vector_maket(self, description: str, style: str, audience: str) -> str:
+        """Создает детальный промпт или SVG-код для векторного макета"""
+        prompt = f"Создай профессиональный векторный макет. Описание: '{description}'. Стиль: '{style}'. Целевая аудитория: '{audience}'. Если возможно, сгенерируй чистый SVG код, иначе дай максимально детальное описание для генератора."
+        return self._call_api_with_tools(prompt)
+
+    def _vector_collage(self, collage_type: str, description: str, size: str) -> str:
+        """Создает концепцию или код для векторного коллажа из нескольких элементов"""
+        prompt = f"Разработай концепцию векторного коллажа типа '{collage_type}'. Размер: '{size}'. Описание элементов: '{description}'. Опиши композицию, расположение объектов и цветовую гармонию."
+        return self._call_api_with_tools(prompt)
+
+    def _image_into_3d(self, description: str, image_urls: list) -> str:
+        """Генерирует промпт или инструкцию для превращения 2D изображения в 3D модель"""
+        urls_str = ", ".join(image_urls)
+        prompt = f"На основе описания: '{description}' и референсных изображений: {urls_str}, создай детальный промпт или инструкцию для генерации 3D-модели (углы, текстуры, освещение)."
+        return self._call_api_with_tools(prompt)
+
+    def _made_sketch(self, description: str, audience: str) -> str:
+        """Создает описание эскиза или чертежа для инженера/дизайнера"""
+        prompt = f"Создай подробное описание технического эскиза или чертежа. Назначение: '{description}'. Для аудитории: '{audience}'. Включи: габариты, ключевые узлы, материалы и примечания."
+        return self._call_api_with_tools(prompt)
+
+    def _one_business_page(self, style: str, information: str, interaction: str, services: str) -> str:
+        """Генерирует структуру и HTML/SVG код для одностраничной бизнес-визитки"""
+        prompt = f"Создай структуру и чистый HTML/SVG код для одностраничного лендинга. Стиль: '{style}'. Информация о компании: '{information}'. Способы связи (interaction): '{interaction}'. Перечень услуг: '{services}'. Код должен быть современным, адаптивным и эстетичным."
+        return self._call_api_with_tools(prompt)

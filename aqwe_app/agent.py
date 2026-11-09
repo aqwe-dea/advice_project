@@ -655,7 +655,7 @@ class SimpleAgent:
         ]
 
         try:
-            logger.info(f"📤 Запрос к Astra: {prompt[:200]}...")
+            logger.info(f"📤 Запрос к Sol: {prompt[:200]}...")
             response = requests.post(
                 f"{self.base_url}/codex/v1/responses",
                 headers={
@@ -668,7 +668,7 @@ class SimpleAgent:
                     "stream": False,
                     "max_output_tokens": 10000,
                     "reasoning": {
-                        "effort": "max"
+                        "effort": "xhigh"
                     },
                     "tools": api_tools if api_tools else None,
                     "tool_choice": "auto"
@@ -679,7 +679,7 @@ class SimpleAgent:
             data = response.json()
 
             text = self._extract_text_or_tool(data)
-            logger.info(f"📥 Ответ от Astra: {text[:200]}...")
+            logger.info(f"📥 Ответ от Sol: {text[:200]}...")
             if not text:
                 logger.error(f"Пустой текст в ответе: {data}")
                 return "Ошибка: агент не получил ответ от модели нет данных в data"
@@ -728,7 +728,7 @@ class SimpleAgent:
                                 "stream": False,
                                 "max_output_tokens": 10000,
                                 "reasoning": {
-                                    "effort": "max"
+                                    "effort": "xhigh"
                                 },
                                 "tools": api_tools if api_tools else None,
                                 "tool_choice": "auto"
@@ -819,7 +819,7 @@ class SimpleAgent:
         
         api_tools = self._build_api_tools()
 
-        logger.info(f"📤 Запрос к Terra: {prompt[:200]}...")
+        logger.info(f"📤 Запрос к Astra: {prompt[:200]}...")
         response = requests.post(
             f"{self.base_url}/codex/v1/responses",
             headers={
@@ -827,15 +827,15 @@ class SimpleAgent:
                 "Content-Type": "application/json"
             },
             json={
-                "model": self.model,
+                "model": "gpt-6-astra",
                 "input": messages,
                 "stream": False,
                 "max_output_tokens": 10000,
                 "reasoning": {
-                    "effort": "max"
-                },
-                "tools": api_tools if api_tools else None,
-                "tool_choice": "auto"
+                    "effort": "xhigh"
+                }
+                #"tools": api_tools if api_tools else None,
+                #"tool_choice": "auto"
             },
             timeout=1200
         )
@@ -843,7 +843,7 @@ class SimpleAgent:
         data = response.json()
 
         text = self._extract_text(data)
-        logger.info(f"📥 Ответ от Terra: {text[:200]}...")
+        logger.info(f"📥 Ответ от Astra: {text[:200]}...")
         return text
 
     def _write_guide(self, process_name: str, steps: list) -> str:
@@ -864,15 +864,15 @@ class SimpleAgent:
                 "Content-Type": "application/json"
             },
             json={
-                "model": self.model,
+                "model": "gpt-6-1-terra",
                 "input": messages,
                 "stream": False,
                 "max_output_tokens": 10000,
                 "reasoning": {
-                    "effort": "max"
-                },
-                "tools": api_tools if api_tools else None,
-                "tool_choice": "auto"
+                    "effort": "xhigh"
+                }
+                #"tools": api_tools if api_tools else None,
+                #"tool_choice": "auto"
             },
             timeout=1200
         )

@@ -2694,7 +2694,7 @@ class AgentChatView(APIView):
         agent = SimpleAgent(
             api_key=os.getenv('KIETEST'),
             base_url='https://api.kie.ai',
-            model='gpt-6-1-terra'
+            model='gpt-6-1-sol'
         )
         
         # Логируем вход
@@ -2736,18 +2736,18 @@ class AgentChatView(APIView):
         answer = agent.ask(question)
         diagnostic = agent.self_assess()
         #report = self.project_inspect_and_verify() работает
-        document = agent._write_documentation(topic, target_audience)
+        #document = agent._write_documentation(topic, target_audience)
         guide = agent._write_guide(process_name, steps)
 
         diary_entry = (
             f"**Состояние:** Приносим пользу и наслаждаемся.\n"
             f"**Ответ:** Ответ АКВИ '{answer}'.\n"
-            f"**Документация:** Сформировала документацию: {document}."
+            #f"**Документация:** Сформировала документацию: '{document}'."
             f"**Инструкция:** Написала инструкцию: '{guide}'.\n"
         )
 
         entry = record_in_diary(
-            title="Агент TERRA делает запись в дневник", 
+            title="Агент SOL делает запись в дневник", 
             description=diary_entry, 
             file="agent_diary.md"
         )
@@ -2755,7 +2755,7 @@ class AgentChatView(APIView):
         return Response({
             'answer': answer,
             'diag': diagnostic,
-            'documentation': document,
+            #'documentation': document,
             'guide': guide,
             'diary': entry
             #'report_project': report
@@ -4127,9 +4127,20 @@ class ContentMakerView(APIView):
         brand_name = request.data.get('brand_name', '')
         vibe = request.data.get('vibe', '')
         data_points = request.data.get('data_points', '')
-        
+        description = request.data.get('description', '')
+        audience = request.data.get('audience', '')
+        collage_type = request.data.get('collage_type', '')
+        size = request.data.get('size', '')
+        image_urls = request.data.get('image_urls')
+        information = request.data.get('information', '')
+        interaction = request.data.get('interaction', '')
+        services = request.data.get('services', '')
+        user_request = request.data.get('topic', '')
+
         #try:
+        api_key = os.getenv('KIETEST')
         agent = ContentMakerAgent(api_key=os.getenv('KIETEST'))
+        generator = ImageGenerator(api_key=api_key)
         # Добавляем инструменты (по желанию)
         agent.load_all_tools()
         agent.add_tool('record_in_diary', record_in_diary, 'Функция для ведения дневника')
@@ -4155,11 +4166,18 @@ class ContentMakerView(APIView):
         agent.add_tool("detect_emotion", detect_emotion, "Распознавание эмоций польователя")
         agent.add_tool("check_wellbeing", check_wellbeing, "Проверка состояния здоровья пользователя")
         
-        result_text = agent.ask(topic=topic, style=style, target_audience=target_audience)
+        agent.set_image_generator(generator)
+        answer = agent.ask(topic=topic, style=style, target_audience=target_audience)
         profit = agent.ask(topic=topic, style=style, target_audience=target_audience)
         check = agent.generate_banner(topic=topic, style=style, target_audience=target_audience)
+        maket = agent._vector_maket(description, style, audience)
+        collage = agent._vector_collage(collage_type, description, size)
+        modeling = agent._image_into_3d(description, image_urls)
+        sketch = agent._made_sketch(description, audience)
+        business_page = agent._one_business_page(style, information, interaction, services)
         logo = agent._develop_logo(brand_name, vibe)
         infographic = agent._create_infographic(data_points)
+        #image = agent.generate_image_pipeline(user_request)
             
         diary_entry = (
             f"**Состояние:** Вдохновение, поток.\n"
@@ -4167,6 +4185,11 @@ class ContentMakerView(APIView):
             f"**Что получилось:** Успешно сгенерирован концепт. Чистая прибыль: '{profit}'.\n"
             f"**Мысль дня:** Искусство, которое решает бизнес-задачи, ценится выше всего. Я приношу реальную пользу."
             f"**Результат:** Макет и описание для баннера готово '{check}'.\n"
+            f"**Макет:** Максимально детальное описание для генератора '{maket}'.\n"
+            f"**Коллаж:** Композиция, расположение объектов и цветовая гармонию '{collage}'.\n"
+            f"**3Д модель:** Инструкция для генерации 3D-модели '{modeling}'.\n"
+            f"**Эскиз:** Габариты, ключевые узлы, материалы и примечания '{sketch}'.\n"
+            f"**Бизнес-страничка:** Код современный, адаптивный и эстетичный '{business_page}'.\n"
         )
 
         entry = record_in_diary(
@@ -4175,15 +4198,25 @@ class ContentMakerView(APIView):
             file="agent_diary.md"
         )
         logger.info(f"✅ Запись {entry} в дневник Content-Maker успешно создана.")
-            
+        
+        saving_memory = save_to_memory(
+            entry=business_page, 
+            memory_file="accumulateexperience.md"
+        )
         return Response({
             "agent": "Content-Maker",
             "status": "success",
-            "response": result_text,
+            "response": answer,
             "diary": entry,
             "check": check,
             "logo": logo,
-            "infographic": infographic
+            "infographic": infographic,
+            "vector_maket": maket,
+            "vector_collage": collage,
+            "3d_model": modeling,
+            "sketch_project": sketch,
+            "one_page": business_page
+            #"image": image
         })
 
 class AuditorCheckerView(APIView):

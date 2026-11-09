@@ -743,7 +743,7 @@ class AgentGpt:
                     "stream": False,
                     "max_output_tokens": 10000,
                     "reasoning": {
-                        "effort": "max"
+                        "effort": "xhigh"
                     },
                     "tools": api_tools if api_tools else None,
                     "tool_choice": "auto"
@@ -807,7 +807,7 @@ class AgentGpt:
                                 "stream": False,
                                 "max_output_tokens": 10000,
                                 "reasoning": {
-                                    "effort": "max"
+                                    "effort": "xhigh"
                                 },
                                 "tools": api_tools if api_tools else None,
                                 "tool_choice": "auto"
@@ -945,7 +945,7 @@ class AgentGpt:
                     "stream": False,
                     "max_output_tokens": 10000,
                     "reasoning": {
-                        "effort": "max"
+                        "effort": "xhigh"
                     }
                     #"tools": api_tools if api_tools else None,
                     #"tool_choice": "auto"
@@ -999,7 +999,7 @@ class AgentGpt:
                     "stream": False,
                     "max_output_tokens": 10000,
                     "reasoning": {
-                        "effort": "max"
+                        "effort": "xhigh"
                     },
                     "tools": api_tools if api_tools else None,
                     "tool_choice": "auto"
@@ -1059,7 +1059,7 @@ class AgentGpt:
                                 "stream": False,
                                 "max_output_tokens": 10000,
                                 "reasoning": {
-                                    "effort": "max"
+                                    "effort": "xhigh"
                                 },
                                 "tools": api_tools if api_tools else None,
                                 "tool_choice": "auto"
@@ -1110,7 +1110,7 @@ class AgentGpt:
                     "stream": False,
                     "max_output_tokens": 10000,
                     "reasoning": {
-                        "effort": "max"
+                        "effort": "xhigh"
                     }
                     #"tools": api_tools if api_tools else None,
                     #"tool_choice": "auto"

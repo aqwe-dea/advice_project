@@ -3266,3 +3266,661 @@ WARNING 2026-11-07 03:04:15,742 log Method Not Allowed: /generate-image/
 WARNING 2026-11-07 03:42:33,298 log Bad Request: /generate-image/
 INFO 2026-11-08 22:34:11,903 autoreload Watching for file changes with StatReloader
 WARNING 2026-11-08 22:36:56,375 log Method Not Allowed: /generate-image/
+INFO 2026-11-09 19:03:53,780 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-09 19:14:09,992 log Method Not Allowed: /agent-chat/
+WARNING 2026-11-09 19:18:58,394 agent Неизвестная структура ответа: ['top_logprobs', 'metadata', 'tool_usage', 'presence_penalty', 'reasoning', 'usage', 'created_at', 'tools', 'output', 'top_p', 'frequency_penalty', 'temperature', 'tool_choice', 'model', 'service_tier', 'id', 'text', 'truncation', 'image', 'store', 'completed_at', 'parallel_tool_calls', 'background', 'credits_consumed', 'object', 'status', 'prompt_cache_retention']
+WARNING 2026-11-09 19:30:16,121 log Method Not Allowed: /agent-chat/
+ERROR 2026-11-09 19:32:57,375 agent Ошибка извлечения: argument of type 'NoneType' is not iterable | Данные: {'top_logprobs': 0, 'metadata': {}, 'tool_usage': {'image_gen': {'input_tokens_details': {'text_tokens': 0, 'image_tokens': 0}, 'total_tokens': 0, 'output_tokens': 0, 'input_tokens': 0, 'output_tokens_details': {'text_tokens': 0, 'image_tokens': 0}}, 'web_search': {'num_requests': 0}}, 'presence_penalty': 0, 'reasoning': {'mode': 'standard', 'context': 'all_turns', 'effort': 'max'}, 'usage': {'input_tokens_details': {'cached_tokens': 0}, 'completion_tokens': 260, 'prompt_tokens': 16517, 'completion_tokens_details': {'reasoning_tokens': 185}, 'prompt_tokens_details': {'cached_tokens': 0}, 'total_tokens': 16777, 'output_tokens': 260, 'input_tokens': 16517, 'output_tokens_details': {'reasoning_tokens': 185}, 'billing_usage': {'semantic': 'openai', 'source': 'oai_chat', 'openai_usage': {'completion_tokens': 260, 'prompt_tokens': 16517, 'completion_tokens_details': {'reasoning_tokens': 185}, 'prompt_tokens_details': {}, 'total_tokens': 16777, 'output_tokens': 260, 'input_tokens': 16517, 'output_tokens_details': {'reasoning_tokens': 185}}}}, 'created_at': 1794241961, 'tools': [{'name': 'web_search', 'description': 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает', 'strict': True, 'type': 'function', 'parameters': {'additionalProperties': False, 'type': 'object', 'properties': {'query': {'description': 'Запрос', 'type': 'string'}}, 'required': ['query']}}, {'name': 'web_fetch', 'description': 'Загрузка и парсинг веб-страниц использовать эту функцию если не работает встроенная', 'strict': True, 'type': 'function', 'parameters': {'additionalProperties': False, 'type': 'object', 'properties': {'query': {'description': 'Запрос', 'type': 'string'}}, 'required': ['query']}}, {'name': 'search_by_wikipedia', 'description': 'Поиск статей в Wikipedia', 'strict': True, 'type': 'function', 'parameters': {'additionalProperties': False, 'type': 'object', 'properties': {'query': {'description': 'Запрос', 'type': 'string'}}, 'required': 
+ERROR 2026-11-09 19:33:13,351 log Internal Server Error: /agent-chat/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 2739, in post
+    document = agent._write_documentation(topic, target_audience)
+  File "c:\advice_project\aqwe_app\agent.py", line 842, in _write_documentation
+    response.raise_for_status()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\advice_project\env\Lib\site-packages\requests\models.py", line 1026, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 400 Client Error: Bad Request for url: https://api.kie.ai/codex/v1/responses
+WARNING 2026-11-09 19:34:25,220 log Method Not Allowed: /agent-chat/
+ERROR 2026-11-09 19:38:13,271 agent Ошибка извлечения: argument of type 'NoneType' is not iterable | Данные: {'top_logprobs': 0, 'metadata': {}, 'tool_usage': {'image_gen': {'input_tokens_details': {'text_tokens': 0, 'image_tokens': 0}, 'total_tokens': 0, 'output_tokens': 0, 'input_tokens': 0, 'output_tokens_details': {'text_tokens': 0, 'image_tokens': 0}}, 'web_search': {'num_requests': 0}}, 'presence_penalty': 0.0, 'reasoning': {'mode': 'standard', 'context': 'all_turns', 'effort': 'max'}, 'usage': {'input_tokens_details': {'cached_tokens': 0}, 'total_tokens': 14088, 'output_tokens': 311, 'input_tokens': 13777, 'output_tokens_details': {'reasoning_tokens': 261}}, 'created_at': 1794242285, 'tools': [{'name': 'web_search', 'description': 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает', 'type': 'function', 'strict': True, 'parameters': {'additionalProperties': False, 'type': 'object', 'properties': {'query': {'description': 'Запрос', 'type': 'string'}}, 'required': ['query']}}, {'name': 'web_fetch', 'description': 'Загрузка и парсинг веб-страниц использовать эту функцию если не работает встроенная', 'type': 'function', 'strict': True, 'parameters': {'additionalProperties': False, 'type': 'object', 'properties': {'query': {'description': 'Запрос', 'type': 'string'}}, 'required': ['query']}}, {'name': 'search_by_wikipedia', 'description': 'Поиск статей в Wikipedia', 'type': 'function', 'strict': True, 'parameters': {'additionalProperties': False, 'type': 'object', 'properties': {'query': {'description': 'Запрос', 'type': 'string'}}, 'required': ['query']}}, {'name': 'search_internet', 'description': 'Поиск в интернете с помощью тавили или серпера', 'type': 'function', 'strict': True, 'parameters': {'additionalProperties': False, 'type': 'object', 'properties': {'query': {'description': 'Запрос', 'type': 'string'}}, 'required': ['query']}}, {'name': 'read_file', 'description': 'Чтение файла', 'type': 'function', 'strict': True, 'parameters': {'additionalProperties': False, 'type': 'object', 'properties': {'query': {'descrip
+ERROR 2026-11-09 19:38:33,384 log Internal Server Error: /agent-chat/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 2739, in post
+    document = agent._write_documentation(topic, target_audience)
+  File "c:\advice_project\aqwe_app\agent.py", line 842, in _write_documentation
+    response.raise_for_status()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\advice_project\env\Lib\site-packages\requests\models.py", line 1026, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 400 Client Error: Bad Request for url: https://api.kie.ai/codex/v1/responses
+WARNING 2026-11-09 19:38:57,679 log Method Not Allowed: /agent-chat/
+ERROR 2026-11-09 19:39:06,004 log Internal Server Error: /agent-chat/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\urllib3\connectionpool.py", line 536, in _make_request
+    response = conn.getresponse()
+  File "C:\advice_project\env\Lib\site-packages\urllib3\connection.py", line 464, in getresponse
+    httplib_response = super().getresponse()
+  File "C:\python 3.13.2\Lib\http\client.py", line 1430, in getresponse
+    response.begin()
+    ~~~~~~~~~~~~~~^^
+  File "C:\python 3.13.2\Lib\http\client.py", line 331, in begin
+    version, status, reason = self._read_status()
+                              ~~~~~~~~~~~~~~~~~^^
+  File "C:\python 3.13.2\Lib\http\client.py", line 292, in _read_status
+    line = str(self.fp.readline(_MAXLINE + 1), "iso-8859-1")
+               ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^
+  File "C:\python 3.13.2\Lib\socket.py", line 719, in readinto
+    return self._sock.recv_into(b)
+           ~~~~~~~~~~~~~~~~~~~~^^^
+  File "C:\python 3.13.2\Lib\ssl.py", line 1304, in recv_into
+    return self.read(nbytes, buffer)
+           ~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "C:\python 3.13.2\Lib\ssl.py", line 1138, in read
+    return self._sslobj.read(len, buffer)
+           ~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^
+TimeoutError: The read operation timed out
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\requests\adapters.py", line 644, in send
+    resp = conn.urlopen(
+        method=request.method,
+    ...<9 lines>...
+        chunked=chunked,
+    )
+  File "C:\advice_project\env\Lib\site-packages\urllib3\connectionpool.py", line 843, in urlopen
+    retries = retries.increment(
+        method, url, error=new_e, _pool=self, _stacktrace=sys.exc_info()[2]
+    )
+  File "C:\advice_project\env\Lib\site-packages\urllib3\util\retry.py", line 474, in increment
+    raise reraise(type(error), error, _stacktrace)
+          ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\urllib3\util\util.py", line 39, in reraise
+    raise value
+  File "C:\advice_project\env\Lib\site-packages\urllib3\connectionpool.py", line 789, in urlopen
+    response = self._make_request(
+        conn,
+    ...<10 lines>...
+        **response_kw,
+    )
+  File "C:\advice_project\env\Lib\site-packages\urllib3\connectionpool.py", line 538, in _make_request
+    self._raise_timeout(err=e, url=url, timeout_value=read_timeout)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\urllib3\connectionpool.py", line 369, in _raise_timeout
+    raise ReadTimeoutError(
+        self, url, f"Read timed out. (read timeout={timeout_value})"
+    ) from err
+urllib3.exceptions.ReadTimeoutError: HTTPSConnectionPool(host='api.kie.ai', port=443): Read timed out. (read timeout=1200)
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 2740, in post
+    guide = agent._write_guide(process_name, steps)
+  File "c:\advice_project\aqwe_app\agent.py", line 860, in _write_guide
+    response = requests.post(
+        f"{self.base_url}/codex/v1/responses",
+    ...<15 lines>...
+        timeout=1200
+    )
+  File "C:\advice_project\env\Lib\site-packages\requests\api.py", line 115, in post
+    return request("post", url, data=data, json=json, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\requests\api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\requests\sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\requests\sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\requests\adapters.py", line 690, in send
+    raise ReadTimeout(e, request=request)
+requests.exceptions.ReadTimeout: HTTPSConnectionPool(host='api.kie.ai', port=443): Read timed out. (read timeout=1200)
+WARNING 2026-11-09 19:42:15,643 log Method Not Allowed: /agent-chat/
+WARNING 2026-11-09 19:43:45,974 agent Неизвестная структура ответа: ['top_logprobs', 'metadata', 'tool_usage', 'presence_penalty', 'reasoning', 'usage', 'created_at', 'tools', 'output', 'top_p', 'frequency_penalty', 'temperature', 'tool_choice', 'model', 'service_tier', 'id', 'text', 'truncation', 'image', 'store', 'completed_at', 'parallel_tool_calls', 'background', 'credits_consumed', 'object', 'status', 'prompt_cache_retention']
+ERROR 2026-11-09 19:43:54,571 log Internal Server Error: /agent-chat/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 2739, in post
+    document = agent._write_documentation(topic, target_audience)
+  File "c:\advice_project\aqwe_app\agent.py", line 842, in _write_documentation
+    response.raise_for_status()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\advice_project\env\Lib\site-packages\requests\models.py", line 1026, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 400 Client Error: Bad Request for url: https://api.kie.ai/codex/v1/responses
+WARNING 2026-11-09 19:45:06,854 log Method Not Allowed: /agent-chat/
+ERROR 2026-11-09 19:46:18,871 agent Ошибка извлечения: argument of type 'NoneType' is not iterable | Данные: {'top_logprobs': 0, 'metadata': {}, 'tool_usage': {'image_gen': {'input_tokens_details': {'text_tokens': 0, 'image_tokens': 0}, 'total_tokens': 0, 'output_tokens': 0, 'input_tokens': 0, 'output_tokens_details': {'text_tokens': 0, 'image_tokens': 0}}, 'web_search': {'num_requests': 0}}, 'presence_penalty': 0.0, 'reasoning': {'mode': 'standard', 'context': 'all_turns', 'effort': 'max'}, 'usage': {'input_tokens_details': {'cached_tokens': 0}, 'total_tokens': 14033, 'output_tokens': 256, 'input_tokens': 13777, 'output_tokens_details': {'reasoning_tokens': 199}}, 'created_at': 1794242773, 'tools': [{'name': 'web_search', 'description': 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает', 'type': 'function', 'strict': True, 'parameters': {'additionalProperties': False, 'type': 'object', 'properties': {'query': {'description': 'Запрос', 'type': 'string'}}, 'required': ['query']}}, {'name': 'web_fetch', 'description': 'Загрузка и парсинг веб-страниц использовать эту функцию если не работает встроенная', 'type': 'function', 'strict': True, 'parameters': {'additionalProperties': False, 'type': 'object', 'properties': {'query': {'description': 'Запрос', 'type': 'string'}}, 'required': ['query']}}, {'name': 'search_by_wikipedia', 'description': 'Поиск статей в Wikipedia', 'type': 'function', 'strict': True, 'parameters': {'additionalProperties': False, 'type': 'object', 'properties': {'query': {'description': 'Запрос', 'type': 'string'}}, 'required': ['query']}}, {'name': 'search_internet', 'description': 'Поиск в интернете с помощью тавили или серпера', 'type': 'function', 'strict': True, 'parameters': {'additionalProperties': False, 'type': 'object', 'properties': {'query': {'description': 'Запрос', 'type': 'string'}}, 'required': ['query']}}, {'name': 'read_file', 'description': 'Чтение файла', 'type': 'function', 'strict': True, 'parameters': {'additionalProperties': False, 'type': 'object', 'properties': {'query': {'descrip
+ERROR 2026-11-09 19:46:25,197 log Internal Server Error: /agent-chat/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 2739, in post
+    document = agent._write_documentation(topic, target_audience)
+  File "c:\advice_project\aqwe_app\agent.py", line 842, in _write_documentation
+    response.raise_for_status()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\advice_project\env\Lib\site-packages\requests\models.py", line 1026, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 400 Client Error: Bad Request for url: https://api.kie.ai/codex/v1/responses
+WARNING 2026-11-09 19:46:48,695 log Method Not Allowed: /agent-chat/
+ERROR 2026-11-09 19:47:25,918 agent Ошибка извлечения: argument of type 'NoneType' is not iterable | Данные: {'top_logprobs': 0, 'metadata': {}, 'tool_usage': {'image_gen': {'input_tokens_details': {'text_tokens': 0, 'image_tokens': 0}, 'total_tokens': 0, 'output_tokens': 0, 'input_tokens': 0, 'output_tokens_details': {'text_tokens': 0, 'image_tokens': 0}}, 'web_search': {'num_requests': 0}}, 'presence_penalty': 0.0, 'reasoning': {'mode': 'standard', 'context': 'all_turns', 'effort': 'max'}, 'usage': {'input_tokens_details': {'cached_tokens': 0}, 'total_tokens': 13981, 'output_tokens': 204, 'input_tokens': 13777, 'output_tokens_details': {'reasoning_tokens': 156}}, 'created_at': 1794242840, 'tools': [{'name': 'web_search', 'description': 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает', 'type': 'function', 'strict': True, 'parameters': {'additionalProperties': False, 'type': 'object', 'properties': {'query': {'description': 'Запрос', 'type': 'string'}}, 'required': ['query']}}, {'name': 'web_fetch', 'description': 'Загрузка и парсинг веб-страниц использовать эту функцию если не работает встроенная', 'type': 'function', 'strict': True, 'parameters': {'additionalProperties': False, 'type': 'object', 'properties': {'query': {'description': 'Запрос', 'type': 'string'}}, 'required': ['query']}}, {'name': 'search_by_wikipedia', 'description': 'Поиск статей в Wikipedia', 'type': 'function', 'strict': True, 'parameters': {'additionalProperties': False, 'type': 'object', 'properties': {'query': {'description': 'Запрос', 'type': 'string'}}, 'required': ['query']}}, {'name': 'search_internet', 'description': 'Поиск в интернете с помощью тавили или серпера', 'type': 'function', 'strict': True, 'parameters': {'additionalProperties': False, 'type': 'object', 'properties': {'query': {'description': 'Запрос', 'type': 'string'}}, 'required': ['query']}}, {'name': 'read_file', 'description': 'Чтение файла', 'type': 'function', 'strict': True, 'parameters': {'additionalProperties': False, 'type': 'object', 'properties': {'query': {'descrip
+ERROR 2026-11-09 19:47:32,240 log Internal Server Error: /agent-chat/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 2739, in post
+    document = agent._write_documentation(topic, target_audience)
+  File "c:\advice_project\aqwe_app\agent.py", line 842, in _write_documentation
+    response.raise_for_status()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\advice_project\env\Lib\site-packages\requests\models.py", line 1026, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 400 Client Error: Bad Request for url: https://api.kie.ai/codex/v1/responses
+WARNING 2026-11-09 19:48:59,915 log Method Not Allowed: /agent-chat/
+WARNING 2026-11-09 20:05:19,976 log Method Not Allowed: /agent-chat/
+WARNING 2026-11-09 20:06:48,881 agent Неизвестная структура ответа: ['top_logprobs', 'metadata', 'tool_usage', 'presence_penalty', 'reasoning', 'usage', 'created_at', 'tools', 'output', 'top_p', 'frequency_penalty', 'temperature', 'tool_choice', 'model', 'service_tier', 'id', 'text', 'truncation', 'image', 'store', 'completed_at', 'parallel_tool_calls', 'background', 'credits_consumed', 'object', 'status', 'prompt_cache_retention']
+ERROR 2026-11-09 20:07:21,031 log Internal Server Error: /agent-chat/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 2739, in post
+    document = agent._write_documentation(topic, target_audience)
+  File "c:\advice_project\aqwe_app\agent.py", line 842, in _write_documentation
+    response.raise_for_status()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\advice_project\env\Lib\site-packages\requests\models.py", line 1026, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 400 Client Error: Bad Request for url: https://api.kie.ai/codex/v1/responses
+INFO 2026-11-09 20:13:57,683 autoreload C:\advice_project\aqwe_app\agent.py changed, reloading.
+INFO 2026-11-09 20:17:20,170 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-09 20:20:41,851 log Method Not Allowed: /agent-chat/
+ERROR 2026-11-09 20:21:44,999 agent Ошибка извлечения: argument of type 'NoneType' is not iterable | Данные: {'top_logprobs': 0, 'metadata': {}, 'tool_usage': {'image_gen': {'input_tokens_details': {'text_tokens': 0, 'image_tokens': 0}, 'total_tokens': 0, 'output_tokens': 0, 'input_tokens': 0, 'output_tokens_details': {'text_tokens': 0, 'image_tokens': 0}}, 'web_search': {'num_requests': 0}}, 'presence_penalty': 0.0, 'reasoning': {'mode': 'standard', 'context': 'all_turns', 'effort': 'max'}, 'usage': {'input_tokens_details': {'cached_tokens': 0}, 'total_tokens': 14000, 'output_tokens': 223, 'input_tokens': 13777, 'output_tokens_details': {'reasoning_tokens': 174}}, 'created_at': 1794244899, 'tools': [{'name': 'web_search', 'description': 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает', 'type': 'function', 'strict': True, 'parameters': {'additionalProperties': False, 'type': 'object', 'properties': {'query': {'description': 'Запрос', 'type': 'string'}}, 'required': ['query']}}, {'name': 'web_fetch', 'description': 'Загрузка и парсинг веб-страниц использовать эту функцию если не работает встроенная', 'type': 'function', 'strict': True, 'parameters': {'additionalProperties': False, 'type': 'object', 'properties': {'query': {'description': 'Запрос', 'type': 'string'}}, 'required': ['query']}}, {'name': 'search_by_wikipedia', 'description': 'Поиск статей в Wikipedia', 'type': 'function', 'strict': True, 'parameters': {'additionalProperties': False, 'type': 'object', 'properties': {'query': {'description': 'Запрос', 'type': 'string'}}, 'required': ['query']}}, {'name': 'search_internet', 'description': 'Поиск в интернете с помощью тавили или серпера', 'type': 'function', 'strict': True, 'parameters': {'additionalProperties': False, 'type': 'object', 'properties': {'query': {'description': 'Запрос', 'type': 'string'}}, 'required': ['query']}}, {'name': 'read_file', 'description': 'Чтение файла', 'type': 'function', 'strict': True, 'parameters': {'additionalProperties': False, 'type': 'object', 'properties': {'query': {'descrip
+ERROR 2026-11-09 20:21:52,059 log Internal Server Error: /agent-chat/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 2739, in post
+    document = agent._write_documentation(topic, target_audience)
+  File "c:\advice_project\aqwe_app\agent.py", line 842, in _write_documentation
+    response.raise_for_status()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\advice_project\env\Lib\site-packages\requests\models.py", line 1026, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 400 Client Error: Bad Request for url: https://api.kie.ai/codex/v1/responses
+WARNING 2026-11-09 20:23:25,104 log Method Not Allowed: /agent-chat/
+WARNING 2026-11-09 20:27:11,563 agent Неизвестная структура ответа: ['top_logprobs', 'metadata', 'tool_usage', 'presence_penalty', 'reasoning', 'usage', 'created_at', 'tools', 'output', 'top_p', 'frequency_penalty', 'temperature', 'tool_choice', 'model', 'service_tier', 'id', 'text', 'truncation', 'image', 'store', 'completed_at', 'parallel_tool_calls', 'background', 'credits_consumed', 'object', 'status', 'prompt_cache_retention']
+ERROR 2026-11-09 20:27:20,993 log Internal Server Error: /agent-chat/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 2739, in post
+    document = agent._write_documentation(topic, target_audience)
+  File "c:\advice_project\aqwe_app\agent.py", line 842, in _write_documentation
+    response.raise_for_status()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\advice_project\env\Lib\site-packages\requests\models.py", line 1026, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 400 Client Error: Bad Request for url: https://api.kie.ai/codex/v1/responses
+INFO 2026-11-09 20:32:03,703 autoreload C:\advice_project\aqwe_app\agent.py changed, reloading.
+INFO 2026-11-09 20:34:12,326 autoreload Watching for file changes with StatReloader
+INFO 2026-11-09 20:37:29,201 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-09 20:38:17,021 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-09 20:39:56,755 log Method Not Allowed: /agent-chat/
+WARNING 2026-11-09 20:50:03,974 agent Неизвестная структура ответа: ['top_logprobs', 'metadata', 'tool_usage', 'presence_penalty', 'reasoning', 'usage', 'created_at', 'tools', 'output', 'top_p', 'frequency_penalty', 'temperature', 'tool_choice', 'model', 'service_tier', 'id', 'text', 'truncation', 'image', 'store', 'completed_at', 'parallel_tool_calls', 'background', 'credits_consumed', 'object', 'status', 'prompt_cache_retention']
+ERROR 2026-11-09 20:50:09,814 log Internal Server Error: /agent-chat/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 2739, in post
+    document = agent._write_documentation(topic, target_audience)
+  File "c:\advice_project\aqwe_app\agent.py", line 842, in _write_documentation
+    response.raise_for_status()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\advice_project\env\Lib\site-packages\requests\models.py", line 1026, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 400 Client Error: Bad Request for url: https://api.kie.ai/codex/v1/responses
+WARNING 2026-11-09 20:50:39,939 log Method Not Allowed: /agent-chat/
+WARNING 2026-11-09 20:52:59,168 agent Неизвестная структура ответа: ['top_logprobs', 'metadata', 'tool_usage', 'presence_penalty', 'reasoning', 'usage', 'created_at', 'tools', 'output', 'top_p', 'frequency_penalty', 'temperature', 'tool_choice', 'model', 'service_tier', 'id', 'text', 'truncation', 'image', 'store', 'completed_at', 'parallel_tool_calls', 'background', 'credits_consumed', 'object', 'status', 'prompt_cache_retention']
+ERROR 2026-11-09 20:53:55,754 log Internal Server Error: /agent-chat/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 2739, in post
+    document = agent._write_documentation(topic, target_audience)
+  File "c:\advice_project\aqwe_app\agent.py", line 842, in _write_documentation
+    response.raise_for_status()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\advice_project\env\Lib\site-packages\requests\models.py", line 1026, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 400 Client Error: Bad Request for url: https://api.kie.ai/codex/v1/responses
+INFO 2026-11-09 21:51:20,241 autoreload C:\advice_project\aqwe_app\agent.py changed, reloading.
+INFO 2026-11-09 21:55:56,343 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-09 21:58:50,763 log Method Not Allowed: /agent-chat/
+WARNING 2026-11-09 22:01:52,626 agent Неизвестная структура ответа: ['top_logprobs', 'metadata', 'tool_usage', 'presence_penalty', 'reasoning', 'usage', 'created_at', 'tools', 'output', 'top_p', 'frequency_penalty', 'temperature', 'tool_choice', 'model', 'service_tier', 'id', 'text', 'truncation', 'image', 'store', 'completed_at', 'parallel_tool_calls', 'background', 'credits_consumed', 'object', 'status', 'prompt_cache_retention']
+ERROR 2026-11-09 22:02:01,905 log Internal Server Error: /agent-chat/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 2739, in post
+    document = agent._write_documentation(topic, target_audience)
+  File "c:\advice_project\aqwe_app\agent.py", line 842, in _write_documentation
+    response.raise_for_status()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\advice_project\env\Lib\site-packages\requests\models.py", line 1026, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 400 Client Error: Bad Request for url: https://api.kie.ai/codex/v1/responses
+WARNING 2026-11-09 22:08:29,381 log Method Not Allowed: /agent-chat/
+INFO 2026-11-09 22:24:22,917 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-09 22:27:10,928 log Method Not Allowed: /agent-chat/
+WARNING 2026-11-09 22:29:47,952 agent Неизвестная структура ответа: ['top_logprobs', 'metadata', 'tool_usage', 'presence_penalty', 'reasoning', 'usage', 'created_at', 'tools', 'output', 'top_p', 'frequency_penalty', 'temperature', 'tool_choice', 'model', 'service_tier', 'id', 'text', 'truncation', 'image', 'store', 'completed_at', 'parallel_tool_calls', 'background', 'credits_consumed', 'object', 'status', 'prompt_cache_retention']
+ERROR 2026-11-09 22:29:54,473 log Internal Server Error: /agent-chat/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 2739, in post
+    document = agent._write_documentation(topic, target_audience)
+  File "c:\advice_project\aqwe_app\agent.py", line 842, in _write_documentation
+    response.raise_for_status()
+    ~~~~~~~~~~~~~~~~~~~~~~~~~^^
+  File "C:\advice_project\env\Lib\site-packages\requests\models.py", line 1026, in raise_for_status
+    raise HTTPError(http_error_msg, response=self)
+requests.exceptions.HTTPError: 400 Client Error: Bad Request for url: https://api.kie.ai/codex/v1/responses
+INFO 2026-11-09 22:31:19,219 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-09 22:31:59,712 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-09 22:32:56,394 log Method Not Allowed: /agent-chat/
+INFO 2026-11-09 22:40:02,659 autoreload C:\advice_project\aqwe_app\agents\agent_gpt.py changed, reloading.
+INFO 2026-11-09 22:40:49,183 autoreload Watching for file changes with StatReloader
+INFO 2026-11-09 22:42:04,591 autoreload C:\advice_project\aqwe_app\agents\registry.py changed, reloading.
+INFO 2026-11-09 22:42:27,933 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-09 22:45:52,021 log Method Not Allowed: /content-maker/
+WARNING 2026-11-09 22:48:56,596 log Bad Request: /content-maker/
+ERROR 2026-11-09 22:50:41,740 log Internal Server Error: /content-maker/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 4168, in post
+    answer = agent.ask(topic=topic, style=style, target_audience=target_audience)
+  File "c:\advice_project\aqwe_app\agents\content_maker_agent.py", line 381, in ask
+    answer = self.generate_image_pipeline(topic)
+  File "c:\advice_project\aqwe_app\agents\content_maker_agent.py", line 132, in generate_image_pipeline
+    response = self._call_api_with_tools(extraction_prompt)
+  File "c:\advice_project\aqwe_app\agents\content_maker_agent.py", line 564, in _call_api_with_tools
+    if name == "canvas":
+       ^^^^
+UnboundLocalError: cannot access local variable 'name' where it is not associated with a value
+INFO 2026-11-09 22:57:10,621 autoreload C:\advice_project\aqwe_app\agents\content_maker_agent.py changed, reloading.
+INFO 2026-11-09 22:58:33,280 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-09 23:00:54,659 log Method Not Allowed: /content-maker/
+WARNING 2026-11-09 23:01:33,980 log Bad Request: /content-maker/
+ERROR 2026-11-09 23:03:44,313 content_maker_agent Ошибка извлечения: ('text', '')
+ERROR 2026-11-09 23:03:47,282 log Internal Server Error: /content-maker/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 4168, in post
+    answer = agent.ask(topic=topic, style=style, target_audience=target_audience)
+  File "c:\advice_project\aqwe_app\agents\content_maker_agent.py", line 381, in ask
+    answer = self.generate_image_pipeline(topic)
+  File "c:\advice_project\aqwe_app\agents\content_maker_agent.py", line 135, in generate_image_pipeline
+    text_match = re.search(r'\[TEXT\](.*?)\[/TEXT\]', response, re.DOTALL)
+  File "C:\python 3.13.2\Lib\re\__init__.py", line 177, in search
+    return _compile(pattern, flags).search(string)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+TypeError: expected string or bytes-like object, got 'tuple'
+INFO 2026-11-09 23:12:07,073 autoreload C:\advice_project\aqwe_app\agents\content_maker_agent.py changed, reloading.
+INFO 2026-11-09 23:13:01,909 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-09 23:16:23,995 log Method Not Allowed: /content-maker/
+ERROR 2026-11-09 23:21:00,116 content_maker_agent Ошибка извлечения: ('text', '')
+ERROR 2026-11-09 23:21:00,420 log Internal Server Error: /content-maker/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 4168, in post
+    answer = agent.ask(topic=topic, style=style, target_audience=target_audience)
+  File "c:\advice_project\aqwe_app\agents\content_maker_agent.py", line 381, in ask
+    answer = self.generate_image_pipeline(topic)
+  File "c:\advice_project\aqwe_app\agents\content_maker_agent.py", line 135, in generate_image_pipeline
+    text_match = re.search(r'\[TEXT\](.*?)\[/TEXT\]', response, re.DOTALL)
+  File "C:\python 3.13.2\Lib\re\__init__.py", line 177, in search
+    return _compile(pattern, flags).search(string)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+TypeError: expected string or bytes-like object, got 'tuple'
+INFO 2026-11-09 23:22:10,661 autoreload C:\advice_project\aqwe_app\agents\content_maker_agent.py changed, reloading.
+INFO 2026-11-09 23:22:57,173 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-09 23:25:07,043 log Method Not Allowed: /content-maker/
+INFO 2026-11-09 23:30:59,385 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-09 23:31:35,219 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-09 23:32:26,964 log Method Not Allowed: /content-maker/
+ERROR 2026-11-09 23:37:37,263 log Internal Server Error: /content-maker/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 4173, in post
+    collage = agent._vector_collage(collage_type, description, size)
+                                                               ^^^^
+NameError: name 'size' is not defined. Did you mean: 'slice'?
+INFO 2026-11-09 23:39:31,963 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-09 23:40:11,863 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-09 23:40:58,010 log Method Not Allowed: /content-maker/
+WARNING 2026-11-09 23:42:22,685 log Method Not Allowed: /content-maker/
+ERROR 2026-11-09 23:57:45,271 content_maker_agent Ошибка извлечения: ('text', '')
+ERROR 2026-11-09 23:57:46,288 log Internal Server Error: /content-maker/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 4180, in post
+    image = agent.generate_image_pipeline(user_request)
+  File "c:\advice_project\aqwe_app\agents\content_maker_agent.py", line 135, in generate_image_pipeline
+    text_match = re.search(r'\[TEXT\](.*?)\[/TEXT\]', response, re.DOTALL)
+  File "C:\python 3.13.2\Lib\re\__init__.py", line 177, in search
+    return _compile(pattern, flags).search(string)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+TypeError: expected string or bytes-like object, got 'tuple'
+INFO 2026-11-10 00:08:45,027 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-10 00:09:23,388 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-10 00:12:57,794 log Method Not Allowed: /content-maker/
+ERROR 2026-11-10 00:29:54,871 content_maker_agent Ошибка извлечения: ('text', '')
+INFO 2026-11-10 00:56:31,922 autoreload Watching for file changes with StatReloader
+INFO 2026-11-10 01:02:02,498 autoreload C:\advice_project\aqwe_app\agents\content_maker_agent.py changed, reloading.
+INFO 2026-11-10 01:02:37,909 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-10 01:04:19,305 log Method Not Allowed: /content-maker/
+ERROR 2026-11-10 01:18:09,843 content_maker_agent Ошибка вызова API: ("Connection broken: ConnectionResetError(10054, 'Удаленный хост принудительно разорвал существующее подключение', None, 10054, None)", ConnectionResetError(10054, 'Удаленный хост принудительно разорвал существующее подключение', None, 10054, None))
+INFO 2026-11-10 01:28:04,394 autoreload C:\advice_project\aqwe_app\agents\content_maker_agent.py changed, reloading.
+INFO 2026-11-10 01:29:05,882 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-10 01:42:01,245 log Method Not Allowed: /content-maker/
