@@ -19,6 +19,28 @@ from .journalist_agent import JournalistAgent
 
 logger = logging.getLogger(__name__)
 
+AGENT_REGISTRY = {
+    "Content-Maker": {
+        "name": "Content-Maker",
+        "role": "Элитный цифровой художник и маркетолог",
+        "description": "Создает высококачественный визуальный контент (SVG, HTML, инфографика, 3D-спецификации). Владеет методами: _vector_maket, _vector_collage, _image_into_3d, _made_sketch, _one_business_page, generate_image_pipeline, edit_image_pipeline.",
+        "status": "active"
+    },
+    "Author-Agent": {
+        "name": "Author-Agent",
+        "role": "Создатель и упаковщик авторского контента",
+        "description": "Пишет книги, курсы, сценарии и упаковывает их для монетизации на платформах Sponsr/Gumroad. Превращает идеи в цифровые активы с высокой маржой.",
+        "status": "active"
+    },
+    "Auditor-Checker": {
+        "name": "Auditor-Checker",
+        "role": "Эксперт по аудиту и безопасности",
+        "description": "Проводит глубокий анализ кода, текстов и бизнес-профилей. Находит риски, уязвимости и точки роста. Владеет методами: _check_code, _check_document, _check_text.",
+        "status": "active"
+    },
+    # ... добавь сюда остальных 19 агентов по аналогии ...
+}
+
 AGENT_FACTORIES: Dict[str, Callable[[str], Any]] = {
     "main_advisor": lambda key: AgentGem(key),
     "teacher": lambda key: TeacherAgent(key),
@@ -73,3 +95,10 @@ def get_agent(name: str, api_key: str) -> Optional[Any]:
         except Exception as e:
             logger.error(f"Ошибка создания агента {name}: {e}")
     return None
+
+def get_description_agent(agent_name: str) -> str:
+    """Возвращает подробное описание возможностей агента из реестра."""
+    agent = AGENT_REGISTRY.get(agent_name)
+    if agent:
+        return f"Агент: {agent['name']}. Роль: {agent['role']}. Возможности: {agent['description']}"
+    return f"Агент '{agent_name}' не найден в реестре или описание отсутствует."    

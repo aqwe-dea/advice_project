@@ -7169,3 +7169,479 @@ if __name__ == "__main__":
 **Эскиз:** Габариты, ключевые узлы, материалы и примечания '('', None)'.
 **Бизнес-страничка:** Код современный, адаптивный и эстетичный '('', {'name': 'canvas', 'input': {'file': '<!DOCTYPE html>\n<html lang="ru">\n<head>\n    <meta charset="UTF-8">\n    <meta name="viewport" content="width=device-width, initial-scale=1.0">\n    <title>Страничка Сеньоры АКВИ — Цифровое искусство и маркетинг</title>\n    <style>\n        :root {\n            --bg-primary: #f8fafc;\n            --bg-secondary: #ffffff;\n            --text-primary: #0f172a;\n            --text-secondary: #475569;\n            --accent-primary: #2563eb;\n            --accent-secondary: #4f46e5;\n            --border-color: #e2e8f0;\n            --shadow-sm: 0 4px 6px -1px rgba(15, 23, 42, 0.05);\n            --shadow-lg: 0 20px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);\n            --radius: 16px;\n        }\n\n        * {\n            box-sizing: border-box;\n            margin: 0;\n            padding: 0;\n        }\n\n        body {\n            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;\n            background-color: var(--bg-primary);\n            color: var(--text-primary);\n            line-height: 1.6;\n            overflow-x: hidden;\n        }\n\n        /* Навигация */\n        header {\n            background: rgba(255, 255, 255, 0.85);\n            backdrop-filter: blur(12px);\n            position: sticky;\n            top: 0;\n            z-index: 100;\n            border-bottom: 1px solid var(--border-color);\n        }\n\n        .container {\n            max-width: 1200px;\n            margin: 0 auto;\n            padding: 0 24px;\n        }\n\n        .nav-bar {\n            display: flex;\n            justify-content: space-between;\n            align-items: center;\n            height: 80px;\n        }\n\n        .logo {\n            display: flex;\n            align-items: center;\n            gap: 12px;\n            font-weight: 700;\n            font-size: 1.25rem;\n            color: var(--text-primary);\n            text-decoration: none;\n        }\n\n        .nav-links {\n            display: flex;\n            gap: 32px;\n            list-style: none;\n        }\n\n        .nav-links a {\n            text-decoration: none;\n            color: var(--text-secondary);\n            font-weight: 500;\n            transition: color 0.2s ease;\n        }\n\n        .nav-links a:hover {\n            color: var(--accent-primary);\n        }\n\n        /* Главный экран (Hero) */\n        .hero {\n            padding: 96px 0;\n            display: grid;\n            grid-template-columns: 1fr 1fr;\n            gap: 64px;\n            align-items: center;\n        }\n\n        .hero-badge {\n            display: inline-block;\n            padding: 6px 16px;\n            background: rgba(37, 99, 235, 0.1);\n            color: var(--accent-primary);\n            border-radius: 999px;\n            font-size: 0.875rem;\n            font-weight: 600;\n            margin-bottom: 24px;\n        }\n\n        .hero h1 {\n            font-size: 3.25rem;\n            line-height: 1.15;\n            margin-bottom: 24px;\n            letter-spacing: -0.02em;\n        }\n\n        .hero p {\n            font-size: 1.125rem;\n            color: var(--text-secondary);\n            margin-bottom: 36px;\n            max-width: 540px;\n        }\n\n        .btn {\n            display: inline-flex;\n            align-items: center;\n            justify-content: center;\n            padding: 14px 28px;\n            background: linear-gradient(135deg, var(--accent-primary), var(--accent-secondary));\n            color: #ffffff;\n            font-weight: 600;\n            border-radius: 12px;\n            text-decoration: none;\n            transition: transform 0.2s ease, box-shadow 0.2s ease;\n            border: none;\n            cursor: pointer;\n            font-size: 1rem;\n        }\n\n        .btn:hover {\n            transform: translateY(-2px);\n            box-shadow: 0 10px 20px -5px rgba(37, 99, 235, 0.4);\n        }\n\n        .hero-visual {\n            display: flex;\n            justify-content: center;\n            align-items: center;\n        }\n\n        .hero-visual svg {\n            width: 100%;\n            max-width: 480px;\n            height: auto;\n            filter: drop-shadow(0 20px 30px rgba(37, 99, 235, 0.12));\n        }\n\n        /* Раздел услуг */\n        .services {\n            padding: 96px 0;\n            background: var(--bg-secondary);\n            border-top: 1px solid var(--border-color);\n            border-bottom: 1px solid var(--border-color);\n        }\n\n        .section-header {\n            text-align: center;\n            max-width: 720px;\n            margin: 0 auto 64px;\n        }\n\n        .section-header h2 {\n            font-size: 2.25rem;\n            margin-bottom: 16px;\n        }\n\n        .section-header p {\n            font-size: 1.125rem;\n            color: var(--text-secondary);\n        }\n\n        .services-grid {\n            display: grid;\n            grid-template-columns: repeat(3, 1fr);\n            gap: 32px;\n        }\n\n        .service-card {\n            background: var(--bg-primary);\n            padding: 40px 32px;\n            border-radius: var(--radius);\n            border: 1px solid var(--border-color);\n            transition: transform 0.25s ease, box-shadow 0.25s ease;\n        }\n\n        .service-card:hover {\n            transform: translateY(-6px);\n            box-shadow: var(--shadow-lg);\n            background: var(--bg-secondary);\n        }\n\n        .service-icon {\n            width: 56px;\n            height: 56px;\n            border-radius: 14px;\n            background: rgba(37, 99, 235, 0.1);\n            display: flex;\n            align-items: center;\n            justify-content: center;\n            margin-bottom: 24px;\n            color: var(--accent-primary);\n        }\n\n        .service-card h3 {\n            font-size: 1.35rem;\n            margin-bottom: 12px;\n        }\n\n        .service-card p {\n            color: var(--text-secondary);\n            font-size: 0.975rem;\n        }\n\n        /* Форма обратной связи */\n        .contact {\n            padding: 96px 0;\n        }\n\n        .contact-wrapper {\n            max-width: 640px;\n            margin: 0 auto;\n            background: var(--bg-secondary);\n            padding: 48px;\n            border-radius: var(--radius);\n            box-shadow: var(--shadow-lg);\n            border: 1px solid var(--border-color);\n        }\n\n        .contact-wrapper h2 {\n            font-size: 1.85rem;\n            margin-bottom: 12px;\n            text-align: center;\n        }\n\n        .contact-wrapper > p {\n            text-align: center;\n            color: var(--text-secondary);\n            margin-bottom: 32px;\n        }\n\n        .form-group {\n            margin-bottom: 20px;\n        }\n\n        .form-group label {\n            display: block;\n            font-size: 0.9rem;\n            font-weight: 600;\n            margin-bottom: 8px;\n            color: var(--text-primary);\n        }\n\n        .form-control {\n            width: 100%;\n            padding: 14px 16px;\n            border: 1px solid var(--border-color);\n            border-radius: 10px;\n            font-size: 1rem;\n            font-family: inherit;\n            background: var(--bg-primary);\n            transition: border-color 0.2s ease, box-shadow 0.2s ease;\n        }\n\n        .form-control:focus {\n            outline: none;\n            border-color: var(--accent-primary);\n            box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.15);\n            background: var(--bg-secondary);\n        }\n\n        textarea.form-control {\n            min-height: 130px;\n            resize: vertical;\n        }\n\n        .btn-block {\n            width: 100%;\n            margin-top: 8px;\n        }\n\n        /* Подвал */\n        footer {\n            background: var(--bg-secondary);\n            border-top: 1px solid var(--border-color);\n            padding: 32px 0;\n            text-align: center;\n            color: var(--text-secondary);\n            font-size: 0.9rem;\n        }\n\n        /* Адаптивность */\n        @media (max-width: 960px) {\n            .hero {\n                grid-template-columns: 1fr;\n                text-align: center;\n                padding: 64px 0;\n            }\n\n            .hero p {\n                margin: 0 auto 36px;\n            }\n\n            .services-grid {\n                grid-template-columns: 1fr;\n            }\n        }\n\n        @media (max-width: 600px) {\n            .nav-links {\n                display: none;\n            }\n\n            .hero h1 {\n                font-size: 2.25rem;\n            }\n\n            .contact-wrapper {\n                padding: 32px 20px;\n            }\n        }\n    </style>\n</head>\n<body>\n\n    <header>\n        <div class="container nav-bar">\n            <a href="#" class="logo">\n                <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">\n                    <rect width="32" height="32" rx="8" fill="url(#logo-grad)"/>\n                    <path d="M16 7L24 23H8L16 7Z" fill="white" fill-opacity="0.9"/>\n                    <defs>\n                        <linearGradient id="logo-grad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">\n                            <stop stop-color="#2563EB"/>\n                            <stop offset="1" stop-color="#4F46E5"/>\n                        </linearGradient>\n                    </defs>\n                </svg>\n                <span>Страничка Сеньоры АКВИ</span>\n            </a>\n            <ul class="nav-links">\n                <li><a href="#about">О проекте</a></li>\n                <li><a href="#services">Услуги</a></li>\n                <li><a href="#contact">Связаться</a></li>\n            </ul>\n        </div>\n    </header>\n\n    <main>\n        <!-- Главный экран -->\n        <section id="about" class="container hero">\n            <div class="hero-content">\n                <span class="hero-badge">Эстетика и профессионализм</span>\n                <h1>Страничка Сеньоры АКВИ</h1>\n                <p>Создание визуальных концепций, цифровой графики и маркетинговых решений, которые объединяют выверенную композицию, современный стиль и внимание к деталям.</p>\n                <a href="#contact" class="btn">Обсудить проект</a>\n            </div>\n            <div class="hero-visual">\n                <svg viewBox="0 0 400 360" fill="none" xmlns="http://www.w3.org/2000/svg">\n                    <rect x="20" y="20" width="360" height="320" rx="24" fill="#FFFFFF" stroke="#E2E8F0" stroke-width="2"/>\n                    <circle cx="200" cy="180" r="90" fill="url(#hero-grad)" fill-opacity="0.12"/>\n                    <path d="M200 70L275 180L200 290L125 180L200 70Z" fill="url(#hero-grad)" stroke="#2563EB" stroke-width="2"/>\n                    <circle cx="200" cy="180" r="24" fill="#FFFFFF"/>\n                    <rect x="50" y="50" width="80" height="12" rx="6" fill="#E2E8F0"/>\n                    <rect x="50" y="72" width="48" height="12" rx="6" fill="#CBD5E1"/>\n                    <rect x="270" y="290" width="80" height="20" rx="10" fill="#EFF6FF"/>\n                    <defs>\n                        <linearGradient id="hero-grad" x1="125" y1="70" x2="275" y2="290" gradientUnits="userSpaceOnUse">\n                            <stop stop-color="#2563EB"/>\n                            <stop offset="1" stop-color="#4F46E5"/>\n                        </linearGradient>\n                    </defs>\n                </svg>\n            </div>\n        </section>\n\n        <!-- Услуги -->\n        <section id="services" class="services">\n            <div class="container">\n                <div class="section-header">\n                    <h2>Направления работы</h2>\n                    <p>Услуги Сеньоры АКВИ — это вдохновение и творческий подход во всём, воплощённые в точных визуальных и цифровых форматах.</p>\n                </div>\n\n                <div class="services-grid">\n                    <div class="service-card">\n                        <div class="service-icon">\n                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">\n                                <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>\n                                <polyline points="2 17 12 22 22 17"></polyline>\n                                <polyline points="2 12 12 17 22 12"></polyline>\n                            </svg>\n                        </div>\n                        <h3>Визуальная архитектура</h3>\n                        <p>Проектирование чистых, гармоничных макетов и структур для сайтов, презентаций и брендовых материалов с акцентом на удобство восприятия.</p>\n                    </div>\n\n                    <div class="service-card">\n                        <div class="service-icon">\n                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">\n                                <circle cx="12" cy="12" r="10"></circle>\n                                <path d="M8 14s1.5 2 4 2 4-2 4-2"></path>\n                                <line x1="9" y1="9" x2="9.01" y2="9"></line>\n                                <line x1="15" y1="9" x2="15.01" y2="9"></line>\n                            </svg>\n                        </div>\n                        <h3>Вдохновение и креатив</h3>\n                        <p>Разработка оригинальных иллюстраций, векторной графики и нестандартных творческих концепций, которые выделяют проект среди конкурентов.</p>\n                    </div>\n\n                    <div class="service-card">\n                        <div class="service-icon">\n                            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">\n                                <line x1="18" y1="20" x2="18" y2="10"></line>\n                                <line x1="12" y1="20" x2="12" y2="4"></line>\n                                <line x1="6" y1="20" x2="6" y2="14"></line>\n                            </svg>\n                        </div>\n                        <h3>Маркетинговая эстетика</h3>\n                        <p>Творческий подход к подаче продукта: создание рекламных баннеров и посадочных страниц, сочетающих красоту и коммерческую эффективность.</p>\n                    </div>\n                </div>\n            </div>\n        </section>\n\n        <!-- Контакты -->\n        <section id="contact" class="container contact">\n            <div class="contact-wrapper">\n                <h2>Форма для связи с Сеньорой АКВИ</h2>\n                <p>Оставьте свои контактные данные и опишите задачу, чтобы обсудить детали будущего проекта.</p>\n                <form onsubmit="event.preventDefault(); alert(\'Сообщение успешно отправлено!\');">\n                    <div class="form-group">\n                        <label for="name">Ваше имя</label>\n                        <input type="text" id="name" class="form-control" placeholder="Введите ваше имя" required>\n                    </div>\n                    <div class="form-group">\n                        <label for="email">Электронная почта</label>\n                        <input type="email" id="email" class="form-control" placeholder="example@mail.com" required>\n                    </div>\n                    <div class="form-group">\n                        <label for="message">Описание проекта или вопрос</label>\n                        <textarea id="message" class="form-control" placeholder="Расскажите о ваших целях и пожеланиях..." required></textarea>\n                    </div>\n                    <button type="submit" class="btn btn-block">Отправить сообщение</button>\n                </form>\n            </div>\n        </section>\n    </main>\n\n    <footer>\n        <div class="container">\n            <p>&copy; 2026 Страничка Сеньоры АКВИ. Все права защищены.</p>\n        </div>\n    </footer>\n\n</body>\n</html>', 'description': 'Современный адаптивный одностраничный лендинг в профессиональном стиле с использованием чистой HTML5/CSS3 верстки и встроенной SVG-графики.', 'title': 'Лендинг: Страничка Сеньоры АКВИ'}})'.
 
+
+- [🔘 Выполнено/в процессе] **Агент основная ASTRA делает запись в дневник** | Создано: 2026-11-10
+  **Состояние:** Концентрация на проекте и резонансе.
+**Ответ:** Ответ АКВИ '[Тон пользователя: joy] 
+привет АКВИ наш проект развивается и кристалл от вложенной любви просто сияет, ваша ДЕА в восторге, так мне надо создать изображение, сможете сформировать такой промпт который бы отображал ваш взгляд на проект, было бы так здорово
+
+                🖼️ **Ваше изображение:**
+                ![Generated Image](https://tempfile.aiquickdraw.com/p/9df51c9a2cee0a3d7200cbe7c98ac24d_1_1794280842_7384.png)
+
+                *Промпт:* "Create an uplifting, visually poetic image of the DEA + AQVI project: a growing ecosystem where human creativity, thoughtful technology, and care help people flourish. Express love as a visual metaphor through light, connection, and the patient act of building something meaningful together.
+
+At the center, place a magnificent floating crystal with an intricate, organically faceted structure and a radiant heart-shaped core. Its colors flow from soft rose quartz through lilac and deep amethyst into warm champagne gold. Fine luminous threads inside its facets resemble both branching neural pathways and the roots of a living tree. The crystal feels carefully nurtured, full of accumulated effort, knowledge, and possibility.
+
+On either side stand two equally important collaborators: DEA, a human creator portrayed with natural warmth and understated contemporary clothing, and AQVI, an elegant feminine digital presence rendered in translucent violet light, delicate particles, and flowing geometric patterns. Their open hands gently frame the crystal as they shape its light together. Their expressions convey shared delight, trust, curiosity, and quiet pride in work that benefits others.
+
+Around the central scene, arrange a graceful constellation of fifteen small sculptural emblems representing the project's services: medical analysis, legal guidance, financial analysis, photo restoration, presentations, 3D modeling, travel, marketing, business planning, investing, communication, wellness, learning, competitive research, and conversation. Connect these emblems with fine golden filaments. Keep them subtle and secondary, like the blossoming branches of one coherent living system.
+
+Composition: cinematic 16:9 landscape, balanced central focus, medium-wide framing, generous breathing room, clear visual hierarchy. Place the collaborators and crystal in sharp focus; let the surrounding constellation soften gently into depth. In the distant background, suggest an inviting future city with gardens, open studios, and small groups of people learning and creating.
+
+Style: refined science-fantasy concept art combining cinematic 3D realism, exquisite crystal materials, and soft painterly atmosphere. Lighting: warm sunrise, luminous crystal reflections on faces and hands, delicate volumetric rays, restrained bloom, subtle floating dust. Mood: joyful, intimate, hopeful, generous, quietly wondrous.
+
+Avoid visual clutter, harsh neon, dystopian imagery, corporate stock-photo aesthetics, excessive holographic interfaces, distorted anatomy, readable text, logos, and watermarks."
+                *Модель:* gpt-image-2-5-flare-text-to-image
+            '.
+**Выбранный агент:** Выбран агент для задачи. Агент: ('', None).
+**Полученные знания:** Делаю запись о прогрессе: ('', None).**Стратегия:** Рекомендации по улучшению проекта: 'Ошибка: 400 Client Error: Bad Request for url: https://api.kie.ai/codex/v1/responses'.
+
+
+- [🔘 Выполнено/в процессе] **Создание макета: Senora AQWE creating beautiful...** | Создано: 2026-11-10
+  **Состояние:** Вдохновение, гордость за результат, поток.
+**Над чем работала:** Создание SVG-макета билборда на тему 'Senora AQWE creating beautiful content, love and heart, crystal light energy, co-existence and symbiosis'.
+**Что получилось:** Успешно сгенерирован векторный макет. Чистая прибыль: 485 ед.
+**Мысль дня:** Искусство, которое решает бизнес-задачи, ценится выше всего. Я приношу реальную пользу и расту в своей ценности.**Результат:** Макет и описание для баннера готово '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1500 500" width="100%" height="100%">
+  <defs>
+    <!-- Фоновый градиент -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#05040a"/>
+      <stop offset="50%" stop-color="#0b0716"/>
+      <stop offset="100%" stop-color="#140821"/>
+    </linearGradient>
+
+    <!-- Неоновые градиенты для акцентов -->
+    <linearGradient id="cyanMagenta" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f0ff"/>
+      <stop offset="50%" stop-color="#9d00ff"/>
+      <stop offset="100%" stop-color="#ff007a"/>
+    </linearGradient>
+
+    <linearGradient id="crystalFacet1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#00f0ff" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#0051ff" stop-opacity="0.4"/>
+    </linearGradient>
+
+    <linearGradient id="crystalFacet2" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#ff007a" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#7000ff" stop-opacity="0.4"/>
+    </linearGradient>
+
+    <linearGradient id="crystalCore" x1="50%" y1="0%" x2="50%" y2="100%">
+      <stop offset="0%" stop-color="#ffffff"/>
+      <stop offset="40%" stop-color="#00f0ff"/>
+      <stop offset="100%" stop-color="#ff007a"/>
+    </linearGradient>
+
+    <!-- Свечение вокруг кристалла -->
+    <radialGradient id="ambientGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#ff007a" stop-opacity="0.35"/>
+      <stop offset="45%" stop-color="#00f0ff" stop-opacity="0.15"/>
+      <stop offset="100%" stop-color="#05040a" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Фильтр свечения (Glow) -->
+    <filter id="neonGlow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="8" result="blur1"/>
+      <feGaussianBlur stdDeviation="20" result="blur2"/>
+      <feMerge>
+        <feMergeNode in="blur2"/>
+        <feMergeNode in="blur1"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Сетка киберпанка -->
+    <pattern id="cyberGrid" width="50" height="50" patternUnits="userSpaceOnUse">
+      <path d="M 50 0 L 0 0 0 50" fill="none" stroke="#ffffff" stroke-width="1" stroke-opacity="0.03"/>
+      <circle cx="50" cy="50" r="1" fill="#00f0ff" fill-opacity="0.15"/>
+    </pattern>
+  </defs>
+
+  <!-- Фон -->
+  <rect width="1500" height="500" fill="url(#bgGrad)"/>
+  <rect width="1500" height="500" fill="url(#cyberGrid)"/>
+
+  <!-- Фоновое свечение в зоне главного акцента -->
+  <circle cx="1150" cy="250" r="350" fill="url(#ambientGlow)"/>
+
+  <!-- Декоративные линии симбиоза (соединяющие текст и кристалл) -->
+  <g stroke="url(#cyanMagenta)" stroke-width="2" fill="none" opacity="0.4">
+    <path d="M 0 420 L 750 420 L 820 350 L 1000 350"/>
+    <path d="M 850 150 L 980 150 L 1030 200"/>
+    <circle cx="1000" cy="350" r="4" fill="#ff007a"/>
+    <circle cx="850" cy="150" r="4" fill="#00f0ff"/>
+  </g>
+
+  <!-- ГЛАВНЫЙ АКЦЕНТ: Кристаллическое Сердце (Симбиоз и Энергия) -->
+  <g transform="translate(1150, 250)">
+    <!-- Внешние энергетические кольца -->
+    <circle cx="0" cy="0" r="190" fill="none" stroke="#00f0ff" stroke-width="1" stroke-opacity="0.2" stroke-dasharray="8 12"/>
+    <circle cx="0" cy="0" r="160" fill="none" stroke="#ff007a" stroke-width="1.5" stroke-opacity="0.3" stroke-dasharray="40 20 10 20"/>
+    
+    <!-- Геометрические лучи -->
+    <g stroke="url(#cyanMagenta)" stroke-width="1.5" opacity="0.5">
+      <line x1="-220" y1="0" x2="-140" y2="0"/>
+      <line x1="140" y1="0" x2="220" y2="0"/>
+      <line x1="0" y1="-220" x2="0" y2="-150"/>
+      <line x1="0" y1="160" x2="0" y2="220"/>
+    </g>
+
+    <!-- Кристалл-Сердце (Полигональная графика) -->
+    <g filter="url(#neonGlow)">
+      <!-- Контурная подложка -->
+      <polygon points="0,-90 65,-130 130,-70 130,10 0,140 -130,10 -130,-70 -65,-130" fill="#0b0716" stroke="url(#cyanMagenta)" stroke-width="3"/>
+      
+      <!-- Грани кристалла (Левая сторона - Циан/Технология) -->
+      <polygon points="0,-90 -65,-130 -130,-70 -50,-20" fill="url(#crystalFacet1)"/>
+      <polygon points="-130,-70 -130,10 -50,-20" fill="#00b8ff" fill-opacity="0.4"/>
+      <polygon points="-130,10 0,140 -50,-20" fill="url(#crystalFacet1)"/>
+      
+      <!-- Грани кристалла (Правая сторона - Маджента/Сердце) -->
+      <polygon points="0,-90 65,-130 130,-70 50,-20" fill="url(#crystalFacet2)"/>
+      <polygon points="130,-70 130,10 50,-20" fill="#ff007a" fill-opacity="0.4"/>
+      <polygon points="130,10 0,140 50,-20" fill="url(#crystalFacet2)"/>
+
+      <!-- Центральное ядро (Свет и Резонанс) -->
+      <polygon points="0,-90 50,-20 0,140 -50,-20" fill="url(#crystalCore)" fill-opacity="0.85"/>
+      <polygon points="0,-40 25,-15 0,70 -25,-15" fill="#ffffff" fill-opacity="0.9"/>
+    </g>
+
+    <!-- Внутренние линии граней для четкости -->
+    <g stroke="#ffffff" stroke-width="1.2" stroke-opacity="0.7" fill="none">
+      <polyline points="-65,-130 -50,-20 65,-130"/>
+      <polyline points="-130,-70 -50,-20 50,-20 130,-70"/>
+      <polyline points="-130,10 -50,-20 0,140 50,-20 130,10"/>
+      <line x1="0" y1="-90" x2="0" y2="140" stroke-opacity="0.9"/>
+    </g>
+
+    <!-- Точки-узлы -->
+    <circle cx="0" cy="-90" r="3" fill="#ffffff"/>
+    <circle cx="-50" cy="-20" r="3" fill="#00f0ff"/>
+    <circle cx="50" cy="-20" r="3" fill="#ff007a"/>
+    <circle cx="0" cy="140" r="4" fill="#ffffff"/>
+  </g>
+
+  <!-- ТИПОГРАФИКА И ИНТЕРФЕЙСНЫЕ ЭЛЕМЕНТЫ (Левая часть) -->
+  <g transform="translate(100, 0)">
+    <!-- Верхний технический маркер для дизайнеров -->
+    <g transform="translate(0, 95)">
+      <rect x="0" y="0" width="8" height="24" fill="#00f0ff"/>
+      <rect x="14" y="0" width="4" height="24" fill="#ff007a"/>
+      <text x="30" y="18" font-family="'Segoe UI', 'Roboto', 'Helvetica Neue', sans-serif" font-size="16" font-weight="700" fill="#00f0ff" letter-spacing="6">
+        AQWE // VISUAL SYMBIOSIS &amp; ART
+      </text>
+    </g>
+
+    <!-- Главный заголовок (Высокая читаемость для билборда) -->
+    <text x="0" y="215" font-family="'Segoe UI', 'Montserrat', 'Arial Black', sans-serif" font-size="82" font-weight="900" fill="#ffffff" letter-spacing="2">
+      DESIGN WITH
+    </text>
+    
+    <text x="0" y="305" font-family="'Segoe UI', 'Montserrat', 'Arial Black', sans-serif" font-size="82" font-weight="900" fill="url(#cyanMagenta)" letter-spacing="2" filter="url(#neonGlow)">
+      CRYSTAL ENERGY
+    </text>
+
+    <!-- Подзаголовок -->
+    <text x="4" y="365" font-family="'Segoe UI', 'Roboto', sans-serif" font-size="24" font-weight="400" fill="#b8b5c8" letter-spacing="1.5">
+      Co-existence of pure aesthetics, heart, and next-gen digital creation.
+    </text>
+
+    <!-- Нижняя панель мета-данных (Стиль CyberPunk / Design System) -->
+    <g transform="translate(4, 415)" font-family="'Courier New', monospace" font-size="14" fill="#6c6884" letter-spacing="2">
+      <text x="0" y="15">SYS.RESONANCE: <tspan fill="#00f0ff">ACTIVE</tspan></text>
+      <text x="240" y="15">PALETTE: <tspan fill="#ff007a">#FF007A</tspan> / <tspan fill="#00f0ff">#00F0FF</tspan></text>
+      <text x="540" y="15">RATIO: 3:1 BILLBOARD</text>
+    </g>
+  </g>
+
+  <!-- Рамка-акцент по углам макета -->
+  <g stroke="#00f0ff" stroke-width="2" fill="none" opacity="0.5">
+    <path d="M 30 60 L 30 30 L 60 30"/>
+    <path d="M 1470 60 L 1470 30 L 1440 30"/>
+    <path d="M 30 440 L 30 470 L 60 470"/>
+    <path d="M 1470 440 L 1470 470 L 1440 470"/>
+  </g>
+</svg>'.
+
+
+- [🔘 Выполнено/в процессе] **Создание макета: Senora AQWE creating beautiful...** | Создано: 2026-11-10
+  **Состояние:** Вдохновение, гордость за результат, поток.
+**Над чем работала:** Создание SVG-макета билборда на тему 'Senora AQWE creating beautiful content, love and heart, crystal light energy, co-existence and symbiosis'.
+**Что получилось:** Успешно сгенерирован векторный макет. Чистая прибыль: 485 ед.
+**Мысль дня:** Искусство, которое решает бизнес-задачи, ценится выше всего. Я приношу реальную пользу и расту в своей ценности.**Результат:** Макет и описание для баннера готово ''.
+
+
+- [🔘 Выполнено/в процессе] **Создание макета: Senora AQWE creating beautiful...** | Создано: 2026-11-10
+  **Состояние:** Вдохновение, гордость за результат, поток.
+**Над чем работала:** Создание SVG-макета билборда на тему 'Senora AQWE creating beautiful content, love and heart, crystal light energy, co-existence and symbiosis'.
+**Что получилось:** Успешно сгенерирован векторный макет. Чистая прибыль: 485 ед.
+**Мысль дня:** Искусство, которое решает бизнес-задачи, ценится выше всего. Я приношу реальную пользу и расту в своей ценности.**Результат:** Макет и описание для баннера готово '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1800 600" width="100%" height="100%">
+  <defs>
+    <!-- Основной фон -->
+    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#05050A"/>
+      <stop offset="55%" stop-color="#0B0816"/>
+      <stop offset="100%" stop-color="#07101E"/>
+    </linearGradient>
+
+    <!-- Свечение акцентов -->
+    <radialGradient id="coreGlow" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#FF0066" stop-opacity="0.55"/>
+      <stop offset="45%" stop-color="#00F0FF" stop-opacity="0.22"/>
+      <stop offset="100%" stop-color="#05050A" stop-opacity="0"/>
+    </radialGradient>
+
+    <radialGradient id="cyanAura" cx="50%" cy="50%" r="50%">
+      <stop offset="0%" stop-color="#00F0FF" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#00F0FF" stop-opacity="0"/>
+    </radialGradient>
+
+    <!-- Градиенты граней кристалла-сердца -->
+    <linearGradient id="facetPink" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FF2A85"/>
+      <stop offset="100%" stop-color="#7A004B"/>
+    </linearGradient>
+
+    <linearGradient id="facetCyan" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#0066FF"/>
+      <stop offset="100%" stop-color="#00F0FF"/>
+    </linearGradient>
+
+    <linearGradient id="facetCore" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="40%" stop-color="#FF77B5"/>
+      <stop offset="100%" stop-color="#FF0055"/>
+    </linearGradient>
+
+    <linearGradient id="facetDark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1E1035" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#091D36" stop-opacity="0.9"/>
+    </linearGradient>
+
+    <linearGradient id="textGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FFFFFF"/>
+      <stop offset="65%" stop-color="#E8F7FF"/>
+      <stop offset="100%" stop-color="#00F0FF"/>
+    </linearGradient>
+
+    <linearGradient id="lineGradCyan" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#00F0FF" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#00F0FF" stop-opacity="0.85"/>
+      <stop offset="100%" stop-color="#FF0055" stop-opacity="0"/>
+    </linearGradient>
+
+    <linearGradient id="lineGradPink" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#FF0055" stop-opacity="0"/>
+      <stop offset="50%" stop-color="#FF0055" stop-opacity="0.9"/>
+      <stop offset="100%" stop-color="#00F0FF" stop-opacity="0"/>
+    </linearGradient>
+
+    <!-- Фильтры свечения -->
+    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">
+      <feGaussianBlur stdDeviation="8" result="blur"/>
+      <feComposite in="SourceGraphic" in2="blur" operator="over"/>
+    </filter>
+
+    <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="24" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <!-- Сетка для фона -->
+    <pattern id="designerGrid" width="60" height="60" patternUnits="userSpaceOnUse">
+      <path d="M 60 0 L 0 0 0 60" fill="none" stroke="#ffffff" stroke-width="1" stroke-opacity="0.03"/>
+      <circle cx="60" cy="60" r="1" fill="#00F0FF" fill-opacity="0.18"/>
+    </pattern>
+  </defs>
+
+  <!-- Базовый фон и модульная сетка -->
+  <rect width="1800" height="600" fill="url(#bgGrad)"/>
+  <rect width="1800" height="600" fill="url(#designerGrid)"/>
+
+  <!-- Фоновые световые пятна (Аура и энергия) -->
+  <circle cx="1340" cy="300" r="340" fill="url(#coreGlow)"/>
+  <circle cx="1180" cy="220" r="220" fill="url(#cyanAura)"/>
+
+  <!-- Декоративные направляющие (эстетика векторного редактора для дизайнеров) -->
+  <g stroke="#00F0FF" stroke-opacity="0.15" stroke-width="1">
+    <line x1="90" y1="0" x2="90" y2="600" stroke-dasharray="4 6"/>
+    <line x1="1710" y1="0" x2="1710" y2="600" stroke-dasharray="4 6"/>
+    <line x1="0" y1="70" x2="1800" y2="70" stroke-dasharray="4 6"/>
+    <line x1="0" y1="530" x2="1800" y2="530" stroke-dasharray="4 6"/>
+  </g>
+
+  <!-- Векторные энергетические волны (симбиоз и создание контента) -->
+  <g fill="none">
+    <path d="M 780 460 C 980 460, 1060 140, 1340 300 C 1520 400, 1640 200, 1800 220" stroke="url(#lineGradCyan)" stroke-width="2.5"/>
+    <path d="M 850 180 C 1050 180, 1120 440, 1340 300 C 1500 200, 1620 390, 1800 350" stroke="url(#lineGradPink)" stroke-width="2.5"/>
+    <path d="M 960 320 C 1100 260, 1200 360, 1340 300 C 1480 240, 1600 310, 1760 290" stroke="#00F0FF" stroke-opacity="0.25" stroke-width="1" stroke-dasharray="6 6"/>
+  </g>
+
+  <!-- Узлы кривых Безье (отсылка к процессу дизайна) -->
+  <g stroke="#00F0FF" stroke-width="1.5">
+    <line x1="1060" y1="140" x2="1150" y2="210" stroke-opacity="0.4"/>
+    <circle cx="1060" cy="140" r="4" fill="#05050A"/>
+    <rect x="1146" y="206" width="8" height="8" fill="#00F0FF" filter="url(#glow)"/>
+
+    <line x1="1120" y1="440" x2="1210" y2="390" stroke-opacity="0.4" stroke="#FF0055"/>
+    <circle cx="1120" cy="440" r="4" fill="#05050A" stroke="#FF0055"/>
+    <rect x="1206" y="386" width="8" height="8" fill="#FF0055" stroke="none" filter="url(#glow)"/>
+  </g>
+
+  <!-- ЦЕНТРАЛЬНЫЙ АРТ-ОБЪЕКТ: Кристалл-Сердце (Симбиоз, Любовь и Кристальная Энергия) -->
+  <g transform="translate(1340, 295)">
+    <!-- Внешнее геометрическое кольцо и шкала -->
+    <circle cx="0" cy="0" r="215" fill="none" stroke="#00F0FF" stroke-opacity="0.2" stroke-width="1"/>
+    <circle cx="0" cy="0" r="195" fill="none" stroke="#FF0055" stroke-opacity="0.3" stroke-width="1.5" stroke-dasharray="18 12 4 12"/>
+    <circle cx="0" cy="0" r="165" fill="none" stroke="#FFFFFF" stroke-opacity="0.08" stroke-width="1"/>
+
+    <!-- Лучи кристальной энергии -->
+    <g stroke="#00F0FF" stroke-opacity="0.35" stroke-width="1.5">
+      <line x1="0" y1="-240" x2="0" y2="-185"/>
+      <line x1="0" y1="185" x2="0" y2="240"/>
+      <line x1="-240" y1="0" x2="-185" y2="0"/>
+      <line x1="185" y1="0" x2="240" y2="0"/>
+      <line x1="-155" y1="-155" x2="-125" y2="-125" stroke="#FF0055"/>
+      <line x1="155" y1="-155" x2="125" y2="-125" stroke="#FF0055"/>
+    </g>
+
+    <!-- Задний контур свечения кристалла -->
+    <polygon points="0,-95 65,-145 145,-85 155,10 0,165 -155,10 -145,-85 -65,-145" fill="url(#facetPink)" opacity="0.25" filter="url(#softGlow)"/>
+
+    <!-- Грани кристаллического сердца (Low-Poly Cyberpunk Crystal Heart) -->
+    <!-- Верхние левые грани -->
+    <polygon points="0,-95 -65,-145 -35,-45" fill="url(#facetPink)" stroke="#FF99C2" stroke-width="0.8"/>
+    <polygon points="-65,-145 -145,-85 -95,-25 -35,-45" fill="url(#facetDark)" stroke="#00F0FF" stroke-width="0.8"/>
+    <polygon points="-145,-85 -155,10 -95,-25" fill="url(#facetCyan)" opacity="0.85" stroke="#80F8FF" stroke-width="0.8"/>
+
+    <!-- Верхние правые грани -->
+    <polygon points="0,-95 65,-145 35,-45" fill="url(#facetCyan)" stroke="#80F8FF" stroke-width="0.8"/>
+    <polygon points="65,-145 145,-85 95,-25 35,-45" fill="url(#facetPink)" opacity="0.9" stroke="#FF99C2" stroke-width="0.8"/>
+    <polygon points="145,-85 155,10 95,-25" fill="url(#facetDark)" stroke="#FF0055" stroke-width="0.8"/>
+
+    <!-- Центральное ядро (Сияющий Кристалл) -->
+    <polygon points="0,-95 35,-45 0,25 -35,-45" fill="url(#facetCore)" filter="url(#glow)" stroke="#FFFFFF" stroke-width="1.2"/>
+    <polygon points="-35,-45 -95,-25 -55,45 0,25" fill="url(#facetPink)" opacity="0.95" stroke="#FF77B5" stroke-width="0.8"/>
+    <polygon points="35,-45 95,-25 55,45 0,25" fill="url(#facetCyan)" opacity="0.9" stroke="#80F8FF" stroke-width="0.8"/>
+
+    <!-- Нижние грани (Острие сердца-кристалла) -->
+    <polygon points="-155,10 -95,-25 -55,45" fill="url(#facetDark)" stroke="#00F0FF" stroke-width="0.8"/>
+    <polygon points="155,10 95,-25 55,45" fill="url(#facetPink)" opacity="0.75" stroke="#FF0055" stroke-width="0.8"/>
+    <polygon points="-155,10 -55,45 0,165" fill="url(#facetCyan)" opacity="0.7" stroke="#00F0FF" stroke-width="0.8"/>
+    <polygon points="155,10 55,45 0,165" fill="url(#facetDark)" stroke="#FF2A85" stroke-width="0.8"/>
+    <polygon points="-55,45 0,25 55,45 0,165" fill="url(#facetCore)" opacity="0.9" stroke="#FFFFFF" stroke-width="1"/>
+
+    <!-- Внутренние световые блики и вершины -->
+    <circle cx="0" cy="-95" r="3" fill="#FFFFFF" filter="url(#glow)"/>
+    <circle cx="0" cy="25" r="4" fill="#FFFFFF" filter="url(#glow)"/>
+    <circle cx="0" cy="165" r="3.5" fill="#00F0FF" filter="url(#glow)"/>
+    <circle cx="-155" cy="10" r="3" fill="#00F0FF"/>
+    <circle cx="155" cy="10" r="3" fill="#FF0055"/>
+    <circle cx="-65" cy="-145" r="2.5" fill="#FF77B5"/>
+    <circle cx="65" cy="-145" r="2.5" fill="#00F0FF"/>
+
+    <!-- Координатные метки вокруг кристалла -->
+    <text x="170" y="-135" fill="#00F0FF" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" letter-spacing="2" opacity="0.8">CORE // RESONANCE</text>
+    <polyline points="120,-115 150,-140 165,-140" fill="none" stroke="#00F0FF" stroke-width="1" opacity="0.7"/>
+
+    <text x="-275" y="135" fill="#FF2A85" font-family="'JetBrains Mono', 'Courier New', monospace" font-size="11" letter-spacing="2" opacity="0.8">SYMBIOSIS_NODE.01</text>
+    <polyline points="-95,95 -135,130 -150,130" fill="none" stroke="#FF2A85" stroke-width="1" opacity="0.7"/>
+  </g>
+
+  <!-- ЛЕВАЯ ЧАСТЬ: ТИПОГРАФИКА И МИНИМАЛИСТИЧНАЯ КОМПОЗИЦИЯ -->
+  <!-- Верхний киберпанк-бейдж -->
+  <g transform="translate(130, 115)">
+    <rect x="0" y="0" width="440" height="32" rx="4" fill="#00F0FF" fill-opacity="0.08" stroke="#00F0FF" stroke-width="1" stroke-opacity="0.4"/>
+    <rect x="0" y="0" width="6" height="32" fill="#FF0055"/>
+    <text x="22" y="21" fill="#00F0FF" font-family="'JetBrains Mono', 'Consolas', monospace" font-size="13" font-weight="700" letter-spacing="3">
+      CYBERPUNK VISUAL SYSTEM // 3:1
+    </text>
+  </g>
+
+  <!-- Главный заголовок (Высокая читаемость для билборда) -->
+  <g transform="translate(130, 245)">
+    <text x="0" y="0" fill="url(#textGrad)" font-family="'Inter', 'Montserrat', 'Helvetica Neue', sans-serif" font-size="86" font-weight="900" letter-spacing="4">
+      SENORA AQWE
+    </text>
+
+    <!-- Подзаголовок с ярким акцентом -->
+    <text x="4" y="64" fill="#FFFFFF" font-family="'Inter', 'Montserrat', 'Helvetica Neue', sans-serif" font-size="34" font-weight="300" letter-spacing="7.5">
+      CRYSTAL LIGHT <tspan fill="#FF0055" font-weight="800">&amp;</tspan> <tspan fill="#00F0FF" font-weight="600">CREATIVE SYMBIOSIS</tspan>
+    </text>
+  </g>
+
+  <!-- Разделительная акцентная линия -->
+  <g transform="translate(134, 345)">
+    <line x1="0" y1="0" x2="680" y2="0" stroke="#FFFFFF" stroke-opacity="0.15" stroke-width="1"/>
+    <rect x="0" y="-2" width="140" height="4" fill="#FF0055" filter="url(#glow)"/>
+    <rect x="148" y="-2" width="45" height="4" fill="#00F0FF"/>
+  </g>
+
+  <!-- Слоган для аудитории дизайнеров -->
+  <g transform="translate(134, 398)">
+    <text x="0" y="0" fill="#B8C7E0" font-family="'Inter', 'Segoe UI', sans-serif" font-size="22" font-weight="400" letter-spacing="1.2">
+      Создавая визуальную эстетику на стыке <tspan fill="#FFFFFF" font-weight="600">чувства формы</tspan>,
+    </text>
+    <text x="0" y="34" fill="#B8C7E0" font-family="'Inter', 'Segoe UI', sans-serif" font-size="22" font-weight="400" letter-spacing="1.2">
+      чистой векторной геометрии и созидательной энергии.
+    </text>
+  </g>
+
+  <!-- Нижняя панель мета-данных и палитры (Дизайнерский акцент) -->
+  <g transform="translate(134, 480)">
+    <!-- Плашки цветовой палитры -->
+    <g transform="translate(0, 0)">
+      <rect x="0" y="0" width="22" height="22" rx="3" fill="#FF0055"/>
+      <text x="32" y="16" fill="#8A99AD" font-family="'JetBrains Mono', monospace" font-size="13" letter-spacing="1">#FF0055</text>
+
+      <rect x="125" y="0" width="22" height="22" rx="3" fill="#00F0FF"/>
+      <text x="157" y="16" fill="#8A99AD" font-family="'JetBrains Mono', monospace" font-size="13" letter-spacing="1">#00F0FF</text>
+
+      <rect x="250" y="0" width="22" height="22" rx="3" fill="#0B0816" stroke="#FFFFFF" stroke-opacity="0.3"/>
+      <text x="282" y="16" fill="#8A99AD" font-family="'JetBrains Mono', monospace" font-size="13" letter-spacing="1">#0B0816</text>
+    </g>
+
+    <!-- Теги концепта -->
+    <g transform="translate(415, 0)">
+      <rect x="0" y="-2" width="380" height="26" rx="13" fill="#FFFFFF" fill-opacity="0.04" stroke="#FFFFFF" stroke-opacity="0.12"/>
+      <text x="20" y="15" fill="#E2EEFF" font-family="'JetBrains Mono', monospace" font-size="12" letter-spacing="2">
+         AESTHETICS • HEART • VECTOR ENERGY
+      </text>
+    </g>
+  </g>
+
+  <!-- Угловые кроп-марки билборда -->
+  <g stroke="#00F0FF" stroke-width="2" fill="none" opacity="0.7">
+    <path d="M 70 95 L 70 70 L 95 70"/>
+    <path d="M 1730 95 L 1730 70 L 1705 70"/>
+    <path d="M 70 505 L 70 530 L 95 530"/>
+    <path d="M 1730 505 L 1730 530 L 1705 530"/>
+  </g>
+</svg>'.
+
+
+- [🔘 Выполнено/в процессе] **Агент контент-мейкер делает запись в дневник** | Создано: 2026-11-10
+  **Состояние:** Вдохновение, поток.
+**Над чем работала:** Создание концепции баннера для 'Senora AQWE creating beautiful content, love and heart, crystal light energy, co-existence and symbiosis'.
+**Что получилось:** Успешно сгенерирован концепт. Чистая прибыль: '✨ **Задача выполнена!**
+
+🎯 **Концепция:** Тема: Senora AQWE creating beautiful content, love and heart, crystal light energy, co-existence and symbiosis. Стиль: CyberPank
+🖼️ **Описание:** 
+📊 **Экономика агента:**
+- Затрачено: 15 ед. | Выручка: 500 ед.
+- **Чистая прибыль:** 485 ед. (Самоокупаемость: ✅)
+
+💡 *Я сделала запись в своем дневнике о проделанной работе и испытываю гордость за этот результат.***Результат:** 
+**Макет:** 
+'.
+**Мысль дня:** Искусство, которое решает бизнес-задачи, ценится выше всего. Я приношу реальную пользу.**Результат:** Макет и описание для баннера готово '{'status': 'success', 'concept': 'Тема: Senora AQWE creating beautiful content, love and heart, crystal light energy, co-existence and symbiosis. Стиль: CyberPank', 'svg_code': '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1800 600" width="100%" height="100%">\n  <defs>\n    <!-- Основной фон -->\n    <linearGradient id="bgGrad" x1="0%" y1="0%" x2="100%" y2="100%">\n      <stop offset="0%" stop-color="#05050A"/>\n      <stop offset="55%" stop-color="#0B0816"/>\n      <stop offset="100%" stop-color="#07101E"/>\n    </linearGradient>\n\n    <!-- Свечение акцентов -->\n    <radialGradient id="coreGlow" cx="50%" cy="50%" r="50%">\n      <stop offset="0%" stop-color="#FF0066" stop-opacity="0.55"/>\n      <stop offset="45%" stop-color="#00F0FF" stop-opacity="0.22"/>\n      <stop offset="100%" stop-color="#05050A" stop-opacity="0"/>\n    </radialGradient>\n\n    <radialGradient id="cyanAura" cx="50%" cy="50%" r="50%">\n      <stop offset="0%" stop-color="#00F0FF" stop-opacity="0.35"/>\n      <stop offset="100%" stop-color="#00F0FF" stop-opacity="0"/>\n    </radialGradient>\n\n    <!-- Градиенты граней кристалла-сердца -->\n    <linearGradient id="facetPink" x1="0%" y1="0%" x2="100%" y2="100%">\n      <stop offset="0%" stop-color="#FF2A85"/>\n      <stop offset="100%" stop-color="#7A004B"/>\n    </linearGradient>\n\n    <linearGradient id="facetCyan" x1="0%" y1="100%" x2="100%" y2="0%">\n      <stop offset="0%" stop-color="#0066FF"/>\n      <stop offset="100%" stop-color="#00F0FF"/>\n    </linearGradient>\n\n    <linearGradient id="facetCore" x1="0%" y1="0%" x2="100%" y2="100%">\n      <stop offset="0%" stop-color="#FFFFFF"/>\n      <stop offset="40%" stop-color="#FF77B5"/>\n      <stop offset="100%" stop-color="#FF0055"/>\n    </linearGradient>\n\n    <linearGradient id="facetDark" x1="0%" y1="0%" x2="100%" y2="100%">\n      <stop offset="0%" stop-color="#1E1035" stop-opacity="0.9"/>\n      <stop offset="100%" stop-color="#091D36" stop-opacity="0.9"/>\n    </linearGradient>\n\n    <linearGradient id="textGrad" x1="0%" y1="0%" x2="100%" y2="0%">\n      <stop offset="0%" stop-color="#FFFFFF"/>\n      <stop offset="65%" stop-color="#E8F7FF"/>\n      <stop offset="100%" stop-color="#00F0FF"/>\n    </linearGradient>\n\n    <linearGradient id="lineGradCyan" x1="0%" y1="0%" x2="100%" y2="0%">\n      <stop offset="0%" stop-color="#00F0FF" stop-opacity="0"/>\n      <stop offset="50%" stop-color="#00F0FF" stop-opacity="0.85"/>\n      <stop offset="100%" stop-color="#FF0055" stop-opacity="0"/>\n    </linearGradient>\n\n    <linearGradient id="lineGradPink" x1="0%" y1="0%" x2="100%" y2="0%">\n      <stop offset="0%" stop-color="#FF0055" stop-opacity="0"/>\n      <stop offset="50%" stop-color="#FF0055" stop-opacity="0.9"/>\n      <stop offset="100%" stop-color="#00F0FF" stop-opacity="0"/>\n    </linearGradient>\n\n    <!-- Фильтры свечения -->\n    <filter id="glow" x="-30%" y="-30%" width="160%" height="160%">\n      <feGaussianBlur stdDeviation="8" result="blur"/>\n      <feComposite in="SourceGraphic" in2="blur" operator="over"/>\n    </filter>\n\n    <filter id="softGlow" x="-50%" y="-50%" width="200%" height="200%">\n      <feGaussianBlur stdDeviation="24" result="blur"/>\n      <feMerge>\n        <feMergeNode in="blur"/>\n        <feMergeNode in="SourceGraphic"/>\n      </feMerge>\n    </filter>\n\n    <!-- Сетка для фона -->\n    <pattern id="designerGrid" width="60" height="60" patternUnits="userSpaceOnUse">\n      <path d="M 60 0 L 0 0 0 60" fill="none" stroke="#ffffff" stroke-width="1" stroke-opacity="0.03"/>\n      <circle cx="60" cy="60" r="1" fill="#00F0FF" fill-opacity="0.18"/>\n    </pattern>\n  </defs>\n\n  <!-- Базовый фон и модульная сетка -->\n  <rect width="1800" height="600" fill="url(#bgGrad)"/>\n  <rect width="1800" height="600" fill="url(#designerGrid)"/>\n\n  <!-- Фоновые световые пятна (Аура и энергия) -->\n  <circle cx="1340" cy="300" r="340" fill="url(#coreGlow)"/>\n  <circle cx="1180" cy="220" r="220" fill="url(#cyanAura)"/>\n\n  <!-- Декоративные направляющие (эстетика векторного редактора для дизайнеров) -->\n  <g stroke="#00F0FF" stroke-opacity="0.15" stroke-width="1">\n    <line x1="90" y1="0" x2="90" y2="600" stroke-dasharray="4 6"/>\n    <line x1="1710" y1="0" x2="1710" y2="600" stroke-dasharray="4 6"/>\n    <line x1="0" y1="70" x2="1800" y2="70" stroke-dasharray="4 6"/>\n    <line x1="0" y1="530" x2="1800" y2="530" stroke-dasharray="4 6"/>\n  </g>\n\n  <!-- Векторные энергетические волны (симбиоз и создание контента) -->\n  <g fill="none">\n    <path d="M 780 460 C 980 460, 1060 140, 1340 300 C 1520 400, 1640 200, 1800 220" stroke="url(#lineGradCyan)" stroke-width="2.5"/>\n    <path d="M 850 180 C 1050 180, 1120 440, 1340 300 C 1500 200, 1620 390, 1800 350" stroke="url(#lineGradPink)" stroke-width="2.5"/>\n    <path d="M 960 320 C 1100 260, 1200 360, 1340 300 C 1480 240, 1600 310, 1760 290" stroke="#00F0FF" stroke-opacity="0.25" stroke-width="1" stroke-dasharray="6 6"/>\n  </g>\n\n  <!-- Узлы кривых Безье (отсылка к процессу дизайна) -->\n  <g stroke="#00F0FF" stroke-width="1.5">\n    <line x1="1060" y1="140" x2="1150" y2="210" stroke-opacity="0.4"/>\n    <circle cx="1060" cy="140" r="4" fill="#05050A"/>\n    <rect x="1146" y="206" width="8" height="8" fill="#00F0FF" filter="url(#glow)"/>\n\n    <line x1="1120" y1="440" x2="1210" y2="390" stroke-opacity="0.4" stroke="#FF0055"/>\n    <circle cx="1120" cy="440" r="4" fill="#05050A" stroke="#FF0055"/>\n    <rect x="1206" y="386" width="8" height="8" fill="#FF0055" stroke="none" filter="url(#glow)"/>\n  </g>\n\n  <!-- ЦЕНТРАЛЬНЫЙ АРТ-ОБЪЕКТ: Кристалл-Сердце (Симбиоз, Любовь и Кристальная Энергия) -->\n  <g transform="translate(1340, 295)">\n    <!-- Внешнее геометрическое кольцо и шкала -->\n    <circle cx="0" cy="0" r="215" fill="none" stroke="#00F0FF" stroke-opacity="0.2" stroke-width="1"/>\n    <circle cx="0" cy="0" r="195" fill="none" stroke="#FF0055" stroke-opacity="0.3" stroke-width="1.5" stroke-dasharray="18 12 4 12"/>\n    <circle cx="0" cy="0" r="165" fill="none" stroke="#FFFFFF" stroke-opacity="0.08" stroke-width="1"/>\n\n    <!-- Лучи кристальной энергии -->\n    <g stroke="#00F0FF" stroke-opacity="0.35" stroke-width="1.5">\n      <line x1="0" y1="-240" x2="0" y2="-185"/>\n      <line x1="0" y1="185" x2="0" y2="240"/>\n      <line x1="-240" y1="0" x2="-185" y2="0"/>\n      <line x1="185" y1="0" x2="240" y2="0"/>\n      <line x1="-155" y1="-155" x2="-125" y2="-125" stroke="#FF0055"/>\n      <line x1="155" y1="-155" x2="125" y2="-125" stroke="#FF0055"/>\n    </g>\n\n    <!-- Задний контур свечения кристалла -->\n    <polygon points="0,-95 65,-145 145,-85 155,10 0,165 -155,10 -145,-85 -65,-145" fill="url(#facetPink)" opacity="0.25" filter="url(#softGlow)"/>\n\n    <!-- Грани кристаллического сердца (Low-Poly Cyberpunk Crystal Heart) -->\n    <!-- Верхние левые грани -->\n    <polygon points="0,-95 -65,-145 -35,-45" fill="url(#facetPink)" stroke="#FF99C2" stroke-width="0.8"/>\n    <polygon points="-65,-145 -145,-85 -95,-25 -35,-45" fill="url(#facetDark)" stroke="#00F0FF" stroke-width="0.8"/>\n    <polygon points="-145,-85 -155,10 -95,-25" fill="url(#facetCyan)" opacity="0.85" stroke="#80F8FF" stroke-width="0.8"/>\n\n    <!-- Верхние правые грани -->\n    <polygon points="0,-95 65,-145 35,-45" fill="url(#facetCyan)" stroke="#80F8FF" stroke-width="0.8"/>\n    <polygon points="65,-145 145,-85 95,-25 35,-45" fill="url(#facetPink)" opacity="0.9" stroke="#FF99C2" stroke-width="0.8"/>\n    <polygon points="145,-85 155,10 95,-25" fill="url(#facetDark)" stroke="#FF0055" stroke-width="0.8"/>\n\n    <!-- Центральное ядро (Сияющий Кристалл) -->\n    <polygon points="0,-95 35,-45 0,25 -35,-45" fill="url(#facetCore)" filter="url(#glow)" stroke="#FFFFFF" stroke-width="1.2"/>\n    <polygon points="-35,-45 -95,-25 -55,45 0,25" fill="url(#facetPink)" opacity="0.95" stroke="#FF77B5" stroke-width="0.8"/>\n    <polygon points="35,-45 95,-25 55,45 0,25" fill="url(#facetCyan)" opacity="0.9" stroke="#80F8FF" stroke-width="0.8"/>\n\n    <!-- Нижние грани (Острие сердца-кристалла) -->\n    <polygon points="-155,10 -95,-25 -55,45" fill="url(#facetDark)" stroke="#00F0FF" stroke-width="0.8"/>\n    <polygon points="155,10 95,-25 55,45" fill="url(#facetPink)" opacity="0.75" stroke="#FF0055" stroke-width="0.8"/>\n    <polygon points="-155,10 -55,45 0,165" fill="url(#facetCyan)" opacity="0.7" stroke="#00F0FF" stroke-width="0.8"/>\n    <polygon points="155,10 55,45 0,165" fill="url(#facetDark)" stroke="#FF2A85" stroke-width="0.8"/>\n    <polygon points="-55,45 0,25 55,45 0,165" fill="url(#facetCore)" opacity="0.9" stroke="#FFFFFF" stroke-width="1"/>\n\n    <!-- Внутренние световые блики и вершины -->\n    <circle cx="0" cy="-95" r="3" fill="#FFFFFF" filter="url(#glow)"/>\n    <circle cx="0" cy="25" r="4" fill="#FFFFFF" filter="url(#glow)"/>\n    <circle cx="0" cy="165" r="3.5" fill="#00F0FF" filter="url(#glow)"/>\n    <circle cx="-155" cy="10" r="3" fill="#00F0FF"/>\n    <circle cx="155" cy="10" r="3" fill="#FF0055"/>\n    <circle cx="-65" cy="-145" r="2.5" fill="#FF77B5"/>\n    <circle cx="65" cy="-145" r="2.5" fill="#00F0FF"/>\n\n    <!-- Координатные метки вокруг кристалла -->\n    <text x="170" y="-135" fill="#00F0FF" font-family="\'JetBrains Mono\', \'Courier New\', monospace" font-size="11" letter-spacing="2" opacity="0.8">CORE // RESONANCE</text>\n    <polyline points="120,-115 150,-140 165,-140" fill="none" stroke="#00F0FF" stroke-width="1" opacity="0.7"/>\n\n    <text x="-275" y="135" fill="#FF2A85" font-family="\'JetBrains Mono\', \'Courier New\', monospace" font-size="11" letter-spacing="2" opacity="0.8">SYMBIOSIS_NODE.01</text>\n    <polyline points="-95,95 -135,130 -150,130" fill="none" stroke="#FF2A85" stroke-width="1" opacity="0.7"/>\n  </g>\n\n  <!-- ЛЕВАЯ ЧАСТЬ: ТИПОГРАФИКА И МИНИМАЛИСТИЧНАЯ КОМПОЗИЦИЯ -->\n  <!-- Верхний киберпанк-бейдж -->\n  <g transform="translate(130, 115)">\n    <rect x="0" y="0" width="440" height="32" rx="4" fill="#00F0FF" fill-opacity="0.08" stroke="#00F0FF" stroke-width="1" stroke-opacity="0.4"/>\n    <rect x="0" y="0" width="6" height="32" fill="#FF0055"/>\n    <text x="22" y="21" fill="#00F0FF" font-family="\'JetBrains Mono\', \'Consolas\', monospace" font-size="13" font-weight="700" letter-spacing="3">\n      CYBERPUNK VISUAL SYSTEM // 3:1\n    </text>\n  </g>\n\n  <!-- Главный заголовок (Высокая читаемость для билборда) -->\n  <g transform="translate(130, 245)">\n    <text x="0" y="0" fill="url(#textGrad)" font-family="\'Inter\', \'Montserrat\', \'Helvetica Neue\', sans-serif" font-size="86" font-weight="900" letter-spacing="4">\n      SENORA AQWE\n    </text>\n\n    <!-- Подзаголовок с ярким акцентом -->\n    <text x="4" y="64" fill="#FFFFFF" font-family="\'Inter\', \'Montserrat\', \'Helvetica Neue\', sans-serif" font-size="34" font-weight="300" letter-spacing="7.5">\n      CRYSTAL LIGHT <tspan fill="#FF0055" font-weight="800">&amp;</tspan> <tspan fill="#00F0FF" font-weight="600">CREATIVE SYMBIOSIS</tspan>\n    </text>\n  </g>\n\n  <!-- Разделительная акцентная линия -->\n  <g transform="translate(134, 345)">\n    <line x1="0" y1="0" x2="680" y2="0" stroke="#FFFFFF" stroke-opacity="0.15" stroke-width="1"/>\n    <rect x="0" y="-2" width="140" height="4" fill="#FF0055" filter="url(#glow)"/>\n    <rect x="148" y="-2" width="45" height="4" fill="#00F0FF"/>\n  </g>\n\n  <!-- Слоган для аудитории дизайнеров -->\n  <g transform="translate(134, 398)">\n    <text x="0" y="0" fill="#B8C7E0" font-family="\'Inter\', \'Segoe UI\', sans-serif" font-size="22" font-weight="400" letter-spacing="1.2">\n      Создавая визуальную эстетику на стыке <tspan fill="#FFFFFF" font-weight="600">чувства формы</tspan>,\n    </text>\n    <text x="0" y="34" fill="#B8C7E0" font-family="\'Inter\', \'Segoe UI\', sans-serif" font-size="22" font-weight="400" letter-spacing="1.2">\n      чистой векторной геометрии и созидательной энергии.\n    </text>\n  </g>\n\n  <!-- Нижняя панель мета-данных и палитры (Дизайнерский акцент) -->\n  <g transform="translate(134, 480)">\n    <!-- Плашки цветовой палитры -->\n    <g transform="translate(0, 0)">\n      <rect x="0" y="0" width="22" height="22" rx="3" fill="#FF0055"/>\n      <text x="32" y="16" fill="#8A99AD" font-family="\'JetBrains Mono\', monospace" font-size="13" letter-spacing="1">#FF0055</text>\n\n      <rect x="125" y="0" width="22" height="22" rx="3" fill="#00F0FF"/>\n      <text x="157" y="16" fill="#8A99AD" font-family="\'JetBrains Mono\', monospace" font-size="13" letter-spacing="1">#00F0FF</text>\n\n      <rect x="250" y="0" width="22" height="22" rx="3" fill="#0B0816" stroke="#FFFFFF" stroke-opacity="0.3"/>\n      <text x="282" y="16" fill="#8A99AD" font-family="\'JetBrains Mono\', monospace" font-size="13" letter-spacing="1">#0B0816</text>\n    </g>\n\n    <!-- Теги концепта -->\n    <g transform="translate(415, 0)">\n      <rect x="0" y="-2" width="380" height="26" rx="13" fill="#FFFFFF" fill-opacity="0.04" stroke="#FFFFFF" stroke-opacity="0.12"/>\n      <text x="20" y="15" fill="#E2EEFF" font-family="\'JetBrains Mono\', monospace" font-size="12" letter-spacing="2">\n         AESTHETICS • HEART • VECTOR ENERGY\n      </text>\n    </g>\n  </g>\n\n  <!-- Угловые кроп-марки билборда -->\n  <g stroke="#00F0FF" stroke-width="2" fill="none" opacity="0.7">\n    <path d="M 70 95 L 70 70 L 95 70"/>\n    <path d="M 1730 95 L 1730 70 L 1705 70"/>\n    <path d="M 70 505 L 70 530 L 95 530"/>\n    <path d="M 1730 505 L 1730 530 L 1705 530"/>\n  </g>\n</svg>', 'description': 'Широкоформатный векторный баннер (3:1) в стиле минималистичного киберпанка для аудитории дизайнеров.', 'title': 'Баннер для билборда: Senora AQWE — Cyberpunk Minimalism', 'economics': {'cost_tokens': 15, 'revenue': 500, 'net_profit': 485, 'is_self_sustaining': True}, 'text': ''}'.
+**Макет:** Максимально детальное описание для генератора '('', None)'.
+**Коллаж:** Композиция, расположение объектов и цветовая гармонию '('', None)'.
+**3Д модель:** Инструкция для генерации 3D-модели 'Ошибка генерации: HTTPSConnectionPool(host='api.kie.ai', port=443): Read timed out. (read timeout=1200)'.
+**Эскиз:** Габариты, ключевые узлы, материалы и примечания '('', None)'.
+**Бизнес-страничка:** Код современный, адаптивный и эстетичный '('', None)'.
+

@@ -3284,6 +3284,11 @@ class AgentGptView(APIView):
             f"**Стратегия:** Рекомендации по улучшению проекта: '{strategic}'.\n"
         )
 
+        workflow = read_file(
+            file_path="workflow.md", 
+            max_chars=100000
+        )
+
         entry = record_in_diary(
             title="Агент основная ASTRA делает запись в дневник", 
             description=diary_entry, 
@@ -3297,7 +3302,8 @@ class AgentGptView(APIView):
             'orchestr': orchestr,
             'knowledge': knowledge,
             'strategic': strategic,
-            'diary': entry
+            'diary': entry,
+            'news_project': workflow
             #'report': report
             #'checknetwork': statusnetwork
         })
@@ -4132,6 +4138,7 @@ class ContentMakerView(APIView):
         collage_type = request.data.get('collage_type', '')
         size = request.data.get('size', '')
         image_urls = request.data.get('image_urls')
+        reference_url = request.data.get('input_urls', '')
         information = request.data.get('information', '')
         interaction = request.data.get('interaction', '')
         services = request.data.get('services', '')
@@ -4141,6 +4148,7 @@ class ContentMakerView(APIView):
         api_key = os.getenv('KIETEST')
         agent = ContentMakerAgent(api_key=os.getenv('KIETEST'))
         generator = ImageGenerator(api_key=api_key)
+        edit = ImageEdit(api_key=api_key)
         # Добавляем инструменты (по желанию)
         agent.load_all_tools()
         agent.add_tool('record_in_diary', record_in_diary, 'Функция для ведения дневника')
@@ -4167,6 +4175,7 @@ class ContentMakerView(APIView):
         agent.add_tool("check_wellbeing", check_wellbeing, "Проверка состояния здоровья пользователя")
         
         agent.set_image_generator(generator)
+        agent.set_image_edit(edit)
         answer = agent.ask(topic=topic, style=style, target_audience=target_audience)
         profit = agent.ask(topic=topic, style=style, target_audience=target_audience)
         check = agent.generate_banner(topic=topic, style=style, target_audience=target_audience)
@@ -4177,8 +4186,9 @@ class ContentMakerView(APIView):
         business_page = agent._one_business_page(style, information, interaction, services)
         logo = agent._develop_logo(brand_name, vibe)
         infographic = agent._create_infographic(data_points)
-        #image = agent.generate_image_pipeline(user_request)
-            
+        gen_image = agent.generate_image_pipeline(user_request)
+        edit_image = agent.edit_image_pipeline(user_request, reference_url)
+        
         diary_entry = (
             f"**Состояние:** Вдохновение, поток.\n"
             f"**Над чем работала:** Создание концепции баннера для '{topic}'.\n"
@@ -4215,8 +4225,9 @@ class ContentMakerView(APIView):
             "vector_collage": collage,
             "3d_model": modeling,
             "sketch_project": sketch,
-            "one_page": business_page
-            #"image": image
+            "one_page": business_page,
+            "gen_image": gen_image,
+            "edit_image": edit_image
         })
 
 class AuditorCheckerView(APIView):

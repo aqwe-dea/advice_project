@@ -56,11 +56,17 @@ class ContentMakerAgent:
         self.tools: Dict[str, Dict] = {}
         self.load_all_tools()
         self.image_generator = None  # ← Будет установлен при интеграции
+        self.image_edit = None  # ← Будет установлен при интеграции
 
     def set_image_generator(self, generator):
         """Установить генератор изображений для pipeline"""
         self.image_generator = generator
         logger.info("🎨 Image generator подключён к Content-Maker")
+    
+    def set_image_edit(self, edit):
+        """Установить редактор изображений для pipeline"""
+        self.image_edit = edit
+        logger.info("🎨 Image edit подключён к Content-Maker")
 
     def add_tool(self, name: str, func: callable, description: str):
         self.tools[name] = {'func': func, 'description': description}
@@ -180,67 +186,6 @@ class ContentMakerAgent:
         except Exception as e:
             logger.error(f"Ошибка вызова API: {e}")
             return f"Ошибка генерации: {e}"
-
-    def generate_image_pipeline(self, user_request: str) -> str:
-        """
-            Полный pipeline: Запрос → Текстовый ответ + Промпт для изображения → Генерация → Результат
-        
-            Returns:
-                str с текстовым ответом и ссылкой на изображение (или ошибкой)
-        """
-        logger.info(f"🎨 Запуск image pipeline: {user_request[:200]}...")
-        
-        # 1. Сначала получаем текстовый ответ и промпт для изображения
-        extraction_prompt = f"""
-            Пользователь запросил: "{user_request}"
-
-            Верни ответ в СТРОГОМ формате:
-            [TEXT]
-                {user_request}
-            [/TEXT]
-            [PROMPT]
-                детальный промпт на английском для генерации изображения по этому запросу, с описанием стиля, композиции, освещения, настроения
-            [/PROMPT]
-        """
-        response = self._call_api_with_tools(extraction_prompt)
-        
-        # 2. Извлекаем текст и промпт
-        text_match = re.search(r'\[TEXT\](.*?)\[/TEXT\]', response, re.DOTALL)
-        prompt_match = re.search(r'\[PROMPT\](.*?)\[/PROMPT\]', response, re.DOTALL)
-        
-        text_answer = text_match.group(1).strip() if text_match else "Вот ваш запрос:"
-        image_prompt = prompt_match.group(1).strip() if prompt_match else user_request
-        
-        logger.info(f"🖼️ Промпт для изображения: {image_prompt[:200]}...")
-        
-        # 3. Генерируем изображение (если генератор подключён)
-        if not self.image_generator:
-            return f"{text_answer}\n\n⚠️ Генератор изображений не подключён. Изображение не создано."
-        
-        try:
-            image_result = self.image_generator.generate(prompt=image_prompt)
-            
-            if not image_result.get('success'):
-                return f"{text_answer}\n\n❌ Ошибка генерации: {image_result.get('error')}"
-            
-            image_url = image_result.get('image_url')
-            
-            # 4. Формируем финальный ответ
-            final_response = f"""{text_answer}
-
-                🖼️ **Ваше изображение:**
-                ![Generated Image]({image_url})
-
-                *Промпт:* "{image_prompt}"
-                *Модель:* {image_result.get('model', 'unknown')}
-            """
-            
-            logger.info(f"✅ Изображение сгенерировано: {image_url}")
-            return final_response
-            
-        except Exception as e:
-            logger.error(f"Ошибка генерации изображения: {str(e)}")
-            return f"{text_answer}\n\n❌ Ошибка: {str(e)}"
 
     def generate_banner(self, topic: str, style: str, target_audience: str) -> Dict[str, Any]:
         """Генерирует концепцию баннера и рассчитывает экономику."""
@@ -625,3 +570,95 @@ class ContentMakerAgent:
         """Генерирует структуру и HTML/SVG код для одностраничной бизнес-визитки"""
         prompt = f"Создай структуру и чистый HTML/SVG код для одностраничного лендинга. Стиль: '{style}'. Информация о компании: '{information}'. Способы связи (interaction): '{interaction}'. Перечень услуг: '{services}'. Код должен быть современным, адаптивным и эстетичным."
         return self._call_api_with_tools(prompt)
+        
+    def generate_image_pipeline(self, user_request: str) -> str:
+        """
+            Полный pipeline: Запрос → Формирование промпта → Генерация изображения.
+        """
+        logger.info(f"🎨 Запуск image pipeline: {user_request[:100]}...")
+        
+        # 1. Если генератор подключен напрямую, используем его
+        if self.image_generator:
+            try:
+                # Генератор сам может улучшить промпт, или мы передаем запрос как есть
+                image_result = self.image_generator.generate(prompt=user_request)
+                
+                if not image_result.get('success'):
+                    return f"⚠️ Запрос: {user_request}\n\n❌ Ошибка генерации: {image_result.get('error')}"
+                
+                image_url = image_result.get('image_url')
+                model = image_result.get('model', 'unknown')
+                
+                return (
+                    f"✅ **Изображение успешно сгенерировано!**\n\n"
+                    f"🖼️ **Результат:**\n![Generated Image]({image_url})\n\n"
+                    f"*Промпт:* \"{user_request}\"\n"
+                    f"*Модель:* {model}\n"
+                    f"*Экономика:* Затрачено ~15 токенов ($0.15). Ожидаемая ценность: высокая."
+                )
+            except Exception as e:
+                logger.error(f"Ошибка генерации изображения: {str(e)}")
+                return f"⚠️ Запрос: {user_request}\n\n❌ Ошибка: {str(e)}"
+        
+        # 2. Fallback: Если внешнего генератора нет, но есть инструмент 'canvas', генерируем SVG
+        elif 'canvas' in self.tools:
+            prompt = f"Создай детальную, красивую SVG-иллюстрацию по запросу: '{user_request}'. Используй градиенты, современные формы и чистый код."
+            return self._call_api_with_tools(prompt)
+            
+        else:
+            return "⚠️ Генератор изображений или инструмент 'canvas' не подключен к этому агенту."
+
+    def edit_image_pipeline(self, user_request: str, reference_url: str = "") -> str:
+        """
+            Pipeline для редактирования изображения: Запрос + Референс → Результат.
+        """
+        logger.info(f"✏️ Запуск edit pipeline: {user_request[:100]}...")
+        
+        if self.image_edit:
+            try:
+                # Генератор сам может улучшить промпт, или мы передаем запрос как есть
+                image_result = self.image_edit.generate(prompt=user_request, input_urls=reference_url)
+                
+                if not image_result.get('success'):
+                    return f"⚠️ Запрос: {user_request}\n\n❌ Ошибка генерации: {image_result.get('error')}"
+                
+                edit_url = image_result.get('edit_url')
+                model = image_result.get('model', 'unknown')
+                
+                return (
+                    f"✅ **Изображение успешно отредактировано!**\n\n"
+                    f"🖼️ **Результат:**\n![Edited Image]({edit_url})\n\n"
+                    f"*Промпт:* \"{user_request}\"\n"
+                    f"*Модель:* {model}\n"
+                    f"*Экономика:* Затрачено ~15 токенов ($0.15). Ожидаемая ценность: высокая.\n"
+                    f"*Референс:* {reference_url}"
+                )
+            except Exception as e:
+                logger.error(f"Ошибка редактирования изображения: {str(e)}")
+                return f"⚠️ Запрос: {user_request}\n\n❌ Ошибка: {str(e)}"
+        # Предполагаем, что в self.tools есть инструмент 'edit_image' или 'canvas' с поддержкой редактирования
+        #if 'edit_image' in self.tools:
+        #    try:
+        #        edit_func = self.tools['edit_image']['func']
+        #        # Вызов функции редактирования (параметры зависят от реализации инструмента)
+        #        edit_result = edit_func(prompt=user_request, image_url=reference_url)
+        #        
+        #        if isinstance(edit_result, dict) and edit_result.get('success'):
+        #            return (
+        #                f"✅ **Изображение успешно отредактировано!**\n\n"
+        #                f"🖼️ **Результат:**\n![Edited Image]({edit_result.get('image_url')})\n\n"
+        #                f"*Запрос:* \"{user_request}\"\n"
+        #                f"*Референс:* {reference_url}"
+        #            )
+        #        else:
+        #            return f"❌ Ошибка редактирования: {edit_result}"
+        #    except Exception as e:
+        #        logger.error(f"Ошибка редактирования изображения: {str(e)}")
+        #        return f"❌ Ошибка: {str(e)}"
+                
+        elif 'canvas' in self.tools:
+            prompt = f"Создай SVG-иллюстрацию, которая редактирует или улучшает следующий концепт: '{user_request}'. Если есть референс: {reference_url}. Сделай версию более профессиональной и детализированной."
+            return self._call_api_with_tools(prompt)
+            
+        else:
+            return "⚠️ Инструмент редактирования изображений пока не подключен к этому агенту."
