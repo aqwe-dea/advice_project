@@ -30,21 +30,21 @@ class LiveMultimodalWorkspace:
 
         """Создать артефакт через соответствующий генератор"""
         if generator == "ImageGenerator":
-            result = generate(prompt)  # твой существующий генератор
+            result = generator.generate(prompt)  # твой существующий генератор
         elif generator == "InstrumentalGenerator":
-            result = generate(prompt)
+            result = generator.generate(prompt)
         elif generator == "VideoGenerator":
-            result = generate(prompt)
+            result = generator.generate(prompt)
         elif generator == "CodeGenerator":
-            result = generate(prompt, language, include_comments)
+            result = generator.generate(prompt, language, include_comments)
         elif generator == "VoiceGenerator":
-            result = generate(text)
+            result = generator.generate(text)
         elif generator == "LiveimageGenerator":
-            result = generate(prompt, image_url)
+            result = generator.generate(prompt, image_url)
         elif generator == "CharacterGenerator":
-            result = generate(prompt, image_url, audio_url)
+            result = generator.generate(prompt, image_url, audio_url)
         elif generator == "ImageEdit":
-            result = generate(prompt, input_urls)
+            result = generator.generate(prompt, input_urls)
         #elif generator == "text_generator":
         #    result = generate_text(prompt)
         

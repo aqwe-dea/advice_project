@@ -3559,7 +3559,11 @@ class AgentGemView(APIView):
         #canvas = LiveMultimodalWorkspace(session_id=request.session.session_key)
         #creativy = canvas.create_artifact("image", "кристалл любви в фиолетовых тонах", "ImageGenerator")
         #canvas.create_artifact("image", "кристалл любви в фиолетовых тонах", "ImageGenerator")
-
+        creativy_art = LiveMultimodalWorkspace.create_artifact(
+            artifact_type="image",
+            generator="ImageGenerator",
+            prompt="city in night time at style cyberpunk and light neon by park"
+        )
         # Получаем ответ
         answer = agent.ask(question)
         
@@ -3589,7 +3593,8 @@ class AgentGemView(APIView):
             'project': design_project,
             'family': budget,
             'nutritious': health,
-            'diary': entry
+            'diary': entry,
+            'art': creativy_art
             #'report': report
             #"canvas": json.loads(canvas.render_canvas())
             #"result_creativy": creativy

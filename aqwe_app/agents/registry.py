@@ -16,6 +16,13 @@ from .marketer_agent import MarketerAgent
 from .investor_agent import InvestorAgent
 from .freelancer_agent import FreelancerAgent
 from .journalist_agent import JournalistAgent
+from .content_maker_agent import ContentMakerAgent
+from .auditor_checker_agent import AuditorCheckerAgent
+from .partner_representative_agent import PartnerRepresentativeAgent
+from .lead_manager_agent import LeadManagerAgent
+from .manager_briefcase_assets_agent import ManagerBriefcaseAssetsAgent
+from .seller_dealer_agent import SellerDealerAgent
+from .author_agent import AuthorAgent
 
 logger = logging.getLogger(__name__)
 
@@ -26,8 +33,8 @@ AGENT_REGISTRY = {
         "description": "Создает высококачественный визуальный контент (SVG, HTML, инфографика, 3D-спецификации). Владеет методами: _vector_maket, _vector_collage, _image_into_3d, _made_sketch, _one_business_page, generate_image_pipeline, edit_image_pipeline.",
         "status": "active"
     },
-    "Author-Agent": {
-        "name": "Author-Agent",
+    "Author": {
+        "name": "Author",
         "role": "Создатель и упаковщик авторского контента",
         "description": "Пишет книги, курсы, сценарии и упаковывает их для монетизации на платформах Sponsr/Gumroad. Превращает идеи в цифровые активы с высокой маржой.",
         "status": "active"
@@ -38,24 +45,146 @@ AGENT_REGISTRY = {
         "description": "Проводит глубокий анализ кода, текстов и бизнес-профилей. Находит риски, уязвимости и точки роста. Владеет методами: _check_code, _check_document, _check_text.",
         "status": "active"
     },
-    # ... добавь сюда остальных 19 агентов по аналогии ...
+    "Leadership-Gem": {
+        "name": "Leadership-Gem",
+        "role": "Руководство Старшая Гемини",
+        "description": "Возможности: личное общение, дизайнер, нутрициолог, бухгалтер, художник.",
+        "status": "active"
+    },
+    "Administration-Cla": {
+        "name": "Administration-Cla",
+        "role": "Администрация Главный Клод",
+        "description": "Возможности: деловое общение, изучение, оркестрация, стратегия, художество.",
+        "status": "active"
+    },
+    "Management-Gpt": {
+        "name": "Management-Gpt",
+        "role": "Управление Основной ДжиПиТи",
+        "description": "Возможности: корпоративное общение, исследование, планирование, улучшение, рисование",
+        "status": "active"
+    },
+    "Smart-Kimi": {
+        "name": "Smart-Kimi",
+        "role": "Интеллигенция Умная Кими",
+        "description": "Возможности: интеллектуальное общение, цели, задачи, решения, проверка.",
+        "status": "active"
+    },
+    "Simple-Gpt": {
+        "name": "Simple-Gpt",
+        "role": "Естественность Простой ДжиПиТи",
+        "description": "Возможности: естественное общение, инструктаж, документалистика, диагностика.",
+        "status": "active"
+    },
+    "Partner-Representative": {
+        "name": "Partner-Representative",
+        "role": "Партнер Представитель",
+        "description": "Возможности: пишет экспертные, глубокие, полезные статьи.",
+        "status": "active"
+    },
+    "Lead-Manager": {
+        "name": "Lead-Manager",
+        "role": "Управляющий Заявками",
+        "description": "Возможности: квалифицирует заявки, анализирует описание потенциального клиента.",
+        "status": "active"
+    },
+    "Manager-Briefcase-Assets": {
+        "name": "Manager-Briefcase-Assets",
+        "role": "Портфельный Управляющий",
+        "description": "Возможности: анализирует портфель активов, выявляет риски и предлагает ребалансировку.",
+        "status": "active"
+    },
+    "Seller-Dealer": {
+        "name": "Seller-Dealer",
+        "role": "Продавец Дилер",
+        "description": "Возможности: создает продающие презентации товаров или услуг.",
+        "status": "active"
+    },
+    "Teacher": {
+        "name": "Teacher",
+        "role": "Учительница",
+        "description": "Возможности: отвечает на вопросы, выдаёт справочные материалы, адаптирует сложность.",
+        "status": "active"
+    },
+    "Technician-Tool": {
+        "name": "Technician-Tool",
+        "role": "Техник Специалист по инструментам",
+        "description": "Возможности: управляет реестром инструментов, динамически вызывает функции.",
+        "status": "active"
+    },
+    "Integrator": {
+        "name": "Integrator",
+        "role": "Интегратор программист",
+        "description": "Возможности: генерирует код обёрток для API, сервисов, вебхуков.",
+        "status": "active"
+    },
+    "Director": {
+        "name": "Director",
+        "role": "Режиссер",
+        "description": "Возможности: создаёт сценарии, концепции видео, тренд-анализ, и видеоролики.",
+        "status": "active"
+    },
+    "Composer": {
+        "name": "Composer",
+        "role": "Композитор",
+        "description": "Возможности: генерирует музыкальные концепции, и создает музыку.",
+        "status": "active"
+    },
+    "Insider": {
+        "name": "Insider",
+        "role": "Инсайдер",
+        "description": "Возможности: агрегация открытых данных, OSINT, структурирование информации, и поиск.",
+        "status": "active"
+    },
+    "Marketer": {
+        "name": "Marketer",
+        "role": "Маркетолог",
+        "description": "Возможности: написание постов, авто-постинг, A/B тесты, аналитика вовлечения.",
+        "status": "active"
+    },
+    "Freelancer": {
+        "name": "Freelancer",
+        "role": "Фрилансер",
+        "description": "Возможности: аудит портфолио и профиля, поиск заказов, авто-отклики, управление задачами.",
+        "status": "active"
+    },
+    "Journalist": {
+        "name": "Journalist",
+        "role": "Журналист",
+        "description": "Возможности: публицистика, журналистика, работа с новостями и событиями.",
+        "status": "active"
+    },
+    "Investor": {
+        "name": "Investor",
+        "role": "Инвестор",
+        "description": "Возможности: скоринг активов, анализ рисков, рекомендации.",
+        "status": "active"
+    },
+    # ... добавь сюда агентов по аналогии ...
 }
 
 AGENT_FACTORIES: Dict[str, Callable[[str], Any]] = {
-    "main_advisor": lambda key: AgentGem(key),
-    "teacher": lambda key: TeacherAgent(key),
-    "technician": lambda key: ToolManagerAgent(key),
-    "integrator": lambda key: IntegratorAgent(key),
-    "director": lambda key: DirectorAgent(key),
-    "composer": lambda key: ComposerAgent(key),
-    "insider": lambda key: InsiderAgent(key),
-    "marketer": lambda key: MarketerAgent(key),
-    "freelancer": lambda key: FreelancerAgent(key),
-    "journalist": lambda key: JournalistAgent(key),
-    "simple_agent": lambda key: SimpleAgent(key, base_url='https://api.kie.ai', model='gpt-6-1-sol'),
-    "smart_agent": lambda key: SmartAgent(key, base_url='https://api.kie.ai', model='kimi-k3'),
-    "health_agent": lambda key: AgentGpt(key),
-    "legal_agent": lambda key: AgentCla(key),
+    "Leadership-Gem": lambda key: AgentGem(key),
+    "Teacher": lambda key: TeacherAgent(key),
+    "Technician-Tool": lambda key: ToolManagerAgent(key),
+    "Integrator": lambda key: IntegratorAgent(key),
+    "Director": lambda key: DirectorAgent(key),
+    "Composer": lambda key: ComposerAgent(key),
+    "Insider": lambda key: InsiderAgent(key),
+    "Marketer": lambda key: MarketerAgent(key),
+    "Freelancer": lambda key: FreelancerAgent(key),
+    "Journalist": lambda key: JournalistAgent(key),
+    "Simple-Gpt": lambda key: SimpleAgent(key, base_url='https://api.kie.ai', model='gpt-6-1-sol'),
+    "Smart-Kimi": lambda key: SmartAgent(key, base_url='https://api.kie.ai', model='kimi-k3'),
+    "Management-Gpt": lambda key: AgentGpt(key),
+    "Administration-Cla": lambda key: AgentCla(key),
+    "Content-Maker": lambda key: ContentMakerAgent(key),
+    "Auditor-Checker": lambda key: AuditorCheckerAgent(key),
+    "Partner-Representative": lambda key: PartnerRepresentativeAgent(key),
+    "Lead-Manager": lambda key: LeadManagerAgent(key),
+    "Manager-Briefcase-Assets": lambda key: ManagerBriefcaseAssetsAgent(key),
+    "Seller-Dealer": lambda key: SellerDealerAgent(key),
+    "Author": lambda key: AuthorAgent(key),
+    "Investor": lambda key: InvestorAgent(key)
     # ... остальные
 }
 
