@@ -9,6 +9,7 @@ from .functionsforagents.git_commit import git_commit
 from .functionsforagents.save_to_memory import save_to_memory
 from .functionsforagents.recall_memory import recall_memory
 from .functionsforagents.create_task import create_task
+from .functionsforagents.record_in_diary import record_in_diary
 from .functionsforagents.send_email import send_email
 from .functionsforagents.detect_emotion import detect_emotion
 from .functionsforagents.check_wellbeing import check_wellbeing
@@ -51,5 +52,6 @@ def get_all_tools() -> Dict[str, Dict]:
         "python_sandbox": {"func": python_sandbox, "desc": "Безопасное исполнение кода"},
         
         # 🎨 Творчество
-        "canvas": {"func": LiveMultimodalWorkspace, "desc": "Живой холст для мультимодального творчества"}
+        "canvas": {"func": LiveMultimodalWorkspace, "desc": "Живой холст для мультимодального творчества"},
+        "record_in_diary": {"func": record_in_diary, "desc": "Делает красивую, структурированную запись в агентский дневник (файл .md) о проделанной работе, состоянии и мыслях."}
     }

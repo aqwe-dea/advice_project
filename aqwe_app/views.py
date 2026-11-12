@@ -102,6 +102,7 @@ from .agents.manager_briefcase_assets_agent import ManagerBriefcaseAssetsAgent
 from .agents.seller_dealer_agent import SellerDealerAgent
 from .agents.author_agent import AuthorAgent
 from .agents.registry import get_all_agents
+from .agents.registry import get_description_agent
 from .agents.tools import get_all_tools
 from .check_network_connection import check_network_connection
 from .api_client import APIClient
@@ -3294,7 +3295,7 @@ class AgentGptView(APIView):
             description=diary_entry, 
             file="agent_diary.md"
         )
-
+        
         return Response({
             'answer': answer,
             "emotion_context": emotion,
@@ -3445,12 +3446,12 @@ class AgentGemView(APIView):
         user_id = request.user.id if request.user.is_authenticated else request.META.get('REMOTE_ADDR', 'anonymous')
 
         # Для генераторов поля 
-        language = request.data.get('language', 'python')
-        include_comments = request.data.get('include_comments', True)
-        text = request.data.get('text', '').strip()
-        image_url = request.data.get('image_url', '').strip()
-        audio_url = request.data.get('audio_url', '').strip()
-        input_urls = request.data.get('input_urls', '').strip()
+        #language = request.data.get('language', 'python')
+        #include_comments = request.data.get('include_comments', True)
+        #text = request.data.get('text', '').strip()
+        #image_url = request.data.get('image_url', '').strip()
+        #audio_url = request.data.get('audio_url', '').strip()
+        #input_urls = request.data.get('input_urls', '').strip()
 
         api_key = os.getenv('KIETEST')
         if not api_key:
@@ -3557,18 +3558,35 @@ class AgentGemView(APIView):
         agent.set_image_generator(generator)
         # В любом агенте, который работает с творчеством:
         #canvas = LiveMultimodalWorkspace(session_id=request.session.session_key)
+        #canvas = LiveMultimodalWorkspace(session_id=request.user.id)
+        #canvas = LiveMultimodalWorkspace(session_id=user_id)
         #creativy = canvas.create_artifact("image", "кристалл любви в фиолетовых тонах", "ImageGenerator")
-        #canvas.create_artifact("image", "кристалл любви в фиолетовых тонах", "ImageGenerator")
-        creativy_art = LiveMultimodalWorkspace.create_artifact(
-            artifact_type="image",
-            generator="ImageGenerator",
-            prompt="city in night time at style cyberpunk and light neon by park"
-        )
+        #canvas.create_artifact("image", "crystall love in violet tone", "ImageGenerator")
+        #canvas.create_artifact("image", "city in night time at style cyberpunk and light neon by park", "ImageGenerator")
+        #canvas.create_artifact(
+        #    self,
+        #    artifact_type="image",
+        #    prompt="city in night time at style cyberpunk and light neon by park",
+        #    text="",
+        #    image_url="",
+        #    audio_url="",
+        #    input_urls="",
+        #    generator="ImageGenerator"
+        #    language="python",
+        #    include_comments=True, 
+        #)
+        #artifact = canvas.render_canvas()
         # Получаем ответ
         answer = agent.ask(question)
-        
+        issue = edit_file(
+            file_path="issue.md", 
+            content=answer, 
+            mode="append"
+        ) 
         diagnostic = agent.self_assess()
+        description_agent = get_description_agent("Leadership-Gem")
         #report = self.project_inspect_and_verify()
+        artifact = self.canvas(user_id)
         design_project = agent._make_design_project(space_type, style, requirements)
         budget = agent._keeper_budget_family(income, expenses, goals)
         health = agent._nutritious_ingredient_health(ingredients, health_goal)
@@ -3587,6 +3605,17 @@ class AgentGemView(APIView):
             file="agent_diary.md"
         )
 
+        #this function worked on 100% file_finded = find_files(
+        #    pattern="stepguide.md", 
+        #    path="docs"
+        #)
+
+        #this function worked on 100% check_memory = semantic_memory_recall(
+        #    query="Гемини, задачу, акви, Краткий итог",
+        #    memory_file="tasksandrulesandgoals.md",
+        #    limit=5
+        #)
+
         return Response({
             'answer': answer,
             'diag': diagnostic,
@@ -3594,8 +3623,13 @@ class AgentGemView(APIView):
             'family': budget,
             'nutritious': health,
             'diary': entry,
-            'art': creativy_art
+            #'art': creativy_art,
+            'issue_agent': issue,
+            #'finding': file_finded,
+            #'memory': check_memory,
+            'description_agent': description_agent,
             #'report': report
+            "canvas": artifact
             #"canvas": json.loads(canvas.render_canvas())
             #"result_creativy": creativy
             #'tavily': results_tavily, 
@@ -3613,6 +3647,26 @@ class AgentGemView(APIView):
         inspector = ProjectInspector(project_root)
         result = inspector.inspect_project()
         return json.dumps(result, ensure_ascii=False, indent=2)
+    
+    def canvas(self, user_id: str) -> str:
+        canvas = LiveMultimodalWorkspace(session_id=user_id)
+        #canvas.create_artifact(
+            #self,
+        #    artifact_type="image",
+        #    prompt="city in night time at style cyberpunk and light neon by park",
+        #    text="",
+        #    image_url="",
+        #    audio_url="",
+        #    input_urls="",
+        #    generator="ImageGenerator",
+        #    language="python",
+        #    include_comments=True
+        #)
+
+        #canvas.create_artifact("image", "crystall love in violet tone", "ImageGenerator")
+
+        artifact = canvas.render_canvas()
+        return json.dumps(artifact, ensure_ascii=False, indent=2)
     
     def create_order(self, request):
     

@@ -12,6 +12,12 @@ from .web_search import web_search as _web_search
 from .web_fetch import web_fetch
 from .wikipedia_search import search_by_wikipedia
 from .functionsforagents import read_file, edit_file, git_commit, save_to_memory, recall_memory, send_email, create_task, detect_emotion, check_wellbeing
+from .functionsforagents.read_file import read_file
+from .functionsforagents.recall_memory import recall_memory
+from .functionsforagents.detect_emotion import detect_emotion
+from .functionsforagents.check_wellbeing import check_wellbeing
+from .functionsforagents.create_task import create_task
+from .functionsforagents.save_to_memory import save_to_memory
 from pathlib import Path
 from .md_loader import load_md_files
 from .tools import get_all_tools
@@ -337,6 +343,12 @@ class AgentGem:
         messages = self.context.copy()
         messages.append({"role": "user", "parts": [{"text": prompt}]})
         
+        create_task(
+            title="Гемини создает первую задачу", 
+            description=prompt, 
+            file="tasksandrulesandgoals.md"
+        )
+
         # Формируем tools в формате Gemini Function Calling
         gemini_tools = []
         if self.tools:
@@ -620,6 +632,10 @@ class AgentGem:
             
             text, tool_call = self._extract_text_or_tool(data)
             
+            save_to_memory(
+                entry=text, 
+                memory_file="tasksandrulesandgoals.md"
+            )
             # ✅ СЛУЧАЙ 2: FunctionCall — выполняем инструмент
             #if 'functionCall' in func_call:
             if tool_call:
