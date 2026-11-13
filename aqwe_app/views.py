@@ -3649,25 +3649,21 @@ class AgentGemView(APIView):
         return json.dumps(result, ensure_ascii=False, indent=2)
     
     def canvas(self, user_id: str) -> str:
-        canvas = LiveMultimodalWorkspace(session_id=user_id)
-        #canvas.create_artifact(
-            #self,
-        #    artifact_type="image",
-        #    prompt="city in night time at style cyberpunk and light neon by park",
-        #    text="",
-        #    image_url="",
-        #    audio_url="",
-        #    input_urls="",
-        #    generator="ImageGenerator",
-        #    language="python",
-        #    include_comments=True
-        #)
-
-        #canvas.create_artifact("image", "crystall love in violet tone", "ImageGenerator")
-
-        artifact = canvas.render_canvas()
-        return json.dumps(artifact, ensure_ascii=False, indent=2)
+        # Получаем API ключ (замени на твой способ получения ключа)
+        api_key = os.getenv("KIETEST") # или settings.KIE_API_KEY
     
+        # Передаем ключ в холст!
+        workspace = LiveMultimodalWorkspace(session_id=user_id, api_key=api_key)
+    
+        creativity = workspace.create_artifact(
+            artifact_type="image",
+            prompt="city in night time at style cyberpunk and light neon by park",
+            generator="ImageGenerator"
+        )
+    
+        workspace.render_canvas()
+        return creativity
+
     def create_order(self, request):
     
         # Отправка уведомления
@@ -3738,21 +3734,19 @@ class TeacherAgentView(APIView):
             #'article': articlewiki
         })
     
-    def test_teacher_agent(code: str) -> tuple[bool, str]:
+    def test_teacher_agent(self, code: str) -> tuple[bool, str]:
         """Тест: код должен содержать методы ask() и generate_study_card()"""
         required_methods = ['def ask(', 'def generate_study_card(']
         missing = [m for m in required_methods if m not in code]
-    
+        # Запуск цикла улучшения
+        loop = SelfImproveLoop(agent=TeacherAgent, max_iterations=3)
+        result = loop.run(
+            test_function=required_methods,
+            initial_code=code
+        )
         if not missing:
             return True, "Все требуемые методы найдены"
-        return False, f"Отсутствуют: {', '.join(missing)}"
-
-        # Запуск цикла улучшения
-        loop = SelfImproveLoop(agent=teacher_agent, max_iterations=3)
-        result = loop.run(
-            test_function=test_teacher_agent,
-            initial_code=initial_teacher_code
-        )
+        return result or False, f"Отсутствуют: {', '.join(missing)}"
 
 class IntegratorAgentView(APIView):
     def post(self, request):

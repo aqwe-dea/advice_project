@@ -625,7 +625,7 @@ class AgentGem:
                         }
                     }
                 },
-                timeout=1200
+                timeout=(30, 3600)
             )
             response.raise_for_status()
             data = response.json()
@@ -678,7 +678,7 @@ class AgentGem:
                                 }
                             }
                         },
-                        timeout=1200
+                        timeout=(30, 3600)
                     )
                 
                     second_response.raise_for_status()
@@ -844,7 +844,7 @@ class AgentGem:
                     }
                 }
             },
-            timeout=1200
+            timeout=(30, 3600)
         )
         response.raise_for_status()
         data = response.json()
@@ -897,7 +897,7 @@ class AgentGem:
                     }
                 }
             },
-            timeout=1200
+            timeout=(30, 3600)
         )
         response.raise_for_status()
         data = response.json()
@@ -950,7 +950,7 @@ class AgentGem:
                     }
                 }
             },
-            timeout=1200
+            timeout=(30, 3600)
         )
         response.raise_for_status()
         data = response.json()
