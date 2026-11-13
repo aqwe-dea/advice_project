@@ -85,7 +85,7 @@ class AuthorAgent:
                     }
                 }
             },
-            timeout=1200
+            timeout=(30, 3600)
         )
         response.raise_for_status()
         return self._extract_text(response.json())
@@ -113,7 +113,7 @@ class AuthorAgent:
                     }
                 }
             },
-            timeout=1200
+            timeout=(30, 3600)
         )
         response.raise_for_status()
         return self._extract_text(response.json())

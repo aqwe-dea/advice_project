@@ -201,7 +201,7 @@ class TeacherAgent:
                     "tools": api_tools if api_tools else None,
                     "tool_choice": "auto"
                 },
-                timeout=1200
+                timeout=(30, 3600)
             )
             response.raise_for_status()
             data = response.json()
@@ -266,7 +266,7 @@ class TeacherAgent:
                                 "tools": api_tools if api_tools else None,
                                 "tool_choice": "auto"
                             },
-                            timeout=1200
+                            timeout=(30, 3600)
                         )
                         second_response.raise_for_status()
                         second_data = second_response.json()
@@ -377,7 +377,7 @@ class TeacherAgent:
                 "srlimit": max_results,
                 "format": "json"
             }, 
-            timeout=10
+            timeout=(30, 3600)
         )
         response.raise_for_status()
         data = response.json()

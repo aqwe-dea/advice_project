@@ -165,7 +165,8 @@ class InvestorAgent:
                         "max_tokens": 10000,
                         "tools": claude_tools if claude_tools else None,
                         "tool_choice": {"type": "auto"}  # ← Принудить использование инструментов 
-                    }
+                    },
+                    timeout=(30, 3600)
                 )
                 response.raise_for_status()
                 data = response.json()

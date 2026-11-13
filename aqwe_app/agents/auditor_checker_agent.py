@@ -135,7 +135,7 @@ class AuditorCheckerAgent:
                         }
                     }
                 },
-                timeout=1200
+                timeout=(30, 3600)
             )
             response.raise_for_status()
             data = response.json()
@@ -214,7 +214,7 @@ class AuditorCheckerAgent:
                     }
                 }
             },
-            timeout=1200
+            timeout=(30, 3600)
         )
         response.raise_for_status()
         data = response.json()
@@ -252,7 +252,7 @@ class AuditorCheckerAgent:
                     }
                 }
             },
-            timeout=1200
+            timeout=(30, 3600)
         )
         response.raise_for_status()
         data = response.json()

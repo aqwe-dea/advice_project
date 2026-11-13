@@ -240,7 +240,8 @@ class FreelancerAgent:
                         "max_tokens": 10000,
                         "tool_choice": {"type": "auto"},  # ← Принудить использование инструментов
                         "tools": claude_tools
-                    }
+                    },
+                    timeout=(30, 3600)
                 )
                 response.raise_for_status()
                 data = response.json()
@@ -393,7 +394,7 @@ class FreelancerAgent:
             headers={
                 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
             }, 
-            timeout=150
+            timeout=(30, 3600)
         )
         response.raise_for_status()
         
