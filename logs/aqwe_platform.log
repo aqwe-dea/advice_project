@@ -5535,3 +5535,9 @@ INFO 2026-11-14 03:59:36,034 autoreload C:\advice_project\aqwe_app\views.py chan
 INFO 2026-11-14 04:02:22,323 autoreload Watching for file changes with StatReloader
 WARNING 2026-11-14 04:09:53,601 log Method Not Allowed: /agent-gem/
 WARNING 2026-11-14 04:22:59,818 agent_gem Неизвестная структура ответа: ['candidates', 'usageMetadata', 'credits_consumed']
+INFO 2026-11-14 05:45:53,250 autoreload Watching for file changes with StatReloader
+INFO 2026-11-14 05:50:55,432 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-14 05:51:47,657 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-14 05:53:43,550 log Method Not Allowed: /agent-gem/
+WARNING 2026-11-14 05:57:15,773 agent_gem Неизвестная структура ответа: ['candidates', 'usageMetadata', 'credits_consumed']
+WARNING 2026-11-14 05:57:15,777 agent_gem Пустой ответ от API. Данные: {"candidates": [{"finishReason": "STOP", "index": 0, "content": {"role": "model", "parts": []}}], "usageMetadata": {"thinkingTokenCount": 9997, "candidatesTokenCount": 3, "totalTokenCount": 23561, "promptTokenCount": 13561}, "credits_consumed": 2.17}

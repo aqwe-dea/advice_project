@@ -3657,177 +3657,128 @@ class AgentGemView(APIView):
     
         creativity = workspace.create_artifact(
             artifact_type="image",
-            prompt="""Create an image based on the design concept 
-                **"Soft Cyber-Loft: Lavender Dawn"** for 
-                a 25-square-meter room (4 × 6.5 m). 
-                The design harmoniously blends the high-tech 
-                aesthetic and textured, industrial feel of a 
-                loft with a feminine touch, a soft vertical 
-                gradient, and a cozy atmosphere—perfect for 
-                programming, research, and creative work. 
-                The space is clearly divided into four functional 
-                zones, accounting for the corner placement 
-                of the door and a central window. --- 
-                2. Design Project Details: Color Palette and 
-                Vertical Gradient. The core artistic concept 
-                is a **vertical ombre (gradient) effect**, 
-                which visually raises the ceiling and creates 
-                a sense of weightlessness while maintaining a deep, 
-                cozy foundation: | Spatial Level | Color Scheme | 
-                Role in the Interior (Loft + High-Tech + Softness) | 
-                | :--- | :--- | :--- | | **Lower Tier (Floor and Base)** 
-                | **Deep plum** and dark lavender | Grounds the space, 
-                provides a sophisticated contrast, offers practicality, 
-                and highlights the geometry of the high-tech furniture. | | 
-                **Middle Tier (Walls and Furniture)** | 
-                **Dark cream** (wallpaper), **lavender** (furniture), 
-                **lilac** (decor) | Dark cream serves as a warm backdrop 
-                that softens the coldness of the technology, 
-                while lavender furniture fronts and lilac accents 
-                introduce a gentle, feminine character. | | 
-                **Transitional Layer (Lighting and Accents)** | 
-                **Soft pink** (light fixtures, ambient lighting, 
-                gradients on textiles and wall panels) | 
-                It bridges the rich, deep tones of the lower 
-                level with a bright, airy upper section, bathing 
-                the room in a soft, romantic glow. || **Upper 
-                Tier (Ceiling and Cornices)** | **Creamy White** | 
-                Dissolves the boundaries of the ceiling, adding a 
-                sense of openness and light—perfect for comfortable 
-                daytime work. |--- Functional 
-                Zoning (4 × 6.5 m Layout) Below is a floor plan where 
-                the **door is positioned in a corner** and 
-                the **window is centered along a wall** (this 
-                layout works whether the window is on the long 
-                wall or the end wall; in this diagram, it is 
-                centered on the 4-meter end wall, serving as a 
-                classic panoramic focal point. The zones are 
-                arranged clockwise):```text+----------------- 
-                [ WINDOW CENTERED ] -----------------+| || 
-                [Zone 1: Code & Design Lab]            
-                [Orchids]      || Corner smart desk, dual 
-                monitors,      Illuminated    || 
-                lavender-colored chair, research board  shelving 
-                unit  || || - - - - - - (Glass Loft-Style 
-                Partition) - - - - - - || || [Zone 2: "Cloud" 
-                Bedroom]     [Zone 3: Creative      || Floating 
-                bed with pink        Lounge]                || 
-                under-lighting, heart-shaped  Lavender-colored 
-                sofa, || pillows, heart-shaped wall    coffee 
-                table           || 
-                sconces                                              
-                || || [Zone 4: High-Tech Wardrobe]                         
-                || Built-in lavender-colored wardrobe                     
-                |+-------------------------------------- 
-                [ CORNER DOOR ]+                       
-                4.0 meters```*(Note: If the window is located 
-                in the middle of the 6.5-meter-long wall, the 
-                workspace and sofa can simply be reoriented 
-                along that wall so that natural light falls 
-                onto the desk from the side).*1. **Zone 1: 
-                High-tech programming, design, and research 
-                lab (by the window, ~7 sq. m)**   * **Desk:** 
-                An L-shaped or wide, height-adjustable ergonomic 
-                desk (featuring a matte lavender acrylic 
-                surface with built-in wireless charging and 
-                concealed cable management). * **Equipment & 
-                Creativity:** A mount for 2–3 monitors in a 
-                rose-gold or matte-pink finish, a graphics 
-                tablet, and a milky-pink magnetic glass 
-                whiteboard on the wall for jotting down 
-                algorithms and research 
-                diagrams. * **Chair:** An ergonomic 
-                chair upholstered in lavender velour, 
-                complete with a lumbar pillow shaped 
-                like a neat little heart.2. **Zone 2: "Cloud 
-                of Tenderness" sleeping area (a quiet corner 
-                tucked away, ~8 sq. m)**   * **Bed:** A "floating" 
-                bed design (a high-tech frame with an 
-                offset support base) upholstered in 
-                lavender. A pink LED strip runs along 
-                the bottom edge, creating the illusion 
-                that the bed is levitating above the 
-                plum-colored floor. * **Loft-style 
-                zoning:** A slender partition featuring a 
-                rose-champagne metal frame, fitted with 
-                ribbed, semi-translucent glass that transitions 
-                in color (from plum at the bottom to clear 
-                at the top).3. **Zone 3: Lounge area for reading 
-                and inspiration (center of the room, ~6 sq. m)** * A 
-                cozy, modular lavender-colored sofa, 
-                accented by an assortment of decorative 
-                heart-shaped cushions in various sizes 
-                and textures. * A high-tech coffee table—either 
-                teardrop-shaped or round—crafted from tempered 
-                pink glass with a chrome base. 4. **Zone 4: Entrance 
-                area and storage system (near the door, in the 
-                corner, ~4 sq. m)** * A floor-to-ceiling built-in 
-                sliding-door wardrobe with no visible 
-                handles (featuring a *push-to-open* system). The 
-                facades showcase a gradient transition: starting 
-                as a matte dark lavender at the bottom, shifting 
-                through dusty pink, and fading into a creamy 
-                white near the ceiling. --- Key decor and lighting 
-                elements * **Light fixtures and lighting 
-                schemes (all in pleasant shades of pink)** * **Main 
-                lighting:** A magnetic track system on a 
-                creamy-white ceiling, featuring spotlights 
-                in matte pink housings. * **Night lights and 
-                ambiance:** 3D wall-mounted lights and neon 
-                sconces shaped like heart outlines, equipped with 
-                smooth dimming (adjustable via smartphone). On the 
-                bedside table: a high-tech night light featuring a 
-                levitating glowing heart, or a sunset projector 
-                casting pink and lilac hues. * **Contour 
-                lighting:** Concealed pink LED profiles running along the 
-                ceiling cornice and behind the headboard. * **Nature-inspired 
-                elements and lilac decor:** * **Lilac orchids:** Housed 
-                in smart planters with self-watering systems and 
-                soft grow-lights, placed on an open loft-style 
-                shelving unit by the window and on the desk. * **Hearts and 
-                textiles:** Heart-shaped cushions in velvet, 
-                silk, and bouclé (in shades of lilac, lavender, and 
-                soft pink); a geometric wall panel—either a *string art* piece 
-                or a polygonal heart made of pink acrylic—striking a 
-                perfect balance between high-tech and romantic 
-                aesthetics. * **Window:** Roman blinds or flowing, gradient-dyed 
-                sheer curtains (transitioning from creamy-white at 
-                the top to pink and deep lilac near the windowsill), mounted 
-                on a voice-controlled motorized track system. --- Recommended 
-                materials 1. **Flooring (plum-colored):** * *Loft/High-tech style:* 
-                A matte, poured polyurethane floor or microcement 
-                in a deep plum shade, integrated with an underfloor 
-                heating system. * *Cozy Option:* Engineered wood 
-                flooring or luxury vinyl tile (LVT) in a tinted "plum oak" finish, 
-                complemented by a soft, high-pile lilac rug placed by 
-                the bed. 2. **Walls (dark cream wallpaper + gradient):** * Textured 
-                vinyl or non-woven wallpaper in a dark cream 
-                tone, featuring a finish reminiscent of soft Venetian 
-                plaster or raw silk (evoking a loft aesthetic 
-                without the harshness of exposed concrete). * Accent wall 
-                behind the bed or sofa: finely crafted decorative 
-                brickwork, airbrushed with a vertical gradient—transitioning 
-                from plum and lavender near the baseboard, through 
-                pink, to an off-white cream near the ceiling. 3. **Furniture 
-                (lavender):** * MDF with a "soft-touch" finish (such 
-                as super-matte lavender *Fenix* laminate, which is 
-                fingerprint-resistant—a hallmark of high-tech 
-                style). * Upholstery for soft furnishings: durable, 
-                water-repellent micro-velour or flocked fabric in a 
-                lavender hue. 4. **Metal and Glass:** * Anodized 
-                aluminum, matte brass with a pinkish hue, and 
-                tinted *triplex* (laminated) glass for the partition and 
-                shelves. --- 3. Sources and Constraints * **Ergonomics:** The 
-                layout is based on standard room dimensions of 4 × 6.5 m (with 
-                a ceiling height of at least 2.7 m to ensure a comfortable 
-                sense of vertical scale). * **Lighting:** Given the use of 
-                rich tones in the interior finishes (plum-colored flooring, 
-                dark-cream wallpaper) and pink-hued light fixtures, it is 
-                recommended to use smart bulbs in the workspace—specifically 
-                above the desk—that allow for mode switching: **neutral 
-                white (4000K) with high color rendering (CRI > 95)** for 
-                graphic design work, and **warm pink** for relaxation, 
-                evening programming sessions, or creative inspiration. ---
+            prompt="""Create an architectural photograph based on this design plan description:
+                (Architectural interior photography of a 25 sqm "Soft Cyber-Loft: Lavender")
+                #### 2.3. Engineering Details for Furniture and Custom Solutions by Zone
+                1. **Zone 1: High-Tech Coding & Research Lab (~7.4 m²)**
+                * **Smart Desk:** L-shaped frame powered by two synchronized electric 
+                motors (adjustable height from **650 to 1250 mm** for alternating between 
+                sitting and standing; 120 kg load capacity; 4-position memory). The 28 mm thick 
+                desktop features an MDF core surfaced with *Fenix ​​NTM*—a super-matte, 
+                "nano-tech" material in a lavender hue (offering thermal self-healing 
+                for micro-scratches and zero glare from monitors). The right wing integrates 
+                a concealed *Qi2 (15W)* wireless charger and a color-matched cable management hatch.
+                * **Research Board:** A frameless, magnetic, dry-erase panel 
+                ($1200 \times 800\text{ mm}$) made of *Optiwhite* (extra-clear) glass, 
+                back-painted in a milky-pink tone (`#FADADD`) and mounted with a 15 mm offset from the wall.
+                * **Phyto-Shelving Unit for Orchids:** A welded frame constructed from 
+                slim $20 \times 20\text{ mm}$ profile tubing (anodized in a "pink champagne" finish), 
+                featuring shelves made of pink-tinted laminated glass (*triplex*). 
+                The upper crossbars house integrated full-spectrum *phyto-lights* 
+                (*Full Spectrum 3800K*—emitting a soft, eye-safe pinkish glow) 
+                alongside smart planters. *Lechuza / Xiaomi Smart Planter* 
+                with substrate moisture sensors.
+                2. **Zone 2: "Cloud of Tenderness" Bedroom (~8.0 m²)**
+                * **"Floating" Bed Design:** Sleeping area $1600 times 2000 text{ mm}$ (the 
+                bed frame, upholstered in lavender-colored velour, 
+                measures $1720 times 2120 text{ mm}$). The supporting metal 
+                base is recessed inward by **250 mm** on all three visible sides, 
+                rendering it completely invisible from a standing eye-level 
+                perspective. An addressable COB LED strip (which emits a 
+                continuous glow without visible individual light points) is 
+                installed within an aluminum profile beneath the bed frame 
+                at a $45 circ angle. It casts a soft, pink-hued glow (`#FF8DC7`) 
+                onto the plum-colored floor. 
+                * **Loft-Style Partition:** A fixed partition measuring 
+                $1850 times 2700 text{ mm}$ (anchored to the ceiling and floor). 
+                It features 8 mm *Moru* (fluted) laminated glass with an 
+                integrated gradient polymer film—transitioning from a dense 
+                plum shade up to a height of 700 mm (concealing the mattress 
+                from the workspace) to crystal clear at the top.
+                3. **Zone 3: Creative Lounge (~6.0 m²)**
+                * **Sofa and Textiles:** A modular, frameless-style piece 
+                with a height of 760 mm (ensuring it does not obstruct the 
+                vertical gradient on the wall!). It includes an assortment 
+                of 5–7 heart-shaped cushions, featuring three different 
+                textures: matte velvet, bouclé, and natural... ...silk) for 
+                tactile relief after working at the keyboard. 
+                * **Wall Accent:** Above the sofa, there is a three-dimensional, 
+                polygonal heart ($900 times 800 text{ mm}$) made of matte pink acrylic. 
+                It is mounted on standoffs and features contour backlighting; 
+                it also functions as a diffuser, helping to dampen room echoes.
+                4. **Zone 4: Entrance Area and High-Tech Wardrobe (~4.6 m², including the hallway)**
+                * **Ombré Wardrobe:** Four sleek, floor-to-ceiling door panels—designed 
+                without a baseboard or top gap (using a 10 mm shadow-gap profile)—equipped 
+                with *Blum Tip-On* mechanisms. The panels were spray-painted 
+                in a professional booth with a three-layer gradient 
+                finish, topped with a *Soft-touch* polyurethane 
+                lacquer (0 gloss). The end section includes integrated 
+                ventilation and power outlets to discreetly house a 
+                Wi-Fi router, a NAS server for projects, and a docking 
+                station for a robot vacuum (with a 160 mm high niche at the base).
+                ---
+                #### 2.4. Lighting Design and Smart Home Scenarios (Smart Cyber-Loft)
+                To ensure the pink lighting creates a magical atmosphere 
+                without distorting color perception on monitors—crucial 
+                for design work and coding—the lighting system is built 
+                on the **Zigbee / Matter** protocol, utilizing a **48V** 
+                magnetic track system on the ceiling:
+                | Scenario (1-click / voice command) | Active Lighting Groups 
+                | Color Temperature & CRI | Purpose |
+                | :--- | :--- | :--- | :--- |
+                | **1. "Deep Code & Design"** (Work Focus) | Directional spotlights 
+                above the desk + backlighting behind the monitor | Monitor bias 
+                lighting + neutral overhead ambient lighting | **4000K**, 
+                reference-grade **CRI ≥ 97** (no pinkish tint in the workspace) | 
+                Precise work on UI/UX design, graphics, and coding without causing eye strain |
+                | **2. "Lavender Dawn"** (Waking Up) | Smooth opening of motorized curtains + 
+                cornice lighting transitioning from warm cream to soft pink over 20 minutes
+                 | Dynamic shift: **2700K → pink gradient** (brightness 10% → 60%) | Gentle, 
+                 natural awakening aligned with biological rhythms |
+                | **3. "Evening Inspiration"** (Cyber-Loft) | Bed perimeter 
+                lighting + dimmable neon heart-shaped wall sconces + a "levitating" 
+                heart on the nightstand + accent lighting for wall art and orchids | 
+                **Soft pink and lilac spectrum** (brightness 25–40%) | Relaxation, 
+                reading on the sofa, or evening brainstorming in a cozy atmosphere |
+                | **4. "Nighttime Levitation"** (Automatic) | Under-bed perimeter 
+                lighting only, at 8 intensity (triggered by a floor-level motion 
+                sensor) | Soft dusty pink (no blue spectrum; does not disrupt 
+                melatonin production) | Safe movement at night without blinding glare |
+                **Key Electrical Points (recommended minimum — 22 outlets/points):**
+                * *Zones 
+                * *Zone 1 (Laboratory):* A power unit with 6 outlets mounted under the 
+                desktop, plus a `RJ-45 (Cat 6a)` twisted-pair cable for gigabit-speed 
+                connectivity; 2 outlets above the desk/near the shelving unit (for an 
+                automated irrigation system and grow lights); and a dedicated power 
+                connection for an electric curtain track by the window.
+                * *Zone 2 (Bedroom):* A concealed 24V power supply for 
+                under-bed LED strips (housed in a ventilated access panel 
+                near the headboard); 2 outlets plus a `USB-C PD 65W` port by the 
+                nightstand for a laptop/smartphone and a levitating heart-shaped 
+                nightlight; and wiring provisions for wall-mounted sconces.
+                * *Zones 3 & 4:* 2 outlets near the sofa (for a floor lamp 
+                and tablet charging); a power unit inside a wardrobe (for a 
+                router and vacuum cleaner); and a master switch near the 
+                entrance door (programmed to "Turn off everything, except 
+                the server and the automated orchid irrigation system").
+                ---
+                #### 2.5. Practical Schedule of Finishing Materials
+                1. **Flooring (Deep Plum):** A perfect balance between 
+                a loft aesthetic and a cozy, homey feel — **matte polyurethane 
+                microcement** (a seamless, durable surface resistant to office 
+                chair casters!), featuring an integrated water-based or film-type 
+                underfloor heating system (set to +26 circ text C). This is 
+                complemented by a silky, lilac-colored rug made of viscose/Tencel 
+                with a 20 mm pile, placed by the bed. 2. **Background Walls (Dark 
+                Cream):** Seamless textile or heavy non-woven wallpaper with a 
+                texture resembling raw silk or soft travertine plaster (density 
+                of 280 text { g/m} 2 or higher; helps improve room acoustics).
+                3. **Gradient Accent Wall:** Hand-molded, thin-profile 
+                gypsum "loft-style" tiles (6–8 mm thick, featuring a subtle, 
+                smooth relief without rough chips or jagged edges). The surface 
+                is primed and spray-painted in a four-tone ombre gradient, then 
+                finished with a protective matte polyurethane varnish 
+                (allowing for easy dust removal).
             """,
             generator="ImageGenerator"
         )
