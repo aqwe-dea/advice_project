@@ -5528,3 +5528,10 @@ WARNING 2026-11-13 22:30:42,556 log Method Not Allowed: /agent-gem/
 WARNING 2026-11-13 22:35:27,243 agent_gem Неизвестная структура ответа: ['code', 'msg']
 INFO 2026-11-14 00:34:20,873 autoreload Watching for file changes with StatReloader
 WARNING 2026-11-14 00:38:14,109 log Method Not Allowed: /agent-gem/
+INFO 2026-11-14 03:07:04,382 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-14 03:12:10,561 log Method Not Allowed: /agent-gem/
+WARNING 2026-11-14 03:23:01,338 agent_gem Неизвестная структура ответа: ['candidates', 'usageMetadata', 'credits_consumed']
+INFO 2026-11-14 03:59:36,034 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-14 04:02:22,323 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-14 04:09:53,601 log Method Not Allowed: /agent-gem/
+WARNING 2026-11-14 04:22:59,818 agent_gem Неизвестная структура ответа: ['candidates', 'usageMetadata', 'credits_consumed']

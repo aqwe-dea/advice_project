@@ -607,7 +607,7 @@ class AgentGem:
 
         try:
             response = requests.post(
-                f"{self.base_url}/gemini/v1/models/gemini-4-argon:generateContent",
+                f"{self.base_url}/gemini/v1/models/gemini-4-carbon:generateContent",
                 headers={
                     "Authorization": f"Bearer {self.api_key}",
                     "Content-Type": "application/json"
@@ -660,7 +660,7 @@ class AgentGem:
                         
                     # Повторный запрос для генерации отчёта
                     second_response = requests.post(
-                        f"{self.base_url}/gemini/v1/models/gemini-4-argon:generateContent",
+                        f"{self.base_url}/gemini/v1/models/gemini-4-carbon:generateContent",
                         headers={
                             "Authorization": f"Bearer {self.api_key}",
                             "Content-Type": "application/json"
@@ -826,7 +826,7 @@ class AgentGem:
                 gemini_tools = [{"functionDeclarations": function_declarations}]
         
         response = requests.post(
-            f"{self.base_url}/gemini/v1/models/gemini-4-argon:generateContent",
+            f"{self.base_url}/gemini/v1/models/gemini-4-carbon:generateContent",
             headers={
                 "Authorization": f"Bearer {self.api_key}",
                 "Content-Type": "application/json"
@@ -879,7 +879,7 @@ class AgentGem:
                 gemini_tools = [{"functionDeclarations": function_declarations}]
         
         response = requests.post(
-            f"{self.base_url}/gemini/v1/models/gemini-4-argon:generateContent",
+            f"{self.base_url}/gemini/v1/models/gemini-4-carbon:generateContent",
             headers={
                 "Authorization": f"Bearer {self.api_key}",
                 "Content-Type": "application/json"
@@ -932,7 +932,7 @@ class AgentGem:
                 gemini_tools = [{"functionDeclarations": function_declarations}]
         
         response = requests.post(
-            f"{self.base_url}/gemini/v1/models/gemini-4-argon:generateContent",
+            f"{self.base_url}/gemini/v1/models/gemini-4-carbon:generateContent",
             headers={
                 "Authorization": f"Bearer {self.api_key}",
                 "Content-Type": "application/json"
