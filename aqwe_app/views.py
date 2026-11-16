@@ -3587,26 +3587,7 @@ class AgentGemView(APIView):
         #    region="ru" 
         #)
         agent.set_image_generator(generator)
-        # В любом агенте, который работает с творчеством:
-        #canvas = LiveMultimodalWorkspace(session_id=request.session.session_key)
-        #canvas = LiveMultimodalWorkspace(session_id=request.user.id)
-        #canvas = LiveMultimodalWorkspace(session_id=user_id)
-        #creativy = canvas.create_artifact("image", "кристалл любви в фиолетовых тонах", "ImageGenerator")
-        #canvas.create_artifact("image", "crystall love in violet tone", "ImageGenerator")
-        #canvas.create_artifact("image", "city in night time at style cyberpunk and light neon by park", "ImageGenerator")
-        #canvas.create_artifact(
-        #    self,
-        #    artifact_type="image",
-        #    prompt="city in night time at style cyberpunk and light neon by park",
-        #    text="",
-        #    image_url="",
-        #    audio_url="",
-        #    input_urls="",
-        #    generator="ImageGenerator"
-        #    language="python",
-        #    include_comments=True, 
-        #)
-        #artifact = canvas.render_canvas()
+
         # Получаем ответ
         answer = agent.ask(question)
         issue = edit_file(
