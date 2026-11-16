@@ -5541,3 +5541,13 @@ INFO 2026-11-14 05:51:47,657 autoreload Watching for file changes with StatReloa
 WARNING 2026-11-14 05:53:43,550 log Method Not Allowed: /agent-gem/
 WARNING 2026-11-14 05:57:15,773 agent_gem Неизвестная структура ответа: ['candidates', 'usageMetadata', 'credits_consumed']
 WARNING 2026-11-14 05:57:15,777 agent_gem Пустой ответ от API. Данные: {"candidates": [{"finishReason": "STOP", "index": 0, "content": {"role": "model", "parts": []}}], "usageMetadata": {"thinkingTokenCount": 9997, "candidatesTokenCount": 3, "totalTokenCount": 23561, "promptTokenCount": 13561}, "credits_consumed": 2.17}
+INFO 2026-11-16 06:25:04,715 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-16 06:26:35,813 log Method Not Allowed: /agent-gem/
+WARNING 2026-11-16 06:27:48,156 log Method Not Allowed: /flux-gen/
+WARNING 2026-11-16 06:28:08,956 log Method Not Allowed: /minimax-gen/
+WARNING 2026-11-16 06:28:27,863 log Method Not Allowed: /wan-gen/
+WARNING 2026-11-16 06:28:40,516 log Method Not Allowed: /vidu-gen/
+WARNING 2026-11-16 06:28:54,568 log Method Not Allowed: /seedance-gen/
+WARNING 2026-11-16 06:29:10,762 log Method Not Allowed: /geminitts-gen/
+WARNING 2026-11-16 06:29:26,853 log Method Not Allowed: /omnihuman-gen/
+WARNING 2026-11-16 06:29:38,951 log Method Not Allowed: /volcengine-gen/

@@ -69,7 +69,7 @@ class AuthorAgent:
         messages.append({"role": "user", "parts": [{"text": prompt}]})
         
         response = requests.post(
-            f"{self.base_url}/gemini/v1/models/gemini-4-argon:generateContent",
+            f"{self.base_url}/gemini/v1/models/gemini-4-carbon:generateContent",
             headers={
                 "Authorization": f"Bearer {self.api_key}", 
                 "Content-Type": "application/json"
@@ -97,7 +97,7 @@ class AuthorAgent:
         messages.append({"role": "user", "parts": [{"text": prompt}]})
         
         response = requests.post(
-            f"{self.base_url}/gemini/v1/models/gemini-4-argon:generateContent",
+            f"{self.base_url}/gemini/v1/models/gemini-4-carbon:generateContent",
             headers={
                 "Authorization": f"Bearer {self.api_key}", 
                 "Content-Type": "application/json"

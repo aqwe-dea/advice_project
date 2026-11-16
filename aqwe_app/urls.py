@@ -34,6 +34,14 @@ from .views import LiveimageGeneratorView
 from .views import InstrumentalGeneratorView
 from .views import CharacterGeneratorView
 from .views import ImageEditView
+from .views import FluxGenView
+from .views import MinimaxGenView
+from .views import WanGenView
+from .views import ViduGenView
+from .views import SeedanceGenView
+from .views import GeminittsGenView
+from .views import OmnihumanGenView
+from .views import VolcengineGenView
 from .views import CreateSessionView
 from .views import CreateCheckoutSessionView
 from .views import SessionStatusView
@@ -99,6 +107,14 @@ urlpatterns = [
     path('generate-character/', CharacterGeneratorView.as_view(), name='generate-character'),
     path('generate-instrumental/', InstrumentalGeneratorView.as_view(), name='generate-instrumental'),
     path('image-edit/', ImageEditView.as_view(), name='image-edit'),
+    path('flux-gen/', FluxGenView.as_view(), name='flux-gen'),
+    path('minimax-gen/', MinimaxGenView.as_view(), name='minimax-gen'),
+    path('wan-gen/', WanGenView.as_view(), name='wan-gen'),
+    path('vidu-gen/', ViduGenView.as_view(), name='vidu-gen'),
+    path('seedance-gen/', SeedanceGenView.as_view(), name='seedance-gen'),
+    path('geminitts-gen/', GeminittsGenView.as_view(), name='geminitts-gen'),
+    path('omnihuman-gen/', OmnihumanGenView.as_view(), name='omnihuman-gen'),
+    path('volcengine-gen/', VolcengineGenView.as_view(), name='volcengine-gen'),
     path('smart-agent/', SmartAgentView.as_view(), name='smart-agent'),
     path('agent-gpt/', AgentGptView.as_view(), name='agent-gpt'),
     path('agent-cla/', AgentClaView.as_view(), name='agent-cla'),

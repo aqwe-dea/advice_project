@@ -38,6 +38,14 @@ from aqwe_app.views import LiveimageGeneratorView
 from aqwe_app.views import InstrumentalGeneratorView
 from aqwe_app.views import CharacterGeneratorView
 from aqwe_app.views import ImageEditView
+from aqwe_app.views import FluxGenView
+from aqwe_app.views import MinimaxGenView
+from aqwe_app.views import WanGenView
+from aqwe_app.views import ViduGenView
+from aqwe_app.views import SeedanceGenView
+from aqwe_app.views import GeminittsGenView
+from aqwe_app.views import OmnihumanGenView
+from aqwe_app.views import VolcengineGenView
 from aqwe_app.views import CreateSessionView
 from aqwe_app.views import CreateCheckoutSessionView
 from aqwe_app.views import SessionStatusView
@@ -111,6 +119,14 @@ urlpatterns = [
     path('generate-character/', CharacterGeneratorView.as_view(), name='generate-character'),
     path('generate-instrumental/', InstrumentalGeneratorView.as_view(), name='generate-instrumental'),
     path('image-edit/', ImageEditView.as_view(), name='image-edit'),
+    path('flux-gen/', FluxGenView.as_view(), name='flux-gen'),
+    path('minimax-gen/', MinimaxGenView.as_view(), name='minimax-gen'),
+    path('wan-gen/', WanGenView.as_view(), name='wan-gen'),
+    path('vidu-gen/', ViduGenView.as_view(), name='vidu-gen'),
+    path('seedance-gen/', SeedanceGenView.as_view(), name='seedance-gen'),
+    path('geminitts-gen/', GeminittsGenView.as_view(), name='geminitts-gen'),
+    path('omnihuman-gen/', OmnihumanGenView.as_view(), name='omnihuman-gen'),
+    path('volcengine-gen/', VolcengineGenView.as_view(), name='volcengine-gen'),
     path('smart-agent/', SmartAgentView.as_view(), name='smart-agent'),
     path('agent-gpt/', AgentGptView.as_view(), name='agent-gpt'),
     path('agent-cla/', AgentClaView.as_view(), name='agent-cla'),

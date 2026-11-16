@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 class CharacterGenerator(BaseGenerator):
     """Генератор персонажей через KIE.ai"""
-    DEFAULT_MODEL = "infinitalk/from-audio"
+    DEFAULT_MODEL = "kling/ai-avatar-pro"
     @staticmethod
     def _is_valid_url(url: str) -> bool:
         """Проверка валидности URL"""
@@ -18,7 +18,7 @@ class CharacterGenerator(BaseGenerator):
     
     def generate(
         self,
-        prompt: str = "",
+        prompt: str = "", # prompt 5000 character
         image_url: str = "",
         audio_url: str = "",
         **kwargs
@@ -40,8 +40,7 @@ class CharacterGenerator(BaseGenerator):
         input_data = {
             "prompt": prompt.strip(),
             "image_url": image_url.strip(),
-            "audio_url": audio_url.strip(),
-            "resolution": kwargs.get('resolution', '480p')
+            "audio_url": audio_url.strip()
         }
 
         input_data.update({k: v for k, v in kwargs.items() if k not in input_data})

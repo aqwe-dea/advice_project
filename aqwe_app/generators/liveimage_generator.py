@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 class LiveimageGenerator(BaseGenerator):
     """Генератор живых изображений через KIE.ai"""
-    DEFAULT_MODEL = "kling/v2-1-standard"
+    DEFAULT_MODEL = "google/gemini-omni-flash-1-2"
     @staticmethod
     def _is_valid_url(url: str) -> bool:
         """Проверка валидности URL"""
@@ -19,9 +19,14 @@ class LiveimageGenerator(BaseGenerator):
     
     def generate(
         self,
-        prompt: str,
-        negative_prompt: str = "bad, ugly, distorted, low quality",
-        image_url: str = "",
+        prompt: str, # prompt 20000 character
+        image_urls: str = "",
+        first_frame_url: str = "",
+        last_frame_url: str = "",
+        video_list: str = "",
+        character_ids: str = "",
+        duration: int = 15,
+        seeds: int = 10000,
         **kwargs
     ) -> Dict[str, Any]:
         """
@@ -35,16 +40,20 @@ class LiveimageGenerator(BaseGenerator):
         """
 
         # Валидация входных данных
-        if not any([prompt.strip(), image_url.strip()]):
+        if not any([prompt.strip(), image_urls.strip()]):
             return {"success": False, "error": "Нужно указать хотя бы один источник данных"}
         
         input_data = {
             "prompt": prompt.strip(),
-            "image_url": image_url.strip(),
-            "duration": "5",
-            "negative_prompt": negative_prompt,
-            "cfg_scale": 0.5,
-            "nsfw_checker": False
+            "image_urls": image_urls.strip(),
+            "first_frame_url": first_frame_url.strip(),
+            "last_frame_url": last_frame_url.strip(),
+            "video_list": video_list.strip(),
+            "duration": duration,
+            "aspect_ratio": "16:9",
+            "character_ids": character_ids,
+            "resolution": "360p",
+            "seeds": seeds
         }
 
         input_data.update({k: v for k, v in kwargs.items() if k not in input_data})

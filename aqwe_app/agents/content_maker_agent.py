@@ -155,7 +155,7 @@ class ContentMakerAgent:
         
         try:
             response = requests.post(
-                f"{self.base_url}/gemini/v1/models/gemini-4-argon:generateContent",
+                f"{self.base_url}/gemini/v1/models/gemini-4-carbon:generateContent",
                 headers={
                     "Authorization": f"Bearer {self.api_key}", 
                     "Content-Type": "application/json"
@@ -240,7 +240,7 @@ class ContentMakerAgent:
         
         try:
             response = requests.post(
-                f"{self.base_url}/gemini/v1/models/gemini-4-argon:generateContent",
+                f"{self.base_url}/gemini/v1/models/gemini-4-carbon:generateContent",
                 headers={
                     "Authorization": f"Bearer {self.api_key}", 
                     "Content-Type": "application/json"
@@ -457,7 +457,7 @@ class ContentMakerAgent:
                 gemini_tools = [{"functionDeclarations": function_declarations}]
 
         response = requests.post(
-            f"{self.base_url}/gemini/v1/models/gemini-4-argon:generateContent",
+            f"{self.base_url}/gemini/v1/models/gemini-4-carbon:generateContent",
             headers={
                 "Authorization": f"Bearer {self.api_key}", 
                 "Content-Type": "application/json"
@@ -516,7 +516,7 @@ class ContentMakerAgent:
                 gemini_tools = [{"functionDeclarations": function_declarations}]
 
         response = requests.post(
-            f"{self.base_url}/gemini/v1/models/gemini-4-argon:generateContent",
+            f"{self.base_url}/gemini/v1/models/gemini-4-carbon:generateContent",
             headers={
                 "Authorization": f"Bearer {self.api_key}", 
                 "Content-Type": "application/json"

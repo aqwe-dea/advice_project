@@ -174,7 +174,7 @@ AGENT_FACTORIES: Dict[str, Callable[[str], Any]] = {
     "Freelancer": lambda key: FreelancerAgent(key),
     "Journalist": lambda key: JournalistAgent(key),
     "Simple-Gpt": lambda key: SimpleAgent(key, base_url='https://api.kie.ai', model='gpt-6-1-sol'),
-    "Smart-Kimi": lambda key: SmartAgent(key, base_url='https://api.kie.ai', model='kimi-k3'),
+    "Smart-Kimi": lambda key: SmartAgent(key, base_url='https://api.kie.ai', model='kimi-k3-1-pro'),
     "Management-Gpt": lambda key: AgentGpt(key),
     "Administration-Cla": lambda key: AgentCla(key),
     "Content-Maker": lambda key: ContentMakerAgent(key),

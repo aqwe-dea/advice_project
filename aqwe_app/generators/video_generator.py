@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 
 class VideoGenerator(BaseGenerator):
     """Генератор видео через KIE.ai"""
-    DEFAULT_MODEL = "grok-imagine/text-to-video"
+    DEFAULT_MODEL = "kling-4.0/reference-to-video"
     @staticmethod
     def _is_valid_url(url: str) -> bool:
         """Проверка валидности URL"""
@@ -19,7 +19,13 @@ class VideoGenerator(BaseGenerator):
     
     def generate(
         self,
-        prompt: str,
+        prompt: str, # prompt 8000 character
+        image_urls: str = "",
+        video_urls: str = "",
+        elements_url: str = "",
+        voices_url: str = "",
+        keep_original_sound: bool = False,
+        duration: int = 3,
         **kwargs
     ) -> Dict[str, Any]:
         """
@@ -37,10 +43,14 @@ class VideoGenerator(BaseGenerator):
         
         input_data = {
             "prompt": prompt.strip(),
+            "image_urls": image_urls.strip(),
+            "video_urls": video_urls.strip(),
+            "elements": elements_url.strip(),
+            "voices": voices_url.strip(),
             "aspect_ratio": "1:1",
-            "mode": "normal",
-            "duration": "30",
-            "resolution": kwargs.get('resolution', '480p')
+            "keep_original_sound": keep_original_sound,
+            "duration": duration,
+            "resolution": "720p"
         }
 
         input_data.update({k: v for k, v in kwargs.items() if k not in input_data})

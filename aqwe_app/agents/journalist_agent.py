@@ -160,7 +160,7 @@ class JournalistAgent:
     
         try:
             response = requests.post(
-                url="https://api.kie.ai/gemini/v1/models/gemini-3-8-flash:generateContent",
+                url="https://api.kie.ai/gemini/v1/models/gemini-4-carbon:generateContent",
                 headers={
                     "Authorization": f"Bearer {self.api_key}",
                     "Content-Type": "application/json",

@@ -10,7 +10,7 @@ logger = logging.getLogger(__name__)
 
 class VoiceGenerator(BaseGenerator):
     """Генератор речи/голоса через KIE.ai"""
-    DEFAULT_MODEL = "elevenlabs/text-to-speech-multilingual-v2"
+    DEFAULT_MODEL = "google/gemini-2-5-pro-tts"
     @staticmethod
     def _is_valid_url(url: str) -> bool:
         """Проверка валидности URL"""
@@ -19,8 +19,9 @@ class VoiceGenerator(BaseGenerator):
     def generate(
         self,
         text: str,
-        voice: str = "Rachel",
-        stability: int = 0.5,
+        scene: str = "", # scene 1000 character
+        sample_context: str = "", # sample 1000 character
+        temperature: int = 1,
         **kwargs
     ) -> Dict[str, Any]:
         """
@@ -38,9 +39,25 @@ class VoiceGenerator(BaseGenerator):
             return {"success": False, "error": "Нужно указать хотя бы один источник данных"}
         
         input_data = {
-            "text": text.strip(),
-            "voice": voice,
-            "stability": stability
+            "speakers": [
+                {
+                    "speaker_id": "Speaker 1",
+                    "voice_name": "Despina",
+                    "audio_profile": "A stern",
+                    "style": "Newscaster",
+                    "pace": "Natural",
+                    "accent": "Transatlantic"
+                }
+            ],
+            "dialogue_turns": [
+                {
+                    "speaker_id": "Speaker 1",
+                    "text": text.strip()
+                }
+            ],
+            "temperature": 1,
+            "scene": scene.strip(),
+            "sample_context": sample_context.strip()
         }
 
         input_data.update({k: v for k, v in kwargs.items() if k not in input_data})

@@ -12,7 +12,7 @@ logger = logging.getLogger(__name__)
 class CodeGenerator:
     """Генератор кода через KIE.ai — ПРЯМОЙ ОТВЕТ"""
     # ✅ Используем ПОДДЕРЖИВАЕМУЮ модель:
-    DEFAULT_MODEL = "claude-opus-4-5"
+    DEFAULT_MODEL = "claude-opus-5"
     def __init__(self, api_key: str, base_url: str = "https://api.kie.ai/claude"):
         self.api_key = api_key
         self.base_url = base_url
@@ -79,7 +79,7 @@ class CodeGenerator:
 
             # Добавить валидацию модели перед запросом:
             SUPPORTED_MODELS = {
-                "claude-opus-4-5": "https://api.kie.ai/claude",
+                "claude-opus-5": "https://api.kie.ai/claude",
                 "google/gemini-2.5-flash": "https://api.kie.ai",
                 # добавить другие поддерживаемые модели
             }

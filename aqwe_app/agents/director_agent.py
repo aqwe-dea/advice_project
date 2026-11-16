@@ -125,7 +125,7 @@ class DirectorAgent:
         
             try:
                 response = requests.post(
-                    f"{self.base_url}/models/gemini-4-argon:generateContent",
+                    f"{self.base_url}/models/gemini-4-carbon:generateContent",
                     headers={
                         "Authorization": f"Bearer {self.api_key}",
                         "Content-Type": "application/json"
@@ -198,7 +198,7 @@ class DirectorAgent:
                     
                         # Повторный запрос для получения текстового ответа
                         second_response = requests.post(
-                            f"{self.base_url}/models/gemini-4-argon:generateContent",
+                            f"{self.base_url}/models/gemini-4-carbon:generateContent",
                             headers={
                                 "Authorization": f"Bearer {self.api_key}",
                                 "Content-Type": "application/json"
