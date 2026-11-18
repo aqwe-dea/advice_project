@@ -10,6 +10,7 @@ from abc import abstractmethod
 from bs4 import BeautifulSoup
 from .wikipedia_search import search_by_wikipedia
 from .tools import get_all_tools
+from .self_improve import SelfImproveLoop
 
 logger = logging.getLogger(__name__)
 
@@ -360,6 +361,27 @@ class TeacherAgent:
             Ответь на русском, с форматированием.
         """
         return self._call_llm(prompt)
+    
+    def test_teacher_agent(self, code: str) -> tuple[bool, str]:
+        """Тест: код должен содержать методы ask() и generate_study_card()"""
+        required_methods = ['def ask(', 'def generate_study_card(']
+        missing = [m for m in required_methods if m not in code]
+    
+        if not missing:
+            return True, "Все требуемые методы найдены. Код соответствует стандарту."
+    
+        return False, f"Отсутствуют обязательные методы: {', '.join(missing)}. Требуется доработка."
+    
+    def run_improvement_cycle(self, initial_code: str):
+        loop = SelfImproveLoop(agent=TeacherAgent, max_iterations=3)
+    
+        # Передаем саму функцию test_teacher_agent как аргумент, а не список
+        result = loop.run(
+            test_function=self.test_teacher_agent, 
+            initial_code=initial_code
+        )
+
+        return result
     
     def clear_context(self):
         self.context = [{"role": "system", "content": [{"type": "text", "text": self.SYSTEM_PROMPT}]}]

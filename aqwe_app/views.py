@@ -19,8 +19,11 @@ from django.core.files.storage import default_storage
 from django.utils import timezone
 from datetime import timedelta, datetime
 from django.utils.decorators import method_decorator
+from django.utils import decorators
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators import csrf
 from django.views.decorators.http import require_GET
+from django.views.decorators import http
 from typing import Dict, List, IO, TYPE_CHECKING, Any, Type, Tuple, Union, Mapping, TypeVar, Callable, Iterator, Optional, Sequence
 from uuid import UUID
 from pathlib import Path
@@ -41,20 +44,20 @@ from rest_framework import status
 from rest_framework import viewsets
 from PyPDF2 import _reader
 from PyPDF2._reader import PdfReader
-from PyPDF2 import PdfReader
-from PIL import Image
+#from PyPDF2 import PdfReader
+#from PIL import Image
 from PIL.Image import Image
 from io import BytesIO
 from huggingface_hub import InferenceClient
-from huggingface_hub import InferenceApi
-from huggingface_hub import HfApi
+#from huggingface_hub import InferenceApi
+#from huggingface_hub import HfApi
 from huggingface_hub import hf_api
 from huggingface_hub.hf_api import HfApi
 from huggingface_hub import inference_api
 from huggingface_hub.inference_api import InferenceApi
-from openai import _client
+#from openai import _client
 from openai._client import OpenAI
-from openai import OpenAI
+#from openai import OpenAI
 from .agent import SimpleAgent
 from .smartagent.smart_agent import SmartAgent
 from .generators.image_generator import ImageGenerator
@@ -3356,6 +3359,7 @@ class AgentClaView(APIView):
         depth = request.data.get('depth', 'глубокий')
         current_situation = request.data.get('current_situation', '')
         available_agents = get_all_agents(os.getenv('KIETEST'))
+        available_tools = get_all_tools()
 
         if not question:
             return Response({'error': 'Вопрос не предоставлен'}, status=400)
@@ -3676,7 +3680,7 @@ class AgentGemView(APIView):
                 * **Smart Desk:** L-shaped frame powered by two synchronized electric 
                 motors (adjustable height from **650 to 1250 mm** for alternating between 
                 sitting and standing; 120 kg load capacity; 4-position memory). The 28 mm thick 
-                desktop features an MDF core surfaced with *Fenix ​​NTM*—a super-matte, 
+                desktop features an MDF core surfaced with *Fenix NTM* — a super-matte, 
                 "nano-tech" material in a lavender hue (offering thermal self-healing 
                 for micro-scratches and zero glare from monitors). The right wing integrates 
                 a concealed *Qi2 (15W)* wireless charger and a color-matched cable management hatch.
@@ -3802,8 +3806,8 @@ class AgentGemView(APIView):
     
         # Отправка уведомления
         send_mail(
-            subject=f'Новый заказ: {data["title"]}',
-            message=data["description"],
+            subject=f'Новый заказ: {request.data["title"]}',
+            message=request.data["description"],
             from_email='meaqwe@hotmail.com',
             recipient_list=['11genio8d8@gmail.com'],  # твоя почта
             fail_silently=False,
@@ -3862,9 +3866,37 @@ class TeacherAgentView(APIView):
             level=level  # ← Теперь переменная существует!
         )
         
+        test_loop = self.test_teacher_agent(
+            code="""
+                def generate_study_card(self, topic: str) -> str:
+                    ---Сгенерировать учебную карточку по теме---
+                    prompt = f---
+                        Создай учебную карточку по теме: -{topic}-
+
+                        Формат:
+                            🎯 Цель изучения
+                            📚 Ключевые понятия (3-5)
+                            💡 Пример применения
+                            🔍 Практическое задание
+                            🔗 Ресурсы для углубления
+
+                        Ответь на русском, с форматированием.
+                    ---
+                    return self._call_llm(prompt)
+            """
+        )
+        result_loop = self.run_improvement_cycle(
+            initial_code="""
+                def hello_world():
+                return "Привет, Сеньора АКВИ!"
+                print(hello_world())
+            """
+        )
         return Response({
             'answer': answer, 
-            'studycard': studycard 
+            'studycard': studycard,
+            'check_loop': test_loop,
+            'work_loop': result_loop
             #'article': articlewiki
         })
     
@@ -3872,15 +3904,36 @@ class TeacherAgentView(APIView):
         """Тест: код должен содержать методы ask() и generate_study_card()"""
         required_methods = ['def ask(', 'def generate_study_card(']
         missing = [m for m in required_methods if m not in code]
-        # Запуск цикла улучшения
-        loop = SelfImproveLoop(agent=TeacherAgent, max_iterations=3)
-        result = loop.run(
-            test_function=required_methods,
-            initial_code=code
-        )
+    
         if not missing:
-            return True, "Все требуемые методы найдены"
-        return result or False, f"Отсутствуют: {', '.join(missing)}"
+            return True, "Все требуемые методы найдены. Код соответствует стандарту."
+    
+        return False, f"Отсутствуют обязательные методы: {', '.join(missing)}. Требуется доработка."
+    # Запуск цикла улучшения (где-то в логике агента или скрипте тестирования)
+    def run_improvement_cycle(self, initial_code: str):
+        loop = SelfImproveLoop(agent=TeacherAgent, max_iterations=3)
+    
+        # Передаем саму функцию test_teacher_agent как аргумент, а не список
+        result = loop.run(
+            test_function=self.test_teacher_agent, 
+            initial_code=initial_code
+        )
+
+        return result
+    
+    #def test_teacher_agent(self, code: str) -> tuple[bool, str]:
+    #   """Тест: код должен содержать методы ask() и generate_study_card()"""
+    #    required_methods = ['def ask(', 'def generate_study_card(']
+    #    missing = [m for m in required_methods if m not in code]
+    #    # Запуск цикла улучшения
+    #    loop = SelfImproveLoop(agent=TeacherAgent, max_iterations=3)
+    #    result = loop.run(
+    #        test_function=required_methods,
+    #        initial_code=code
+    #    )
+    #    if not missing:
+    #        return True, "Все требуемые методы найдены"
+    #    return result or False, f"Отсутствуют: {', '.join(missing)}"
 
 class IntegratorAgentView(APIView):
     def post(self, request):
@@ -4456,8 +4509,23 @@ class AuditorCheckerView(APIView):
         #result_text = agent.ask(document_text=document_text, audit_type=audit_type)
         #profit = agent.ask(document_text=document_text, audit_type=audit_type)
         check = agent.perform_audit(document_text=document_text, audit_type=audit_type)
-        document = agent._check_document(text)
-        code = agent._check_code(code_snippet)
+        document = agent._check_document(text=text)
+        
+        # Пример вызова в любом агенте или скрипте
+        # Вызов функции (предполагая, что она импортирована из tools)
+        my_code = """
+            def hello_world():
+            return "Привет, Сеньора АКВИ!"
+            print(hello_world())
+        """
+        result = python_sandbox(code=my_code, timeout=30, memory_limit_mb=256)
+
+        # result будет словарем: {"success": True, "output": "Привет, Сеньора АКВИ!\n", "error": None}
+        #if result.get("success"):
+        #    print("Код выполнился успешно!")
+        #else:
+        #    print(f"Ошибка: {result.get('error')}")
+        code = agent._check_code(code_snippet=code_snippet)
             
         diary_entry = (
             f"**Состояние:** Сосредоточенность, аналитическая ясность.\n"
@@ -4481,6 +4549,7 @@ class AuditorCheckerView(APIView):
             "diary": entry,
             "check": check,
             "document": document,
+            "run_code": result,
             "code": code
         })
 
@@ -5144,22 +5213,26 @@ class AdviceViewSet(viewsets.ModelViewSet):
         return Response(serializer.data)
     def create(self, request, *args, **kwargs):
         response = super().create(request, *args, **kwargs)
-        category = request.data.get('category')
         question = request.data.get('question')
+        user_email = request.data.get('email')
+        advice = response.data.get('answer')
+        category = request.data.get('category')
+        
         if not category or not question:
             return Response(
                 {'error': 'Необходимо указать категорию и вопрос'},
                 status=status.HTTP_400_BAD_REQUEST
             )
-        user_email = request.data.get('email')
-        answer = answers.get(category.lower(), answers['default'])
-        advice = response.data.get('answer')
+        
         answers = {
             'финансы': 'Рекомендую создать бюджет и отслеживать расходы.',
             'здоровье': 'Попробуйте больше двигаться и соблюдать режим сна.',
             'образование': 'Определите свои цели и выберете подходящие курсы.',
             'default': 'Для этого случая у меня есть универсальный совет: Будьте терпеливы!'
         }
+
+        answer = answers.get(category.lower(), answers['default'])
+        
         if user_email and advice:
             send_advice_email(user_email, advice)
             return response
@@ -5178,7 +5251,7 @@ class UserHistoryViewSet(viewsets.ModelViewSet):
         user_id = self.request.query_params.get('user_id', None)
         if user_id:
             return UserHistory.objects.filter(user_id=user_id)
-            return UserHistory.objects.all()
+            #return UserHistory.objects.all()
         email = self.request.query_params.get('email', None)
         if email:
             return UserHistory.objects.filter(email=email)
@@ -5317,7 +5390,7 @@ class HandleStripeWebhookView(APIView):
     
 class CreatePaymentIntentView(APIView):
     def post(self, request, *args, **kwargs):
-        amount = request.data.get('amount', none)
+        amount = request.data.get('amount', '')
         currency = request.data.get('currency', 'usd')
         if not amount or amount < 1:
             return Response({'error': 'Сумма должна быть больше 0'}, status=status.HTTP_400_BAD_REQUEST)
@@ -5328,7 +5401,7 @@ class CreatePaymentIntentView(APIView):
             stripe.api_key = STRIPE_SECRET_KEY
             payment_intent = stripe.PaymentIntent.create(
                 amount=amount,
-                currency='currency',
+                currency=currency,
                 payment_method_types=['card'],
                 metadata={'integration_check': 'accept_a_payment'}
             )
