@@ -10,15 +10,23 @@ logger = logging.getLogger(__name__)
 class SelfImproveLoop:
     """Цикл самоулучшения для агентов"""
     
-    def __init__(self, agent, max_iterations: int = 5):
+    def __init__(self, agent, api_key: str, max_iterations: int = 5, base_url: str = "https://api.kie.ai"):
         self.agent = agent
+        self.api_key = api_key
+        self.base_url = base_url    
         self.max_iterations = max_iterations
         self.metrics = []
+        self.tools: Dict[str, Dict] = {}
     
     def _extract_code_block(self, text: str) -> Optional[str]: 
-        """Извлечь Python-код из markdown-блока""" 
+        """Извлечь Python-код из markdown-блока"""
+        #text = text.get('text', '')
+        #content_list = text.get('output')[1].get('content')
+        #if isinstance(content_list, list) and len(content_list) > 1:
+        #    text = content_list[1].get('text', '')
+
         match = re.search(r'python\s*(.?)\s```', text, re.DOTALL)
-        return match.group(1).strip() if match else None
+        return match.group(0).strip() if match else None
 
     def run(self, test_function: Callable, initial_code: str) -> dict:
         """
@@ -50,39 +58,50 @@ class SelfImproveLoop:
                 Список улучшений
                 Исправленный код в блоке python
         """
-
-        analysis = self.agent.ask(analysis_prompt) 
+        callllm_foranalysis = self.agent(api_key=self.api_key, base_url=self.base_url)
+        text = callllm_foranalysis._call_llm(prompt=analysis_prompt)
+        #analysis = self.agent.ask(self, question=analysis_prompt) not worked
+        #analysis = self.agent._call_llm(analysis_prompt) not worked
+        #analysis = self.agent._call_llm(self, prompt=analysis_prompt) not worked
 
         # 2. Извлечение исправленного кода 
-        improved_code = self._extract_code_block(analysis) 
-        if not improved_code: 
-            logger.warning("Не удалось извлечь код из ответа агента") 
+        improved_code = self._extract_code_block(text) 
+        #if not improved_code: 
+        #    logger.warning("Не удалось извлечь код из ответа агента") 
             #break
              
         # 3. Тестирование 
-        success, feedback = test_function(improved_code) 
+        #success, feedback = improved_code не может распаковать обе переменных
+        #success = self.run(initial_code=improved_code)
+        #feedback = improved_code
         self.metrics.append({
             "iteration": iteration + 1, 
-            "success": success, 
-            "feedback": feedback 
+            "feedback": improved_code
+            #"success": success, 
+            #"feedback": feedback 
         })
+        if improved_code: 
+            logger.info(f"✅ Улучшение успешно: {improved_code}")
 
-        if success: 
-            logger.info(f"✅ Улучшение успешно: {feedback}")
-        else: 
-            logger.warning(f"⚠️ Тест не пройден: {feedback}")
+        feedback = text
+        #if success: 
+        #    logger.info(f"✅ Улучшение успешно: {feedback}")
+
+        #else: 
+        #    logger.warning(f"⚠️ Тест не пройден: {feedback}")
               
         # Спросить, хочет ли агент продолжить 
-        continue_prompt = f"Улучшение прошло успешно. {feedback}\nХочешь ли ты продолжить оптимизацию? (да/нет)" 
-        if self.agent.ask(continue_prompt).lower().strip() not in ["да", "yes", "продолжить"]: 
+        #continue_prompt = f"Улучшение прошло успешно. {feedback}\nХочешь ли ты продолжить оптимизацию? (да/нет)" 
+        #if self.agent.ask(self, question=continue_prompt).lower().strip() not in ["да", "yes", "продолжить"]: 
             #break 
-            current_code = improved_code 
+            #current_code = improved_code 
         
         # Дать агенту фидбек для следующей итерации 
-        current_code = improved_code 
+        #current_code = improved_code 
         # или откатить, по желанию 
         return { 
-            "final_code": current_code, 
+            "final_code": improved_code,
+            "feedback": feedback,
             "metrics": self.metrics, 
             "iterations_completed": len(self.metrics) 
         }

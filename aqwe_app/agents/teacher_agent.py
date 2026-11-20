@@ -197,7 +197,7 @@ class TeacherAgent:
                     "stream": False,
                     "max_output_tokens": 10000,
                     "reasoning": {
-                        "effort": "max"
+                        "effort": "xhigh"
                     },
                     "tools": api_tools if api_tools else None,
                     "tool_choice": "auto"
@@ -209,9 +209,9 @@ class TeacherAgent:
             
             text = self._extract_text_or_tool(data)
 
-            if not text:
-                logger.error(f"Пустой текст в ответе: {data}")
-                return "Ошибка: агент не сгенерировал ответ"
+            #if not text:
+            #    logger.error(f"Пустой текст в ответе: {data}")
+            #    return "Ошибка: агент не сгенерировал ответ"
             
             if text:
                 # Обновление контекста
@@ -262,7 +262,7 @@ class TeacherAgent:
                                 "stream": False,
                                 "max_output_tokens": 10000,
                                 "reasoning": {
-                                    "effort": "max"
+                                    "effort": "xhigh"
                                 },
                                 "tools": api_tools if api_tools else None,
                                 "tool_choice": "auto"
@@ -328,6 +328,7 @@ class TeacherAgent:
                 question: Текст вопроса
                 level: Уровень сложности ("beginner", "middle", "expert")
         """
+        
         LEVEL_PROMPTS = {
             "beginner": "Объясни просто, как новичку, с примерами из жизни.",
             "middle": "Дай сбалансированный ответ: теория + практика.",
@@ -339,11 +340,11 @@ class TeacherAgent:
         
         # Проверка инструментов
         for tool_name, tool_info in self.tools.items():
-            if tool_name.lower() in question.lower():
-                match = re.search(r'[:\s]+"([^"]+)"', question)
-                arg = match.group(1) if match else question
+            if tool_name.lower() in enhanced_prompt.lower():
+                match = re.search(r'[:\s]+"([^"]+)"', enhanced_prompt)
+                arg = match.group(1) if match else enhanced_prompt
                 return tool_info['func'](arg)
-        
+                
         return self._call_llm(enhanced_prompt)
     
     def generate_study_card(self, topic: str) -> str:

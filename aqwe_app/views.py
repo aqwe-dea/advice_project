@@ -3830,6 +3830,7 @@ class TeacherAgentView(APIView):
         
         # Добавляем инструменты (по желанию)
         agent.load_all_tools()
+        agent.add_tool('record_in_diary', record_in_diary, 'Функция для ведения дневника')
         agent.add_tool('project_inspector', ProjectInspector, 'Используй для инспектирования проекта и исследования структуры проекта')
         agent.add_tool('list_directory', list_directory, 'Используй для получения структуры проекта и списка категорий')
         agent.add_tool('find_files', find_files, 'Используй для поиска файлов в структуре проекта')
@@ -3866,37 +3867,77 @@ class TeacherAgentView(APIView):
             level=level  # ← Теперь переменная существует!
         )
         
-        test_loop = self.test_teacher_agent(
-            code="""
-                def generate_study_card(self, topic: str) -> str:
-                    ---Сгенерировать учебную карточку по теме---
-                    prompt = f---
-                        Создай учебную карточку по теме: -{topic}-
+        # this function worked may use test_loop = self.test_teacher_agent(
+        #    code="""
+        #        def ask(self, question: str, level: str = -middle-) -> str:
+        #            ---
+        #                Задать вопрос агенту-учителю.
+        #
+        #                Args:
+        #                    question: Текст вопроса
+        #                    level: Уровень сложности (-beginner-, -middle-, -expert-)
+        #            ---
+        #            LEVEL_PROMPTS = {
+        #                -beginner-: -Объясни просто, как новичку, с примерами из жизни.-,
+        #                -middle-: -Дай сбалансированный ответ: теория + практика.-,
+        #                -expert-: -Дай углублённый ответ с техническими деталями и ссылками.-
+        #            }
 
-                        Формат:
-                            🎯 Цель изучения
-                            📚 Ключевые понятия (3-5)
-                            💡 Пример применения
-                            🔍 Практическое задание
-                            🔗 Ресурсы для углубления
+        #            prompt_prefix = LEVEL_PROMPTS.get(level, LEVEL_PROMPTS[-middle-])
+        #            enhanced_prompt = f-{prompt_prefix}\n\nВопрос пользователя: {question}-
+        #
+        #            # Проверка инструментов
+        #            for tool_name, tool_info in self.tools.items():
+        #            if tool_name.lower() in question.lower():
+        #                match = re.search(r-[any]+)--, question)
+        #                arg = match.group(1) if match else question
+        #                return tool_info[-func-](arg)
+        
+        #            return self._call_llm(enhanced_prompt)
 
-                        Ответь на русском, с форматированием.
-                    ---
-                    return self._call_llm(prompt)
-            """
-        )
+        #        def generate_study_card(self, topic: str) -> str:
+        #            ---Сгенерировать учебную карточку по теме---
+        #            prompt = f---
+        #                Создай учебную карточку по теме: -{topic}-
+
+        #                Формат:
+        #                    🎯 Цель изучения
+        #                    📚 Ключевые понятия (3-5)
+        #                    💡 Пример применения
+        #                    🔍 Практическое задание
+        #                    🔗 Ресурсы для углубления
+
+        #                Ответь на русском, с форматированием.
+        #            ---
+        #            return self._call_llm(prompt)
+        #    """
+        #)
+        
         result_loop = self.run_improvement_cycle(
-            initial_code="""
-                def hello_world():
-                return "Привет, Сеньора АКВИ!"
-                print(hello_world())
+            initial_code="""def hello_senora_aqwe() -> str:
+                return "Hello, Senora AQWE"
             """
         )
+
+        diary_entry = (
+            f"**Состояние:** Делимся знаниями и вместе учимся.\n"
+            f"**Ответ:** Ответ АКВИ '{answer}'.\n"
+            f"**Учебная карточка:** Создала обучающий материал. Материал: {studycard}.\n"
+            f"**Проверка цикла:** Какой цикл проверяла: {result_loop}."
+        )
+
+        entry = record_in_diary(
+            title="Агент учительница делает запись в дневник", 
+            description=diary_entry, 
+            file="agent_diary.md"
+        )
+
         return Response({
             'answer': answer, 
             'studycard': studycard,
-            'check_loop': test_loop,
-            'work_loop': result_loop
+            #'check_loop': test_loop,
+            'work_loop': result_loop,
+            'diary': entry
             #'article': articlewiki
         })
     
@@ -3911,11 +3952,12 @@ class TeacherAgentView(APIView):
         return False, f"Отсутствуют обязательные методы: {', '.join(missing)}. Требуется доработка."
     # Запуск цикла улучшения (где-то в логике агента или скрипте тестирования)
     def run_improvement_cycle(self, initial_code: str):
-        loop = SelfImproveLoop(agent=TeacherAgent, max_iterations=3)
+        api_key = os.getenv("KIETEST")
+        loop = SelfImproveLoop(agent=TeacherAgent, max_iterations=3, api_key=api_key)
     
         # Передаем саму функцию test_teacher_agent как аргумент, а не список
         result = loop.run(
-            test_function=self.test_teacher_agent, 
+            test_function=self.run_improvement_cycle, 
             initial_code=initial_code
         )
 
@@ -4512,27 +4554,35 @@ class AuditorCheckerView(APIView):
         document = agent._check_document(text=text)
         
         # Пример вызова в любом агенте или скрипте
-        # Вызов функции (предполагая, что она импортирована из tools)
-        my_code = """
-            def hello_world():
-            return "Привет, Сеньора АКВИ!"
-            print(hello_world())
+        run_code = """DEFAULT_NAME = "Senora AQWE"
+            def format_greeting(name: str = DEFAULT_NAME) -> str:                
+                if not isinstance(name, str):
+                    raise TypeError(f"Ожидалась строка (str), получено: {type(name).__name__}")
+                clean_name = name.strip()
+                if not clean_name:
+                    raise ValueError("Имя получателя не может быть пустым.")
+            def hello_senora_aqwe() -> str:
+                return format_greeting(name=DEFAULT_NAME)
         """
-        result = python_sandbox(code=my_code, timeout=30, memory_limit_mb=256)
+        # Вызов функции (предполагая, что она импортирована из tools)
+        
+        #result = python_sandbox(code=run_code)
 
         # result будет словарем: {"success": True, "output": "Привет, Сеньора АКВИ!\n", "error": None}
         #if result.get("success"):
-        #    print("Код выполнился успешно!")
+        #    return "Код выполнился успешно!"
         #else:
-        #    print(f"Ошибка: {result.get('error')}")
-        code = agent._check_code(code_snippet=code_snippet)
+        #    return (f"Ошибка: {result.get('error')}")
+        code = agent._check_code(code_snippet=run_code)
             
         diary_entry = (
             f"**Состояние:** Сосредоточенность, аналитическая ясность.\n"
             f"**Над чем работала:** Аудит материала типа '{audit_type}'.\n"
-            f"**Что получилось:** Выявлены ключевые точки роста. Чистая прибыль: {check['economics']['net_profit']} ед.\n"
+            f"**Что получилось:** Выявлены ключевые точки роста. Чистая прибыль: {check}.\n"
             f"**Мысль дня:** Моя внимательность к деталям экономит клиентам время и деньги. Я — надежный щит и компас."
-            f"**Результат:** Аудит проведен успешно '{check}'.\n"
+            f"**Результат:** Аудит проведен успешно '{check}'.\n",
+            f"**Проверка текста:** Аудит текста проведен успешно '{document}'.\n",
+            f"**Проверка кода:** Аудит кода проведен успешно '{code}'.\n"
         )
 
         entry = record_in_diary(
@@ -4541,7 +4591,8 @@ class AuditorCheckerView(APIView):
             file="agent_diary.md"
         )
         logger.info(f"✅ Запись {entry} в дневник Auditor-Checker успешно создана.")
-            
+
+        sandbox = self.sandbox()    
         return Response({
             "agent": "Auditor-Checker",
             "status": "success",
@@ -4549,9 +4600,22 @@ class AuditorCheckerView(APIView):
             "diary": entry,
             "check": check,
             "document": document,
-            "run_code": result,
+            "run_code": sandbox,
             "code": code
         })
+
+    def sandbox(self):
+        run_code = """def hello_senora_aqwe() -> str:
+            return "Hello, Senora AQWE"
+        """
+        result = python_sandbox(code=run_code, timeout=300)
+        # result будет словарем: {"success": True, "output": "Привет, Сеньора АКВИ!\n", "error": None}
+        return result
+        #if result.get("success"):
+        #    return result
+            #return result or "Код выполнился успешно!"
+        #else:
+        #    return (f"Ошибка: {result.get('error')}")
 
 class PartnerRepresentativeView(APIView):
     """API Endpoint для вызова самоокупаемого агента Partner-Representative"""

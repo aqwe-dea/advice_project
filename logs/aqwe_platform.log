@@ -5551,3 +5551,1285 @@ WARNING 2026-11-16 06:28:54,568 log Method Not Allowed: /seedance-gen/
 WARNING 2026-11-16 06:29:10,762 log Method Not Allowed: /geminitts-gen/
 WARNING 2026-11-16 06:29:26,853 log Method Not Allowed: /omnihuman-gen/
 WARNING 2026-11-16 06:29:38,951 log Method Not Allowed: /volcengine-gen/
+INFO 2026-11-19 00:47:22,772 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-19 00:54:08,840 log Method Not Allowed: /agent-teacher/
+WARNING 2026-11-19 00:56:34,628 log Method Not Allowed: /agent-teacher/
+INFO 2026-11-19 00:59:19,166 autoreload C:\advice_project\aqwe_app\agents\teacher_agent.py changed, reloading.
+INFO 2026-11-19 01:00:39,077 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-19 01:01:53,176 log Method Not Allowed: /agent-teacher/
+ERROR 2026-11-19 01:03:33,507 log Internal Server Error: /agent-teacher/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 3888, in post
+    result_loop = self.run_improvement_cycle(
+        initial_code="""
+    ...<3 lines>...
+        """
+    )
+  File "c:\advice_project\aqwe_app\views.py", line 3917, in run_improvement_cycle
+    result = loop.run(
+        test_function=self.test_teacher_agent,
+        initial_code=initial_code
+    )
+  File "c:\advice_project\aqwe_app\agents\self_improve.py", line 54, in run
+    analysis = self.agent.ask(analysis_prompt)
+TypeError: TeacherAgent.ask() missing 1 required positional argument: 'question'
+INFO 2026-11-19 01:06:11,144 autoreload C:\advice_project\aqwe_app\agents\self_improve.py changed, reloading.
+INFO 2026-11-19 01:06:57,390 autoreload Watching for file changes with StatReloader
+INFO 2026-11-19 01:13:51,179 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-19 01:15:42,723 autoreload Watching for file changes with StatReloader
+INFO 2026-11-19 01:18:46,405 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-19 01:19:30,075 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-19 01:21:00,948 log Method Not Allowed: /agent-teacher/
+ERROR 2026-11-19 01:23:56,345 log Internal Server Error: /agent-teacher/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 3914, in post
+    result_loop = self.run_improvement_cycle(
+        initial_code="""
+    ...<3 lines>...
+        """
+    )
+  File "c:\advice_project\aqwe_app\views.py", line 3943, in run_improvement_cycle
+    result = loop.run(
+        test_function=self.test_teacher_agent,
+        initial_code=initial_code
+    )
+  File "c:\advice_project\aqwe_app\agents\self_improve.py", line 54, in run
+    analysis = self.agent.ask(analysis_prompt, question)
+                                               ^^^^^^^^
+NameError: name 'question' is not defined
+INFO 2026-11-19 01:25:52,999 autoreload C:\advice_project\aqwe_app\agents\self_improve.py changed, reloading.
+INFO 2026-11-19 01:27:23,690 autoreload Watching for file changes with StatReloader
+INFO 2026-11-19 01:29:07,255 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-19 01:29:33,016 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-19 01:32:34,850 log Method Not Allowed: /agent-teacher/
+ERROR 2026-11-19 01:34:54,638 log Internal Server Error: /agent-teacher/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 3914, in post
+    result_loop = self.run_improvement_cycle(
+        initial_code="""
+    ...<4 lines>...
+        question="проверь код"
+    )
+  File "c:\advice_project\aqwe_app\views.py", line 3944, in run_improvement_cycle
+    result = loop.run(
+        test_function=self.test_teacher_agent,
+        initial_code=initial_code,
+        question=question
+    )
+  File "c:\advice_project\aqwe_app\agents\self_improve.py", line 54, in run
+    analysis = self.agent.ask(analysis_prompt, question)
+  File "c:\advice_project\aqwe_app\agents\teacher_agent.py", line 341, in ask
+    for tool_name, tool_info in self.tools.items():
+                                ^^^^^^^^^^
+AttributeError: 'str' object has no attribute 'tools'
+INFO 2026-11-19 01:37:48,599 autoreload C:\advice_project\aqwe_app\agents\teacher_agent.py changed, reloading.
+INFO 2026-11-19 01:38:51,144 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-19 01:43:38,271 log Method Not Allowed: /agent-teacher/
+ERROR 2026-11-19 01:46:04,143 log Internal Server Error: /agent-teacher/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 3914, in post
+    result_loop = self.run_improvement_cycle(
+        initial_code="""
+    ...<4 lines>...
+        question="проверь код"
+    )
+  File "c:\advice_project\aqwe_app\views.py", line 3944, in run_improvement_cycle
+    result = loop.run(
+        test_function=self.test_teacher_agent,
+        initial_code=initial_code,
+        question=question
+    )
+  File "c:\advice_project\aqwe_app\agents\self_improve.py", line 54, in run
+    analysis = self.agent.ask(analysis_prompt, question)
+  File "c:\advice_project\aqwe_app\agents\teacher_agent.py", line 347, in ask
+    return self._call_llm(enhanced_prompt)
+           ^^^^^^^^^^^^^^
+AttributeError: 'str' object has no attribute '_call_llm'
+INFO 2026-11-19 02:02:06,679 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-19 02:03:27,624 autoreload Watching for file changes with StatReloader
+INFO 2026-11-19 02:04:51,674 autoreload C:\advice_project\aqwe_app\agents\teacher_agent.py changed, reloading.
+INFO 2026-11-19 02:05:14,084 autoreload Watching for file changes with StatReloader
+INFO 2026-11-19 02:05:47,225 autoreload C:\advice_project\aqwe_app\agents\self_improve.py changed, reloading.
+INFO 2026-11-19 02:06:09,381 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-19 02:07:27,395 log Method Not Allowed: /agent-teacher/
+ERROR 2026-11-19 02:10:07,067 log Internal Server Error: /agent-teacher/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 3914, in post
+    result_loop = self.run_improvement_cycle(
+        initial_code="""
+    ...<3 lines>...
+        """
+    )
+  File "c:\advice_project\aqwe_app\views.py", line 3943, in run_improvement_cycle
+    result = loop.run(
+        test_function=self.test_teacher_agent,
+        initial_code=initial_code
+    )
+  File "c:\advice_project\aqwe_app\agents\self_improve.py", line 54, in run
+    analysis = self.agent.ask(question=analysis_prompt)
+TypeError: TeacherAgent.ask() missing 1 required positional argument: 'self'
+INFO 2026-11-19 02:11:25,949 autoreload C:\advice_project\aqwe_app\agents\self_improve.py changed, reloading.
+INFO 2026-11-19 02:12:49,041 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-19 02:18:40,985 log Method Not Allowed: /agent-teacher/
+ERROR 2026-11-19 02:21:42,520 log Internal Server Error: /agent-teacher/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 3914, in post
+    result_loop = self.run_improvement_cycle(
+        initial_code="""
+    ...<3 lines>...
+        """
+    )
+  File "c:\advice_project\aqwe_app\views.py", line 3943, in run_improvement_cycle
+    result = loop.run(
+        test_function=self.test_teacher_agent,
+        initial_code=initial_code
+    )
+  File "c:\advice_project\aqwe_app\agents\self_improve.py", line 54, in run
+    analysis = self.agent.ask(self, question=analysis_prompt)
+  File "c:\advice_project\aqwe_app\agents\teacher_agent.py", line 332, in ask
+    for tool_name, tool_info in self.tools.items():
+                                ^^^^^^^^^^
+AttributeError: 'SelfImproveLoop' object has no attribute 'tools'
+INFO 2026-11-19 02:42:39,493 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-19 02:44:56,500 autoreload Watching for file changes with StatReloader
+INFO 2026-11-19 02:47:03,848 autoreload C:\advice_project\aqwe_app\agents\teacher_agent.py changed, reloading.
+INFO 2026-11-19 02:48:09,951 autoreload Watching for file changes with StatReloader
+INFO 2026-11-19 03:01:08,251 autoreload C:\advice_project\aqwe_app\agents\self_improve.py changed, reloading.
+INFO 2026-11-19 03:10:49,626 autoreload Watching for file changes with StatReloader
+INFO 2026-11-19 03:19:55,640 autoreload C:\advice_project\aqwe_app\agents\self_improve.py changed, reloading.
+INFO 2026-11-19 03:24:04,474 autoreload Watching for file changes with StatReloader
+INFO 2026-11-19 03:38:56,782 autoreload C:\advice_project\aqwe_app\agents\self_improve.py changed, reloading.
+INFO 2026-11-19 03:40:04,870 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-19 03:42:51,821 log Method Not Allowed: /agent-teacher/
+WARNING 2026-11-19 03:47:49,470 teacher_agent Неизвестная структура ответа: ['input_transformations', 'top_logprobs', 'metadata', 'tool_usage', 'presence_penalty', 'reasoning', 'usage', 'created_at', 'tools', 'output', 'top_p', 'frequency_penalty', 'temperature', 'tool_choice', 'model', 'service_tier', 'id', 'text', 'truncation', 'image', 'store', 'completed_at', 'parallel_tool_calls', 'background', 'credits_consumed', 'object', 'status', 'prompt_cache_retention']
+ERROR 2026-11-19 03:47:51,507 log Internal Server Error: /agent-teacher/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 3914, in post
+    result_loop = self.run_improvement_cycle(
+        initial_code="""
+    ...<3 lines>...
+        """
+    )
+  File "c:\advice_project\aqwe_app\views.py", line 3943, in run_improvement_cycle
+    result = loop.run(
+        test_function=self.test_teacher_agent,
+        initial_code=initial_code
+    )
+  File "c:\advice_project\aqwe_app\agents\self_improve.py", line 55, in run
+    analysis = self.agent.ask(question=analysis_prompt)
+TypeError: TeacherAgent.ask() missing 1 required positional argument: 'self'
+INFO 2026-11-19 03:55:59,536 autoreload C:\advice_project\aqwe_app\agents\self_improve.py changed, reloading.
+INFO 2026-11-19 03:58:44,893 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-19 04:07:53,769 log Method Not Allowed: /agent-teacher/
+ERROR 2026-11-19 04:12:33,100 log Internal Server Error: /agent-teacher/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 3914, in post
+    result_loop = self.run_improvement_cycle(
+        initial_code="""
+    ...<3 lines>...
+        """
+    )
+  File "c:\advice_project\aqwe_app\views.py", line 3943, in run_improvement_cycle
+    result = loop.run(
+        test_function=self.test_teacher_agent,
+        initial_code=initial_code
+    )
+  File "c:\advice_project\aqwe_app\agents\self_improve.py", line 56, in run
+    analysis = self.agent._call_llm(self, prompt=analysis_prompt)
+  File "c:\advice_project\aqwe_app\agents\teacher_agent.py", line 181, in _call_llm
+    messages = self.context.copy()
+               ^^^^^^^^^^^^
+AttributeError: 'SelfImproveLoop' object has no attribute 'context'
+INFO 2026-11-19 04:34:52,988 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-19 04:36:34,321 autoreload Watching for file changes with StatReloader
+INFO 2026-11-19 04:41:35,628 autoreload C:\advice_project\aqwe_app\agents\self_improve.py changed, reloading.
+INFO 2026-11-19 04:42:25,195 autoreload Watching for file changes with StatReloader
+INFO 2026-11-19 04:44:08,869 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-19 04:44:24,911 autoreload Watching for file changes with StatReloader
+INFO 2026-11-19 04:47:37,620 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-19 04:47:52,351 autoreload Watching for file changes with StatReloader
+INFO 2026-11-19 04:49:46,446 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-19 04:50:07,171 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-19 04:50:46,508 log Method Not Allowed: /agent-teacher/
+WARNING 2026-11-19 04:52:59,953 teacher_agent Неизвестная структура ответа: ['input_transformations', 'top_logprobs', 'metadata', 'tool_usage', 'presence_penalty', 'reasoning', 'usage', 'created_at', 'tools', 'output', 'top_p', 'frequency_penalty', 'temperature', 'tool_choice', 'model', 'service_tier', 'id', 'text', 'truncation', 'image', 'store', 'completed_at', 'parallel_tool_calls', 'background', 'credits_consumed', 'object', 'status', 'prompt_cache_retention']
+ERROR 2026-11-19 04:53:05,114 teacher_agent Ошибка LLM: 400 Client Error: Bad Request for url: https://api.kie.ai/codex/v1/responses
+ERROR 2026-11-19 04:53:05,815 log Internal Server Error: /agent-teacher/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 3914, in post
+    result_loop = self.run_improvement_cycle(
+        initial_code="""
+    ...<3 lines>...
+        """
+    )
+  File "c:\advice_project\aqwe_app\views.py", line 3943, in run_improvement_cycle
+    result = loop.run(
+        test_function=SelfImproveLoop,
+        initial_code=initial_code
+    )
+  File "c:\advice_project\aqwe_app\agents\self_improve.py", line 56, in run
+    analysis = self.agent._call_llm(analysis_prompt)
+TypeError: TeacherAgent._call_llm() missing 1 required positional argument: 'prompt'
+INFO 2026-11-19 04:54:52,495 autoreload C:\advice_project\aqwe_app\agents\self_improve.py changed, reloading.
+INFO 2026-11-19 04:56:59,267 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-19 05:01:27,622 log Method Not Allowed: /agent-teacher/
+WARNING 2026-11-19 05:02:58,903 teacher_agent Неизвестная структура ответа: ['input_transformations', 'top_logprobs', 'metadata', 'tool_usage', 'presence_penalty', 'reasoning', 'usage', 'created_at', 'tools', 'output', 'top_p', 'frequency_penalty', 'temperature', 'tool_choice', 'model', 'service_tier', 'id', 'text', 'truncation', 'image', 'store', 'completed_at', 'parallel_tool_calls', 'background', 'credits_consumed', 'object', 'status', 'prompt_cache_retention']
+ERROR 2026-11-19 05:03:05,193 teacher_agent Ошибка LLM: 400 Client Error: Bad Request for url: https://api.kie.ai/codex/v1/responses
+ERROR 2026-11-19 05:03:06,012 log Internal Server Error: /agent-teacher/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 3914, in post
+    result_loop = self.run_improvement_cycle(
+        initial_code="""
+    ...<3 lines>...
+        """
+    )
+  File "c:\advice_project\aqwe_app\views.py", line 3943, in run_improvement_cycle
+    result = loop.run(
+        test_function=SelfImproveLoop,
+        initial_code=initial_code
+    )
+  File "c:\advice_project\aqwe_app\agents\self_improve.py", line 56, in run
+    analysis = self.agent._call_llm(prompt=analysis_prompt)
+TypeError: TeacherAgent._call_llm() missing 1 required positional argument: 'self'
+INFO 2026-11-19 05:03:58,213 autoreload C:\advice_project\aqwe_app\agents\self_improve.py changed, reloading.
+INFO 2026-11-19 05:04:43,614 autoreload Watching for file changes with StatReloader
+INFO 2026-11-19 05:19:17,558 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-19 05:20:00,944 autoreload Watching for file changes with StatReloader
+INFO 2026-11-19 05:23:00,383 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-19 05:23:21,494 autoreload Watching for file changes with StatReloader
+INFO 2026-11-19 05:28:14,230 autoreload C:\advice_project\aqwe_app\agents\self_improve.py changed, reloading.
+INFO 2026-11-19 05:28:33,185 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-19 05:29:08,208 log Method Not Allowed: /agent-teacher/
+ERROR 2026-11-19 05:31:08,719 log Internal Server Error: /agent-teacher/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 3914, in post
+    result_loop = self.run_improvement_cycle(
+        initial_code="""
+    ...<3 lines>...
+        """
+    )
+  File "c:\advice_project\aqwe_app\views.py", line 3944, in run_improvement_cycle
+    test_function=self.run,
+                  ^^^^^^^^
+AttributeError: 'TeacherAgentView' object has no attribute 'run'
+INFO 2026-11-19 05:32:30,337 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-19 05:33:26,711 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-19 05:34:29,715 log Method Not Allowed: /agent-teacher/
+ERROR 2026-11-19 05:36:25,463 log Internal Server Error: /agent-teacher/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 3914, in post
+    result_loop = self.run_improvement_cycle(
+        initial_code="""
+    ...<3 lines>...
+        """
+    )
+  File "c:\advice_project\aqwe_app\views.py", line 3943, in run_improvement_cycle
+    result = loop.run(
+        test_function=self.post,
+        initial_code=initial_code
+    )
+  File "c:\advice_project\aqwe_app\agents\self_improve.py", line 55, in run
+    analysis = self.agent.ask(self, question=analysis_prompt)
+  File "c:\advice_project\aqwe_app\agents\teacher_agent.py", line 348, in ask
+    return self._call_llm(enhanced_prompt)
+           ^^^^^^^^^^^^^^
+AttributeError: 'SelfImproveLoop' object has no attribute '_call_llm'
+INFO 2026-11-19 05:38:28,170 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-19 05:40:19,089 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-19 05:41:45,091 log Method Not Allowed: /agent-teacher/
+ERROR 2026-11-19 05:42:25,260 teacher_agent Ошибка LLM: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+WARNING 2026-11-19 05:43:42,785 teacher_agent Неизвестная структура ответа: ['input_transformations', 'top_logprobs', 'metadata', 'tool_usage', 'presence_penalty', 'reasoning', 'usage', 'created_at', 'tools', 'output', 'top_p', 'frequency_penalty', 'temperature', 'tool_choice', 'model', 'service_tier', 'id', 'text', 'truncation', 'image', 'store', 'completed_at', 'parallel_tool_calls', 'background', 'credits_consumed', 'object', 'status', 'prompt_cache_retention']
+ERROR 2026-11-19 05:43:44,173 log Internal Server Error: /agent-teacher/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 3914, in post
+    result_loop = self.run_improvement_cycle(
+        initial_code="""
+    ...<3 lines>...
+        """
+    )
+  File "c:\advice_project\aqwe_app\views.py", line 3943, in run_improvement_cycle
+    result = loop.run(
+        test_function=self.run_improvement_cycle,
+        initial_code=initial_code
+    )
+  File "c:\advice_project\aqwe_app\agents\self_improve.py", line 55, in run
+    analysis = self.agent.ask(self, question=analysis_prompt)
+  File "c:\advice_project\aqwe_app\agents\teacher_agent.py", line 348, in ask
+    return self._call_llm(enhanced_prompt)
+           ^^^^^^^^^^^^^^
+AttributeError: 'SelfImproveLoop' object has no attribute '_call_llm'
+INFO 2026-11-19 06:04:56,487 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-19 06:06:43,696 autoreload Watching for file changes with StatReloader
+INFO 2026-11-19 06:09:40,047 autoreload C:\advice_project\aqwe_app\agents\self_improve.py changed, reloading.
+INFO 2026-11-19 06:10:16,086 autoreload Watching for file changes with StatReloader
+INFO 2026-11-19 06:13:27,439 autoreload C:\advice_project\aqwe_app\agents\self_improve.py changed, reloading.
+INFO 2026-11-19 06:13:45,701 autoreload Watching for file changes with StatReloader
+INFO 2026-11-19 06:15:04,564 autoreload C:\advice_project\aqwe_app\agents\self_improve.py changed, reloading.
+INFO 2026-11-19 06:15:24,399 autoreload Watching for file changes with StatReloader
+INFO 2026-11-19 06:21:21,853 autoreload C:\advice_project\aqwe_app\agents\self_improve.py changed, reloading.
+INFO 2026-11-19 06:22:01,234 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-19 06:26:13,869 log Method Not Allowed: /agent-teacher/
+WARNING 2026-11-19 06:29:44,035 teacher_agent Неизвестная структура ответа: ['input_transformations', 'top_logprobs', 'metadata', 'tool_usage', 'presence_penalty', 'reasoning', 'usage', 'created_at', 'tools', 'output', 'top_p', 'frequency_penalty', 'temperature', 'tool_choice', 'model', 'service_tier', 'id', 'text', 'truncation', 'image', 'store', 'completed_at', 'parallel_tool_calls', 'background', 'credits_consumed', 'object', 'status', 'prompt_cache_retention']
+ERROR 2026-11-19 06:29:47,939 log Internal Server Error: /agent-teacher/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 3914, in post
+    result_loop = self.run_improvement_cycle(
+        initial_code="""
+    ...<3 lines>...
+        """
+    )
+  File "c:\advice_project\aqwe_app\views.py", line 3944, in run_improvement_cycle
+    result = loop.run(
+        test_function=self.run_improvement_cycle,
+        initial_code=initial_code
+    )
+  File "c:\advice_project\aqwe_app\agents\self_improve.py", line 63, in run
+    improved_code = self._extract_code_block(analysis)
+  File "c:\advice_project\aqwe_app\agents\self_improve.py", line 23, in _extract_code_block
+    match = re.search(r'python\s*(.?)\s```', analysis, re.DOTALL)
+  File "C:\python 3.13.2\Lib\re\__init__.py", line 177, in search
+    return _compile(pattern, flags).search(string)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+TypeError: expected string or bytes-like object, got 'tuple'
+INFO 2026-11-19 06:36:16,583 autoreload C:\advice_project\aqwe_app\agents\self_improve.py changed, reloading.
+INFO 2026-11-19 06:38:34,220 autoreload Watching for file changes with StatReloader
+INFO 2026-11-19 06:52:02,994 autoreload C:\advice_project\aqwe_app\agents\self_improve.py changed, reloading.
+INFO 2026-11-19 06:52:47,603 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-19 06:55:37,870 log Method Not Allowed: /agent-teacher/
+ERROR 2026-11-19 06:59:10,383 log Internal Server Error: /agent-teacher/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 3914, in post
+    result_loop = self.run_improvement_cycle(
+        initial_code="""
+    ...<3 lines>...
+        """
+    )
+  File "c:\advice_project\aqwe_app\views.py", line 3944, in run_improvement_cycle
+    result = loop.run(
+        test_function=self.run_improvement_cycle,
+        initial_code=initial_code
+    )
+  File "c:\advice_project\aqwe_app\agents\self_improve.py", line 69, in run
+    success = self.run(improved_code)
+TypeError: SelfImproveLoop.run() missing 1 required positional argument: 'initial_code'
+INFO 2026-11-19 07:01:49,198 autoreload C:\advice_project\aqwe_app\agents\self_improve.py changed, reloading.
+INFO 2026-11-19 07:02:56,607 autoreload Watching for file changes with StatReloader
+INFO 2026-11-19 07:05:55,604 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-19 07:07:16,994 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-19 07:08:16,099 log Method Not Allowed: /agent-teacher/
+ERROR 2026-11-19 07:10:58,073 log Internal Server Error: /agent-teacher/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 3914, in post
+    result_loop = self.run_improvement_cycle(
+        initial_code="""
+    ...<3 lines>...
+        """
+    )
+  File "c:\advice_project\aqwe_app\views.py", line 3944, in run_improvement_cycle
+    result = loop.run(
+        test_function=self.run_improvement_cycle,
+        initial_code=initial_code
+    )
+  File "c:\advice_project\aqwe_app\agents\self_improve.py", line 69, in run
+    success = self.run(initial_code=improved_code)
+TypeError: SelfImproveLoop.run() missing 1 required positional argument: 'test_function'
+INFO 2026-11-19 07:14:56,786 autoreload C:\advice_project\aqwe_app\agents\self_improve.py changed, reloading.
+INFO 2026-11-19 07:16:59,701 autoreload Watching for file changes with StatReloader
+INFO 2026-11-19 07:19:32,924 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-19 07:20:45,777 autoreload Watching for file changes with StatReloader
+INFO 2026-11-19 07:22:01,376 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-19 07:22:22,994 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-19 07:23:37,772 log Method Not Allowed: /agent-teacher/
+ERROR 2026-11-19 07:30:10,048 log Internal Server Error: /agent-teacher/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 3914, in post
+    result_loop = self.run_improvement_cycle(
+        initial_code="""
+    ...<2 lines>...
+        """
+    )
+  File "c:\advice_project\aqwe_app\views.py", line 3943, in run_improvement_cycle
+    result = loop.run(
+        test_function=self.run_improvement_cycle,
+        initial_code=initial_code
+    )
+  File "c:\advice_project\aqwe_app\agents\self_improve.py", line 69, in run
+    success, feedback = improved_code
+    ^^^^^^^^^^^^^^^^^
+TypeError: cannot unpack non-iterable NoneType object
+INFO 2026-11-19 07:41:41,062 autoreload C:\advice_project\aqwe_app\agents\self_improve.py changed, reloading.
+INFO 2026-11-19 07:43:34,659 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-19 07:48:48,140 log Method Not Allowed: /agent-teacher/
+INFO 2026-11-19 08:01:23,775 autoreload C:\advice_project\aqwe_app\agents\self_improve.py changed, reloading.
+INFO 2026-11-19 08:03:37,220 autoreload Watching for file changes with StatReloader
+INFO 2026-11-19 08:13:43,882 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-19 08:14:27,351 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-19 08:17:35,578 log Method Not Allowed: /agent-teacher/
+WARNING 2026-11-19 08:21:38,812 teacher_agent Неизвестная структура ответа: ['input_transformations', 'top_logprobs', 'metadata', 'tool_usage', 'presence_penalty', 'reasoning', 'usage', 'created_at', 'tools', 'output', 'top_p', 'frequency_penalty', 'temperature', 'tool_choice', 'model', 'service_tier', 'id', 'text', 'truncation', 'image', 'store', 'completed_at', 'parallel_tool_calls', 'background', 'credits_consumed', 'object', 'status', 'prompt_cache_retention']
+INFO 2026-11-19 08:28:06,243 autoreload C:\advice_project\aqwe_app\agents\self_improve.py changed, reloading.
+INFO 2026-11-19 08:30:18,192 autoreload Watching for file changes with StatReloader
+INFO 2026-11-19 08:39:04,018 autoreload C:\advice_project\aqwe_app\agents\self_improve.py changed, reloading.
+INFO 2026-11-19 08:39:47,263 autoreload Watching for file changes with StatReloader
+INFO 2026-11-19 08:43:17,116 autoreload C:\advice_project\aqwe_app\agents\self_improve.py changed, reloading.
+INFO 2026-11-19 08:43:38,573 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-19 08:47:03,329 log Method Not Allowed: /agent-teacher/
+INFO 2026-11-19 08:51:28,409 autoreload C:\advice_project\aqwe_app\agents\self_improve.py changed, reloading.
+INFO 2026-11-19 08:52:24,223 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-19 08:53:24,640 log Method Not Allowed: /agent-teacher/
+ERROR 2026-11-19 08:59:45,965 log Internal Server Error: /agent-teacher/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 3915, in post
+    result_loop = self.run_improvement_cycle(
+        initial_code="""
+    ...<2 lines>...
+        """
+    )
+  File "c:\advice_project\aqwe_app\views.py", line 3959, in run_improvement_cycle
+    result = loop.run(
+        test_function=self.run_improvement_cycle,
+        initial_code=initial_code
+    )
+  File "c:\advice_project\aqwe_app\agents\self_improve.py", line 67, in run
+    improved_code = self._extract_code_block(text)
+  File "c:\advice_project\aqwe_app\agents\self_improve.py", line 23, in _extract_code_block
+    content_list = text.get('output')[1].get('content')
+                   ^^^^^^^^
+AttributeError: 'str' object has no attribute 'get'
+INFO 2026-11-19 09:04:03,275 autoreload C:\advice_project\aqwe_app\agents\self_improve.py changed, reloading.
+INFO 2026-11-19 09:05:00,545 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-19 09:08:43,144 log Method Not Allowed: /agent-teacher/
+ERROR 2026-11-19 09:14:04,079 log Internal Server Error: /agent-teacher/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 3915, in post
+    result_loop = self.run_improvement_cycle(
+        initial_code="""
+    ...<2 lines>...
+        """
+    )
+  File "c:\advice_project\aqwe_app\views.py", line 3959, in run_improvement_cycle
+    result = loop.run(
+        test_function=self.run_improvement_cycle,
+        initial_code=initial_code
+    )
+  File "c:\advice_project\aqwe_app\agents\self_improve.py", line 68, in run
+    improved_code = self._extract_code_block(text)
+  File "c:\advice_project\aqwe_app\agents\self_improve.py", line 23, in _extract_code_block
+    text = text.get('text', '')
+           ^^^^^^^^
+AttributeError: 'str' object has no attribute 'get'
+INFO 2026-11-19 09:15:13,305 autoreload C:\advice_project\aqwe_app\agents\self_improve.py changed, reloading.
+INFO 2026-11-19 09:16:22,032 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-19 09:17:44,336 log Method Not Allowed: /agent-teacher/
+ERROR 2026-11-19 09:20:48,423 log Internal Server Error: /agent-teacher/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 3915, in post
+    result_loop = self.run_improvement_cycle(
+        initial_code="""
+    ...<2 lines>...
+        """
+    )
+  File "c:\advice_project\aqwe_app\views.py", line 3959, in run_improvement_cycle
+    result = loop.run(
+        test_function=self.run_improvement_cycle,
+        initial_code=initial_code
+    )
+  File "c:\advice_project\aqwe_app\agents\self_improve.py", line 86, in run
+    feedback = improved_code.get('text', '')
+               ^^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'get'
+INFO 2026-11-19 09:22:07,853 autoreload C:\advice_project\aqwe_app\agents\self_improve.py changed, reloading.
+INFO 2026-11-19 09:22:58,412 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-19 09:25:23,279 log Method Not Allowed: /agent-teacher/
+INFO 2026-11-19 09:26:51,650 autoreload C:\advice_project\aqwe_app\agents\self_improve.py changed, reloading.
+INFO 2026-11-19 09:27:37,708 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-19 09:28:37,891 log Method Not Allowed: /agent-teacher/
+INFO 2026-11-19 09:38:58,506 autoreload C:\advice_project\aqwe_app\agents\self_improve.py changed, reloading.
+INFO 2026-11-19 09:39:55,730 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-19 09:43:19,168 log Method Not Allowed: /agent-teacher/
+ERROR 2026-11-19 09:49:27,372 log Internal Server Error: /agent-teacher/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 3915, in post
+    result_loop = self.run_improvement_cycle(
+        initial_code="""
+    ...<2 lines>...
+        """
+    )
+  File "c:\advice_project\aqwe_app\views.py", line 3959, in run_improvement_cycle
+    result = loop.run(
+        test_function=self.run_improvement_cycle,
+        initial_code=initial_code
+    )
+  File "c:\advice_project\aqwe_app\agents\self_improve.py", line 68, in run
+    improved_code = self._extract_code_block(text)
+  File "c:\advice_project\aqwe_app\agents\self_improve.py", line 29, in _extract_code_block
+    return match.group(1).strip() if match else None
+           ~~~~~~~~~~~^^^
+IndexError: no such group
+INFO 2026-11-19 10:06:36,598 autoreload C:\advice_project\aqwe_app\agents\self_improve.py changed, reloading.
+INFO 2026-11-19 10:11:06,167 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-19 10:20:01,812 log Method Not Allowed: /agent-teacher/
+WARNING 2026-11-19 10:21:44,691 log Bad Request: /agent-teacher/
+WARNING 2026-11-19 10:22:40,600 log Bad Request: /agent-teacher/
+INFO 2026-11-19 11:03:45,926 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-19 11:11:32,624 autoreload Watching for file changes with StatReloader
+INFO 2026-11-19 11:17:56,369 autoreload C:\advice_project\aqwe_app\agents\self_improve.py changed, reloading.
+INFO 2026-11-19 11:19:36,195 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-19 11:23:55,095 log Method Not Allowed: /auditor-checker/
+ERROR 2026-11-19 11:28:17,780 auditor_checker_agent Аудит не удался: HTTPSConnectionPool(host='api.kie.ai', port=443): Max retries exceeded with url: /gemini/v1/models/gemini-4-carbon:generateContent (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)')))
+ERROR 2026-11-19 11:31:28,842 log Internal Server Error: /auditor-checker/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 4574, in post
+    f"**Что получилось:** Выявлены ключевые точки роста. Чистая прибыль: {check['economics']['net_profit']} ед.\n"
+                                                                          ~~~~~^^^^^^^^^^^^^
+KeyError: 'economics'
+INFO 2026-11-19 11:43:42,832 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-19 11:45:52,201 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-19 11:51:45,961 log Method Not Allowed: /auditor-checker/
+INFO 2026-11-19 12:12:58,943 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-19 12:16:23,801 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-19 12:18:58,668 log Method Not Allowed: /auditor-checker/
+WARNING 2026-11-19 12:20:19,067 log Bad Request: /auditor-checker/
+INFO 2026-11-19 12:45:58,230 autoreload C:\advice_project\aqwe_app\code_sandbox.py changed, reloading.
+INFO 2026-11-19 12:48:06,393 autoreload Watching for file changes with StatReloader
+INFO 2026-11-19 12:52:29,513 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-19 12:53:13,726 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-19 13:04:49,106 log Method Not Allowed: /auditor-checker/
+INFO 2026-11-19 13:20:03,980 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-19 13:23:02,758 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-19 13:25:44,819 log Method Not Allowed: /auditor-checker/
+WARNING 2026-11-19 13:27:26,328 log Bad Request: /auditor-checker/
+INFO 2026-11-19 13:42:27,482 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-19 13:44:39,464 autoreload Watching for file changes with StatReloader
+INFO 2026-11-19 13:52:23,123 autoreload C:\advice_project\aqwe_app\code_sandbox.py changed, reloading.
+INFO 2026-11-19 13:53:14,067 autoreload Watching for file changes with StatReloader
+INFO 2026-11-19 13:54:37,691 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-19 13:56:04,952 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-19 14:01:10,295 log Method Not Allowed: /auditor-checker/
+ERROR 2026-11-19 14:07:57,334 log Internal Server Error: /auditor-checker/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+  File "C:\advice_project\env\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\response.py", line 74, in rendered_content
+    ret = renderer.render(self.data, accepted_media_type, context)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\renderers.py", line 727, in render
+    context = self.get_context(data, accepted_media_type, renderer_context)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\renderers.py", line 683, in get_context
+    'content': self.get_content(renderer, data, accepted_media_type, renderer_context),
+               ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\renderers.py", line 413, in get_content
+    content = renderer.render(data, accepted_media_type, renderer_context)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\renderers.py", line 100, in render
+    ret = json.dumps(
+        data, cls=self.encoder_class,
+        indent=indent, ensure_ascii=self.ensure_ascii,
+        allow_nan=not self.strict, separators=separators
+    )
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\utils\json.py", line 25, in dumps
+    return json.dumps(*args, **kwargs)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\python 3.13.2\Lib\json\__init__.py", line 238, in dumps
+    **kw).encode(obj)
+          ~~~~~~^^^^^
+  File "C:\python 3.13.2\Lib\json\encoder.py", line 200, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+  File "C:\python 3.13.2\Lib\json\encoder.py", line 261, in iterencode
+    return _iterencode(o, 0)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\utils\encoders.py", line 67, in default
+    return super().default(obj)
+           ~~~~~~~~~~~~~~~^^^^^
+  File "C:\python 3.13.2\Lib\json\encoder.py", line 180, in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+                    f'is not JSON serializable')
+TypeError: Object of type CompletedProcess is not JSON serializable
+INFO 2026-11-19 14:10:59,119 autoreload C:\advice_project\aqwe_app\code_sandbox.py changed, reloading.
+INFO 2026-11-19 14:12:10,771 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-19 14:13:12,024 log Method Not Allowed: /auditor-checker/
+WARNING 2026-11-19 14:13:34,650 log Bad Request: /auditor-checker/
+WARNING 2026-11-19 14:14:54,422 log Bad Request: /auditor-checker/
+INFO 2026-11-19 14:37:34,605 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-19 14:40:36,374 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-19 14:43:53,019 log Method Not Allowed: /auditor-checker/
+INFO 2026-11-19 15:42:07,600 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-19 15:46:35,188 log Method Not Allowed: /auditor-checker/
+INFO 2026-11-20 03:24:47,669 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-20 03:30:17,295 log Method Not Allowed: /agent-teacher/
+ERROR 2026-11-20 03:31:48,707 teacher_agent Ошибка LLM: HTTPSConnectionPool(host='api.kie.ai', port=443): Max retries exceeded with url: /codex/v1/responses (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x000002845E9112B0>: Failed to resolve 'api.kie.ai' ([Errno 11001] getaddrinfo failed)"))
+ERROR 2026-11-20 03:31:48,781 teacher_agent Ошибка LLM: HTTPSConnectionPool(host='api.kie.ai', port=443): Max retries exceeded with url: /codex/v1/responses (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x000002845EA7E710>: Failed to resolve 'api.kie.ai' ([Errno 11001] getaddrinfo failed)"))
+ERROR 2026-11-20 03:31:59,818 teacher_agent Ошибка LLM: HTTPSConnectionPool(host='api.kie.ai', port=443): Max retries exceeded with url: /codex/v1/responses (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x000002845EA7F9D0>: Failed to resolve 'api.kie.ai' ([Errno 11001] getaddrinfo failed)"))
+WARNING 2026-11-20 03:34:21,472 log Method Not Allowed: /auditor-checker/
+ERROR 2026-11-20 03:35:21,215 auditor_checker_agent Аудит не удался: HTTPSConnectionPool(host='api.kie.ai', port=443): Max retries exceeded with url: /gemini/v1/models/gemini-4-carbon:generateContent (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x000002845EA7C690>: Failed to resolve 'api.kie.ai' ([Errno 11001] getaddrinfo failed)"))
+ERROR 2026-11-20 03:35:27,016 log Internal Server Error: /auditor-checker/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\urllib3\connection.py", line 196, in _new_conn
+    sock = connection.create_connection(
+        (self._dns_host, self.port),
+    ...<2 lines>...
+        socket_options=self.socket_options,
+    )
+  File "C:\advice_project\env\Lib\site-packages\urllib3\util\connection.py", line 60, in create_connection
+    for res in socket.getaddrinfo(host, port, family, socket.SOCK_STREAM):
+               ~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\python 3.13.2\Lib\socket.py", line 977, in getaddrinfo
+    for res in _socket.getaddrinfo(host, port, family, type, proto, flags):
+               ~~~~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+socket.gaierror: [Errno 11001] getaddrinfo failed
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\urllib3\connectionpool.py", line 789, in urlopen
+    response = self._make_request(
+        conn,
+    ...<10 lines>...
+        **response_kw,
+    )
+  File "C:\advice_project\env\Lib\site-packages\urllib3\connectionpool.py", line 490, in _make_request
+    raise new_e
+  File "C:\advice_project\env\Lib\site-packages\urllib3\connectionpool.py", line 466, in _make_request
+    self._validate_conn(conn)
+    ~~~~~~~~~~~~~~~~~~~^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\urllib3\connectionpool.py", line 1095, in _validate_conn
+    conn.connect()
+    ~~~~~~~~~~~~^^
+  File "C:\advice_project\env\Lib\site-packages\urllib3\connection.py", line 615, in connect
+    self.sock = sock = self._new_conn()
+                       ~~~~~~~~~~~~~~^^
+  File "C:\advice_project\env\Lib\site-packages\urllib3\connection.py", line 203, in _new_conn
+    raise NameResolutionError(self.host, self, e) from e
+urllib3.exceptions.NameResolutionError: <urllib3.connection.HTTPSConnection object at 0x000002845EAF0190>: Failed to resolve 'api.kie.ai' ([Errno 11001] getaddrinfo failed)
+
+The above exception was the direct cause of the following exception:
+
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\requests\adapters.py", line 644, in send
+    resp = conn.urlopen(
+        method=request.method,
+    ...<9 lines>...
+        chunked=chunked,
+    )
+  File "C:\advice_project\env\Lib\site-packages\urllib3\connectionpool.py", line 843, in urlopen
+    retries = retries.increment(
+        method, url, error=new_e, _pool=self, _stacktrace=sys.exc_info()[2]
+    )
+  File "C:\advice_project\env\Lib\site-packages\urllib3\util\retry.py", line 519, in increment
+    raise MaxRetryError(_pool, url, reason) from reason  # type: ignore[arg-type]
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+urllib3.exceptions.MaxRetryError: HTTPSConnectionPool(host='api.kie.ai', port=443): Max retries exceeded with url: /gemini/v1/models/gemini-4-carbon:generateContent (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x000002845EAF0190>: Failed to resolve 'api.kie.ai' ([Errno 11001] getaddrinfo failed)"))
+
+During handling of the above exception, another exception occurred:
+
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 4553, in post
+    document = agent._check_document(text=text)
+  File "c:\advice_project\aqwe_app\agents\auditor_checker_agent.py", line 198, in _check_document
+    response = requests.post(
+        f"{self.base_url}/gemini/v1/models/gemini-4-carbon:generateContent",
+    ...<17 lines>...
+        timeout=(30, 3600)
+    )
+  File "C:\advice_project\env\Lib\site-packages\requests\api.py", line 115, in post
+    return request("post", url, data=data, json=json, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\requests\api.py", line 59, in request
+    return session.request(method=method, url=url, **kwargs)
+           ~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\requests\sessions.py", line 589, in request
+    resp = self.send(prep, **send_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\requests\sessions.py", line 703, in send
+    r = adapter.send(request, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\requests\adapters.py", line 677, in send
+    raise ConnectionError(e, request=request)
+requests.exceptions.ConnectionError: HTTPSConnectionPool(host='api.kie.ai', port=443): Max retries exceeded with url: /gemini/v1/models/gemini-4-carbon:generateContent (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x000002845EAF0190>: Failed to resolve 'api.kie.ai' ([Errno 11001] getaddrinfo failed)"))
+WARNING 2026-11-20 03:36:32,584 log Method Not Allowed: /agent-teacher/
+ERROR 2026-11-20 03:50:58,348 teacher_agent Ошибка извлечения: list index out of range | Данные: {'input_transformations': [], 'top_logprobs': 0, 'metadata': {}, 'tool_usage': {'image_gen': {'input_tokens_details': {'text_tokens': 0, 'image_tokens': 0}, 'total_tokens': 0, 'output_tokens': 0, 'input_tokens': 0, 'output_tokens_details': {'text_tokens': 0, 'image_tokens': 0}}, 'web_search': {'num_requests': 0}}, 'presence_penalty': 0.0, 'reasoning': {'mode': 'standard', 'context': 'all_turns', 'effort': 'xhigh'}, 'usage': {'input_tokens_details': {'cache_write_tokens': 0, 'cache_write_tokens_details': {'ttl_12h_tokens': 0, 'ttl_30m_tokens': 0}, 'cached_tokens': 0}, 'total_tokens': 1841, 'output_tokens': 401, 'input_tokens': 1440, 'output_tokens_details': {'reasoning_tokens': 0}}, 'created_at': 1795135848, 'tools': [{'name': 'web_search', 'description': 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает', 'type': 'function', 'strict': True, 'parameters': {'additionalProperties': False, 'type': 'object', 'properties': {'query': {'description': 'Запрос', 'type': 'string'}}, 'required': ['query']}}, {'name': 'web_fetch', 'description': 'Загрузка и парсинг веб-страниц использовать эту функцию если не работает встроенная', 'type': 'function', 'strict': True, 'parameters': {'additionalProperties': False, 'type': 'object', 'properties': {'query': {'description': 'Запрос', 'type': 'string'}}, 'required': ['query']}}, {'name': 'search_by_wikipedia', 'description': 'Поиск статей в Wikipedia', 'type': 'function', 'strict': True, 'parameters': {'additionalProperties': False, 'type': 'object', 'properties': {'query': {'description': 'Запрос', 'type': 'string'}}, 'required': ['query']}}, {'name': 'search_internet', 'description': 'Поиск в интернете с помощью тавили или серпера', 'type': 'function', 'strict': True, 'parameters': {'additionalProperties': False, 'type': 'object', 'properties': {'query': {'description': 'Запрос', 'type': 'string'}}, 'required': ['query']}}, {'name': 'read_file', 'description': 'Чтение файла', 'type':
+ERROR 2026-11-20 03:51:09,457 teacher_agent Ошибка LLM: 400 Client Error: Bad Request for url: https://api.kie.ai/codex/v1/responses
+WARNING 2026-11-20 03:59:21,421 log Method Not Allowed: /auditor-checker/
+INFO 2026-11-20 04:17:09,235 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-20 04:21:18,506 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-20 04:27:56,343 log Method Not Allowed: /auditor-checker/
+INFO 2026-11-20 04:31:57,962 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-20 04:33:59,074 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-20 04:35:59,795 log Method Not Allowed: /auditor-checker/
+INFO 2026-11-20 04:50:14,940 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-20 04:52:10,519 autoreload Watching for file changes with StatReloader
+INFO 2026-11-20 04:55:45,338 autoreload C:\advice_project\aqwe_app\code_sandbox.py changed, reloading.
+INFO 2026-11-20 04:56:28,937 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-20 04:58:31,017 log Method Not Allowed: /auditor-checker/
+ERROR 2026-11-20 05:08:24,145 log Internal Server Error: /auditor-checker/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+  File "C:\advice_project\env\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\response.py", line 74, in rendered_content
+    ret = renderer.render(self.data, accepted_media_type, context)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\renderers.py", line 727, in render
+    context = self.get_context(data, accepted_media_type, renderer_context)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\renderers.py", line 683, in get_context
+    'content': self.get_content(renderer, data, accepted_media_type, renderer_context),
+               ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\renderers.py", line 413, in get_content
+    content = renderer.render(data, accepted_media_type, renderer_context)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\renderers.py", line 100, in render
+    ret = json.dumps(
+        data, cls=self.encoder_class,
+        indent=indent, ensure_ascii=self.ensure_ascii,
+        allow_nan=not self.strict, separators=separators
+    )
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\utils\json.py", line 25, in dumps
+    return json.dumps(*args, **kwargs)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\python 3.13.2\Lib\json\__init__.py", line 238, in dumps
+    **kw).encode(obj)
+          ~~~~~~^^^^^
+  File "C:\python 3.13.2\Lib\json\encoder.py", line 200, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+  File "C:\python 3.13.2\Lib\json\encoder.py", line 261, in iterencode
+    return _iterencode(o, 0)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\utils\encoders.py", line 67, in default
+    return super().default(obj)
+           ~~~~~~~~~~~~~~~^^^^^
+  File "C:\python 3.13.2\Lib\json\encoder.py", line 180, in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+                    f'is not JSON serializable')
+TypeError: Object of type CompletedProcess is not JSON serializable
+INFO 2026-11-20 05:18:02,320 autoreload C:\advice_project\aqwe_app\code_sandbox.py changed, reloading.
+INFO 2026-11-20 05:22:14,553 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-20 05:26:09,915 log Method Not Allowed: /auditor-checker/
+INFO 2026-11-20 05:45:30,299 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-20 05:51:56,831 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-20 05:55:44,220 log Method Not Allowed: /auditor-checker/
+INFO 2026-11-20 06:19:35,560 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-20 06:28:06,173 log Method Not Allowed: /auditor-checker/
+WARNING 2026-11-20 06:30:27,958 log Bad Request: /auditor-checker/
+INFO 2026-11-20 06:45:25,800 autoreload C:\advice_project\aqwe_app\code_sandbox.py changed, reloading.
+INFO 2026-11-20 06:47:02,237 autoreload Watching for file changes with StatReloader
+INFO 2026-11-20 07:11:15,599 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-20 07:14:20,617 autoreload Watching for file changes with StatReloader
+INFO 2026-11-20 07:34:28,068 autoreload C:\advice_project\aqwe_app\agents\self_improve.py changed, reloading.
+INFO 2026-11-20 07:52:25,388 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-20 08:05:47,397 log Method Not Allowed: /auditor-checker/
+INFO 2026-11-20 08:14:15,381 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-20 08:15:52,821 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-20 08:18:39,398 log Method Not Allowed: /auditor-checker/
+INFO 2026-11-20 08:29:22,063 autoreload C:\advice_project\aqwe_app\code_sandbox.py changed, reloading.
+INFO 2026-11-20 08:29:58,890 autoreload Watching for file changes with StatReloader
+INFO 2026-11-20 08:35:57,247 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-20 08:36:11,523 autoreload Watching for file changes with StatReloader
+ERROR 2026-11-20 08:45:16,817 log Internal Server Error: /auditor-checker/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 220, in _get_response
+    response = response.render()
+  File "C:\advice_project\env\Lib\site-packages\django\template\response.py", line 114, in render
+    self.content = self.rendered_content
+                   ^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\response.py", line 74, in rendered_content
+    ret = renderer.render(self.data, accepted_media_type, context)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\renderers.py", line 727, in render
+    context = self.get_context(data, accepted_media_type, renderer_context)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\renderers.py", line 683, in get_context
+    'content': self.get_content(renderer, data, accepted_media_type, renderer_context),
+               ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\renderers.py", line 413, in get_content
+    content = renderer.render(data, accepted_media_type, renderer_context)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\renderers.py", line 100, in render
+    ret = json.dumps(
+        data, cls=self.encoder_class,
+        indent=indent, ensure_ascii=self.ensure_ascii,
+        allow_nan=not self.strict, separators=separators
+    )
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\utils\json.py", line 25, in dumps
+    return json.dumps(*args, **kwargs)
+           ~~~~~~~~~~^^^^^^^^^^^^^^^^^
+  File "C:\python 3.13.2\Lib\json\__init__.py", line 238, in dumps
+    **kw).encode(obj)
+          ~~~~~~^^^^^
+  File "C:\python 3.13.2\Lib\json\encoder.py", line 200, in encode
+    chunks = self.iterencode(o, _one_shot=True)
+  File "C:\python 3.13.2\Lib\json\encoder.py", line 261, in iterencode
+    return _iterencode(o, 0)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\utils\encoders.py", line 67, in default
+    return super().default(obj)
+           ~~~~~~~~~~~~~~~^^^^^
+  File "C:\python 3.13.2\Lib\json\encoder.py", line 180, in default
+    raise TypeError(f'Object of type {o.__class__.__name__} '
+                    f'is not JSON serializable')
+TypeError: Object of type CompletedProcess is not JSON serializable
+INFO 2026-11-20 08:48:07,524 autoreload C:\advice_project\aqwe_app\code_sandbox.py changed, reloading.
+INFO 2026-11-20 08:48:43,815 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-20 08:52:45,218 log Method Not Allowed: /auditor-checker/
+WARNING 2026-11-20 09:06:20,851 log Method Not Allowed: /agent-teacher/
+WARNING 2026-11-20 09:14:19,805 teacher_agent Неизвестная структура ответа: ['input_transformations', 'top_logprobs', 'metadata', 'tool_usage', 'presence_penalty', 'reasoning', 'usage', 'created_at', 'tools', 'output', 'top_p', 'frequency_penalty', 'temperature', 'tool_choice', 'model', 'service_tier', 'id', 'text', 'truncation', 'image', 'store', 'completed_at', 'parallel_tool_calls', 'background', 'credits_consumed', 'object', 'status', 'prompt_cache_retention']
+ERROR 2026-11-20 09:14:24,201 teacher_agent Ошибка LLM: 400 Client Error: Bad Request for url: https://api.kie.ai/codex/v1/responses
+WARNING 2026-11-20 09:15:00,818 teacher_agent Неизвестная структура ответа: ['input_transformations', 'top_logprobs', 'metadata', 'tool_usage', 'presence_penalty', 'reasoning', 'usage', 'created_at', 'tools', 'output', 'top_p', 'frequency_penalty', 'temperature', 'tool_choice', 'model', 'service_tier', 'id', 'text', 'truncation', 'image', 'store', 'completed_at', 'parallel_tool_calls', 'background', 'credits_consumed', 'object', 'status', 'prompt_cache_retention']
+ERROR 2026-11-20 09:15:03,305 log Internal Server Error: /agent-teacher/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 3918, in post
+    result_loop = self.run_improvement_cycle(initial_code)
+  File "c:\advice_project\aqwe_app\views.py", line 3957, in run_improvement_cycle
+    result = loop.run(
+        test_function=self.run_improvement_cycle,
+        initial_code=initial_code
+    )
+  File "c:\advice_project\aqwe_app\agents\self_improve.py", line 68, in run
+    improved_code = self._extract_code_block(text)
+  File "c:\advice_project\aqwe_app\agents\self_improve.py", line 28, in _extract_code_block
+    match = re.search(r'```', text, re.DOTALL)
+  File "C:\python 3.13.2\Lib\re\__init__.py", line 177, in search
+    return _compile(pattern, flags).search(string)
+           ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^^^^
+TypeError: expected string or bytes-like object, got 'tuple'
+INFO 2026-11-20 09:16:43,280 autoreload C:\advice_project\aqwe_app\agents\self_improve.py changed, reloading.
+INFO 2026-11-20 09:17:26,889 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-20 09:19:52,414 log Method Not Allowed: /agent-teacher/
+ERROR 2026-11-20 09:21:09,362 teacher_agent Ошибка извлечения: argument of type 'NoneType' is not iterable | Данные: {'input_transformations': [], 'top_logprobs': 0, 'tool_usage': {'image_gen': {'input_tokens_details': {'text_tokens': 0, 'image_tokens': 0}, 'total_tokens': 0, 'output_tokens': 0, 'input_tokens': 0, 'output_tokens_details': {'text_tokens': 0, 'image_tokens': 0}}, 'web_search': {'num_requests': 1}}, 'presence_penalty': 0.0, 'reasoning': {'mode': 'standard', 'summary': 'detailed', 'context': 'all_turns', 'effort': 'xhigh'}, 'usage': {'input_tokens_details': {'cache_write_tokens_details': {'ttl_12h_tokens': 0, 'ttl_30m_tokens': 19680}, 'cached_tokens': 0}, 'total_tokens': 22694, 'output_tokens': 3011, 'input_tokens': 19683, 'output_tokens_details': {'reasoning_tokens': 1889}}, 'created_at': 1795155621, 'tools': [{'name': 'web_search', 'description': 'Ищет актуальную информацию в интернете. Использовать эту функцию только если встроенный не работает', 'type': 'function', 'parameters': {'type': 'object', 'properties': {'query': {'description': 'Запрос', 'type': 'string'}}, 'required': ['query']}}, {'name': 'web_fetch', 'description': 'Загрузка и парсинг веб-страниц использовать эту функцию если не работает встроенная', 'type': 'function', 'parameters': {'type': 'object', 'properties': {'query': {'description': 'Запрос', 'type': 'string'}}, 'required': ['query']}}, {'name': 'search_by_wikipedia', 'description': 'Поиск статей в Wikipedia', 'type': 'function', 'parameters': {'type': 'object', 'properties': {'query': {'description': 'Запрос', 'type': 'string'}}, 'required': ['query']}}, {'name': 'search_internet', 'description': 'Поиск в интернете с помощью тавили или серпера', 'type': 'function', 'parameters': {'type': 'object', 'properties': {'query': {'description': 'Запрос', 'type': 'string'}}, 'required': ['query']}}, {'name': 'read_file', 'description': 'Чтение файла', 'type': 'function', 'parameters': {'type': 'object', 'properties': {'query': {'description': 'Запрос', 'type': 'string'}}, 'required': ['query']}}, {'name': 'edit_file', 'description': 'Редактирование фа
+ERROR 2026-11-20 09:21:14,012 teacher_agent Ошибка LLM: 400 Client Error: Bad Request for url: https://api.kie.ai/codex/v1/responses
+INFO 2026-11-20 09:28:24,351 autoreload C:\advice_project\aqwe_app\agents\self_improve.py changed, reloading.
+INFO 2026-11-20 09:29:01,968 autoreload Watching for file changes with StatReloader
+INFO 2026-11-20 09:35:44,712 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-20 09:36:00,558 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-20 09:36:44,885 log Method Not Allowed: /agent-teacher/
+WARNING 2026-11-20 09:39:04,442 teacher_agent Неизвестная структура ответа: ['input_transformations', 'top_logprobs', 'metadata', 'tool_usage', 'presence_penalty', 'reasoning', 'usage', 'created_at', 'tools', 'output', 'top_p', 'frequency_penalty', 'temperature', 'tool_choice', 'model', 'service_tier', 'id', 'text', 'truncation', 'image', 'store', 'completed_at', 'parallel_tool_calls', 'background', 'credits_consumed', 'object', 'status', 'prompt_cache_retention']
+ERROR 2026-11-20 09:39:08,608 teacher_agent Ошибка LLM: 400 Client Error: Bad Request for url: https://api.kie.ai/codex/v1/responses
+INFO 2026-11-20 10:00:07,989 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-20 10:03:05,584 log Method Not Allowed: /agent-teacher/

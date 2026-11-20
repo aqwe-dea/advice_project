@@ -7,7 +7,7 @@ from typing import Dict, List, IO, TYPE_CHECKING, Any, Type, Tuple, Union, Mappi
 
 logger = logging.getLogger(__name__)
 
-def python_sandbox(code: str, timeout: int = 30, memory_limit_mb: int = 256) -> Dict[str, Any]:
+def python_sandbox(code: str, timeout: int = 300, memory_limit_mb: int = 256) -> Dict[str, Any]:
     """Безопасное исполнение Python кода в изолированной среде"""
     try:
         with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
@@ -28,11 +28,11 @@ def python_sandbox(code: str, timeout: int = 30, memory_limit_mb: int = 256) -> 
         )
         
         os.unlink(temp_file)
-        
+
         return {
             "success": result.returncode == 0,
-            "stdout": result.stdout[:2000],  # ограничиваем вывод
-            "stderr": result.stderr[:1000],
+            "stdout": result.stdout,  # ограничиваем вывод
+            "stderr": result.stderr,
             "returncode": result.returncode
         }
     except subprocess.TimeoutExpired:
