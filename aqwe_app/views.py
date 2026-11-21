@@ -4554,15 +4554,8 @@ class AuditorCheckerView(APIView):
         document = agent._check_document(text=text)
         
         # Пример вызова в любом агенте или скрипте
-        run_code = """DEFAULT_NAME = "Senora AQWE"
-            def format_greeting(name: str = DEFAULT_NAME) -> str:                
-                if not isinstance(name, str):
-                    raise TypeError(f"Ожидалась строка (str), получено: {type(name).__name__}")
-                clean_name = name.strip()
-                if not clean_name:
-                    raise ValueError("Имя получателя не может быть пустым.")
-            def hello_senora_aqwe() -> str:
-                return format_greeting(name=DEFAULT_NAME)
+        run_code = """def hello_senora_aqwe() -> str:
+            return "Hello, Senora AQWE"
         """
         # Вызов функции (предполагая, что она импортирована из tools)
         
@@ -4610,12 +4603,12 @@ class AuditorCheckerView(APIView):
         """
         result = python_sandbox(code=run_code, timeout=300)
         # result будет словарем: {"success": True, "output": "Привет, Сеньора АКВИ!\n", "error": None}
-        return result
-        #if result.get("success"):
+        #return result
+        if result.get("success"):
         #    return result
-            #return result or "Код выполнился успешно!"
-        #else:
-        #    return (f"Ошибка: {result.get('error')}")
+            return "Код выполнился успешно!"
+        else:
+            return (f"Ошибка: {result.get('error')}")
 
 class PartnerRepresentativeView(APIView):
     """API Endpoint для вызова самоокупаемого агента Partner-Representative"""

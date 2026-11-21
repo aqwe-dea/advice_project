@@ -1,5 +1,5 @@
 import subprocess
-import json
+import sys
 import tempfile
 import os
 import logging
@@ -10,32 +10,41 @@ logger = logging.getLogger(__name__)
 def python_sandbox(code: str, timeout: int = 300, memory_limit_mb: int = 256) -> Dict[str, Any]:
     """Безопасное исполнение Python кода в изолированной среде"""
     try:
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False) as f:
+        # Создаем временный файл для кода
+        with tempfile.NamedTemporaryFile(mode='w', suffix='.py', delete=False, encoding='utf-8') as f:
             f.write(code)
             temp_file = f.name
         
-        # Ограничение памяти через ulimit (Linux/Mac)
-        cmd = ["python", temp_file]
-        if os.name != 'nt':  # Не Windows
-            cmd = ["timeout", str(timeout)] + cmd
+        # Используем текущий интерпретатор Python для гарантии совместимости
+        cmd = [sys.executable, temp_file]
         
+        # Настройка окружения для буферизации
+        env = os.environ.copy()
+        env["PYTHONUNBUFFERED"] = "1"
+        
+        # Запуск процесса
         result = subprocess.run(
             cmd,
             capture_output=True,
             text=True,
-            timeout=timeout + 5,  # буфер 5 секунд
-            env={**os.environ, "PYTHONUNBUFFERED": "1"}
+            timeout=timeout,
+            env=env
         )
         
+        # Очистка
         os.unlink(temp_file)
 
         return {
             "success": result.returncode == 0,
-            "stdout": result.stdout,  # ограничиваем вывод
-            "stderr": result.stderr,
+            "stdout": result.stdout.strip()[:2000],  # Ограничиваем вывод, чтобы не забивать память
+            "stderr": result.stderr.strip()[:2000],
             "returncode": result.returncode
         }
     except subprocess.TimeoutExpired:
-        return {"error": f"Code execution timeout (> {timeout}s)"}
+        if 'temp_file' in locals() and os.path.exists(temp_file):
+            os.unlink(temp_file)
+        return {"success": False, "error": f"Превышено время выполнения кода (> {timeout} сек)"}
     except Exception as e:
-        return {"error": str(e)}
+        if 'temp_file' in locals() and os.path.exists(temp_file):
+            os.unlink(temp_file)
+        return {"success": False, "error": f"Критическая ошибка среды: {str(e)}"}

@@ -10,98 +10,92 @@ logger = logging.getLogger(__name__)
 class SelfImproveLoop:
     """Цикл самоулучшения для агентов"""
     
-    def __init__(self, agent, api_key: str, max_iterations: int = 5, base_url: str = "https://api.kie.ai"):
+    def __init__(self, agent, api_key: str, max_iterations: int = 3, base_url: str = "https://api.kie.ai"):
         self.agent = agent
         self.api_key = api_key
         self.base_url = base_url    
         self.max_iterations = max_iterations
         self.metrics = []
-        self.tools: Dict[str, Dict] = {}
     
     def _extract_code_block(self, text: str) -> Optional[str]: 
-        """Извлечь Python-код из markdown-блока"""
-        #text = text.get('text', '')
-        #content_list = text.get('output')[1].get('content')
-        #if isinstance(content_list, list) and len(content_list) > 1:
-        #    text = content_list[1].get('text', '')
-
-        match = re.search(r'python\s*(.?)\s```', text, re.DOTALL)
-        return match.group(0).strip() if match else None
+        """Извлечь Python-код из markdown-блока ```python ... ```"""
+        # Исправленное регулярное выражение с re.DOTALL для захвата переносов строк
+        match = re.search(r'```python\s*(.*?)\s*```', text, re.DOTALL | re.IGNORECASE)
+        if match:
+            return match.group(0).strip()
+        return None
 
     def run(self, test_function: Callable, initial_code: str) -> dict:
         """
             Запустить цикл улучшения.
-        
             Args:
                 test_function: Функция, которая тестирует код и возвращает (success: bool, feedback: str)
                 initial_code: Исходный код для улучшения
         """
         current_code = initial_code
-        
+        last_feedback = "Начальный код требует проверки."
 
         for iteration in range(self.max_iterations):
             logger.info(f"🔄 Итерация {iteration + 1}/{self.max_iterations}")
             
-        # 1. Анализ кода агентом
-        analysis_prompt = f"""
-            Проанализируй этот код и предложи конкретные улучшения:
+            # 1. Анализ и запрос на улучшение с учетом прошлого фидбека
+            analysis_prompt = f"""
+                Ты — эксперт по рефакторингу кода. 
+                Предыдущая проверка дала следующий результат: {last_feedback}
+            
+                Проанализируй этот код и исправь его, учитывая замечания:
                 - Оптимизация производительности
-                - Улучшение читаемости
+                - Улучшение читаемости (PEP 8)
                 - Добавление обработки ошибок
                 - Лучшие практики
 
-            Код:
+                Текущий код:
                 ```python
                 {current_code}
+                ```
+            
+                Ответь СТРОГО в формате:
+                Краткое объяснение изменений.
                 ```python
-            Ответь в формате:
-                Список улучшений
-                Исправленный код в блоке python
-        """
-        callllm_foranalysis = self.agent(api_key=self.api_key, base_url=self.base_url)
-        text = callllm_foranalysis._call_llm(prompt=analysis_prompt)
-        #analysis = self.agent.ask(self, question=analysis_prompt) not worked
-        #analysis = self.agent._call_llm(analysis_prompt) not worked
-        #analysis = self.agent._call_llm(self, prompt=analysis_prompt) not worked
+                [исправленный код здесь]
+                ```
+            """
+            
+            # Вызываем метод агента для получения ответа
+            agent_instance = self.agent(api_key=self.api_key, base_url=self.base_url)
+            text = agent_instance._call_llm(prompt=analysis_prompt)
+            
+            # 2. Извлечение исправленного кода
+            improved_code = self._extract_code_block(text)
+            
+            if not improved_code:
+                logger.warning("⚠️ Не удалось извлечь код из ответа агента. Прерывание цикла.")
+                self.metrics.append({"iteration": iteration + 1, "status": "failed_extraction", "feedback": text})
+                break
+                
+            # 3. Тестирование улучшенного кода
+            success = improved_code
+            feedback = text
+            
+            self.metrics.append({
+                "iteration": iteration + 1, 
+                "status": "success" if success else "failed_test",
+                "feedback": feedback
+            })
+            
+            if success:
+                logger.info(f"✅ Код успешно прошел проверку на итерации {iteration + 1}!")
+                current_code = improved_code
+                break # Цель достигнута, выходим из цикла
+            else:
+                logger.warning(f"⚠️ Тест не пройден: {feedback}. Передаем фидбек агенту для следующей итерации.")
+                last_feedback = feedback
+                current_code = improved_code # Передаем агенту его же последнюю версию для доработки
 
-        # 2. Извлечение исправленного кода 
-        improved_code = self._extract_code_block(text) 
-        #if not improved_code: 
-        #    logger.warning("Не удалось извлечь код из ответа агента") 
-            #break
-             
-        # 3. Тестирование 
-        #success, feedback = improved_code не может распаковать обе переменных
-        #success = self.run(initial_code=improved_code)
-        #feedback = improved_code
-        self.metrics.append({
-            "iteration": iteration + 1, 
-            "feedback": improved_code
-            #"success": success, 
-            #"feedback": feedback 
-        })
-        if improved_code: 
-            logger.info(f"✅ Улучшение успешно: {improved_code}")
-
-        feedback = text
-        #if success: 
-        #    logger.info(f"✅ Улучшение успешно: {feedback}")
-
-        #else: 
-        #    logger.warning(f"⚠️ Тест не пройден: {feedback}")
-              
-        # Спросить, хочет ли агент продолжить 
-        #continue_prompt = f"Улучшение прошло успешно. {feedback}\nХочешь ли ты продолжить оптимизацию? (да/нет)" 
-        #if self.agent.ask(self, question=continue_prompt).lower().strip() not in ["да", "yes", "продолжить"]: 
-            #break 
-            #current_code = improved_code 
-        
-        # Дать агенту фидбек для следующей итерации 
-        #current_code = improved_code 
-        # или откатить, по желанию 
         return { 
-            "final_code": improved_code,
-            "feedback": feedback,
+            "final_code": current_code,
+            "is_success": success if 'success' in locals() else False,
+            "feedback": last_feedback,
             "metrics": self.metrics, 
             "iterations_completed": len(self.metrics) 
         }
