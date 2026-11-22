@@ -7351,3 +7351,18 @@ INFO 2026-11-21 06:17:03,225 autoreload C:\advice_project\aqwe_app\views.py chan
 INFO 2026-11-21 06:18:37,518 autoreload Watching for file changes with StatReloader
 WARNING 2026-11-21 06:21:43,343 log Method Not Allowed: /auditor-checker/
 ERROR 2026-11-21 06:27:26,955 auditor_checker_agent Аудит не удался: HTTPSConnectionPool(host='api.kie.ai', port=443): Max retries exceeded with url: /gemini/v1/models/gemini-4-carbon:generateContent (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)')))
+INFO 2026-11-22 04:34:16,397 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-22 04:37:49,912 log Method Not Allowed: /flux-gen/
+INFO 2026-11-22 04:38:49,198 flux_gen Запрос изображения: prompt=Create an image based on this description:    **Qu...
+INFO 2026-11-22 04:38:53,921 flux_gen Задача создана: task_id=f50aab508cd245b8cc01022aeea2289c
+INFO 2026-11-22 05:30:56,980 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-22 05:38:52,090 log Method Not Allowed: /flux-gen/
+INFO 2026-11-22 05:41:29,931 flux_gen Запрос изображения: prompt=Create an image based on this description:    **Qu...
+INFO 2026-11-22 05:41:35,207 flux_gen Задача создана: task_id=715c24e581f96054b848086bd33ead8e
+WARNING 2026-11-22 05:52:42,391 log Method Not Allowed: /generate-image/
+INFO 2026-11-22 06:40:40,473 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-22 06:42:37,304 log Method Not Allowed: /flux-gen/
+WARNING 2026-11-22 06:43:59,437 log Bad Request: /flux-gen/
+INFO 2026-11-22 06:44:57,321 flux_gen Запрос изображения: prompt=Create a slide showing 4 images, which are describ...
+INFO 2026-11-22 06:45:00,458 flux_gen Задача создана: task_id=8a90edd216041b2d2b897f71b0298aa2
+WARNING 2026-11-22 06:57:54,357 log Method Not Allowed: /generate-image/

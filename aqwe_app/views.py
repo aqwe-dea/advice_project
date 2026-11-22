@@ -4922,7 +4922,7 @@ class FluxGenView(APIView):
                 {'error': 'Prompt обязателен'},
                 status=status.HTTP_400_BAD_REQUEST
             )
-
+        num_images = request.data.get('num_images', 4)
         api_key = os.getenv('KIETEST')
         if not api_key:
             return Response(
@@ -4932,7 +4932,7 @@ class FluxGenView(APIView):
         
         generator = FluxGen(api_key=api_key)
         
-        result = generator.generate(prompt=prompt)
+        result = generator.generate(prompt=prompt, num_images=num_images)
         
         if result.get('success'):
             return Response({

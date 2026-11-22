@@ -23,7 +23,7 @@ class MinimaxGen(BaseGenerator):
         image_urls: str = "",
         width: int = 8192,
         height: int = 8192,
-        expand_prompt: bool = True,
+        expand_prompt: bool = False,
         **kwargs
     ) -> Dict[str, Any]:
         """

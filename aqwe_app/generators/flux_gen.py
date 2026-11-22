@@ -24,12 +24,12 @@ class FluxGen(BaseGenerator):
         height: int = 4096,
         num_images: int = 4,
         seed: int = 1,
-        enhance_prompt: bool = True,
+        enhance_prompt: bool = False,
         nsfw_checker: bool = True,
         **kwargs
     ) -> Dict[str, Any]:
         """
-            Отредактировать изображение.
+            Создание изображения.
         
             Returns:
                 Dict с ключами:
@@ -60,7 +60,7 @@ class FluxGen(BaseGenerator):
         # Создание задачи
         task_id = self._create_task(self.DEFAULT_MODEL, input_data)
         if not task_id:
-            logger.error("Не удалось создать задачу на редактирование изображения")
+            logger.error("Не удалось создать задачу на Создание изображения")
             return {"success": False, "error": "Не удалось создать задачу"}
         
         logger.info(f"Задача создана: task_id={task_id}")
@@ -88,7 +88,7 @@ class FluxGen(BaseGenerator):
             logger.warning(f"Невалидный URL: {first_url}")
             return {"success": False, "error": "Невалидный URL в результате"}
         
-        logger.info(f"✅ Изображение отредактировано: {first_url}")
+        logger.info(f"✅ Изображение создано: {first_url}")
         return {
             "success": True,
             "flux_url": first_url,
