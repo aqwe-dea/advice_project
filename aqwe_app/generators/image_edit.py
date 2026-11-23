@@ -20,7 +20,7 @@ class ImageEdit(BaseGenerator):
     def generate(
         self,
         prompt: str, # prompt 32000 character
-        input_urls: str = "",
+        input_urls: list,
         **kwargs
     ) -> Dict[str, Any]:
         """
@@ -34,12 +34,12 @@ class ImageEdit(BaseGenerator):
         """
 
         # Валидация входных данных
-        if not any([prompt.strip(), input_urls.strip()]):
+        if not any([prompt.strip(), input_urls]):
             return {"success": False, "error": "Нужно указать хотя бы один источник данных"}
         
         input_data = {
             "prompt": prompt.strip(),
-            "input_urls": input_urls.strip(),
+            "input_urls": input_urls,
             "aspect_ratio": "1:1",
             "resolution": "4K",
             "quality": "xhigh",
@@ -87,8 +87,5 @@ class ImageEdit(BaseGenerator):
             "success": True,
             "edit_url": first_url,
             "prompt": prompt,
-            "model": self.DEFAULT_MODEL,
-            "metadata": {
-                "image_url": input_urls if input_urls else None
-            }
+            "model": self.DEFAULT_MODEL
         }

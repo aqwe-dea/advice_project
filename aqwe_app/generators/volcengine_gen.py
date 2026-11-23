@@ -90,9 +90,5 @@ class VolcengineGen(BaseGenerator):
         return {
             "success": True,
             "volcengine_url": first_url,
-            "model": self.DEFAULT_MODEL,
-            "metadata": {
-                "video_url": video_url if video_url else None,
-                "audio_url": audio_url if audio_url else None
-            }
+            "model": self.DEFAULT_MODEL
         }

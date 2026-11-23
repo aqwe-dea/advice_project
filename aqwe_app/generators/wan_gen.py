@@ -20,13 +20,13 @@ class WanGen(BaseGenerator):
     def generate(
         self,
         prompt: str, # prompt 20000 character
+        reference_image_urls: list,
+        reference_link_urls: list,
+        reference_audio_urls: list,
+        reference_video_urls: list,
+        reference_file_urls: list,
         first_frame_url: str = "",
         last_frame_url: str = "",
-        reference_image_urls: str = "",
-        reference_link_urls: str = "",
-        reference_audio_urls: str = "",
-        reference_video_urls: str = "",
-        reference_file_urls: str = "",
         duration: int = 30,
         seed: int = 0,
         audio: bool = True,
@@ -44,18 +44,18 @@ class WanGen(BaseGenerator):
         """
 
         # Валидация входных данных
-        if not any([prompt.strip(), reference_image_urls.strip(), first_frame_url.strip(), reference_link_urls.strip(), reference_audio_urls.strip(), reference_video_urls.strip()]):
-            return {"success": False, "error": "Нужно указать хотя бы один источник данных"}
+        #if not any([prompt.strip(), reference_image_urls.strip(), first_frame_url.strip(), reference_link_urls.strip(), reference_audio_urls.strip(), reference_video_urls.strip()]):
+        #    return {"success": False, "error": "Нужно указать хотя бы один источник данных"}
         
         input_data = {
             "prompt": prompt.strip(),
             "first_frame_url": first_frame_url.strip(),
             "last_frame_url": last_frame_url.strip(),
-            "reference_image_urls": reference_image_urls.strip(),
-            "reference_link_urls": reference_link_urls.strip(),
-            "reference_audio_urls": reference_audio_urls.strip(),
-            "reference_video_urls": reference_video_urls.strip(),
-            "reference_file_urls": reference_file_urls.strip(),
+            "reference_image_urls": reference_image_urls,
+            "reference_link_urls": reference_link_urls,
+            "reference_audio_urls": reference_audio_urls,
+            "reference_video_urls": reference_video_urls,
+            "reference_file_urls": reference_file_urls,
             "aspect_ratio": "1:1",
             "resolution": "480P",
             "duration": duration,
@@ -102,8 +102,5 @@ class WanGen(BaseGenerator):
             "success": True,
             "wan_url": first_url,
             "prompt": prompt,
-            "model": self.DEFAULT_MODEL,
-            "metadata": {
-                "image_url": reference_image_urls if reference_image_urls else None
-            }
+            "model": self.DEFAULT_MODEL
         }

@@ -20,10 +20,7 @@ class MinimaxGen(BaseGenerator):
     def generate(
         self,
         prompt: str, # prompt 5000 character
-        image_urls: str = "",
-        width: int = 8192,
-        height: int = 8192,
-        expand_prompt: bool = False,
+        image_urls: list,
         **kwargs
     ) -> Dict[str, Any]:
         """
@@ -37,16 +34,21 @@ class MinimaxGen(BaseGenerator):
         """
 
         # Валидация входных данных
-        if not any([prompt.strip(), image_urls.strip()]):
-            return {"success": False, "error": "Нужно указать хотя бы один источник данных"}
+        #if not any([prompt.strip(), image_urls]):
+        #    return {"success": False, "error": "Нужно указать хотя бы один источник данных"}
+        
+        #urls_str = ", ".join(image_urls)
         
         input_data = {
             "prompt": prompt.strip(),
-            "image_urls": image_urls.strip(),
-            "expand_prompt": expand_prompt,
-            "output_format": "png",
-            "width": width,
-            "height": height
+            "image_urls": image_urls,
+            #"image_urls": [
+            #    "https://github.com/aqwe-dea/advice_project/blob/master/design/sixlayersfromgpt.png?raw=true",
+            #    "https://github.com/aqwe-dea/advice_project/blob/master/design/fourimagesshowingourlove.png?raw=true"
+            #],
+            "aspect_ratio": "1:1",
+            "resolution": "4K",
+            "output_format": "png"
         }
 
         input_data.update({k: v for k, v in kwargs.items() if k not in input_data})
@@ -87,8 +89,8 @@ class MinimaxGen(BaseGenerator):
             "success": True,
             "minimax_url": first_url,
             "prompt": prompt,
-            "model": self.DEFAULT_MODEL,
-            "metadata": {
-                "image_url": image_urls if image_urls else None
-            }
+            "model": self.DEFAULT_MODEL
+            #"metadata": {
+            #    "image_url": image_urls if image_urls else None
+            #}
         }

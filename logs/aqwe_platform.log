@@ -7366,3 +7366,344 @@ WARNING 2026-11-22 06:43:59,437 log Bad Request: /flux-gen/
 INFO 2026-11-22 06:44:57,321 flux_gen Запрос изображения: prompt=Create a slide showing 4 images, which are describ...
 INFO 2026-11-22 06:45:00,458 flux_gen Задача создана: task_id=8a90edd216041b2d2b897f71b0298aa2
 WARNING 2026-11-22 06:57:54,357 log Method Not Allowed: /generate-image/
+INFO 2026-11-22 08:00:56,845 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-22 08:12:14,906 log Method Not Allowed: /minimax-gen/
+INFO 2026-11-22 08:13:48,848 minimax_gen Запрос на редактирование изображения: prompt=Create a slide showing 4 images, which are describ...
+ERROR 2026-11-22 08:13:55,036 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-22 08:13:55,041 minimax_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-22 08:13:55,094 log Internal Server Error: /minimax-gen/
+WARNING 2026-11-22 08:15:37,001 log Bad Request: /minimax-gen/
+INFO 2026-11-22 08:16:51,093 minimax_gen Запрос на редактирование изображения: prompt=Create a slide showing 4 images, which are describ...
+ERROR 2026-11-22 08:16:53,542 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-22 08:16:53,547 minimax_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-22 08:16:53,566 log Internal Server Error: /minimax-gen/
+WARNING 2026-11-22 08:18:12,857 log Bad Request: /minimax-gen/
+INFO 2026-11-22 08:18:58,667 minimax_gen Запрос на редактирование изображения: prompt=Create a slide showing 4 images, which are describ...
+ERROR 2026-11-22 08:19:01,617 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-22 08:19:01,622 minimax_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-22 08:19:01,644 log Internal Server Error: /minimax-gen/
+INFO 2026-11-22 08:28:37,242 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-22 08:45:42,315 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-22 08:47:49,095 log Method Not Allowed: /minimax-gen/
+INFO 2026-11-22 08:48:36,663 minimax_gen Запрос на редактирование изображения: prompt=Create a slide showing 4 images, which are describ...
+ERROR 2026-11-22 08:48:40,668 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-22 08:48:41,179 minimax_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-22 08:48:41,197 log Internal Server Error: /minimax-gen/
+INFO 2026-11-22 08:49:03,660 minimax_gen Запрос на редактирование изображения: prompt=Create a slide showing 4 images, which are describ...
+ERROR 2026-11-22 08:49:05,928 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-22 08:49:05,933 minimax_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-22 08:49:05,950 log Internal Server Error: /minimax-gen/
+ERROR 2026-11-22 08:50:02,058 log Internal Server Error: /minimax-gen/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 4971, in post
+    result = generator.generate(prompt=prompt, image_urls=image_urls)
+  File "c:\advice_project\aqwe_app\generators\minimax_gen.py", line 40, in generate
+    if not any([prompt.strip(), image_urls.strip()]):
+                                ^^^^^^^^^^^^^^^^
+AttributeError: 'NoneType' object has no attribute 'strip'
+INFO 2026-11-22 08:53:35,233 autoreload C:\advice_project\aqwe_app\generators\minimax_gen.py changed, reloading.
+INFO 2026-11-22 09:05:01,674 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-22 09:14:36,084 log Method Not Allowed: /minimax-gen/
+INFO 2026-11-22 09:16:34,890 minimax_gen Запрос на редактирование изображения: prompt=Create a slide showing 4 images, which are describ...
+ERROR 2026-11-22 09:16:47,208 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-22 09:16:47,216 minimax_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-22 09:16:47,235 log Internal Server Error: /minimax-gen/
+INFO 2026-11-22 09:17:29,960 minimax_gen Запрос на редактирование изображения: prompt=Create a slide showing 4 images, which are describ...
+ERROR 2026-11-22 09:17:32,747 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-22 09:17:32,761 minimax_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-22 09:17:32,794 log Internal Server Error: /minimax-gen/
+WARNING 2026-11-22 09:18:02,731 log Bad Request: /minimax-gen/
+INFO 2026-11-22 09:18:33,685 minimax_gen Запрос на редактирование изображения: prompt=Create a slide showing 4 images, which are describ...
+ERROR 2026-11-22 09:18:36,021 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-22 09:18:36,025 minimax_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-22 09:18:36,042 log Internal Server Error: /minimax-gen/
+INFO 2026-11-22 09:35:57,550 autoreload C:\advice_project\aqwe_app\generators\minimax_gen.py changed, reloading.
+INFO 2026-11-22 09:52:42,429 autoreload Watching for file changes with StatReloader
+INFO 2026-11-22 09:58:58,947 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-22 10:01:56,290 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-22 10:05:18,309 log Method Not Allowed: /minimax-gen/
+INFO 2026-11-22 10:06:05,153 minimax_gen Запрос на редактирование изображения: prompt=Create a slide showing 4 images, which are describ...
+ERROR 2026-11-22 10:06:19,026 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-22 10:06:19,459 minimax_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-22 10:06:19,477 log Internal Server Error: /minimax-gen/
+INFO 2026-11-22 10:07:39,099 minimax_gen Запрос на редактирование изображения: prompt=Create a slide showing 4 images, which are describ...
+ERROR 2026-11-22 10:07:41,617 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-22 10:07:41,622 minimax_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-22 10:07:41,641 log Internal Server Error: /minimax-gen/
+INFO 2026-11-22 10:07:58,872 minimax_gen Запрос на редактирование изображения: prompt=Create a slide showing 4 images, which are describ...
+ERROR 2026-11-22 10:08:01,615 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-22 10:08:01,619 minimax_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-22 10:08:01,636 log Internal Server Error: /minimax-gen/
+INFO 2026-11-22 10:13:02,246 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-22 10:16:49,025 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-22 10:47:56,043 log Method Not Allowed: /minimax-gen/
+INFO 2026-11-22 10:51:11,561 minimax_gen Запрос на редактирование изображения: prompt=Create a slide showing 4 images, which are describ...
+ERROR 2026-11-22 10:51:33,642 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-22 10:51:34,422 minimax_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-22 10:51:35,452 log Internal Server Error: /minimax-gen/
+INFO 2026-11-22 10:56:39,121 minimax_gen Запрос на редактирование изображения: prompt=...
+ERROR 2026-11-22 10:56:45,711 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-22 10:56:45,715 minimax_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-22 10:56:47,208 log Internal Server Error: /minimax-gen/
+INFO 2026-11-22 11:01:53,044 minimax_gen Запрос на редактирование изображения: prompt=Create a slide showing 4 images, which are describ...
+ERROR 2026-11-22 11:02:14,501 base Ошибка создания задачи: ('Connection aborted.', ConnectionAbortedError(10053, 'Программа на вашем хост-компьютере разорвала установленное подключение', None, 10053, None))
+ERROR 2026-11-22 11:02:14,502 minimax_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-22 11:02:22,123 log Internal Server Error: /minimax-gen/
+INFO 2026-11-22 11:43:29,975 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-22 11:48:12,873 log Method Not Allowed: /minimax-gen/
+INFO 2026-11-22 11:49:21,844 minimax_gen Запрос на редактирование изображения: prompt=Create a slide showing 4 images, which are describ...
+ERROR 2026-11-22 11:49:26,658 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-22 11:49:26,681 minimax_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-22 11:49:26,703 log Internal Server Error: /minimax-gen/
+INFO 2026-11-22 11:49:37,798 minimax_gen Запрос на редактирование изображения: prompt=Create a slide showing 4 images, which are describ...
+ERROR 2026-11-22 11:49:40,120 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-22 11:49:40,125 minimax_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-22 11:49:40,141 log Internal Server Error: /minimax-gen/
+INFO 2026-11-22 11:50:00,603 minimax_gen Запрос на редактирование изображения: prompt=Create a slide showing 4 images, which are describ...
+ERROR 2026-11-22 11:50:03,121 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-22 11:50:03,125 minimax_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-22 11:50:03,141 log Internal Server Error: /minimax-gen/
+INFO 2026-11-22 11:50:20,708 minimax_gen Запрос на редактирование изображения: prompt=Create a slide showing 4 images, which are describ...
+ERROR 2026-11-22 11:50:22,905 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-22 11:50:22,909 minimax_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-22 11:50:22,927 log Internal Server Error: /minimax-gen/
+INFO 2026-11-22 12:02:51,148 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-22 12:05:06,783 log Method Not Allowed: /minimax-gen/
+INFO 2026-11-22 12:06:03,229 minimax_gen Запрос на редактирование изображения: prompt=Create a slide showing 4 images, which are describ...
+ERROR 2026-11-22 12:06:06,367 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-22 12:06:06,389 minimax_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-22 12:06:06,406 log Internal Server Error: /minimax-gen/
+INFO 2026-11-22 12:06:51,899 minimax_gen Запрос на редактирование изображения: prompt=Create a slide showing 4 images, which are describ...
+ERROR 2026-11-22 12:06:54,174 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-22 12:06:54,178 minimax_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-22 12:06:54,195 log Internal Server Error: /minimax-gen/
+INFO 2026-11-22 12:09:02,300 minimax_gen Запрос на редактирование изображения: prompt=...
+ERROR 2026-11-22 12:09:04,652 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-22 12:09:04,656 minimax_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-22 12:09:04,672 log Internal Server Error: /minimax-gen/
+INFO 2026-11-22 21:59:24,119 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-22 22:01:59,933 log Method Not Allowed: /minimax-gen/
+INFO 2026-11-22 22:03:08,903 minimax_gen Запрос на редактирование изображения: prompt=Create a slide showing 4 images, which are describ...
+ERROR 2026-11-22 22:03:16,752 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-22 22:03:16,777 minimax_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-22 22:03:16,803 log Internal Server Error: /minimax-gen/
+INFO 2026-11-22 22:04:54,615 minimax_gen Запрос на редактирование изображения: prompt=Create a slide showing 4 images, which are describ...
+ERROR 2026-11-22 22:04:57,335 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-22 22:04:57,341 minimax_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-22 22:04:57,362 log Internal Server Error: /minimax-gen/
+WARNING 2026-11-22 22:05:19,781 log Bad Request: /minimax-gen/
+INFO 2026-11-22 22:06:46,397 minimax_gen Запрос на редактирование изображения: prompt=Create a slide showing 4 images, which are describ...
+ERROR 2026-11-22 22:06:49,003 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-22 22:06:49,008 minimax_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-22 22:06:49,025 log Internal Server Error: /minimax-gen/
+INFO 2026-11-22 22:08:29,628 minimax_gen Запрос на редактирование изображения: prompt=Create a slide showing 4 images, which are describ...
+ERROR 2026-11-22 22:08:37,780 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-22 22:08:38,379 minimax_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-22 22:08:42,678 log Internal Server Error: /minimax-gen/
+INFO 2026-11-22 22:11:20,983 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-22 22:35:53,999 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-22 22:45:46,115 log Method Not Allowed: /minimax-gen/
+WARNING 2026-11-22 22:45:46,116 log Method Not Allowed: /minimax-gen/
+WARNING 2026-11-22 22:47:49,758 log Method Not Allowed: /minimax-gen/
+INFO 2026-11-22 22:48:54,963 minimax_gen Запрос на редактирование изображения: prompt=Create a slide showing 4 images, which are describ...
+ERROR 2026-11-22 22:49:02,128 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-22 22:49:02,132 minimax_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-22 22:49:02,149 log Internal Server Error: /minimax-gen/
+INFO 2026-11-22 22:49:25,238 minimax_gen Запрос на редактирование изображения: prompt=Create a slide showing 4 images, which are describ...
+ERROR 2026-11-22 22:49:27,486 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-22 22:49:27,491 minimax_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-22 22:49:27,511 log Internal Server Error: /minimax-gen/
+INFO 2026-11-22 22:49:53,536 minimax_gen Запрос на редактирование изображения: prompt=Create a slide showing 4 images, which are describ...
+ERROR 2026-11-22 22:49:55,628 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-22 22:49:55,632 minimax_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-22 22:49:55,649 log Internal Server Error: /minimax-gen/
+WARNING 2026-11-22 22:50:48,297 log Bad Request: /minimax-gen/
+INFO 2026-11-22 22:51:20,497 minimax_gen Запрос на редактирование изображения: prompt=Create a slide showing 4 images, which are describ...
+ERROR 2026-11-22 22:51:23,947 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-22 22:51:23,951 minimax_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-22 22:51:23,968 log Internal Server Error: /minimax-gen/
+INFO 2026-11-22 22:51:54,282 minimax_gen Запрос на редактирование изображения: prompt=Create a slide showing 4 images, which are describ...
+ERROR 2026-11-22 22:51:56,521 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-22 22:51:56,525 minimax_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-22 22:51:56,543 log Internal Server Error: /minimax-gen/
+INFO 2026-11-22 22:52:42,778 minimax_gen Запрос на редактирование изображения: prompt=Create a slide showing 4 images, which are describ...
+ERROR 2026-11-22 22:52:45,046 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-22 22:52:45,051 minimax_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-22 22:52:45,069 log Internal Server Error: /minimax-gen/
+INFO 2026-11-22 22:53:57,928 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-22 23:02:12,838 autoreload Watching for file changes with StatReloader
+INFO 2026-11-22 23:05:15,731 autoreload C:\advice_project\aqwe_app\generators\minimax_gen.py changed, reloading.
+INFO 2026-11-22 23:06:50,669 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-22 23:10:04,079 log Method Not Allowed: /minimax-gen/
+INFO 2026-11-22 23:11:29,894 minimax_gen Запрос на редактирование изображения: prompt=Create a slide showing 4 images, which are describ...
+ERROR 2026-11-22 23:11:37,037 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-22 23:11:37,059 minimax_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-22 23:11:37,077 log Internal Server Error: /minimax-gen/
+INFO 2026-11-22 23:14:51,772 autoreload C:\advice_project\aqwe_app\generators\minimax_gen.py changed, reloading.
+INFO 2026-11-22 23:19:27,793 autoreload Watching for file changes with StatReloader
+INFO 2026-11-22 23:21:19,460 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-22 23:22:26,918 autoreload Watching for file changes with StatReloader
+INFO 2026-11-22 23:26:22,988 autoreload C:\advice_project\aqwe_app\generators\minimax_gen.py changed, reloading.
+INFO 2026-11-22 23:27:34,965 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-22 23:31:44,213 log Method Not Allowed: /minimax-gen/
+INFO 2026-11-22 23:35:01,378 minimax_gen Запрос на редактирование изображения: prompt=Create a slide showing 4 images, which are describ...
+ERROR 2026-11-22 23:35:09,693 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-22 23:35:09,732 minimax_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-22 23:35:09,893 log Internal Server Error: /minimax-gen/
+INFO 2026-11-22 23:35:46,550 minimax_gen Запрос на редактирование изображения: prompt=Create a slide showing 4 images, which are describ...
+ERROR 2026-11-22 23:35:48,839 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-22 23:35:48,843 minimax_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-22 23:35:48,912 log Internal Server Error: /minimax-gen/
+INFO 2026-11-22 23:36:51,942 minimax_gen Запрос на редактирование изображения: prompt=Create a slide showing 4 images, which are describ...
+ERROR 2026-11-22 23:36:54,398 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-22 23:36:54,404 minimax_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-22 23:36:54,482 log Internal Server Error: /minimax-gen/
+WARNING 2026-11-22 23:37:14,814 log Bad Request: /minimax-gen/
+WARNING 2026-11-22 23:37:44,916 log Bad Request: /minimax-gen/
+INFO 2026-11-22 23:38:21,148 minimax_gen Запрос на редактирование изображения: prompt=Create a slide showing 4 images, which are describ...
+ERROR 2026-11-22 23:38:24,083 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-22 23:38:24,088 minimax_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-22 23:38:24,135 log Internal Server Error: /minimax-gen/
+INFO 2026-11-22 23:42:48,484 minimax_gen Запрос на редактирование изображения: prompt=Create a slide showing 4 images, which are describ...
+ERROR 2026-11-22 23:42:52,917 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-22 23:42:52,921 minimax_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-22 23:42:53,093 log Internal Server Error: /minimax-gen/
+WARNING 2026-11-22 23:44:36,594 log Bad Request: /minimax-gen/
+INFO 2026-11-22 23:45:03,440 minimax_gen Запрос на редактирование изображения: prompt=Create a slide showing 4 images, which are describ...
+ERROR 2026-11-22 23:45:06,687 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-22 23:45:06,692 minimax_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-22 23:45:06,711 log Internal Server Error: /minimax-gen/
+INFO 2026-11-22 23:45:22,588 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-22 23:55:51,428 autoreload Watching for file changes with StatReloader
+INFO 2026-11-23 00:02:06,064 autoreload C:\advice_project\aqwe_app\generators\minimax_gen.py changed, reloading.
+INFO 2026-11-23 00:04:24,622 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-23 00:06:23,832 log Method Not Allowed: /minimax-gen/
+INFO 2026-11-23 00:08:54,241 minimax_gen Запрос на редактирование изображения: prompt=Create a slide showing 4 images, which are describ...
+ERROR 2026-11-23 00:09:02,824 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-23 00:09:02,858 minimax_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-23 00:09:02,880 log Internal Server Error: /minimax-gen/
+INFO 2026-11-23 00:13:57,043 autoreload C:\advice_project\aqwe_app\generators\minimax_gen.py changed, reloading.
+INFO 2026-11-23 00:18:58,083 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-23 00:21:32,311 log Method Not Allowed: /minimax-gen/
+INFO 2026-11-23 00:24:01,687 minimax_gen Запрос на редактирование изображения: prompt=Create a slide showing 4 images, which are describ...
+ERROR 2026-11-23 00:24:07,630 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-23 00:24:07,696 minimax_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-23 00:24:07,713 log Internal Server Error: /minimax-gen/
+INFO 2026-11-23 00:27:03,223 autoreload C:\advice_project\aqwe_app\generators\minimax_gen.py changed, reloading.
+INFO 2026-11-23 00:31:50,130 autoreload Watching for file changes with StatReloader
+INFO 2026-11-23 00:39:40,961 autoreload C:\advice_project\aqwe_app\generators\minimax_gen.py changed, reloading.
+INFO 2026-11-23 00:41:44,438 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-23 00:43:28,814 log Method Not Allowed: /minimax-gen/
+ERROR 2026-11-23 00:47:23,449 log Internal Server Error: /minimax-gen/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 4970, in post
+    result = generator.generate(prompt)
+  File "c:\advice_project\aqwe_app\generators\minimax_gen.py", line 40, in generate
+    urls_str = ", ".join(image_urls)
+                         ^^^^^^^^^^
+NameError: name 'image_urls' is not defined
+INFO 2026-11-23 00:50:20,384 autoreload C:\advice_project\aqwe_app\generators\minimax_gen.py changed, reloading.
+INFO 2026-11-23 00:53:37,671 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-23 00:57:35,037 log Method Not Allowed: /minimax-gen/
+INFO 2026-11-23 00:58:55,744 minimax_gen Запрос на редактирование изображения: prompt=Create a slide showing 4 images, which are describ...
+INFO 2026-11-23 00:59:04,974 minimax_gen Задача создана: task_id=c33f7b1f95b3a32805bb213db5301d39
+ERROR 2026-11-23 01:00:45,175 log Internal Server Error: /minimax-gen/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 4970, in post
+    result = generator.generate(prompt)
+  File "c:\advice_project\aqwe_app\generators\minimax_gen.py", line 96, in generate
+    "image_url": image_urls if image_urls else None
+                               ^^^^^^^^^^
+NameError: name 'image_urls' is not defined
+INFO 2026-11-23 01:02:27,737 autoreload C:\advice_project\aqwe_app\generators\minimax_gen.py changed, reloading.
+INFO 2026-11-23 01:28:59,807 autoreload Watching for file changes with StatReloader
+INFO 2026-11-23 01:47:23,765 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-23 01:50:59,257 log Method Not Allowed: /minimax-gen/
+WARNING 2026-11-23 01:51:28,615 log Bad Request: /minimax-gen/
+INFO 2026-11-23 01:52:04,040 minimax_gen Запрос на редактирование изображения: prompt=Create a slide showing 4 images, which are describ...
+ERROR 2026-11-23 01:52:09,585 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-23 01:52:09,607 minimax_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-23 01:52:09,625 log Internal Server Error: /minimax-gen/
+INFO 2026-11-23 01:52:55,029 minimax_gen Запрос на редактирование изображения: prompt=Create a slide showing 4 images, which are describ...
+ERROR 2026-11-23 01:52:57,378 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-23 01:52:57,383 minimax_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-23 01:52:57,403 log Internal Server Error: /minimax-gen/
+WARNING 2026-11-23 01:53:21,654 log Bad Request: /minimax-gen/
+INFO 2026-11-23 01:53:54,307 minimax_gen Запрос на редактирование изображения: prompt=Create a slide showing 4 images, which are describ...
+ERROR 2026-11-23 01:53:57,056 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-23 01:53:57,060 minimax_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-23 01:53:57,077 log Internal Server Error: /minimax-gen/
+INFO 2026-11-23 01:54:35,844 autoreload C:\advice_project\aqwe_app\generators\minimax_gen.py changed, reloading.
+INFO 2026-11-23 01:55:41,235 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-23 01:56:56,002 log Method Not Allowed: /minimax-gen/
+WARNING 2026-11-23 01:57:12,533 log Bad Request: /minimax-gen/
+INFO 2026-11-23 01:57:33,444 minimax_gen Запрос на редактирование изображения: prompt=Create a slide showing 4 images, which are describ...
+INFO 2026-11-23 01:57:36,830 minimax_gen Задача создана: task_id=af99e453ee879d6874b2395db82d04ba
+INFO 2026-11-23 02:49:16,009 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-23 02:53:59,958 log Method Not Allowed: /minimax-gen/
+INFO 2026-11-23 02:55:45,909 minimax_gen Запрос на редактирование изображения: prompt=Edit a slide showing 2 images, which are described...
+INFO 2026-11-23 02:55:52,039 minimax_gen Задача создана: task_id=90334a170efd1279fb4d0073e3bc64be
+INFO 2026-11-23 03:09:24,532 minimax_gen Запрос на редактирование изображения: prompt=Create from this image a slide showing 4 images, w...
+INFO 2026-11-23 03:09:27,099 minimax_gen Задача создана: task_id=450eb84145c0de5b65804984802c795b
+INFO 2026-11-23 05:33:01,557 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-23 05:34:04,559 log Method Not Allowed: /image-edit/
+INFO 2026-11-23 05:39:18,412 image_edit Запрос на редактирование изображения: prompt=Edit and connect these images and create a slide s...
+ERROR 2026-11-23 05:39:21,544 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-23 05:39:21,549 image_edit Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-23 05:39:21,567 log Internal Server Error: /image-edit/
+INFO 2026-11-23 05:42:11,837 image_edit Запрос на редактирование изображения: prompt=Edit and connect these images and create a slide s...
+INFO 2026-11-23 05:42:16,092 image_edit Задача создана: task_id=7c96ce943487d8b9752a100522794744

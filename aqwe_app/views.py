@@ -2935,8 +2935,8 @@ class VideoGeneratorView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
         
-        image_urls = request.data.get('image_urls', '').strip()
-        video_urls = request.data.get('video_urls', '').strip()
+        image_urls = request.data.get('image_urls', [])
+        video_urls = request.data.get('video_urls', [])
         elements_url = request.data.get('elements_url', '').strip()
         voices_url = request.data.get('voices_url', '').strip()
         # Параметры
@@ -3077,11 +3077,11 @@ class LiveimageGeneratorView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        image_urls = request.data.get('image_urls', '').strip()
+        image_urls = request.data.get('image_urls', [])
         first_frame_url = request.data.get('first_frame_url', '').strip()
         last_frame_url = request.data.get('last_frame_url', '').strip()
-        video_list = request.data.get('video_list', '').strip()
-        character_ids = request.data.get('character_ids', '').strip()
+        video_list = request.data.get('video_list', [])
+        character_ids = request.data.get('character_ids', [])
 
         api_key = os.getenv('KIETEST')
         if not api_key:
@@ -3194,7 +3194,7 @@ class ImageEditView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        input_urls = request.data.get('input_urls', '').strip()
+        input_urls = request.data.get('input_urls', [])
 
         api_key = os.getenv('KIETEST')
         if not api_key:
@@ -4951,13 +4951,12 @@ class MinimaxGenView(APIView):
     
     def post(self, request):
         prompt = request.data.get('prompt', '').strip()
+        image_urls = request.data.get('image_urls', [])
         if not prompt:
             return Response(
                 {'error': 'Prompt обязателен'},
                 status=status.HTTP_400_BAD_REQUEST
             )
-
-        image_urls = request.data.get('image_urls', '').strip()
 
         api_key = os.getenv('KIETEST')
         if not api_key:
@@ -4968,7 +4967,7 @@ class MinimaxGenView(APIView):
         
         generator = MinimaxGen(api_key=api_key)
         
-        result = generator.generate(prompt=prompt, image_urls=image_urls)
+        result = generator.generate(prompt, image_urls)
         
         if result.get('success'):
             return Response({
@@ -4995,11 +4994,11 @@ class WanGenView(APIView):
 
         first_frame_url = request.data.get('first_frame_url', '').strip()
         last_frame_url = request.data.get('last_frame_url', '').strip()
-        reference_image_urls = request.data.get('reference_image_urls', '').strip()
-        reference_link_urls = request.data.get('reference_link_urls', '').strip()
-        reference_audio_urls = request.data.get('reference_audio_urls', '').strip()
-        reference_video_urls = request.data.get('reference_video_urls', '').strip()
-        reference_file_urls = request.data.get('reference_file_urls', '').strip()
+        reference_image_urls = request.data.get('reference_image_urls', [])
+        reference_link_urls = request.data.get('reference_link_urls', [])
+        reference_audio_urls = request.data.get('reference_audio_urls', [])
+        reference_video_urls = request.data.get('reference_video_urls', [])
+        reference_file_urls = request.data.get('reference_file_urls', [])
 
         api_key = os.getenv('KIETEST')
         if not api_key:
@@ -5044,8 +5043,8 @@ class ViduGenView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        reference_image_urls = request.data.get('reference_image_urls', '').strip()
-        reference_audio_urls = request.data.get('reference_audio_urls', '').strip()
+        reference_image_urls = request.data.get('reference_image_urls', [])
+        reference_audio_urls = request.data.get('reference_audio_urls', [])
 
         api_key = os.getenv('KIETEST')
         if not api_key:
@@ -5081,9 +5080,9 @@ class SeedanceGenView(APIView):
                 status=status.HTTP_400_BAD_REQUEST
             )
 
-        reference_image_urls = request.data.get('reference_image_urls', '').strip()
-        reference_video_urls = request.data.get('reference_video_urls', '').strip()
-        reference_audio_urls = request.data.get('reference_audio_urls', '').strip()
+        reference_image_urls = request.data.get('reference_image_urls', [])
+        reference_video_urls = request.data.get('reference_video_urls', [])
+        reference_audio_urls = request.data.get('reference_audio_urls', [])
 
         api_key = os.getenv('KIETEST')
         if not api_key:
@@ -5161,7 +5160,7 @@ class OmnihumanGenView(APIView):
             )
 
         audio_url = request.data.get('audio_url', '').strip()
-        image_urls = request.data.get('image_urls', '').strip()
+        image_urls = request.data.get('image_urls', [])
 
         api_key = os.getenv('KIETEST')
         if not api_key:

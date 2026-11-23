@@ -20,9 +20,9 @@ class SeedanceGen(BaseGenerator):
     def generate(
         self,
         prompt: str, # prompt 20480 character
-        reference_image_urls: str = "",
-        reference_video_urls: str = "",
-        reference_audio_urls: str = "",
+        reference_image_urls: list,
+        reference_video_urls: list,
+        reference_audio_urls: list,
         duration: int = 30,
         generate_audio: bool = True,
         nsfw_checker: bool = True,
@@ -41,14 +41,14 @@ class SeedanceGen(BaseGenerator):
         """
 
         # Валидация входных данных
-        if not any([prompt.strip(), reference_image_urls.strip(), reference_video_urls.strip(), reference_audio_urls.strip()]):
-            return {"success": False, "error": "Нужно указать хотя бы один источник данных"}
+        #if not any([prompt.strip(), reference_image_urls.strip(), reference_video_urls.strip(), reference_audio_urls.strip()]):
+        #    return {"success": False, "error": "Нужно указать хотя бы один источник данных"}
         
         input_data = {
             "prompt": prompt.strip(),
-            "reference_image_urls": reference_image_urls.strip(),
-            "reference_video_urls": reference_video_urls.strip(),
-            "reference_audio_urls": reference_audio_urls.strip(),
+            "reference_image_urls": reference_image_urls,
+            "reference_video_urls": reference_video_urls,
+            "reference_audio_urls": reference_audio_urls,
             "generate_audio": true,
             "resolution": "480p",
             "aspect_ratio": "1:1",
@@ -98,8 +98,5 @@ class SeedanceGen(BaseGenerator):
             "success": True,
             "seedance_url": first_url,
             "prompt": prompt,
-            "model": self.DEFAULT_MODEL,
-            "metadata": {
-                "image_url": reference_image_urls if reference_image_urls else None
-            }
+            "model": self.DEFAULT_MODEL
         }

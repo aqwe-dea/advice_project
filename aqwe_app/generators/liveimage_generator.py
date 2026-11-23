@@ -20,11 +20,11 @@ class LiveimageGenerator(BaseGenerator):
     def generate(
         self,
         prompt: str, # prompt 20000 character
-        image_urls: str = "",
+        image_urls: list,
+        video_list: list,
+        character_ids: list,
         first_frame_url: str = "",
         last_frame_url: str = "",
-        video_list: str = "",
-        character_ids: str = "",
         duration: int = 15,
         seeds: int = 10000,
         **kwargs
@@ -45,10 +45,10 @@ class LiveimageGenerator(BaseGenerator):
         
         input_data = {
             "prompt": prompt.strip(),
-            "image_urls": image_urls.strip(),
+            "image_urls": image_urls,
             "first_frame_url": first_frame_url.strip(),
             "last_frame_url": last_frame_url.strip(),
-            "video_list": video_list.strip(),
+            "video_list": video_list,
             "duration": duration,
             "aspect_ratio": "16:9",
             "character_ids": character_ids,

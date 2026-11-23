@@ -20,8 +20,8 @@ class VideoGenerator(BaseGenerator):
     def generate(
         self,
         prompt: str, # prompt 8000 character
-        image_urls: str = "",
-        video_urls: str = "",
+        image_urls: list,
+        video_urls: list,
         elements_url: str = "",
         voices_url: str = "",
         keep_original_sound: bool = False,
@@ -43,8 +43,8 @@ class VideoGenerator(BaseGenerator):
         
         input_data = {
             "prompt": prompt.strip(),
-            "image_urls": image_urls.strip(),
-            "video_urls": video_urls.strip(),
+            "image_urls": image_urls,
+            "video_urls": video_urls,
             "elements": elements_url.strip(),
             "voices": voices_url.strip(),
             "aspect_ratio": "1:1",

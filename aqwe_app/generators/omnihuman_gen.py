@@ -20,8 +20,8 @@ class OmnihumanGen(BaseGenerator):
     def generate(
         self,
         prompt: str, # prompt 300 character
+        image_urls: list,
         audio_url: str = "",
-        image_urls: str = "",
         enable_watermark: bool = True,
         **kwargs
     ) -> Dict[str, Any]:
@@ -36,13 +36,13 @@ class OmnihumanGen(BaseGenerator):
         """
 
         # Валидация входных данных
-        if not any([prompt.strip(), audio_url.strip(), image_urls.strip()]):
-            return {"success": False, "error": "Нужно указать хотя бы один источник данных"}
+        #if not any([prompt.strip(), audio_url.strip(), image_urls.strip()]):
+        #    return {"success": False, "error": "Нужно указать хотя бы один источник данных"}
         
         input_data = {
             "prompt": prompt.strip(),
             "audio_url": audio_url.strip(),
-            "image_urls": image_urls.strip(),
+            "image_urls": image_urls,
             "enable_watermark": enable_watermark
         }
 
@@ -84,9 +84,5 @@ class OmnihumanGen(BaseGenerator):
             "success": True,
             "omnihuman_url": first_url,
             "prompt": prompt,
-            "model": self.DEFAULT_MODEL,
-            "metadata": {
-                "audio_url": audio_url if audio_url else None,
-                "image_urls": image_urls if image_urls else None
-            }
+            "model": self.DEFAULT_MODEL
         }
