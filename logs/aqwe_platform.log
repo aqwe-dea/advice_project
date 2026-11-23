@@ -7707,3 +7707,7 @@ ERROR 2026-11-23 05:39:21,549 image_edit Не удалось создать задачу на редактиров
 ERROR 2026-11-23 05:39:21,567 log Internal Server Error: /image-edit/
 INFO 2026-11-23 05:42:11,837 image_edit Запрос на редактирование изображения: prompt=Edit and connect these images and create a slide s...
 INFO 2026-11-23 05:42:16,092 image_edit Задача создана: task_id=7c96ce943487d8b9752a100522794744
+INFO 2026-11-23 07:43:37,155 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-23 07:48:19,971 log Method Not Allowed: /minimax-gen/
+INFO 2026-11-23 07:51:25,214 minimax_gen Запрос на редактирование изображения: prompt=Connect these images and create a slide showing 4 ...
+INFO 2026-11-23 07:51:29,391 minimax_gen Задача создана: task_id=bf4c01ec6f4220fa80f88a03bfcd8d39
