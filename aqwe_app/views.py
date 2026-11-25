@@ -4419,8 +4419,8 @@ class ContentMakerView(APIView):
         audience = request.data.get('audience', '')
         collage_type = request.data.get('collage_type', '')
         size = request.data.get('size', '')
-        image_urls = request.data.get('image_urls')
-        reference_url = request.data.get('input_urls', '')
+        image_urls = request.data.get('image_urls', [])
+        reference_url = request.data.get('input_urls', [])
         information = request.data.get('information', '')
         interaction = request.data.get('interaction', '')
         services = request.data.get('services', '')
@@ -5118,6 +5118,9 @@ class GeminittsGenView(APIView):
     def post(self, request):
         text1 = request.data.get('text1', '').strip()
         text2 = request.data.get('text2', '').strip()
+        text3 = request.data.get('text3', '').strip()
+        text4 = request.data.get('text4', '').strip()
+        text5 = request.data.get('text5', '').strip()
         if not text1:
             return Response(
                 {'error': 'text1 обязателен'},
@@ -5132,7 +5135,7 @@ class GeminittsGenView(APIView):
             )
         
         generator = GeminittsGen(api_key=api_key)
-        
+        #text3=text3, text4=text4, text5=text5
         result = generator.generate(text1=text1, text2=text2)
         
         if result.get('success'):

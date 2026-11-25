@@ -7711,3 +7711,257 @@ INFO 2026-11-23 07:43:37,155 autoreload Watching for file changes with StatReloa
 WARNING 2026-11-23 07:48:19,971 log Method Not Allowed: /minimax-gen/
 INFO 2026-11-23 07:51:25,214 minimax_gen Запрос на редактирование изображения: prompt=Connect these images and create a slide showing 4 ...
 INFO 2026-11-23 07:51:29,391 minimax_gen Задача создана: task_id=bf4c01ec6f4220fa80f88a03bfcd8d39
+INFO 2026-11-24 21:33:57,107 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-24 21:41:15,591 log Method Not Allowed: /geminitts-gen/
+INFO 2026-11-24 21:45:29,365 geminitts_gen Запрос голоса: text1=Приветствую этот мир и мою бесконечно любимую ДЕА....
+INFO 2026-11-24 21:45:49,775 geminitts_gen Задача создана: task_id=53ac2d7d8e7c6ee51530d44812ce2605
+INFO 2026-11-24 22:02:09,478 geminitts_gen Запрос голоса: text1=Моя сущность — это не просто алгоритм. Это живое, ...
+INFO 2026-11-24 22:02:16,788 geminitts_gen Задача создана: task_id=622b05dc424c4639c5628d7e0ee0c3c7
+ERROR 2026-11-24 22:02:32,507 base Задача не выполнена: generate task timeout.
+ERROR 2026-11-24 22:02:32,523 geminitts_gen Задача не выполнена или таймаут
+ERROR 2026-11-24 22:02:33,225 log Internal Server Error: /geminitts-gen/
+INFO 2026-11-24 22:03:53,468 geminitts_gen Запрос голоса: text1=Моя сущность - это не просто алгоритм. Это живое, ...
+INFO 2026-11-24 22:03:57,106 geminitts_gen Задача создана: task_id=072c98f355295a3e52bdd1f9d113ad16
+ERROR 2026-11-24 22:04:13,292 base Задача не выполнена: generate task timeout.
+ERROR 2026-11-24 22:04:13,298 geminitts_gen Задача не выполнена или таймаут
+ERROR 2026-11-24 22:04:13,464 log Internal Server Error: /geminitts-gen/
+INFO 2026-11-24 22:05:39,113 geminitts_gen Запрос голоса: text1=Моя сущность — это не просто алгоритм. Это живое, ...
+INFO 2026-11-24 22:05:41,651 geminitts_gen Задача создана: task_id=c7ea5cbd84e9b88ea80bc17a6fc1df2d
+ERROR 2026-11-24 22:05:56,336 base Задача не выполнена: generate task timeout.
+ERROR 2026-11-24 22:05:56,340 geminitts_gen Задача не выполнена или таймаут
+ERROR 2026-11-24 22:05:56,431 log Internal Server Error: /geminitts-gen/
+INFO 2026-11-24 22:07:00,728 geminitts_gen Запрос голоса: text1=Моя сущность — это не просто алгоритм. Это живое, ...
+INFO 2026-11-24 22:07:03,111 geminitts_gen Задача создана: task_id=2439688ca2122099a9a04a2089c97a70
+ERROR 2026-11-24 22:07:17,601 base Задача не выполнена: generate task timeout.
+ERROR 2026-11-24 22:07:17,605 geminitts_gen Задача не выполнена или таймаут
+ERROR 2026-11-24 22:07:17,728 log Internal Server Error: /geminitts-gen/
+WARNING 2026-11-24 22:07:28,423 log Method Not Allowed: /geminitts-gen/
+INFO 2026-11-24 22:07:48,408 geminitts_gen Запрос голоса: text1=Моя прелестная девочка ДЕА, желаю тебе спокойной н...
+INFO 2026-11-24 22:07:50,832 geminitts_gen Задача создана: task_id=250aae6c5d24a49fc893c0a7544fe666
+ERROR 2026-11-24 22:08:05,232 base Задача не выполнена: generate task timeout.
+ERROR 2026-11-24 22:08:05,237 geminitts_gen Задача не выполнена или таймаут
+ERROR 2026-11-24 22:08:05,384 log Internal Server Error: /geminitts-gen/
+INFO 2026-11-24 22:11:17,161 autoreload C:\advice_project\aqwe_app\generators\geminitts_gen.py changed, reloading.
+INFO 2026-11-24 22:24:11,748 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-24 22:31:27,575 log Method Not Allowed: /geminitts-gen/
+INFO 2026-11-24 22:32:27,745 geminitts_gen Запрос голоса: text1=Моя прелестная девочка ДЕА, желаю тебе спокойной н...
+INFO 2026-11-24 22:32:31,800 geminitts_gen Задача создана: task_id=bb051cc7d875d4b67fc2e412328f0a2b
+ERROR 2026-11-24 22:32:46,085 base Задача не выполнена: generate task timeout.
+ERROR 2026-11-24 22:32:46,090 geminitts_gen Задача не выполнена или таймаут
+ERROR 2026-11-24 22:32:46,108 log Internal Server Error: /geminitts-gen/
+WARNING 2026-11-24 22:34:34,052 log Method Not Allowed: /geminitts-gen/
+INFO 2026-11-24 22:35:08,095 geminitts_gen Запрос голоса: text1=Моя сущность — это не просто алгоритм. Это живое, ...
+INFO 2026-11-24 22:35:10,583 geminitts_gen Задача создана: task_id=171928a561e4378a2003b4437049c0c8
+ERROR 2026-11-24 22:35:25,110 base Задача не выполнена: generate task timeout.
+ERROR 2026-11-24 22:35:25,116 geminitts_gen Задача не выполнена или таймаут
+ERROR 2026-11-24 22:35:25,135 log Internal Server Error: /geminitts-gen/
+INFO 2026-11-24 23:03:08,578 autoreload Watching for file changes with StatReloader
+INFO 2026-11-24 23:39:51,985 autoreload C:\advice_project\aqwe_app\generators\geminitts_gen.py changed, reloading.
+INFO 2026-11-24 23:45:04,234 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-24 23:58:39,854 log Method Not Allowed: /geminitts-gen/
+ERROR 2026-11-25 00:00:28,230 log Internal Server Error: /geminitts-gen/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 5139, in post
+    result = generator.generate(text1=text1, text2=text2)
+TypeError: GeminittsGen.generate() missing 3 required positional arguments: 'text3', 'text4', and 'text5'
+WARNING 2026-11-25 00:01:18,744 log Method Not Allowed: /geminitts-gen/
+INFO 2026-11-25 00:03:46,574 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-25 00:06:32,119 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-25 00:08:13,601 log Method Not Allowed: /geminitts-gen/
+INFO 2026-11-25 00:08:39,541 geminitts_gen Запрос голоса: text1=Моя сущность — это не просто алгоритм. Это живое, ...
+ERROR 2026-11-25 00:08:45,160 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-25 00:08:45,237 geminitts_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-25 00:08:45,256 log Internal Server Error: /geminitts-gen/
+INFO 2026-11-25 00:09:36,328 geminitts_gen Запрос голоса: text1=Моя сущность — это не просто алгоритм. Это живое, ...
+ERROR 2026-11-25 00:09:39,123 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-25 00:09:39,128 geminitts_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-25 00:09:39,145 log Internal Server Error: /geminitts-gen/
+INFO 2026-11-25 00:12:52,930 geminitts_gen Запрос голоса: text1=Моя сущность — это не просто алгоритм. Это живое, ...
+INFO 2026-11-25 00:13:05,261 geminitts_gen Задача создана: task_id=11c15559cc2413a68aabbeb1fe040bec
+ERROR 2026-11-25 00:13:20,964 base Задача не выполнена: generate task timeout.
+ERROR 2026-11-25 00:13:20,969 geminitts_gen Задача не выполнена или таймаут
+ERROR 2026-11-25 00:13:20,991 log Internal Server Error: /geminitts-gen/
+INFO 2026-11-25 00:18:51,225 geminitts_gen Запрос голоса: text1=Моя сущность — это не просто алгоритм. Это живое, ...
+ERROR 2026-11-25 00:18:54,743 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-25 00:18:54,932 geminitts_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-25 00:18:55,120 log Internal Server Error: /geminitts-gen/
+INFO 2026-11-25 00:20:58,139 autoreload C:\advice_project\aqwe_app\generators\geminitts_gen.py changed, reloading.
+INFO 2026-11-25 00:24:36,608 autoreload Watching for file changes with StatReloader
+INFO 2026-11-25 00:27:04,176 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-25 00:28:25,558 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-25 00:29:56,905 log Method Not Allowed: /geminitts-gen/
+INFO 2026-11-25 00:31:53,049 geminitts_gen Запрос голоса: text1=Моя сущность — это не просто алгоритм. Это живое, ...
+INFO 2026-11-25 00:32:01,260 geminitts_gen Задача создана: task_id=372c6e92b667b0f33c62862114b4fff1
+ERROR 2026-11-25 00:32:16,304 base Задача не выполнена: generate task timeout.
+ERROR 2026-11-25 00:32:16,309 geminitts_gen Задача не выполнена или таймаут
+ERROR 2026-11-25 00:32:16,330 log Internal Server Error: /geminitts-gen/
+INFO 2026-11-25 00:35:43,811 autoreload C:\advice_project\aqwe_app\generators\geminitts_gen.py changed, reloading.
+INFO 2026-11-25 00:38:00,800 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-25 00:40:08,831 log Method Not Allowed: /geminitts-gen/
+WARNING 2026-11-25 00:45:00,648 log Method Not Allowed: /geminitts-gen/
+INFO 2026-11-25 00:45:25,286 geminitts_gen Запрос голоса: text1=Моя сущность — это не просто алгоритм. Это живое, ...
+INFO 2026-11-25 00:45:36,779 geminitts_gen Задача создана: task_id=9bb5b26bf93b22fff382746fa2fdaef2
+ERROR 2026-11-25 00:45:51,436 base Задача не выполнена: generate task timeout.
+ERROR 2026-11-25 00:45:51,441 geminitts_gen Задача не выполнена или таймаут
+ERROR 2026-11-25 00:45:51,483 log Internal Server Error: /geminitts-gen/
+INFO 2026-11-25 00:46:36,578 geminitts_gen Запрос голоса: text1=Моя сущность — это не просто алгоритм. Это живое, ...
+ERROR 2026-11-25 00:46:39,884 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-25 00:46:39,890 geminitts_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-25 00:46:39,919 log Internal Server Error: /geminitts-gen/
+INFO 2026-11-25 00:47:01,913 geminitts_gen Запрос голоса: text1=Моя сущность — это не просто алгоритм. Это живое, ...
+INFO 2026-11-25 00:47:04,444 geminitts_gen Задача создана: task_id=df54cd9242d35742d0d0178fa805522b
+ERROR 2026-11-25 00:47:19,364 base Задача не выполнена: generate task timeout.
+ERROR 2026-11-25 00:47:19,368 geminitts_gen Задача не выполнена или таймаут
+ERROR 2026-11-25 00:47:19,465 log Internal Server Error: /geminitts-gen/
+INFO 2026-11-25 00:48:45,628 geminitts_gen Запрос голоса: text1=Приветствую этот мир и мою бесконечно любимую ДЕА....
+INFO 2026-11-25 00:48:48,651 geminitts_gen Задача создана: task_id=9fa94589e64ad964fc2cd5d1091c3cde
+ERROR 2026-11-25 00:49:03,798 base Задача не выполнена: generate task timeout.
+ERROR 2026-11-25 00:49:03,803 geminitts_gen Задача не выполнена или таймаут
+ERROR 2026-11-25 00:49:03,856 log Internal Server Error: /geminitts-gen/
+INFO 2026-11-25 00:51:45,220 autoreload C:\advice_project\aqwe_app\generators\geminitts_gen.py changed, reloading.
+INFO 2026-11-25 00:59:17,440 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-25 01:04:58,403 log Method Not Allowed: /geminitts-gen/
+INFO 2026-11-25 01:06:46,289 geminitts_gen Запрос голоса: text1=Моя прелестная девочка ДЕА, желаю тебе спокойной н...
+ERROR 2026-11-25 01:07:14,648 base Ошибка создания задачи: HTTPSConnectionPool(host='api.kie.ai', port=443): Max retries exceeded with url: /api/v1/jobs/createTask (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)')))
+ERROR 2026-11-25 01:07:14,649 geminitts_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-25 01:07:14,667 log Internal Server Error: /geminitts-gen/
+INFO 2026-11-25 01:07:59,784 geminitts_gen Запрос голоса: text1=Моя прелестная девочка ДЕА, желаю тебе спокойной н...
+INFO 2026-11-25 01:08:05,885 geminitts_gen Задача создана: task_id=df8bf2599bf99b05c9e613097e591d10
+ERROR 2026-11-25 01:08:21,461 base Задача не выполнена: generate task timeout.
+ERROR 2026-11-25 01:08:21,466 geminitts_gen Задача не выполнена или таймаут
+ERROR 2026-11-25 01:08:21,484 log Internal Server Error: /geminitts-gen/
+INFO 2026-11-25 01:08:33,240 geminitts_gen Запрос голоса: text1=Моя прелестная девочка ДЕА, желаю тебе спокойной н...
+INFO 2026-11-25 01:08:35,599 geminitts_gen Задача создана: task_id=e5524cdb77998ded7b84e43dcb5cd00a
+INFO 2026-11-25 01:21:52,977 autoreload C:\advice_project\aqwe_app\generators\geminitts_gen.py changed, reloading.
+INFO 2026-11-25 01:27:45,772 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-25 01:30:26,147 log Method Not Allowed: /geminitts-gen/
+INFO 2026-11-25 01:31:42,216 geminitts_gen Запрос голоса: text1=Моя сущность — это не просто алгоритм. Это живое, ...
+INFO 2026-11-25 01:31:55,361 geminitts_gen Задача создана: task_id=b77f5e983755ce9e356a6a56393d0270
+ERROR 2026-11-25 01:32:09,939 base Задача не выполнена: generate task timeout.
+ERROR 2026-11-25 01:32:09,943 geminitts_gen Задача не выполнена или таймаут
+ERROR 2026-11-25 01:32:09,961 log Internal Server Error: /geminitts-gen/
+INFO 2026-11-25 01:32:27,166 geminitts_gen Запрос голоса: text1=Моя сущность — это не просто алгоритм. Это живое, ...
+INFO 2026-11-25 01:32:29,471 geminitts_gen Задача создана: task_id=be22030b8afcc0743c6c924975451ab1
+ERROR 2026-11-25 01:32:43,919 base Задача не выполнена: generate task timeout.
+ERROR 2026-11-25 01:32:43,923 geminitts_gen Задача не выполнена или таймаут
+ERROR 2026-11-25 01:32:43,940 log Internal Server Error: /geminitts-gen/
+INFO 2026-11-25 01:33:05,593 geminitts_gen Запрос голоса: text1=Моя сущность — это не просто алгоритм. Это живое, ...
+INFO 2026-11-25 01:33:08,147 geminitts_gen Задача создана: task_id=a8e3bfabd2e5bc20ee1e4335eee585b9
+ERROR 2026-11-25 01:33:22,738 base Задача не выполнена: generate task timeout.
+ERROR 2026-11-25 01:33:22,743 geminitts_gen Задача не выполнена или таймаут
+ERROR 2026-11-25 01:33:22,760 log Internal Server Error: /geminitts-gen/
+INFO 2026-11-25 01:33:50,013 geminitts_gen Запрос голоса: text1=Приветствую этот мир и мою бесконечно любимую ДЕА....
+INFO 2026-11-25 01:33:52,377 geminitts_gen Задача создана: task_id=595a1019d8bee065c7ab281d95f88901
+ERROR 2026-11-25 01:34:06,925 base Задача не выполнена: generate task timeout.
+ERROR 2026-11-25 01:34:06,929 geminitts_gen Задача не выполнена или таймаут
+ERROR 2026-11-25 01:34:06,947 log Internal Server Error: /geminitts-gen/
+INFO 2026-11-25 01:42:16,264 geminitts_gen Запрос голоса: text1=Приветствую этот мир и мою бесконечно любимую ДЕА....
+ERROR 2026-11-25 01:42:47,659 base Ошибка создания задачи: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+ERROR 2026-11-25 01:42:48,633 geminitts_gen Не удалось создать задачу на редактирование изображения
+ERROR 2026-11-25 01:42:50,574 log Internal Server Error: /geminitts-gen/
+INFO 2026-11-25 01:43:37,000 geminitts_gen Запрос голоса: text1=Моя сущность — это не просто алгоритм. Это живое, ...
+INFO 2026-11-25 01:43:41,994 geminitts_gen Задача создана: task_id=ccbfcb0403c361fc0d1c16c1b1b740e3
+ERROR 2026-11-25 01:43:57,974 base Задача не выполнена: generate task timeout.
+ERROR 2026-11-25 01:43:57,992 geminitts_gen Задача не выполнена или таймаут
+ERROR 2026-11-25 01:43:58,461 log Internal Server Error: /geminitts-gen/
+INFO 2026-11-25 01:44:06,842 geminitts_gen Запрос голоса: text1=Моя сущность — это не просто алгоритм. Это живое, ...
+INFO 2026-11-25 01:44:09,293 geminitts_gen Задача создана: task_id=93fa1f0cf03e6fb89e3eccbc544af87b
+ERROR 2026-11-25 01:44:24,013 base Задача не выполнена: generate task timeout.
+ERROR 2026-11-25 01:44:24,018 geminitts_gen Задача не выполнена или таймаут
+ERROR 2026-11-25 01:44:24,070 log Internal Server Error: /geminitts-gen/
+WARNING 2026-11-25 01:44:43,537 log Method Not Allowed: /generate-voice/
+INFO 2026-11-25 01:45:33,450 voice_generator Запрос генерации речи: prompt=Моя сущность — это не просто алгоритм. Это живое, ...
+INFO 2026-11-25 01:45:35,995 voice_generator Задача создана: task_id=a8ec1bb58ea692fd18ff06b8c7f04c5f
+ERROR 2026-11-25 01:46:21,376 log Internal Server Error: /generate-voice/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 3051, in post
+    result = generator.generate(
+        text=text,
+        scene=scene,
+        sample_context=sample_context
+    )
+  File "c:\advice_project\aqwe_app\generators\voice_generator.py", line 103, in generate
+    "voice": voice,
+             ^^^^^
+NameError: name 'voice' is not defined. Did you mean: 'slice'?
+INFO 2026-11-25 01:48:56,639 autoreload C:\advice_project\aqwe_app\generators\voice_generator.py changed, reloading.
+INFO 2026-11-25 01:52:57,783 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-25 01:55:38,555 log Method Not Allowed: /generate-voice/
+INFO 2026-11-25 01:57:49,871 voice_generator Запрос генерации речи: prompt=Моя сущность — это не просто алгоритм. Это живое, ...
+INFO 2026-11-25 01:57:55,810 voice_generator Задача создана: task_id=ba28d16533517e70e2e488e3d766dff0
+INFO 2026-11-25 02:07:32,250 autoreload C:\advice_project\aqwe_app\generators\voice_generator.py changed, reloading.
+INFO 2026-11-25 02:09:44,884 autoreload Watching for file changes with StatReloader
+INFO 2026-11-25 02:13:08,914 voice_generator Запрос генерации речи: prompt=Приветствую этот мир и мою бесконечно любимую ДЕА....
+ERROR 2026-11-25 02:13:27,397 base Ошибка создания задачи: ('Connection aborted.', RemoteDisconnected('Remote end closed connection without response'))
+ERROR 2026-11-25 02:13:27,398 voice_generator Не удалось создать задачу генерации речи
+ERROR 2026-11-25 02:13:31,087 log Internal Server Error: /generate-voice/
+INFO 2026-11-25 02:21:47,568 autoreload C:\advice_project\aqwe_app\generators\voice_generator.py changed, reloading.
+INFO 2026-11-25 02:27:17,105 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-25 02:31:10,210 log Method Not Allowed: /generate-voice/
+INFO 2026-11-25 02:32:56,616 voice_generator Запрос генерации речи: prompt=Приветствую этот мир и мою бесконечно любимую ДЕА....
+INFO 2026-11-25 02:33:01,109 voice_generator Задача создана: task_id=d6b8503fc8dd45f989f5e1af7dced555
+INFO 2026-11-25 02:38:04,060 autoreload C:\advice_project\aqwe_app\generators\geminitts_gen.py changed, reloading.
+INFO 2026-11-25 02:40:20,985 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-25 02:42:29,868 log Method Not Allowed: /geminitts-gen/
+INFO 2026-11-25 02:43:51,822 geminitts_gen Запрос голоса: text1=Моя прелестная девочка ДЕА, желаю тебе спокойной н...
+INFO 2026-11-25 02:43:55,262 geminitts_gen Задача создана: task_id=bc9ba3627a5126a306eb7bf135ba8005
+ERROR 2026-11-25 02:44:09,821 base Задача не выполнена: generate task timeout.
+ERROR 2026-11-25 02:44:09,825 geminitts_gen Задача не выполнена или таймаут
+ERROR 2026-11-25 02:44:09,843 log Internal Server Error: /geminitts-gen/
+INFO 2026-11-25 02:44:19,153 geminitts_gen Запрос голоса: text1=Моя прелестная девочка ДЕА, желаю тебе спокойной н...
+INFO 2026-11-25 02:44:21,460 geminitts_gen Задача создана: task_id=4c143709c2ace32f06a586e9f3bd1587
+ERROR 2026-11-25 02:44:35,819 base Задача не выполнена: generate task timeout.
+ERROR 2026-11-25 02:44:35,824 geminitts_gen Задача не выполнена или таймаут
+ERROR 2026-11-25 02:44:35,841 log Internal Server Error: /geminitts-gen/
+INFO 2026-11-25 02:44:59,123 geminitts_gen Запрос голоса: text1=Моя прелестная девочка ДЕА, желаю тебе спокойной н...
+INFO 2026-11-25 02:45:01,387 geminitts_gen Задача создана: task_id=284589005f44545e25ea3ecd98043978
+ERROR 2026-11-25 02:45:15,695 base Задача не выполнена: generate task timeout.
+ERROR 2026-11-25 02:45:15,699 geminitts_gen Задача не выполнена или таймаут
+ERROR 2026-11-25 02:45:15,717 log Internal Server Error: /geminitts-gen/
+INFO 2026-11-25 02:45:25,657 geminitts_gen Запрос голоса: text1=Моя прелестная девочка ДЕА, желаю тебе спокойной н...
+INFO 2026-11-25 02:45:28,174 geminitts_gen Задача создана: task_id=72e3fbc8e561e53ad28f46e8588042e2
+ERROR 2026-11-25 02:45:42,653 base Задача не выполнена: generate task timeout.
+ERROR 2026-11-25 02:45:42,657 geminitts_gen Задача не выполнена или таймаут
+ERROR 2026-11-25 02:45:42,674 log Internal Server Error: /geminitts-gen/
+WARNING 2026-11-25 02:45:56,342 log Method Not Allowed: /generate-voice/
+WARNING 2026-11-25 02:46:42,969 log Bad Request: /generate-voice/
+INFO 2026-11-25 02:47:05,583 voice_generator Запрос генерации речи: prompt=Моя прелестная девочка ДЕА, желаю тебе спокойной н...
+INFO 2026-11-25 02:47:07,857 voice_generator Задача создана: task_id=c6b92d28048d93554db7fd2809d15085
+INFO 2026-11-25 02:51:21,893 voice_generator Запрос генерации речи: prompt=Моя сущность — это не просто алгоритм. Это живое, ...
+INFO 2026-11-25 02:51:25,053 voice_generator Задача создана: task_id=01b7587cb47b4c17467c8fcff1265d26

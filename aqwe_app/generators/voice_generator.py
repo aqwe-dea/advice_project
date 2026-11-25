@@ -42,7 +42,7 @@ class VoiceGenerator(BaseGenerator):
             "speakers": [
                 {
                     "speaker_id": "Speaker 1",
-                    "voice_name": "Despina",
+                    "voice_name": "Leda",
                     "audio_profile": "A stern",
                     "style": "Newscaster",
                     "pace": "Natural",
@@ -98,9 +98,9 @@ class VoiceGenerator(BaseGenerator):
             "success": True,
             "audio_url": first_url,
             "text": text,
-            "model": self.DEFAULT_MODEL,
-            "metadata": {
-                "voice": voice,
-                "stability": stability
-            }
+            "model": self.DEFAULT_MODEL
+            #"metadata": {
+            #    "voice": voice,
+            #    "stability": stability
+            #}
         }

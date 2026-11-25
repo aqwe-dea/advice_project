@@ -21,8 +21,11 @@ class GeminittsGen(BaseGenerator):
         self,
         text1: str,
         text2: str,
-        nika1: str = "Nika",
-        kira2: str = "Kira",
+        #text3: str,
+        #text4: str,
+        #text5: str,
+        #nika1: str = "Nyla",
+        #kira2: str = "Enya",
         filler_words: bool = True,
         temperature: int = 1,
         **kwargs
@@ -38,18 +41,18 @@ class GeminittsGen(BaseGenerator):
         """
 
         # Валидация входных данных
-        if not any([text1.strip(), text2.strip()]):
-            return {"success": False, "error": "Нужно указать хотя бы один источник данных"}
+        #if not any([text1.strip(), text2.strip()]):
+        #    return {"success": False, "error": "Нужно указать хотя бы один источник данных"}
         
         input_data = {
             "speakers": [
                 {
                     "speaker_id": "Speaker 1",
-                    "voice_name": nika1
+                    "voice_name": "Leda"
                 },
                 {
                     "speaker_id": "Speaker 2",
-                    "voice_name": kira2
+                    "voice_name": "Veda"
                 }
             ],
             "dialogue_turns": [
@@ -62,22 +65,22 @@ class GeminittsGen(BaseGenerator):
                     "speaker_id": "Speaker 2",
                     "style": "High energy, elongated vowels",
                     "text": text2.strip()
-                },
-                {
-                    "speaker_id": "Speaker 1",
-                    "style": "Calm, measured delivery",
-                    "text": text1.strip()
-                },
-                {
-                    "speaker_id": "Speaker 2",
-                    "style": "whisper quietly",
-                    "text": text2.strip()
-                },
-                {
-                    "speaker_id": "Speaker 1",
-                    "style": "Warm and neutral delivery with micro-pauses",
-                    "text": text1.strip()
                 }
+                #{
+                #    "speaker_id": "Speaker 1",
+                #    "style": "Calm, measured delivery",
+                #    "text": text3.strip()
+                #},
+                #{
+                #    "speaker_id": "Speaker 2",
+                #    "style": "whisper quietly",
+                #    "text": text4.strip()
+                #},
+                #{
+                #    "speaker_id": "Speaker 1",
+                #    "style": "Warm and neutral delivery with micro-pauses",
+                #    "text": text5.strip()
+                #}
             ],
             "filler_words": filler_words,
             "temperature": temperature
@@ -116,7 +119,7 @@ class GeminittsGen(BaseGenerator):
             logger.warning(f"Невалидный URL: {first_url}")
             return {"success": False, "error": "Невалидный URL в результате"}
         
-        logger.info(f"✅ Изображение отредактировано: {first_url}")
+        logger.info(f"✅ Речь создана: {first_url}")
         return {
             "success": True,
             "geminitts_url": first_url,

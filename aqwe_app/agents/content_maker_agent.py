@@ -608,7 +608,7 @@ class ContentMakerAgent:
         else:
             return "⚠️ Генератор изображений или инструмент 'canvas' не подключен к этому агенту."
 
-    def edit_image_pipeline(self, user_request: str, reference_url: str = "") -> str:
+    def edit_image_pipeline(self, user_request: str, reference_url: list) -> str:
         """
             Pipeline для редактирования изображения: Запрос + Референс → Результат.
         """
