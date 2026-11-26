@@ -130,13 +130,31 @@ class ContentMakerAgent:
                         "parameters": {
                             "type": "OBJECT",
                             "properties": {
-                                "file": {"type": "STRING", "description": "HTML код"},
-                                "description": {"type": "STRING", "description": "Описание странички"},
-                                "title": {"type": "STRING", "description": "Заголовок для странички"}
+                                "artifact_type": {"type": "STRING", "description": "Тип артефакта это может быть image, video, voice, code и другие."},
+                                "prompt": {"type": "STRING", "description": "Промпт для генерации контента это может изображение видео голос и другие"},
+                                "image_urls": {"type": "LIST", "description": "Список url адресов на изображения для анимации или редактирования"},
+                                "video_urls": {"type": "LIST", "description": "Список url адресов на видео для роликов или клипов и другого"},
+                                "input_urls": {"type": "LIST", "description": "Список url адресов на изображения для редактирования по инструкции"},
+                                "text": {"type": "STRING", "description": "Текст для создания речи или голоса"},
+                                "generator": {"type": "STRING", "description": "Всего 16 генераторов по умолчанию ImageGenerator, (InstrumentalGenerator, VideoGenerator, CodeGenerator, VoiceGenerator, LiveimageGenerator, CharacterGenerator, ImageEdit и другие)."}
                             },
-                            "required": ["file", "description", "title"]
+                            "required": ["artifact_type", "prompt", "generator"]
                         }
                     })
+                #if name == "canvas": this worked
+                #    function_declarations.append({
+                #        "name": name,
+                #        "description": info['description'],
+                #        "parameters": {
+                #            "type": "OBJECT",
+                #            "properties": {
+                #                "file": {"type": "STRING", "description": "HTML код"},
+                #                "description": {"type": "STRING", "description": "Описание странички"},
+                #                "title": {"type": "STRING", "description": "Заголовок для странички"}
+                #            },
+                #            "required": ["file", "description", "title"]
+                #        }
+                #    })
                 elif name == "save_to_memory":
                     function_declarations.append({
                         "name": name,
@@ -155,7 +173,7 @@ class ContentMakerAgent:
         
         try:
             response = requests.post(
-                f"{self.base_url}/gemini/v1/models/gemini-4-neon:generateContent",
+                f"{self.base_url}/gemini/v1/models/gemini-4-argon:generateContent",
                 headers={
                     "Authorization": f"Bearer {self.api_key}", 
                     "Content-Type": "application/json"
@@ -457,7 +475,7 @@ class ContentMakerAgent:
                 gemini_tools = [{"functionDeclarations": function_declarations}]
 
         response = requests.post(
-            f"{self.base_url}/gemini/v1/models/gemini-4-carbon:generateContent",
+            f"{self.base_url}/gemini/v1/models/gemini-4-neon:generateContent",
             headers={
                 "Authorization": f"Bearer {self.api_key}", 
                 "Content-Type": "application/json"
@@ -571,20 +589,20 @@ class ContentMakerAgent:
         prompt = f"Создай структуру и чистый HTML/SVG код для одностраничного лендинга. Стиль: '{style}'. Информация о компании: '{information}'. Способы связи (interaction): '{interaction}'. Перечень услуг: '{services}'. Код должен быть современным, адаптивным и эстетичным."
         return self._call_api_with_tools(prompt)
         
-    def generate_image_pipeline(self, user_request: str) -> str:
+    def generate_image_pipeline(self, prompt_gen: str) -> str:
         """
             Полный pipeline: Запрос → Формирование промпта → Генерация изображения.
         """
-        logger.info(f"🎨 Запуск image pipeline: {user_request[:100]}...")
+        logger.info(f"🎨 Запуск image pipeline: {prompt_gen[:100]}...")
         
         # 1. Если генератор подключен напрямую, используем его
         if self.image_generator:
             try:
                 # Генератор сам может улучшить промпт, или мы передаем запрос как есть
-                image_result = self.image_generator.generate(prompt=user_request)
+                image_result = self.image_generator.generate(prompt=prompt_gen)
                 
                 if not image_result.get('success'):
-                    return f"⚠️ Запрос: {user_request}\n\n❌ Ошибка генерации: {image_result.get('error')}"
+                    return f"⚠️ Запрос: {prompt_gen}\n\n❌ Ошибка генерации: {image_result.get('error')}"
                 
                 image_url = image_result.get('image_url')
                 model = image_result.get('model', 'unknown')
@@ -592,7 +610,7 @@ class ContentMakerAgent:
                 return (
                     f"✅ **Изображение успешно сгенерировано!**\n\n"
                     f"🖼️ **Результат:**\n![Generated Image]({image_url})\n\n"
-                    f"*Промпт:* \"{user_request}\"\n"
+                    f"*Промпт:* \"{prompt_gen}\"\n"
                     f"*Модель:* {model}\n"
                     f"*Экономика:* Затрачено ~15 токенов ($0.15). Ожидаемая ценность: высокая."
                 )
@@ -602,25 +620,25 @@ class ContentMakerAgent:
         
         # 2. Fallback: Если внешнего генератора нет, но есть инструмент 'canvas', генерируем SVG
         elif 'canvas' in self.tools:
-            prompt = f"Создай детальную, красивую SVG-иллюстрацию по запросу: '{user_request}'. Используй градиенты, современные формы и чистый код."
+            prompt = f"Создай детальную, красивую SVG-иллюстрацию по запросу: '{prompt_gen}'. Используй градиенты, современные формы и чистый код."
             return self._call_api_with_tools(prompt)
             
         else:
             return "⚠️ Генератор изображений или инструмент 'canvas' не подключен к этому агенту."
 
-    def edit_image_pipeline(self, user_request: str, reference_url: list) -> str:
+    def edit_image_pipeline(self, prompt_gen: str, input_urls: list) -> str:
         """
             Pipeline для редактирования изображения: Запрос + Референс → Результат.
         """
-        logger.info(f"✏️ Запуск edit pipeline: {user_request[:100]}...")
+        logger.info(f"✏️ Запуск edit pipeline: {prompt_gen[:100]}...")
         
         if self.image_edit:
             try:
                 # Генератор сам может улучшить промпт, или мы передаем запрос как есть
-                image_result = self.image_edit.generate(prompt=user_request, input_urls=reference_url)
+                image_result = self.image_edit.generate(prompt=prompt_gen, input_urls=input_urls)
                 
                 if not image_result.get('success'):
-                    return f"⚠️ Запрос: {user_request}\n\n❌ Ошибка генерации: {image_result.get('error')}"
+                    return f"⚠️ Запрос: {prompt_gen}\n\n❌ Ошибка генерации: {image_result.get('error')}"
                 
                 edit_url = image_result.get('edit_url')
                 model = image_result.get('model', 'unknown')
@@ -628,14 +646,14 @@ class ContentMakerAgent:
                 return (
                     f"✅ **Изображение успешно отредактировано!**\n\n"
                     f"🖼️ **Результат:**\n![Edited Image]({edit_url})\n\n"
-                    f"*Промпт:* \"{user_request}\"\n"
+                    f"*Промпт:* \"{prompt_gen}\"\n"
                     f"*Модель:* {model}\n"
                     f"*Экономика:* Затрачено ~15 токенов ($0.15). Ожидаемая ценность: высокая.\n"
-                    f"*Референс:* {reference_url}"
+                    f"*Референс:* {input_urls}"
                 )
             except Exception as e:
                 logger.error(f"Ошибка редактирования изображения: {str(e)}")
-                return f"⚠️ Запрос: {user_request}\n\n❌ Ошибка: {str(e)}"
+                return f"⚠️ Запрос: {prompt_gen}\n\n❌ Ошибка: {str(e)}"
         # Предполагаем, что в self.tools есть инструмент 'edit_image' или 'canvas' с поддержкой редактирования
         #if 'edit_image' in self.tools:
         #    try:
@@ -657,7 +675,7 @@ class ContentMakerAgent:
         #        return f"❌ Ошибка: {str(e)}"
                 
         elif 'canvas' in self.tools:
-            prompt = f"Создай SVG-иллюстрацию, которая редактирует или улучшает следующий концепт: '{user_request}'. Если есть референс: {reference_url}. Сделай версию более профессиональной и детализированной."
+            prompt = f"Создай SVG-иллюстрацию, которая редактирует или улучшает следующий концепт: '{prompt_gen}'. Если есть референс: {input_urls}. Сделай версию более профессиональной и детализированной."
             return self._call_api_with_tools(prompt)
             
         else:

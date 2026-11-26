@@ -43,7 +43,9 @@ class LiveMultimodalWorkspace:
         self, 
         artifact_type: str, 
         prompt: str,
-        video_urls: list, 
+        image_urls: list,
+        video_urls: list,
+        audio_urls: list, 
         file_urls: list,
         link_urls: list,
         input_urls: list,
@@ -77,7 +79,7 @@ class LiveMultimodalWorkspace:
                 result = res_dict.get('instrumental_url') or res_dict
             elif generator == "VideoGenerator":
                 gen = VideoGenerator(api_key=self.api_key, base_url=self.base_url)
-                res_dict = gen.generate(prompt=prompt, image_urls=image_url, video_urls=video_urls, elements_url=elements_url, voices_url=voices_url)
+                res_dict = gen.generate(prompt=prompt, image_urls=image_urls, video_urls=video_urls, elements_url=elements_url, voices_url=voices_url)
                 result = res_dict.get('video_url') or res_dict
             elif generator == "CodeGenerator":
                 gen = CodeGenerator(api_key=self.api_key, base_url=self.base_url)
@@ -89,7 +91,7 @@ class LiveMultimodalWorkspace:
                 result = res_dict.get('audio_url') or res_dict
             elif generator == "LiveimageGenerator":
                 gen = LiveimageGenerator(api_key=self.api_key, base_url=self.base_url)
-                res_dict = gen.generate(prompt=prompt, image_urls=image_url, first_frame_url=first_frame_url, last_frame_url=last_frame_url, video_list=video_urls, character_ids=character_ids)
+                res_dict = gen.generate(prompt=prompt, image_urls=image_urls, first_frame_url=first_frame_url, last_frame_url=last_frame_url, video_list=video_urls, character_ids=character_ids)
                 result = res_dict.get('liveimage_url') or res_dict
             elif generator == "CharacterGenerator":
                 gen = CharacterGenerator(api_key=self.api_key, base_url=self.base_url)
@@ -105,19 +107,19 @@ class LiveMultimodalWorkspace:
                 result = res_dict.get('flux_url') or res_dict
             elif generator == "MinimaxGen":
                 gen = MinimaxGen(api_key=self.api_key, base_url=self.base_url)
-                res_dict = gen.generate(prompt=prompt, image_urls=image_url)
+                res_dict = gen.generate(prompt=prompt, image_urls=image_urls)
                 result = res_dict.get('minimax_url') or res_dict
             elif generator == "WanGen":
                 gen = WanGen(api_key=self.api_key, base_url=self.base_url)
-                res_dict = gen.generate(prompt=prompt, first_frame_url=first_frame_url, last_frame_url=last_frame_url, reference_image_urls=image_url, reference_link_urls=link_urls, reference_audio_urls=audio_url, reference_video_urls=video_urls, reference_file_urls=file_urls)
+                res_dict = gen.generate(prompt=prompt, first_frame_url=first_frame_url, last_frame_url=last_frame_url, reference_image_urls=image_urls, reference_link_urls=link_urls, reference_audio_urls=audio_urls, reference_video_urls=video_urls, reference_file_urls=file_urls)
                 result = res_dict.get('wan_url') or res_dict
             elif generator == "ViduGen":
                 gen = ViduGen(api_key=self.api_key, base_url=self.base_url)
-                res_dict = gen.generate(prompt=prompt, reference_image_urls=image_url, reference_audio_urls=audio_url)
+                res_dict = gen.generate(prompt=prompt, reference_image_urls=image_urls, reference_audio_urls=audio_urls)
                 result = res_dict.get('vidu_url') or res_dict
             elif generator == "SeedanceGen":
                 gen = SeedanceGen(api_key=self.api_key, base_url=self.base_url)
-                res_dict = gen.generate(prompt=prompt, reference_image_urls=image_url, reference_video_urls=video_urls, reference_audio_urls=audio_url)
+                res_dict = gen.generate(prompt=prompt, reference_image_urls=image_urls, reference_video_urls=video_urls, reference_audio_urls=audio_urls)
                 result = res_dict.get('seedance_url') or res_dict
             elif generator == "GeminittsGen":
                 gen = GeminittsGen(api_key=self.api_key, base_url=self.base_url)
@@ -125,7 +127,7 @@ class LiveMultimodalWorkspace:
                 result = res_dict.get('geminitts_url') or res_dict
             elif generator == "OmnihumanGen":
                 gen = OmnihumanGen(api_key=self.api_key, base_url=self.base_url)
-                res_dict = gen.generate(prompt=prompt, audio_url=audio_url, image_urls=image_url)
+                res_dict = gen.generate(prompt=prompt, audio_url=audio_url, image_urls=image_urls)
                 result = res_dict.get('omnihuman_url') or res_dict
             elif generator == "VolcengineGen":
                 gen = VolcengineGen(api_key=self.api_key, base_url=self.base_url)

@@ -40,8 +40,8 @@ class LiveimageGenerator(BaseGenerator):
         """
 
         # Валидация входных данных
-        if not any([prompt.strip(), image_urls.strip()]):
-            return {"success": False, "error": "Нужно указать хотя бы один источник данных"}
+        #if not any([prompt.strip(), image_urls.strip()]):
+        #    return {"success": False, "error": "Нужно указать хотя бы один источник данных"}
         
         input_data = {
             "prompt": prompt.strip(),

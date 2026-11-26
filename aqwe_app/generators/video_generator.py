@@ -38,8 +38,8 @@ class VideoGenerator(BaseGenerator):
                     - error: str (если ошибка)
         """
         # Валидация входных данных
-        if not any([prompt.strip()]):
-            return {"success": False, "error": "Нужно указать хотя бы один источник данных"}
+        #if not any([prompt.strip()]):
+        #    return {"success": False, "error": "Нужно указать хотя бы один источник данных"}
         
         input_data = {
             "prompt": prompt.strip(),
@@ -91,8 +91,8 @@ class VideoGenerator(BaseGenerator):
             "success": True,
             "video_url": first_url,
             "prompt": prompt,
-            "model": self.DEFAULT_MODEL,
-            "metadata": {
-                "resolution": input_data.get('resolution')
-            }
+            "model": self.DEFAULT_MODEL
+            #"metadata": {
+            #    "resolution": input_data.get('resolution')
+            #}
         }

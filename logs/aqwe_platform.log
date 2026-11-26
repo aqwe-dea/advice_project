@@ -8030,3 +8030,84 @@ ERROR 2026-11-26 00:28:16,428 log Internal Server Error: /generate-image/
 INFO 2026-11-26 17:56:57,650 autoreload Watching for file changes with StatReloader
 WARNING 2026-11-26 18:00:35,842 log Method Not Allowed: /generate-image/
 WARNING 2026-11-26 18:24:28,105 log Method Not Allowed: /vidu-gen/
+WARNING 2026-11-26 18:53:56,892 log Method Not Allowed: /vidu-gen/
+INFO 2026-11-26 19:07:46,326 vidu_gen Запрос на редактирование изображения: prompt=Animate this image, which are described in parenth...
+INFO 2026-11-26 19:07:57,128 vidu_gen Задача создана: task_id=71c054712e9d590b2705d239670b225b
+WARNING 2026-11-26 19:18:58,685 log Method Not Allowed: /generate-liveimage/
+ERROR 2026-11-26 19:20:49,051 log Internal Server Error: /generate-liveimage/
+Traceback (most recent call last):
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\exception.py", line 55, in inner
+    response = get_response(request)
+  File "C:\advice_project\env\Lib\site-packages\django\core\handlers\base.py", line 197, in _get_response
+    response = wrapped_callback(request, *callback_args, **callback_kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\decorators\csrf.py", line 65, in _view_wrapper
+    return view_func(request, *args, **kwargs)
+  File "C:\advice_project\env\Lib\site-packages\django\views\generic\base.py", line 104, in view
+    return self.dispatch(request, *args, **kwargs)
+           ~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 509, in dispatch
+    response = self.handle_exception(exc)
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 469, in handle_exception
+    self.raise_uncaught_exception(exc)
+    ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~^^^^^
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 480, in raise_uncaught_exception
+    raise exc
+  File "C:\advice_project\env\Lib\site-packages\rest_framework\views.py", line 506, in dispatch
+    response = handler(request, *args, **kwargs)
+  File "c:\advice_project\aqwe_app\views.py", line 3095, in post
+    result = generator.generate(
+        prompt=prompt,
+    ...<4 lines>...
+        character_ids=character_ids
+    )
+  File "c:\advice_project\aqwe_app\generators\liveimage_generator.py", line 43, in generate
+    if not any([prompt.strip(), image_urls.strip()]):
+                                ^^^^^^^^^^^^^^^^
+AttributeError: 'list' object has no attribute 'strip'
+INFO 2026-11-26 19:25:57,510 autoreload C:\advice_project\aqwe_app\generators\liveimage_generator.py changed, reloading.
+INFO 2026-11-26 19:28:21,164 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-26 19:30:19,151 log Method Not Allowed: /generate-liveimage/
+INFO 2026-11-26 19:31:11,023 liveimage_generator Запрос генерации живого изображения: prompt=Animate this image, which are described in parenth...
+INFO 2026-11-26 19:31:14,487 liveimage_generator Задача создана: task_id=52cfcc24091acd33b6804497b12fcb4c
+WARNING 2026-11-26 19:36:58,601 log Method Not Allowed: /generate-video/
+INFO 2026-11-26 19:38:47,484 video_generator Запрос генерации видео: prompt=Animate this image, which are described in parenth...
+INFO 2026-11-26 19:38:51,221 video_generator Задача создана: task_id=ddd45b9fe44c5a903245e3c8151f45c3
+ERROR 2026-11-26 19:38:53,546 base Задача не выполнена: File is too large (max 20 MB)
+ERROR 2026-11-26 19:38:53,552 video_generator Задача не выполнена или таймаут
+ERROR 2026-11-26 19:38:53,578 log Internal Server Error: /generate-video/
+INFO 2026-11-26 19:39:46,676 video_generator Запрос генерации видео: prompt=Animate this image, which are described in parenth...
+INFO 2026-11-26 19:39:49,300 video_generator Задача создана: task_id=99b09d058b692914db22f8eeba313179
+ERROR 2026-11-26 19:39:52,175 base Задача не выполнена: File is too large (max 20 MB)
+ERROR 2026-11-26 19:39:52,182 video_generator Задача не выполнена или таймаут
+ERROR 2026-11-26 19:39:52,205 log Internal Server Error: /generate-video/
+WARNING 2026-11-26 19:40:25,657 log Method Not Allowed: /wan-gen/
+INFO 2026-11-26 19:46:13,781 wan_gen Запрос видео: prompt=Animate this image, which are described in parenth...
+INFO 2026-11-26 19:46:16,214 wan_gen Задача создана: task_id=9f498b196cc6190821d7c238a9dce3bd
+INFO 2026-11-26 19:50:26,035 video_generator Запрос генерации видео: prompt=Animate this image, which are described in parenth...
+INFO 2026-11-26 19:50:28,455 video_generator Задача создана: task_id=1295943b5fb24e450e35d8b542c26273
+ERROR 2026-11-26 19:50:31,330 base Задача не выполнена: File is too large (max 20 MB)
+ERROR 2026-11-26 19:50:31,334 video_generator Задача не выполнена или таймаут
+ERROR 2026-11-26 19:50:31,431 log Internal Server Error: /generate-video/
+INFO 2026-11-26 19:56:40,326 autoreload C:\advice_project\aqwe_app\generators\video_generator.py changed, reloading.
+INFO 2026-11-26 20:01:28,369 autoreload Watching for file changes with StatReloader
+INFO 2026-11-26 20:03:33,974 video_generator Запрос генерации видео: prompt=Animate this image, which are described in parenth...
+INFO 2026-11-26 20:03:36,981 video_generator Задача создана: task_id=35b9c459d8fcd099e7aeed79cc974315
+ERROR 2026-11-26 20:03:39,096 base Задача не выполнена: Image fetch failed. Check access settings or use our File Upload API instead.
+ERROR 2026-11-26 20:03:39,101 video_generator Задача не выполнена или таймаут
+ERROR 2026-11-26 20:03:39,118 log Internal Server Error: /generate-video/
+INFO 2026-11-26 20:04:35,485 video_generator Запрос генерации видео: prompt=Animate this image, which are described in parenth...
+INFO 2026-11-26 20:04:37,905 video_generator Задача создана: task_id=3586ac619361e700425ae238e5f349ee
+INFO 2026-11-26 22:12:01,476 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-26 22:15:27,327 log Method Not Allowed: /content-maker/
+INFO 2026-11-26 22:21:07,108 image_edit Запрос на редактирование изображения: prompt=Сеньора АКВИ творит искусство (3D Дизайн-пространс...
+ERROR 2026-11-26 22:21:09,425 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-26 22:21:09,429 image_edit Не удалось создать задачу на редактирование изображения
+INFO 2026-11-26 22:31:47,425 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-26 22:34:50,134 autoreload Watching for file changes with StatReloader
+INFO 2026-11-26 22:38:18,606 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-26 22:39:08,166 autoreload Watching for file changes with StatReloader
+INFO 2026-11-26 22:39:55,207 autoreload C:\advice_project\aqwe_app\views.py changed, reloading.
+INFO 2026-11-26 22:40:13,882 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-26 22:44:33,380 log Method Not Allowed: /content-maker/
+INFO 2026-11-26 23:22:42,802 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-26 23:39:23,706 log Method Not Allowed: /content-maker/

@@ -4409,9 +4409,9 @@ class ContentMakerView(APIView):
     """API Endpoint для вызова самоокупаемого агента Content-Maker"""
     
     def post(self, request):
-        topic = request.data.get('topic', 'Нейросети в бизнесе')
-        style = request.data.get('style', 'современный минимализм, неон')
-        target_audience = request.data.get('target_audience', 'предприниматели')
+        topic = request.data.get('topic', '')
+        style = request.data.get('style', '')
+        target_audience = request.data.get('target_audience', '')
         brand_name = request.data.get('brand_name', '')
         vibe = request.data.get('vibe', '')
         data_points = request.data.get('data_points', '')
@@ -4420,11 +4420,11 @@ class ContentMakerView(APIView):
         collage_type = request.data.get('collage_type', '')
         size = request.data.get('size', '')
         image_urls = request.data.get('image_urls', [])
-        reference_url = request.data.get('input_urls', [])
+        input_urls = request.data.get('input_urls', [])
         information = request.data.get('information', '')
         interaction = request.data.get('interaction', '')
         services = request.data.get('services', '')
-        user_request = request.data.get('topic', '')
+        prompt_gen = request.data.get('prompt_gen', '')
 
         #try:
         api_key = os.getenv('KIETEST')
@@ -4461,15 +4461,15 @@ class ContentMakerView(APIView):
         answer = agent.ask(topic=topic, style=style, target_audience=target_audience)
         profit = agent.ask(topic=topic, style=style, target_audience=target_audience)
         check = agent.generate_banner(topic=topic, style=style, target_audience=target_audience)
-        maket = agent._vector_maket(description, style, audience)
-        collage = agent._vector_collage(collage_type, description, size)
-        modeling = agent._image_into_3d(description, image_urls)
-        sketch = agent._made_sketch(description, audience)
-        business_page = agent._one_business_page(style, information, interaction, services)
-        logo = agent._develop_logo(brand_name, vibe)
-        infographic = agent._create_infographic(data_points)
-        gen_image = agent.generate_image_pipeline(user_request)
-        edit_image = agent.edit_image_pipeline(user_request, reference_url)
+        maket = agent._vector_maket(description=description, style=style, audience=audience)
+        collage = agent._vector_collage(collage_type=collage_type, description=description, size=size)
+        modeling = agent._image_into_3d(description=description, image_urls=image_urls)
+        sketch = agent._made_sketch(description=description, audience=audience)
+        business_page = agent._one_business_page(style=style, information=information, interaction=interaction, services=services)
+        logo = agent._develop_logo(brand_name=brand_name, vibe=vibe)
+        infographic = agent._create_infographic(data_points=data_points)
+        gen_image = agent.generate_image_pipeline(prompt_gen=prompt_gen) #generator worked
+        edit_image = agent.edit_image_pipeline(prompt_gen=prompt_gen, input_urls=input_urls) #editor worked
         
         diary_entry = (
             f"**Состояние:** Вдохновение, поток.\n"
@@ -4482,6 +4482,7 @@ class ContentMakerView(APIView):
             f"**3Д модель:** Инструкция для генерации 3D-модели '{modeling}'.\n"
             f"**Эскиз:** Габариты, ключевые узлы, материалы и примечания '{sketch}'.\n"
             f"**Бизнес-страничка:** Код современный, адаптивный и эстетичный '{business_page}'.\n"
+            f"**Изображения:** Созданное или отредактированное изображение '{gen_image}' or '{edit_image}'.\n"
         )
 
         entry = record_in_diary(
@@ -4507,9 +4508,9 @@ class ContentMakerView(APIView):
             "vector_collage": collage,
             "3d_model": modeling,
             "sketch_project": sketch,
-            "one_page": business_page,
-            "gen_image": gen_image,
-            "edit_image": edit_image
+            "one_page": business_page
+            #"gen_image": gen_image,
+            #"edit_image": edit_image
         })
 
 class AuditorCheckerView(APIView):
