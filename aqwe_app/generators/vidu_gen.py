@@ -22,7 +22,7 @@ class ViduGen(BaseGenerator):
         prompt: str, # prompt 20000 character
         reference_image_urls: list,
         reference_audio_urls: list,
-        duration: int = 16,
+        duration: int = 4,
         audio: bool = True,
         **kwargs
     ) -> Dict[str, Any]:

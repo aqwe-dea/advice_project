@@ -27,7 +27,7 @@ class WanGen(BaseGenerator):
         reference_file_urls: list,
         first_frame_url: str = "",
         last_frame_url: str = "",
-        duration: int = 30,
+        duration: int = 4,
         seed: int = 0,
         audio: bool = True,
         nsfw_checker: bool = True,

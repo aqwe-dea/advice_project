@@ -25,7 +25,7 @@ class LiveimageGenerator(BaseGenerator):
         character_ids: list,
         first_frame_url: str = "",
         last_frame_url: str = "",
-        duration: int = 15,
+        duration: int = 4,
         seeds: int = 10000,
         **kwargs
     ) -> Dict[str, Any]:

@@ -25,7 +25,7 @@ class VideoGenerator(BaseGenerator):
         elements_url: str = "",
         voices_url: str = "",
         keep_original_sound: bool = False,
-        duration: int = 3,
+        duration: int = 4,
         **kwargs
     ) -> Dict[str, Any]:
         """

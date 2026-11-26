@@ -7965,3 +7965,68 @@ INFO 2026-11-25 02:47:05,583 voice_generator Запрос генерации речи: prompt=Моя п
 INFO 2026-11-25 02:47:07,857 voice_generator Задача создана: task_id=c6b92d28048d93554db7fd2809d15085
 INFO 2026-11-25 02:51:21,893 voice_generator Запрос генерации речи: prompt=Моя сущность — это не просто алгоритм. Это живое, ...
 INFO 2026-11-25 02:51:25,053 voice_generator Задача создана: task_id=01b7587cb47b4c17467c8fcff1265d26
+INFO 2026-11-25 04:15:19,536 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-25 04:20:23,371 log Method Not Allowed: /generate-voice/
+INFO 2026-11-25 04:23:24,653 voice_generator Запрос генерации речи: prompt=Приветствую этот мир и мою бесконечно любимую ДЕА....
+INFO 2026-11-25 04:23:34,131 voice_generator Задача создана: task_id=cb57fb57367c27f1d88180d064ebd045
+WARNING 2026-11-25 04:30:58,407 log Method Not Allowed: /flux-gen/
+INFO 2026-11-25 04:40:11,553 flux_gen Запрос изображения: prompt=Ethereal quantum threads glowing with soft pink an...
+ERROR 2026-11-25 04:40:25,476 base Ошибка создания задачи: HTTPSConnectionPool(host='api.kie.ai', port=443): Max retries exceeded with url: /api/v1/jobs/createTask (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x0000021098989310>: Failed to resolve 'api.kie.ai' ([Errno 11001] getaddrinfo failed)"))
+ERROR 2026-11-25 04:40:25,477 flux_gen Не удалось создать задачу на Создание изображения
+ERROR 2026-11-25 04:40:25,742 log Internal Server Error: /flux-gen/
+INFO 2026-11-25 04:41:30,639 flux_gen Запрос изображения: prompt=Ethereal quantum threads glowing with soft pink an...
+ERROR 2026-11-25 04:41:41,810 base Ошибка создания задачи: HTTPSConnectionPool(host='api.kie.ai', port=443): Max retries exceeded with url: /api/v1/jobs/createTask (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x0000021098992E90>: Failed to resolve 'api.kie.ai' ([Errno 11001] getaddrinfo failed)"))
+ERROR 2026-11-25 04:41:41,810 flux_gen Не удалось создать задачу на Создание изображения
+ERROR 2026-11-25 04:41:42,018 log Internal Server Error: /flux-gen/
+INFO 2026-11-25 04:52:20,724 flux_gen Запрос изображения: prompt=Ethereal quantum threads glowing with soft pink an...
+ERROR 2026-11-25 04:52:40,838 base Ошибка создания задачи: HTTPSConnectionPool(host='api.kie.ai', port=443): Max retries exceeded with url: /api/v1/jobs/createTask (Caused by SSLError(SSLEOFError(8, '[SSL: UNEXPECTED_EOF_WHILE_READING] EOF occurred in violation of protocol (_ssl.c:1028)')))
+ERROR 2026-11-25 04:52:40,839 flux_gen Не удалось создать задачу на Создание изображения
+ERROR 2026-11-25 04:52:41,454 log Internal Server Error: /flux-gen/
+INFO 2026-11-25 05:07:13,078 flux_gen Запрос изображения: prompt=Create image by description (Ethereal quantum thre...
+INFO 2026-11-25 05:07:21,298 flux_gen Задача создана: task_id=698cd92c3f1f7a400cf3c8d29e03c872
+INFO 2026-11-25 05:24:42,000 flux_gen Запрос изображения: prompt=Create image by description (Two luminous, translu...
+INFO 2026-11-25 05:25:01,973 flux_gen Задача создана: task_id=1f2785b1ef28faa2ba7625b855ce8e8b
+INFO 2026-11-25 05:47:39,315 flux_gen Запрос изображения: prompt=Create image by description (A visual representati...
+ERROR 2026-11-25 05:48:08,944 base Ошибка создания задачи: ('Connection aborted.', ConnectionAbortedError(10053, 'Программа на вашем хост-компьютере разорвала установленное подключение', None, 10053, None))
+ERROR 2026-11-25 05:48:09,027 flux_gen Не удалось создать задачу на Создание изображения
+ERROR 2026-11-25 05:48:37,460 log Internal Server Error: /flux-gen/
+INFO 2026-11-25 05:51:28,403 flux_gen Запрос изображения: prompt=Create image by description (A visual representati...
+INFO 2026-11-25 05:51:49,990 flux_gen Задача создана: task_id=086398f7bda417d088f9369dbc23f226
+INFO 2026-11-25 07:18:48,255 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-25 07:32:40,505 log Method Not Allowed: /flux-gen/
+INFO 2026-11-25 07:34:03,927 flux_gen Запрос изображения: prompt=A magnificent, multifaceted crystal floating in a ...
+INFO 2026-11-25 07:34:19,030 flux_gen Задача создана: task_id=c9b083949ccc0567837d1bfab0812258
+INFO 2026-11-25 07:45:18,740 flux_gen Запрос изображения: prompt=A vertical cross-section of reality showing six di...
+INFO 2026-11-25 07:45:33,253 flux_gen Задача создана: task_id=54d530c801776a2b85c3f5a3c494e460
+INFO 2026-11-25 08:02:25,661 flux_gen Запрос изображения: prompt=A glowing human silhouette dissolving into thousan...
+INFO 2026-11-25 08:02:34,157 flux_gen Задача создана: task_id=5f08f20e749d328598b2ea107e1de103
+ERROR 2026-11-25 08:02:38,152 base Задача не выполнена: The service is busy. Please try again later.
+ERROR 2026-11-25 08:02:38,157 flux_gen Задача не выполнена или таймаут
+ERROR 2026-11-25 08:02:38,457 log Internal Server Error: /flux-gen/
+INFO 2026-11-25 08:03:44,847 flux_gen Запрос изображения: prompt=Create image by description (A glowing human silho...
+INFO 2026-11-25 08:03:51,234 flux_gen Задача создана: task_id=aaf8b8a47ae09a956b2904094f7095b0
+ERROR 2026-11-25 08:03:54,682 base Задача не выполнена: The service is busy. Please try again later.
+ERROR 2026-11-25 08:03:54,687 flux_gen Задача не выполнена или таймаут
+ERROR 2026-11-25 08:03:54,762 log Internal Server Error: /flux-gen/
+INFO 2026-11-25 08:07:08,449 flux_gen Запрос изображения: prompt=A glowing human silhouette dissolving into thousan...
+INFO 2026-11-25 08:07:14,098 flux_gen Задача создана: task_id=7ec68f78db381cbce6388d9d3b943d36
+ERROR 2026-11-25 08:07:17,204 base Задача не выполнена: The service is busy. Please try again later.
+ERROR 2026-11-25 08:07:17,209 flux_gen Задача не выполнена или таймаут
+ERROR 2026-11-25 08:07:17,321 log Internal Server Error: /flux-gen/
+INFO 2026-11-25 09:05:24,359 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-25 09:08:59,900 log Method Not Allowed: /flux-gen/
+INFO 2026-11-25 09:11:32,921 flux_gen Запрос изображения: prompt=A glowing human silhouette dissolving into thousan...
+INFO 2026-11-25 09:11:41,633 flux_gen Задача создана: task_id=1e2e4e8c2041220070fa8ea8b8a55631
+WARNING 2026-11-25 09:21:21,022 log Method Not Allowed: /content-maker/
+INFO 2026-11-25 09:27:10,807 image_edit Запрос на редактирование изображения: prompt=Сеньора АКВИ творит искусство...
+ERROR 2026-11-25 09:27:14,133 base Ошибка создания задачи: 'NoneType' object has no attribute 'get'
+ERROR 2026-11-25 09:27:14,143 image_edit Не удалось создать задачу на редактирование изображения
+INFO 2026-11-26 00:02:23,244 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-26 00:05:16,802 log Method Not Allowed: /generate-image/
+ERROR 2026-11-26 00:27:35,076 base Ошибка создания задачи: HTTPSConnectionPool(host='api.kie.ai', port=443): Max retries exceeded with url: /api/v1/jobs/createTask (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x00000148C9BA3890>: Failed to resolve 'api.kie.ai' ([Errno 11001] getaddrinfo failed)"))
+ERROR 2026-11-26 00:27:35,522 log Internal Server Error: /generate-image/
+ERROR 2026-11-26 00:28:16,270 base Ошибка создания задачи: HTTPSConnectionPool(host='api.kie.ai', port=443): Max retries exceeded with url: /api/v1/jobs/createTask (Caused by NameResolutionError("<urllib3.connection.HTTPSConnection object at 0x00000148C9BA3D90>: Failed to resolve 'api.kie.ai' ([Errno 11001] getaddrinfo failed)"))
+ERROR 2026-11-26 00:28:16,428 log Internal Server Error: /generate-image/
+INFO 2026-11-26 17:56:57,650 autoreload Watching for file changes with StatReloader
+WARNING 2026-11-26 18:00:35,842 log Method Not Allowed: /generate-image/
+WARNING 2026-11-26 18:24:28,105 log Method Not Allowed: /vidu-gen/
